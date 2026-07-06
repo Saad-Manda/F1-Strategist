@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# F1 Data Cache (Do not check in raw datasets/caches)
+data/raw/
+*.parquet
+*.json
+!configs/
+!reference/
+!data/processed/
+
+# Node / React
+node_modules/
+dist/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Antigravity Workspace Plans & Temporary Scripts
+.antigravity/plans/
+.antigravity/scratch/
