@@ -6,12 +6,24 @@ uvicorn>=0.22.0
 gymnasium>=0.28.1
 torch>=2.0.0
 stable-baselines3>=2.0.0
+sb3-contrib>=2.0.0           # MaskablePPO for action-masked training
 
 # Data Science & F1 Data Integration
 fastf1>=3.0.0
 pandas>=2.0.0
 numpy>=1.24.0
+scipy>=1.10.0                # curve_fit for tyre degradation cliff calibration
 pyyaml>=6.0
+
+# Visualization & Logging
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tensorboard>=2.13.0
+
+# Notebooks
+jupyterlab>=4.0.0
 
 # Testing
 pytest>=7.3.0
+pytest-cov>=4.1.0
+httpx>=0.24.0                # FastAPI async test client
