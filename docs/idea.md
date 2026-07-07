@@ -1,6 +1,6 @@
 # F1 Pit & Tire Strategy RL Agent — Build Plan & Learning Roadmap
 
-*Working title: **PitGenius** (change it to whatever you like — this is just so the doc has a name to refer to).*
+*Working title: **Stratex** (change it to whatever you like — this is just so the doc has a name to refer to).*
 
 ## How to use this document
 
@@ -82,7 +82,7 @@ Notice `cumulative_race_time_so_far` is **not** in the state. It has no effect o
 ## Repo structure
 
 ```
-pitgenius/
+stratex/
 ├── data/
 │   ├── raw/                 # FastF1 cache
 │   └── processed/           # calibration params, scenario templates (JSON/parquet)

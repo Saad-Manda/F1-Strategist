@@ -1,6 +1,6 @@
 # API Reference
 
-The PitGenius backend exposes REST endpoints via FastAPI to serve simulation data and agent trajectories to the frontend dashboard.
+The Stratex backend exposes REST endpoints via FastAPI to serve simulation data and agent trajectories to the frontend dashboard.
 
 ## Base URL
 

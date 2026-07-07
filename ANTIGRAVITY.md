@@ -1,10 +1,10 @@
 # ANTIGRAVITY Constitution & Project Guidelines
 
-This file is the single source of truth for PitGenius's architecture, stack, conventions, and rules.
+This file is the single source of truth for Stratex's architecture, stack, conventions, and rules.
 
 ## Project Overview
 
-**PitGenius** is an F1 Pit & Tire Strategy Reinforcement Learning Agent. The system calibrates tire degradation models (including the cliff effect), fuel sensitivity, and safety car probabilities from real historical F1 data (via FastF1), simulates races using a custom Gymnasium MDP environment with action masking and normalized observations, trains RL agents (tabular Q-learning/SARSA, Dueling Double DQN with Prioritized Experience Replay, MaskablePPO) to optimize tire strategies, and visualizes the races and agent decision-making (Q-values, action masks) through a FastAPI + React dashboard.
+**Stratex** is an F1 Pit & Tire Strategy Reinforcement Learning Agent. The system calibrates tire degradation models (including the cliff effect), fuel sensitivity, and safety car probabilities from real historical F1 data (via FastF1), simulates races using a custom Gymnasium MDP environment with action masking and normalized observations, trains RL agents (tabular Q-learning/SARSA, Dueling Double DQN with Prioritized Experience Replay, MaskablePPO) to optimize tire strategies, and visualizes the races and agent decision-making (Q-values, action masks) through a FastAPI + React dashboard.
 
 ## Tech Stack
 
@@ -30,7 +30,7 @@ This file is the single source of truth for PitGenius's architecture, stack, con
 ## Project Structure
 
 ```
-pitgenius/ (Workspace Root)
+stratex/ (Workspace Root)
 ├── .antigravity/             # Antigravity automation, reference docs, templates
 │   └── reference/            # API, architecture, database, testing specs
 ├── configs/                  # Circuit configs, agent hyperparams (YAML)

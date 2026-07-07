@@ -1,8 +1,8 @@
-# Product Requirements Document (PRD) — PitGenius
+# Product Requirements Document (PRD) — Stratex
 
 ## 1. Product Overview
 
-**PitGenius** is an AI strategist tool for F1 Pit & Tire Strategy optimization. Using Reinforcement Learning models trained on historical F1 data, PitGenius simulates F1 races lap-by-lap and learns optimal pit stop decisions (when to pit and which tire compound to choose). It features a visual dashboard allowing users to analyze race replays, compare different strategist agents, explore agent decision logic (Q-values, action masks), and run "what-if" counterfactual scenarios against real historical Grand Prix races.
+**Stratex** is an AI strategist tool for F1 Pit & Tire Strategy optimization. Using Reinforcement Learning models trained on historical F1 data, Stratex simulates F1 races lap-by-lap and learns optimal pit stop decisions (when to pit and which tire compound to choose). It features a visual dashboard allowing users to analyze race replays, compare different strategist agents, explore agent decision logic (Q-values, action masks), and run "what-if" counterfactual scenarios against real historical Grand Prix races.
 
 ## 2. Goals & Objectives
 

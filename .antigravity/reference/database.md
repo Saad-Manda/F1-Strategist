@@ -1,6 +1,6 @@
 # Data & Storage Reference
 
-PitGenius uses static file storage (JSON and Parquet) for calibrated coefficients and scenario libraries. No SQL/NoSQL database is needed.
+Stratex uses static file storage (JSON and Parquet) for calibrated coefficients and scenario libraries. No SQL/NoSQL database is needed.
 
 ## Storage Hierarchy
 

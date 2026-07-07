@@ -1,6 +1,6 @@
 # Testing Reference Guide
 
-This document describes the testing strategy, evaluation methodology, and execution instructions for PitGenius.
+This document describes the testing strategy, evaluation methodology, and execution instructions for Stratex.
 
 ## Testing Framework
 

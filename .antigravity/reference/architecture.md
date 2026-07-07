@@ -1,6 +1,6 @@
 # System Architecture
 
-This document describes the high-level architecture, module design, data flow, and key design decisions in the PitGenius platform.
+This document describes the high-level architecture, module design, data flow, and key design decisions in the Stratex platform.
 
 ## Architecture Diagram
 
