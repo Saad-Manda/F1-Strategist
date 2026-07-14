@@ -41,4 +41,6 @@ data/checkpoints/
 *.swp
 
 # Antigravity Workspace Plans & Temporary Scripts
-.antigravity/
+.antigravity
+ANTIGRAVITY.md
+PRD.md
