@@ -41,5 +41,4 @@ data/checkpoints/
 *.swp
 
 # Antigravity Workspace Plans & Temporary Scripts
-.antigravity/plans/
-.antigravity/scratch/
+.antigravity/
