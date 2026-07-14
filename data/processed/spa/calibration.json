@@ -1,0 +1,68 @@
+{
+  "circuit": "spa",
+  "total_laps": 44,
+  "base_pace": 110.39,
+  "pit_loss": 17.1,
+  "noise_std": 0.2,
+  "fuel": {
+    "consumption_kg_per_lap": 1.9,
+    "sensitivity_s_per_kg": 0.033
+  },
+  "compounds": {
+    "SOFT": {
+      "base_deg": 0.0994,
+      "cliff_age": 26.4,
+      "cliff_severity": 0.1412,
+      "warmup_penalty": 1.0
+    },
+    "MEDIUM": {
+      "base_deg": 0.1672,
+      "cliff_age": 21.8,
+      "cliff_severity": 0.002,
+      "warmup_penalty": 1.5
+    },
+    "HARD": {
+      "base_deg": 0.1179,
+      "cliff_age": 20.0,
+      "cliff_severity": 0.2,
+      "warmup_penalty": 2.5
+    },
+    "INTERMEDIATE": {
+      "base_deg": 0.03,
+      "cliff_age": 38.0,
+      "cliff_severity": 0.25,
+      "warmup_penalty": 1.0
+    },
+    "WET": {
+      "base_deg": 0.03,
+      "cliff_age": 38.0,
+      "cliff_severity": 0.25,
+      "warmup_penalty": 0.5
+    }
+  },
+  "weather_compound_penalty": {
+    "DRY": {
+      "SOFT": 0.0,
+      "MEDIUM": 0.0,
+      "HARD": 0.0,
+      "INTER": 4.0,
+      "WET": 10.0
+    },
+    "DAMP": {
+      "SOFT": 6.0,
+      "MEDIUM": 4.0,
+      "HARD": 3.0,
+      "INTER": 0.0,
+      "WET": 2.5
+    },
+    "WET": {
+      "SOFT": 15.0,
+      "MEDIUM": 12.0,
+      "HARD": 10.0,
+      "INTER": 3.0,
+      "WET": 0.0
+    }
+  },
+  "safety_car_probability_per_lap": 0.033,
+  "safety_car_lap_time": 160.0
+}

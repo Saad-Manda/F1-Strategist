@@ -1,0 +1,16 @@
+circuits:
+  - name: silverstone
+    fastf1_name: "British Grand Prix"
+    total_laps: 52
+    seasons: [2021, 2022, 2023]
+  - name: monza
+    fastf1_name: "Italian Grand Prix"
+    total_laps: 53
+    seasons: [2021, 2022, 2023]
+  - name: spa
+    fastf1_name: "Belgian Grand Prix"
+    total_laps: 44
+    seasons: [2021, 2022, 2023]
+
+fastf1:
+  cache_dir: "data/raw"

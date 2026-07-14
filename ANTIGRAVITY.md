@@ -12,7 +12,7 @@ This file is the single source of truth for Stratex's architecture, stack, conve
 - **Frameworks**: FastAPI (Backend), React (Frontend), Gymnasium (Simulation Env)
 - **Libraries**:
   - RL & Math: PyTorch, Stable-Baselines3 + sb3-contrib (MaskablePPO), NumPy
-  - Data & Calibration: FastF1, pandas, scipy (curve fitting), PyYAML
+  - Data & Calibration: FastF1, pandas, pyarrow, scipy (curve fitting), PyYAML
   - Visualization: matplotlib, seaborn, TensorBoard
   - Testing: pytest, httpx (FastAPI test client)
 - **Deployment**: Local execution (runs on laptop CPU; RTX 4050 optional bonus)
@@ -26,6 +26,7 @@ This file is the single source of truth for Stratex's architecture, stack, conve
 - **Run Tests (verbose)**: `pytest -v`
 - **Launch TensorBoard**: `tensorboard --logdir=runs/`
 - **Run Notebooks**: `jupyter lab` (from project root)
+- **Run Data Calibration**: `python -m src.data.run_calibration`
 
 ## Project Structure
 
@@ -48,7 +49,8 @@ stratex/ (Workspace Root)
 │   ├── __init__.py
 │   ├── data/
 │   │   ├── fetch.py         # FastF1 wrappers + caching
-│   │   └── calibrate.py     # Tyre-deg cliff fitting, SC-rate estimation
+│   │   ├── calibrate.py     # Tyre-deg cliff fitting, SC-rate estimation
+│   │   └── run_calibration.py # Ingestion & calibration runner
 │   ├── env/
 │   │   ├── f1_strategy_env.py  # Gymnasium MDP with action masking
 │   │   └── dynamics.py      # Lap-time model (cliff, fuel, warmup, weather×compound)
@@ -126,6 +128,7 @@ The system has 5 layers. See `.antigravity/reference/architecture.md` for full d
 - `src/env/f1_strategy_env.py`: Custom Gym Environment with action masking and normalized observations.
 - `src/env/dynamics.py`: Lap-time transition model (cliff + fuel + warmup + weather×compound).
 - `src/data/calibrate.py`: Curve fitting for tire degradation cliff parameters from FastF1 data.
+- `src/data/run_calibration.py`: Runner script to ingest F1 data and calibrate all circuits.
 - `docs/idea.md`: Master project roadmap and RL learning plan.
 - `.antigravity/reference/architecture.md`: Full architecture with design decision rationale.
 - `.antigravity/reference/database.md`: Calibration schema with all parameter definitions.

@@ -11,6 +11,7 @@ sb3-contrib>=2.0.0           # MaskablePPO for action-masked training
 # Data Science & F1 Data Integration
 fastf1>=3.0.0
 pandas>=2.0.0
+pyarrow>=12.0.0
 numpy>=1.24.0
 scipy>=1.10.0                # curve_fit for tyre degradation cliff calibration
 pyyaml>=6.0
