@@ -1,0 +1,73 @@
+calibration:
+  fuel:
+    consumption_kg_per_lap: 1.9
+    sensitivity_s_per_kg: 0.033
+
+  warmup_defaults:
+    SOFT: 1.0
+    MEDIUM: 1.5
+    HARD: 2.5
+    INTERMEDIATE: 1.0
+    WET: 0.5
+
+  weather_penalty_defaults:
+    DRY:
+      SOFT: 0.0
+      MEDIUM: 0.0
+      HARD: 0.0
+      INTER: 4.0
+      WET: 10.0
+    DAMP:
+      SOFT: 6.0
+      MEDIUM: 4.0
+      HARD: 3.0
+      INTER: 0.0
+      WET: 2.5
+    WET:
+      SOFT: 15.0
+      MEDIUM: 12.0
+      HARD: 10.0
+      INTER: 3.0
+      WET: 0.0
+
+  fitting:
+    min_clean_laps_for_fit: 15
+    min_stint_laps: 3
+    baseline_quantile: 0.05
+    initial_guess: [0.05, 20.0, 0.2]
+    bounds_lower: [0.0, 5.0, 0.0]
+    bounds_upper: [0.5, 45.0, 2.0]
+    maxfev: 10000
+    compound_fallbacks:
+      SOFT:
+        base_deg: 0.08
+        cliff_age: 18.0
+        cliff_severity: 0.35
+      MEDIUM:
+        base_deg: 0.05
+        cliff_age: 28.0
+        cliff_severity: 0.30
+      HARD:
+        base_deg: 0.03
+        cliff_age: 38.0
+        cliff_severity: 0.25
+      INTERMEDIATE:
+        base_deg: 0.05
+        cliff_age: 28.0
+        cliff_severity: 0.30
+      WET:
+        base_deg: 0.05
+        cliff_age: 28.0
+        cliff_severity: 0.30
+
+  pit_loss:
+    min_stint_laps: 3
+    min_pit_loss_threshold: 10.0
+    max_pit_loss_threshold: 40.0
+    default_pit_loss: 22.0
+
+  simulation:
+    default_noise_std: 0.20
+    default_base_pace: 90.0
+    default_safety_car_prob: 0.015
+    safety_car_lap_time: 160.0

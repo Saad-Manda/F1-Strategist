@@ -4,7 +4,7 @@ from src.data.fetch import init_fastf1_cache
 from src.data.calibrate import calibrate_circuit
 
 def main():
-    # Load configuration
+    # Load circuit configuration
     config_path = Path("configs/circuits.yaml")
     if not config_path.exists():
         print(f"Error: Configuration file not found at {config_path}")
@@ -12,6 +12,13 @@ def main():
 
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
+
+    # Load default hyperparameters configuration
+    defaults_path = Path("configs/defaults.yaml")
+    defaults_cfg = {}
+    if defaults_path.exists():
+        with open(defaults_path, "r") as f:
+            defaults_cfg = yaml.safe_load(f) or {}
 
     # Initialize FastF1 cache directory
     cache_dir = config.get("fastf1", {}).get("cache_dir", "data/raw")
@@ -43,10 +50,12 @@ def main():
                 circuit_fastf1_name=fastf1_name,
                 seasons=seasons,
                 total_laps=total_laps,
-                raw_dir=cache_dir
+                raw_dir=cache_dir,
+                config=defaults_cfg
             )
         except Exception as e:
             print(f"[ERROR] Failed to calibrate circuit {name}: {e}")
 
 if __name__ == "__main__":
     main()
+
