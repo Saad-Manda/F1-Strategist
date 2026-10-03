@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:92%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a class="active" href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 11 / 12 — Reading the plan critically</p>
+      <h1>Reading the Implementation Plan's Code</h1>
+      <p class="dek">A reading guide, not a reproduction — <code>phase-9-ppo-sb3.md</code>'s pseudocode, not a built file in <code>src/</code>.</p>
+
+      <p>Phase 9 hasn't been implemented yet, and part of what this page teaches is reading a plan critically before trusting its pseudocode — including where the plan depends on a third-party library's documented behavior rather than anything checkable in this repo. <code>src/agents/ppo_agent.py</code>, <code>src/env/sb3_wrapper.py</code>, and <code>configs/ppo.yaml</code> are all still just proposals in the plan file.</p>
+
+      <h2>Reading order</h2>
+      <ol>
+        <li><code>src/env/sb3_wrapper.py</code> first — where page 07's fix belongs, and where the choice of <code>n_envs</code> and <code>DummyVecEnv</code> vs. <code>SubprocVecEnv</code> is made.</li>
+        <li><code>configs/ppo.yaml</code> next — page 03/04/10's parameter mapping, and the missing <code>gae_lambda</code> key.</li>
+        <li><code>src/agents/ppo_agent.py</code>'s <code>train_ppo</code> — the <code>.learn()</code> call page 06 described generically, now with real arguments.</li>
+        <li><code>scripts/compare_dqn_ppo.py</code> last — where page 08's budget-matching fix and Finding D's eval-mode fix both need to have already landed before this script's output means anything at all.</li>
+      </ol>
+
+      <h2>Where each fix belongs — so you don't go looking in the wrong file</h2>
+      <ul>
+        <li><strong>J1's fix</strong> (page 07) is inside <code>make_vec_masked_envs</code> itself, in <code>sb3_wrapper.py</code> — nowhere else.</li>
+        <li><strong>J2's fix</strong> (page 08) is either in <code>configs/ppo.yaml</code>'s <code>total_timesteps</code> (to explicitly match DQN's ~260k steps) or in the comparison notebook's plotting code (to put both learning curves on a shared environment-step x-axis) — not inside <code>ppo_agent.py</code> itself, which is not where a training-budget mismatch would be fixed.</li>
+        <li><strong>Finding D's fix</strong> (page 10) is in the custom <code>DuelingDoubleDQNAgent</code>/<code>QLearningAgent</code> files from earlier phases, not in anything Phase 9 introduces — <code>PPOAgent</code> is already correct.</li>
+      </ul>
+
+      <h2>What the Definition-of-Done checklist would and wouldn't catch</h2>
+      <p>In the same spirit as Phase 4 page 09, Phase 5 page 11, Phase 6 page 10, and Phase 8 page 10's test-by-test walkthroughs:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DoD item</th><th>What it catches</th><th>What it doesn't</th></tr></thead>
+          <tbody>
+            <tr><td><code>MaskablePPO</code> trains for 2M timesteps without crashing</td><td>An environment or wrapper that's broken outright (including, on this machine, the page 07 pickling crash before the fix)</td><td>Whether 2M is a fair budget relative to DQN at all — J2 again</td></tr>
+            <tr><td><code>PPOAgent.select_action()</code> respects action masks during evaluation</td><td>A masking regression in the wrapper or the model call</td><td>Anything about the training-budget mismatch, or DQN's own eval-mode bug</td></tr>
+            <tr><td>Comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick</td><td>Evaluation-time luck across scenario draws (Phase 3, assumed background)</td><td>Training-time confounds — this item can pass cleanly on top of an unfixed J2, and the number it reports would still be uninterpretable</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The payoff of this page: a checklist item can be perfectly well-specified and pass exactly as written, and still be answering a different question than the one it looks like it's answering — because the thing that would make its answer meaningful lives in a fix the checklist itself never names.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="10-this-project-formalized.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 10 — This Project, Formalized</span>
+        </a>
+        <a class="next" href="12-glossary.html">
+          <span class="dir">Next</span>
+          <span class="label">12 — Glossary →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

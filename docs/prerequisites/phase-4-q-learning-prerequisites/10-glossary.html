@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 Q-Learning Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  dl.glossary { margin: 0; }
+  dl.glossary > div {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 18px;
+    align-items: baseline;
+  }
+  dl.glossary > div:first-child { border-top: none; }
+  dl.glossary dt {
+    font-family: "Sora", sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--accent);
+  }
+  dl.glossary dd { margin: 0; font-size: 15.5px; }
+  @media (max-width: 620px) {
+    dl.glossary > div { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 4</span>
+      <span class="title">Q-Learning Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-from-equation-to-update-rule.html"><span class="n">01</span><span>From equation to update rule</span></a></li>
+      <li><a href="02-q-learning-derived.html"><span class="n">02</span><span>Q-learning, derived &amp; hand-run</span></a></li>
+      <li><a href="03-epsilon-greedy-exploration.html"><span class="n">03</span><span>Exploration: ε-greedy</span></a></li>
+      <li><a href="04-sarsa-on-policy.html"><span class="n">04</span><span>On- vs. off-policy: SARSA</span></a></li>
+      <li><a href="05-state-discretization-tradeoff.html"><span class="n">05</span><span>State discretization</span></a></li>
+      <li><a href="06-the-binning-bug.html"><span class="n">06</span><span>The binning bug</span></a></li>
+      <li><a href="07-build-it-yourself.html"><span class="n">07</span><span>Build it yourself</span></a></li>
+      <li><a href="08-this-project-formalized.html"><span class="n">08</span><span>This project, formalized</span></a></li>
+      <li><a href="09-code-walkthrough.html"><span class="n">09</span><span>Code walkthrough</span></a></li>
+      <li><a class="active" href="10-glossary.html"><span class="n">10</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-4-q-learning-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 10 / 10 — Reference</p>
+      <h1>Glossary</h1>
+      <p class="dek">Every term used across pages 1–9 — nothing beyond them. Keep this open while reading the Phase 4 plan or the code.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope note</div>
+        <p>Terms belonging to function approximation (neural networks, replay buffers, target networks, and the rest) aren't listed here because they aren't covered by this doc set — Phase 4 is entirely tabular. See the Phase 5 prerequisites for that vocabulary.</p>
+      </div>
+
+      <dl class="glossary">
+        <div><dt>Bootstrapping</dt><dd>Updating a value estimate using another value estimate (rather than a known true value or a fully-played-out return), the way every TD target in this set uses <code>Q(s', a')</code> — itself still being learned — instead of the true value of <code>s'</code>. See page 1.</dd></div>
+        <div><dt>Curriculum learning</dt><dd>Training on an easier restricted version of the task first (here: dry weather, no safety cars) before introducing the full scenario library, so early episodes concentrate limited experience on fewer distinct table cells. Cross-reference: Phase 1's own entry. See page 8.</dd></div>
+        <div><dt>Epsilon decay</dt><dd>Linearly shrinking <code>ε</code> from a high starting value toward a small floor over a fixed number of steps, so exploration is heaviest early in training and rarest (but never zero) later. See page 3.</dd></div>
+        <div><dt>ε-greedy</dt><dd>An action-selection rule: with probability <code>ε</code> act uniformly at random among legal actions, otherwise act greedily on the current Q-table. The standard way to balance exploration against exploitation in tabular TD control. See page 3.</dd></div>
+        <div><dt>Learning rate (α)</dt><dd>The step size controlling how far a single sampled transition can move a Q-value estimate. Too high: unstable, chases noise. Too low: converges too slowly to be useful in a realistic training budget. See pages 1 &amp; 2.</dd></div>
+        <div><dt>Off-policy</dt><dd>A learning method whose update target is computed for a different policy (Q-learning's: the greedy policy) than the one actually generating the training data (the ε-greedy behaviour policy). See page 2.</dd></div>
+        <div><dt>On-policy</dt><dd>A learning method whose update target is computed using the same policy that's actually generating the behaviour — SARSA's target uses the ε-greedy policy's own next action, exploration and all. See page 4.</dd></div>
+        <div><dt>Optimality gap</dt><dd><code>mean_race_time(agent) − mean_race_time(Oracle B)</code>, in seconds, reported with a paired bootstrap confidence interval — the headline evaluation metric for this phase and every phase after it. Cross-reference: Phase 3.5's own entry. See page 8.</dd></div>
+        <div><dt>Optimistic initialization</dt><dd>Starting Q-values above what's realistic (e.g. a <code>+10</code> bonus on pit actions) to bias early exploration toward under-tried actions. Only meaningful relative to the true value scale — see the reward-centring entry below for why a <code>+10</code> bonus can be negligible or decisive depending on that scale. See page 8.</dd></div>
+        <div><dt>Reward centring</dt><dd>Learning on <code>reward − constant</code> instead of raw reward (here, <code>reward_offset="base_pace"</code>) to bring the true value scale down to a range a fixed learning rate can traverse in a realistic number of visits, without changing which policy is optimal. Cross-reference: Phase 1 page 3's proof that subtracting a constant over a fixed horizon can't change the argmax. See page 8.</dd></div>
+        <div><dt>State discretization / binning</dt><dd>Converting a continuous observation into a finite, hashable key by bucketing each dimension into a small number of discrete ranges — required because a tabular Q-function is a dictionary, and dictionaries need finite keys. See page 5.</dd></div>
+        <div><dt>Curse of dimensionality</dt><dd>The exponential growth of a discretized state space as more dimensions or finer bins are added — named here as the general reason tabular methods stop scaling, deferred to the Phase 5 prerequisites, which cover function approximation as the actual resolution. See page 5.</dd></div>
+        <div><dt>TD error (δ)</dt><dd>The gap between a fresh target estimate and the table's current value for the state-action pair just visited: <code>δ = target − Q(s,a)</code>. Every update in this set is <code>Q(s,a) ← Q(s,a) + α·δ</code>. See page 1.</dd></div>
+        <div><dt>TD target</dt><dd>The fresher estimate an update nudges the table toward — <code>r + γ·max_a' Q(s',a')</code> for Q-learning, <code>r + γ·Q(s',a')</code> for SARSA (or just <code>r</code> if the episode terminated). See pages 1, 2 &amp; 4.</dd></div>
+        <div><dt>Temporal difference (TD) learning</dt><dd>Estimating a value function from single sampled transitions, bootstrapping off the current estimate of what comes next, rather than solving for the exact expectation (dynamic programming) or waiting for a full episode to finish (Monte Carlo). See page 1.</dd></div>
+      </dl>
+
+      <div class="pagenav">
+        <a class="prev" href="09-code-walkthrough.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 09 — Code Walkthrough</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Back to start</span>
+          <span class="label">00 — Index →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

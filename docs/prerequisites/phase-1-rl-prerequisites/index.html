@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 RL Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 1</span>
+      <span class="title">RL Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    <ul class="nav-list">
+      <li><a class="active" href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-rl-fundamentals.html"><span class="n">01</span><span>RL fundamentals</span></a></li>
+      <li><a href="02-markov-decision-processes.html"><span class="n">02</span><span>Markov decision processes</span></a></li>
+      <li><a href="03-value-functions-bellman.html"><span class="n">03</span><span>Value functions &amp; Bellman</span></a></li>
+      <li><a href="04-gymnasium-api.html"><span class="n">04</span><span>The Gymnasium API</span></a></li>
+      <li><a href="05-building-the-environment.html"><span class="n">05</span><span>Building the environment</span></a></li>
+      <li><a href="06-this-project-as-mdp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-1-rl-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 00 / 08 — Start here</p>
+      <h1>Phase 1 RL Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to read and build <code>phase-1-gym-environment.md</code> with no prior reinforcement-learning background. No later-phase material.</p>
+
+      <h2>Why this project is an RL problem at all</h2>
+      <p>An F1 race strategist makes a sequence of decisions — stay out, or pit for a given tyre — under uncertainty (weather, safety cars, rivals) with a single, measurable goal: minimize total race time. That is exactly the shape of problem reinforcement learning is built for: an <strong>agent</strong> that repeatedly observes a <strong>state</strong>, picks an <strong>action</strong>, and receives a <strong>reward</strong>, with the goal of maximizing total reward over time. Supervised learning has no answer to "what should I do next, given that today's action changes tomorrow's options" — that sequential, consequence-carrying structure is what makes this an RL problem and not a classification problem.</p>
+
+      <p>This exists because Phase 1 is "the intellectual heart of the project" — it defines the simulator every future agent trains inside. A mistake here (a wrong reward, a leaky observation, a masking bug) silently corrupts every phase that follows.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>Phase 1 builds an environment. It does not train an agent — no Q-learning, no neural networks, no policies. So this doc set teaches exactly two things in depth: the math that defines what an environment <em>is</em> (an MDP), and the software contract (Gymnasium) that <code>f1_strategy_env.py</code> must implement. Everything below is in service of one or the other. Algorithm training (Phases 4, 5, 9) is a different set of prerequisites for a different day — nothing about it is covered here, even in preview.</p>
+      </div>
+
+      <h2>How this folder teaches the implementation half</h2>
+      <p>Nowhere in pages 1–7 is the real project's code reproduced. Instead, page 5 has you build a sequence of small, runnable toy environments under your own names, each adding one real-world complication a plain toy ignores — multiple tyre compounds, a capped wear cliff, fuel burn-off, weather mismatch, correctly-ordered pit stops, a randomly-sampled safety car, action masking, reward centring — until the toy's <em>shape</em> converges on what the real environment needs, without ever looking like the real environment's actual code. Only after that does page 6 name which piece of the real <code>dynamics.py</code> and <code>f1_strategy_env.py</code> corresponds to which toy stage — grounding, not transcription.</p>
+
+      <h2>Reading order</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">#</th><th>Page</th><th>Covers</th><th>Why Phase 1 needs it</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">01</td><td><a class="inline-link" href="01-rl-fundamentals.html">RL Fundamentals</a></td><td>Agent/environment loop, reward hypothesis, episodes</td><td>The vocabulary everything else is built from</td></tr>
+            <tr><td class="mono">02</td><td><a class="inline-link" href="02-markov-decision-processes.html">Markov Decision Processes</a></td><td>The MDP tuple (S, A, P, R, γ), the Markov property, policies, return — with a fully worked numeric race example</td><td>Phase 1 <em>is</em> the specification of an MDP — the formal language the plan is written in</td></tr>
+            <tr><td class="mono">03</td><td><a class="inline-link" href="03-value-functions-bellman.html">Value Functions &amp; Bellman</a></td><td>State/action-value functions, the Bellman equation derived step by step, and the reward-centring proof worked in full</td><td>Explains exactly why the reward design (γ=1, no zeroing on SC laps, the −5,000 problem) is written the way it is</td></tr>
+            <tr><td class="mono">04</td><td><a class="inline-link" href="04-gymnasium-api.html">The Gymnasium API</a></td><td>The <code>Env</code> contract: spaces, <code>reset()</code>, <code>step()</code>, action masking, <code>check_env</code> — plus a complete, runnable toy environment</td><td>The literal API <code>f1_strategy_env.py</code> must implement</td></tr>
+            <tr><td class="mono">05</td><td><a class="inline-link" href="05-building-the-environment.html">Building the Environment, Step by Step</a></td><td>A sequence of small, runnable toy Gymnasium environments, each adding one real-world complication, building up in your own code toward the shape of the real environment</td><td>Understanding by building, not by reading someone else's finished file</td></tr>
+            <tr><td class="mono">06</td><td><a class="inline-link" href="06-this-project-as-mdp.html">This Project, Formalized</a></td><td>State/action/reward/transition grounded in the actual plan, with a lap time computed by hand and a full <code>step()</code> trace</td><td>Bridges the general theory above to the specific file you are about to write</td></tr>
+            <tr><td class="mono">07</td><td><a class="inline-link" href="07-code-walkthrough.html">Code Walkthrough</a></td><td>A reading guide to <code>dynamics.py</code> and <code>f1_strategy_env.py</code> — what to look for and why, not a copy of the code itself</td><td>Line-level understanding before implementation</td></tr>
+            <tr><td class="mono">08</td><td><a class="inline-link" href="08-glossary.html">Glossary</a></td><td>Every term used above, one paragraph each</td><td>Quick lookup while reading the plan or the code</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>How to use this alongside the Phase 1 plan</h2>
+      <p>Read pages 1–4 once, in order, treating the F1 examples inside them as illustrations only. Page 5 is hands-on: build the toy environments yourself, in your own words and your own code, adding one complication at a time — that's what makes the ideas stick, rather than reading someone else's finished file. Page 6 then re-derives the same concepts using nothing but this project's actual design decisions — at that point the abstractions from pages 1–4 should stop feeling abstract, and page 5's toys should feel like recognisable sketches of it. Page 7 is the closest thing to a line-by-line reading guide for the plan itself. Keep page 8 open as a reference while you work.</p>
+
+      <div class="pagenav">
+        <span class="spacer"></span>
+        <a class="next" href="01-rl-fundamentals.html">
+          <span class="dir">Next</span>
+          <span class="label">01 — RL Fundamentals →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 Multi-Car Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 6</span>
+      <span class="title">Multi-Car Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:36%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-multi-car-mdp.html"><span class="n">01</span><span>One car to N</span></a></li>
+      <li><a href="02-credit-assignment.html"><span class="n">02</span><span>Credit assignment</span></a></li>
+      <li><a href="03-potential-based-shaping.html"><span class="n">03</span><span>Potential-based shaping</span></a></li>
+      <li><a class="active" href="04-overtaking-dirty-air.html"><span class="n">04</span><span>Overtaking &amp; dirty air</span></a></li>
+      <li><a href="05-position-and-blocking.html"><span class="n">05</span><span>Position vs. the undercut</span></a></li>
+      <li><a href="06-bug-ledger.html"><span class="n">06</span><span>The bug ledger</span></a></li>
+      <li><a href="07-non-stationarity.html"><span class="n">07</span><span>Non-stationarity preview</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-6-multi-car-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 04 / 11 — A little math</p>
+      <h1>Overtaking and Dirty Air: Modeling What Cumulative Time Alone Can't</h1>
+      <p class="dek">Two small, hand-checkable formulas stand in for a real aerodynamic effect and a real racing decision.</p>
+
+      <h2>Dirty air, the real effect</h2>
+      <p>A trailing F1 car loses downforce running in a leading car's aerodynamic wake — a real, well-documented effect, worse the closer the following distance. The real plan models it as a straight line: a penalty of <code>DIRTY_AIR_MAX_PENALTY = 0.5</code> seconds at zero gap, falling linearly to <code>0.0</code> seconds at <code>DIRTY_AIR_MAX_GAP = 1.5</code> seconds and beyond:</p>
+      <blockquote class="eq">penalty(gap) = 0                                    if gap ≥ 1.5
+penalty(gap) = 0.5 · (1.5 − gap) / 1.5               if gap &lt;  1.5
+
+Check the three points the real plan's own unit tests assert:
+  gap = 0.00  →  0.5 · 1.50 / 1.5 = 0.500  ✓ (max penalty, bumper-to-bumper)
+  gap = 0.75  →  0.5 · 0.75 / 1.5 = 0.250  ✓ (halfway gap, half penalty)
+  gap = 1.50  →  0.5 · 0.00 / 1.5 = 0.000  ✓ (at the threshold, no penalty)</blockquote>
+      <p>Nothing subtle here — it's a straight line between two calibration points, and the three test values above are exactly the ones a reader can verify by hand before ever running the code.</p>
+
+      <h2>Probabilistic overtaking</h2>
+      <p>An overtake can only be <em>attempted</em> within <code>OVERTAKE_ATTEMPT_GAP = 1.0</code> second, and only when the attacking car is faster this lap (<code>pace_delta &lt; 0</code>, where <code>pace_delta = my_lap_time − their_lap_time</code>). Given an attempt happens, success probability is a sigmoid in the pace advantage:</p>
+      <blockquote class="eq">base_prob(pace_delta) = 1 / (1 + exp(5 · (pace_delta + 0.5)))</blockquote>
+      <p>Worked by hand at the one point the real plan's own docstring names explicitly — 0.5 seconds faster:</p>
+      <blockquote class="eq">pace_delta = −0.5  (0.5s faster)
+  exponent = 5 · (−0.5 + 0.5) = 5 · 0 = 0
+  base_prob = 1 / (1 + e^0) = 1 / 2 = 0.50   →  50%, exactly as claimed</blockquote>
+      <div class="note grounded">
+        <div class="tag">Worth checking the other two claimed points too</div>
+        <p>The real plan's docstring also claims "80% at 1.0s faster, 95% at 1.5s faster." Running the same formula at those two points tells a different story:</p>
+        <blockquote class="eq">pace_delta = −1.0  (1.0s faster)
+  exponent = 5 · (−1.0 + 0.5) = 5 · (−0.5) = −2.5
+  base_prob = 1 / (1 + e^−2.5) = 1 / (1 + 0.082) ≈ 0.924   →  92.4%, not 80%
+
+pace_delta = −1.5  (1.5s faster)
+  exponent = 5 · (−1.5 + 0.5) = 5 · (−1.0) = −5.0
+  base_prob = 1 / (1 + e^−5.0) = 1 / (1 + 0.0067) ≈ 0.993   →  99.3%, not 95%</blockquote>
+        <p>The formula and the two later numbers in its own comment don't agree — a small, low-stakes example of exactly the habit page 10 asks for on a larger scale: hand-check a formula against what its own documentation claims, rather than trusting the comment. It changes nothing about whether the model is reasonable (a steeper-than-advertised sigmoid is still a sigmoid), only what the reader should expect to see if they log actual pass rates during training.</p>
+      </div>
+      <p>On top of <code>base_prob</code>, a small bonus rewards persistence: <code>follow_bonus = min(0.1 × laps_following, 0.2)</code> — up to 0.2 extra probability after two or more consecutive laps within range, capped, and the total capped again at <code>0.95</code> so an overtake is never a certainty no matter how large the pace advantage.</p>
+
+      <div class="note generic">
+        <div class="tag">A modeling choice, not a law of physics</div>
+        <p>This sigmoid, with these particular constants, is one reasonable functional form among many — a step function or a differently-shaped curve could stand in just as well. What matters for the rest of this project is understanding what the model is trying to capture (a bigger pace advantage should mean a meaningfully higher pass probability; extended following should help a little), well enough to defend or adjust the constants later, not memorizing this exact formula as the only correct one.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="03-potential-based-shaping.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 03 — Potential-Based Shaping</span>
+        </a>
+        <a class="next" href="05-position-and-blocking.html">
+          <span class="dir">Next</span>
+          <span class="label">05 — Why "Position = Sorted by Time" Kills the Undercut →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

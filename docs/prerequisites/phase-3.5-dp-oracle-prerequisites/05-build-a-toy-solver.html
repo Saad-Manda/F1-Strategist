@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3.5 DP Oracle Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 3.5</span>
+      <span class="title">DP Oracle Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:62.5%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-planning-vs-learning.html"><span class="n">01</span><span>Planning vs. learning</span></a></li>
+      <li><a href="02-backward-induction.html"><span class="n">02</span><span>Backward induction</span></a></li>
+      <li><a href="03-stochastic-transitions.html"><span class="n">03</span><span>Expectations over randomness</span></a></li>
+      <li><a href="04-markov-chains.html"><span class="n">04</span><span>Markov chains</span></a></li>
+      <li><a class="active" href="05-build-a-toy-solver.html"><span class="n">05</span><span>Build a toy DP solver</span></a></li>
+      <li><a href="06-this-project-as-dp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-3.5-dp-oracle-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 05 / 08 — Building it yourself</p>
+      <h1>Build a Toy DP Solver, Step by Step</h1>
+      <p class="dek">Five stages, each adding one complication a plain backward-induction pass ignores — deterministic, then risky, then constrained, then doubly-random, then sanity-checked. Type each one in yourself; none of the names below match the real oracle on purpose.</p>
+
+      <p>Every function and variable name here (<code>toy_backward_induction</code>, <code>sc_transition_prob</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match anything in <code>dp_oracle.py</code> or <code>weather_markov.py</code>. The goal, same as Phase 1 page 5, is to arrive at the same <em>shape</em> of solution independently, so the real files read as familiar structure rather than new material when page 7 opens them.</p>
+
+      <h2>Stage 1 — deterministic backward induction, verified against brute force</h2>
+      <p>Start with exactly page 2's toy race: one tyre, <code>STAY</code>/<code>PIT</code>, no randomness. A dict keyed by <code>(lap, age)</code> stands in for the value table — small enough here that a NumPy array would be overkill:</p>
+      <pre><code>HORIZON = 4
+PIT_LOSS = 6.0
+
+def lap_time(age: int) -> float:
+    return 10.0 + 3.0 * (age - 1)
+
+def toy_backward_induction(horizon: int):
+    V = {(horizon + 1, age): 0.0 for age in range(1, horizon + 2)}
+    policy = {}
+    for t in range(horizon, 0, -1):
+        for age in range(1, t + 1):
+            stay_cost = lap_time(age) + V[(t + 1, age + 1)]
+            pit_cost  = lap_time(age) + PIT_LOSS + V[(t + 1, 1)]
+            if stay_cost <= pit_cost:
+                V[(t, age)], policy[(t, age)] = stay_cost, "STAY"
+            else:
+                V[(t, age)], policy[(t, age)] = pit_cost, "PIT"
+    return V, policy</code></pre>
+      <p>Before trusting it, verify it the way <code>test_oracle_value_matches_rollout</code> will later verify the real oracle: independently, by brute force, enumerate every one of the <code>2^HORIZON</code> possible action sequences and find the cheapest by direct simulation:</p>
+      <pre><code>from itertools import product
+
+def brute_force_best(horizon: int) -> float:
+    best = None
+    for actions in product(("STAY", "PIT"), repeat=horizon):
+        age, total = 1, 0.0
+        for a in actions:
+            total += lap_time(age) + (PIT_LOSS if a == "PIT" else 0.0)
+            age = 1 if a == "PIT" else age + 1
+        best = total if best is None else min(best, total)
+    return best
+
+V, policy = toy_backward_induction(HORIZON)
+assert abs(V[(1, 1)] - brute_force_best(HORIZON)) < 1e-9
+print(V[(1, 1)])   # should print 52.0 -- page 2's hand-computed answer, exactly</code></pre>
+      <p>Getting <code>52.0</code> printed, matching page 2's hand-worked table cell for cell, is the whole point of this stage: it's proof the code implements the same recursion you already verified by hand, not merely a plausible-looking piece of code that happens to run.</p>
+
+      <h2>Stage 2 — a risk the agent can't control: the safety-car hazard</h2>
+      <p>Add the exact expectation machinery page 3 introduced, over a state that now includes <code>sc_active</code>. Only what's new is shown — the shell around it is the same backward pass:</p>
+      <pre><code>HAZARD = 0.2          # P(SC starts next lap | currently green)
+CONTINUE_PROB = 0.5   # P(SC continues next lap | currently under SC)
+SC_LAP_TIME = 20.0
+SC_PIT_DISCOUNT = 0.4
+
+def sc_transition_prob(sc_now: int) -> float:
+    """P(sc_next = 1 | sc_now)."""
+    return CONTINUE_PROB if sc_now else HAZARD
+
+def toy_backward_induction_sc(horizon: int):
+    V = {(horizon + 1, age, sc): 0.0
+         for age in range(1, horizon + 2) for sc in (0, 1)}
+    policy = {}
+    for t in range(horizon, 0, -1):
+        for age in range(1, t + 1):
+            for sc in (0, 1):
+                p_next = sc_transition_prob(sc)
+
+                def expect(next_age):
+                    return (p_next * V[(t + 1, next_age, 1)]
+                            + (1 - p_next) * V[(t + 1, next_age, 0)])
+
+                if sc:
+                    this_lap, pit_extra = SC_LAP_TIME, PIT_LOSS * SC_PIT_DISCOUNT
+                else:
+                    this_lap, pit_extra = lap_time(age), PIT_LOSS
+
+                stay_cost = this_lap + expect(age + 1)
+                pit_cost  = this_lap + pit_extra + expect(1)
+                if stay_cost <= pit_cost:
+                    V[(t, age, sc)], policy[(t, age, sc)] = stay_cost, "STAY"
+                else:
+                    V[(t, age, sc)], policy[(t, age, sc)] = pit_cost, "PIT"
+    return V, policy</code></pre>
+      <p>Run it and compare <code>V_sc[(1, 1, 0)]</code> (starting green) against stage 1's deterministic <code>V[(1, 1)] = 52.0</code>. The stochastic version should come out <em>higher</em> — the mere possibility of a slow safety-car lap somewhere ahead makes the race provably more expensive in expectation, even though this particular race might never actually see one. That direction of change (never favourable, only ever costly or neutral) is worth confirming as a sanity property, not just an interesting number.</p>
+
+      <h2>Stage 3 — an action that isn't always legal</h2>
+      <p>Add a simple mandatory-service rule, echoing the real two-compound rule: the race must include at least one pit stop, enforced by forcing <code>PIT</code> on the final lap if none has happened yet. That requires one more piece of state, <code>has_pitted</code>, and a mask function consulted before comparing actions:</p>
+      <pre><code>def toy_action_mask(t: int, horizon: int, has_pitted: bool) -> list[str]:
+    if t == horizon and not has_pitted:
+        return ["PIT"]              # STAY is illegal here
+    return ["STAY", "PIT"]</code></pre>
+      <p>Inside the backward pass, replace the fixed <code>("STAY", "PIT")</code> comparison with a loop over <code>toy_action_mask(t, horizon, has_pitted)</code>, and thread <code>has_pitted</code> through the state key and the transition (<code>has_pitted</code> becomes <code>True</code> forever once a <code>PIT</code> action is taken). Run it and confirm two things: first, that the policy at the final lap really is always <code>PIT</code> whenever the race arrives there with <code>has_pitted = False</code>; second, that <code>V[(1, 1, ...)]</code> under this rule is never <em>lower</em> than stage 2's unconstrained value for the same starting state — a mask can only remove options, never add value, so a rise (or no change) is the only legitimate outcome, and a mask that somehow makes the optimal race <em>cheaper</em> is a mask with a bug in it.</p>
+
+      <h2>Stage 4 — a second, independently-random process</h2>
+      <p>Add weather, sampled from a small fitted Markov chain — reuse page 4's own worked 3×3 matrix directly, so this stage is also a chance to confirm you can read a transition matrix back out as code:</p>
+      <pre><code>DRY, DAMP, WET = 0, 1, 2
+
+WEATHER_P = {
+    DRY:  [0.625, 0.375, 0.000],   # from page 4's worked example
+    DAMP: [0.400, 0.400, 0.200],
+    WET:  [0.000, 0.500, 0.500],
+}
+WEATHER_PENALTY = {DRY: 0.0, DAMP: 1.5, WET: 4.0}   # added to lap_time</code></pre>
+      <p>Weather and the safety car are treated as independent here (a simplification worth naming, not hiding), so the expectation over <em>both</em> next states is a double sum — weight each combination by the product of its two individual probabilities:</p>
+      <pre><code>def expect_both(t, next_age, sc_now, w_now, V):
+        p_sc = sc_transition_prob(sc_now)
+        total = 0.0
+        for sc_next, p1 in ((0, 1 - p_sc), (1, p_sc)):
+            for w_next, p2 in enumerate(WEATHER_P[w_now]):
+                total += p1 * p2 * V[(t + 1, next_age, sc_next, w_next)]
+        return total</code></pre>
+      <p>Wire this into stage 3's loop in place of the single-variable <code>expect()</code>, add <code>WEATHER_PENALTY[w]</code> into <code>this_lap</code> when <code>sc == 0</code>, and extend every state key and the terminal condition with a <code>w</code> component. Run it starting from <code>w = DRY</code> and from <code>w = WET</code> separately, and confirm the WET start produces a strictly higher <code>V[(1, 1, 0, w)]</code> — two independently-random exogenous processes, each contributing its own share of expected cost, exactly the composition Oracle B performs for real.</p>
+
+      <h2>Stage 5 — the sanity check, before you ever trust a DP answer again</h2>
+      <p>This is the habit the real <code>test_oracle_no_absurd_exploit</code> exists to enforce, built here in miniature first. A correct DP solver that is fed a <em>broken</em> cost model will confidently report an absurdly good "optimal" policy — because nothing about backward induction can tell the difference between "genuinely cheap" and "cheap because the model has a bug." The defence is an independent, hand-reasoned baseline to compare against:</p>
+      <pre><code>def simulate_fixed_policy(pit_at_lap: int, horizon: int) -> float:
+    """A simple, clearly-reasonable baseline: pit exactly once, at a fixed lap."""
+    age, total = 1, 0.0
+    for t in range(1, horizon + 1):
+        total += lap_time(age)
+        if t == pit_at_lap:
+            total += PIT_LOSS
+            age = 1
+        else:
+            age += 1
+    return total
+
+baseline = min(simulate_fixed_policy(lap, HORIZON) for lap in range(1, HORIZON + 1))
+dp_value = V[(1, 1, 0, DRY)]   # stage 4's solver, dry start, no SC
+
+assert dp_value <= baseline + 1e-9          # DP can never be beaten by a simpler plan
+assert baseline - dp_value < 0.25 * baseline  # ...but shouldn't beat it by an implausible margin either</code></pre>
+      <p>The first assertion has to hold by construction — DP searches every policy, so nothing can beat it. The second is the interesting one: if the gap between the DP answer and a sensible fixed-lap baseline were huge (say, DP claiming a race can be won in half the time a reasonable human plan takes), that's not a strategic breakthrough, it's the signal that a cost term has the wrong sign or a state transition is wired backward somewhere upstream. Internalizing "check the DP answer against a baseline before believing it" here, on a solver you built and can fully audit in five minutes, is what makes the same check trustworthy later against a codebase with hundreds of lines you didn't write from scratch.</p>
+
+      <p>That's the full toy solver: deterministic backward induction, verified against brute force; a stochastic hazard with the expectation machinery from page 3; an action mask; a second independent random process fit as a Markov chain from page 4; and the sanity-check discipline that catches a broken model before it catches you. Page 6 doesn't repeat any of this code — it names which piece of the real <code>dp_oracle.py</code> and <code>weather_markov.py</code> corresponds to which stage here.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="04-markov-chains.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 04 — Markov Chains</span>
+        </a>
+        <a class="next" href="06-this-project-as-dp.html">
+          <span class="dir">Next</span>
+          <span class="label">06 — This Project, Formalized →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

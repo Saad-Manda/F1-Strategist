@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 Q-Learning Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 4</span>
+      <span class="title">Q-Learning Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-from-equation-to-update-rule.html"><span class="n">01</span><span>From equation to update rule</span></a></li>
+      <li><a href="02-q-learning-derived.html"><span class="n">02</span><span>Q-learning, derived &amp; hand-run</span></a></li>
+      <li><a href="03-epsilon-greedy-exploration.html"><span class="n">03</span><span>Exploration: ε-greedy</span></a></li>
+      <li><a href="04-sarsa-on-policy.html"><span class="n">04</span><span>On- vs. off-policy: SARSA</span></a></li>
+      <li><a href="05-state-discretization-tradeoff.html"><span class="n">05</span><span>State discretization</span></a></li>
+      <li><a href="06-the-binning-bug.html"><span class="n">06</span><span>The binning bug</span></a></li>
+      <li><a href="07-build-it-yourself.html"><span class="n">07</span><span>Build it yourself</span></a></li>
+      <li><a class="active" href="08-this-project-formalized.html"><span class="n">08</span><span>This project, formalized</span></a></li>
+      <li><a href="09-code-walkthrough.html"><span class="n">09</span><span>Code walkthrough</span></a></li>
+      <li><a href="10-glossary.html"><span class="n">10</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-4-q-learning-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 08 / 10 — Grounded in the real design</p>
+      <h1>This Project, Formalized</h1>
+      <p class="dek">Everything above, mapped onto the real 16-dimensional observation, the real reward scale, and two bugs already recorded against the plan that a reader of page 7's toy will recognize the shape of immediately.</p>
+
+      <h2>The real <code>discretize_obs</code>, dimension by dimension</h2>
+      <p>The 16-dim normalized observation decodes into the eight-dimensional discrete key from page 5, using page 6's corrected <code>tire_age</code> resolution:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Obs index</th><th>Feature</th><th>Decoding</th><th>Bins</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">[0]</td><td><code>laps_remaining</code></td><td><code>min(int(obs[0] × 12), 11)</code></td><td class="mono">12</td></tr>
+            <tr><td class="mono">[1–5]</td><td><code>tire_compound</code></td><td><code>argmax(obs[1:6])</code> — one-hot decode</td><td class="mono">5</td></tr>
+            <tr><td class="mono">[6]</td><td><code>tire_age</code></td><td><code>min(int(obs[6] × N_BINS), N_BINS−1)</code> — corrected, page 6</td><td class="mono">25–50 (was 10)</td></tr>
+            <tr><td class="mono">[7–9]</td><td><code>weather_regime</code></td><td><code>argmax(obs[7:10])</code> — one-hot decode</td><td class="mono">3</td></tr>
+            <tr><td class="mono">[10]</td><td><code>track_temp</code></td><td><code>min(int(obs[10] × 3), 2)</code></td><td class="mono">3</td></tr>
+            <tr><td class="mono">[11]</td><td><code>safety_car_active</code></td><td><code>int(obs[11] &gt; 0.5)</code></td><td class="mono">2</td></tr>
+            <tr><td class="mono">[12–14]</td><td><code>compounds_used</code></td><td>bitmask: <code>used_s×4 + used_m×2 + used_h</code></td><td class="mono">8</td></tr>
+            <tr><td class="mono">[15]</td><td><code>mandatory_pit_needed</code></td><td><code>int(obs[15] &gt; 0.5)</code></td><td class="mono">2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every one-hot-decoded dimension (<code>tire_compound</code>, <code>weather_regime</code>) uses <code>argmax</code> rather than a threshold, because the environment already hands those out as one-hot vectors — no binning judgment call is needed there, only reading the index back out. The two dimensions that genuinely required a binning decision, <code>laps_remaining</code> and <code>tire_age</code>, are exactly the two pages 5 and 6 spent the most time on.</p>
+
+      <h2>The reward-scale problem, argued numerically</h2>
+      <p>The same style of argument Phase 1 page 3 used to prove reward centring doesn't change the optimal policy applies here, with a training-speed consequence layered on top. With <code>γ = 1</code> and a per-lap reward of roughly <code>−95</code> seconds over a ≈52-lap race, the true Q-values the table needs to learn are around <code>−95 × 52 ≈ −5,000</code>. The table initializes every cell at <code>0</code>.</p>
+      <blockquote class="eq">distance a cell must travel:  0 → ≈ −5,000
+per-update step size at α = 0.1:  roughly 10% of the remaining gap, each visit
+
+a cell needs dozens of visits just to get within a small fraction of −5,000,
+and the value has to propagate backward, lap by lap, before early-race
+cells see any signal at all — exactly the mechanism page 2's hand-run showed
+for a table this size, stretched out over a race-length horizon</blockquote>
+      <p>This is the single most likely cause of "the agent trains without error but the learning curve never moves" — not a bug in the update rule, but a scale mismatch between how far a cell needs to travel and how far a realistic number of visits at <code>α = 0.1</code> can move it in the time available. The fix is <strong>Phase 1's own <code>reward_offset="base_pace"</code> wrapper</strong>, which learns on <code>−(lap_time − base_pace)</code> instead of raw lap time — a per-step reward around <code>−5</code> rather than <code>−95</code>, and Q-values around <code>−250</code> rather than <code>−5,000</code>. This is safe for exactly the reason Phase 1 page 3 proved: subtracting a constant from every step's reward over a <em>fixed</em> horizon shifts every policy's total return by the same fixed amount, and shifting every option's value equally can never change which one is the argmax.</p>
+      <div class="note grounded">
+        <div class="tag">Why "+10 optimistic init" isn't the fix</div>
+        <p>The real plan's Risks table suggests an optimistic <code>+10</code> initialization bonus for pit actions to encourage early exploration of pitting. Against a <code>−5,000</code>-scale problem, <code>+10</code> is a rounding error — it nudges the very first visit to a pit-action cell by an amount roughly 0.2% the size of the gap that cell needs to close. It is not a substitute for fixing the reward scale; it's a reasonable secondary nudge to apply <em>after</em> <code>reward_offset="base_pace"</code> has already brought the true values down to a range where a small initialization bonus can plausibly matter.</p>
+      </div>
+
+      <h2>Curriculum learning, concretely</h2>
+      <p><code>docs/idea.md</code>'s sequencing tip — train on the easy case before the full scenario library — becomes a two-switch <code>options</code> flag passed to <code>env.reset()</code> for the first <code>curriculum_episodes</code> episodes of training: filter scenario sampling to DRY weather traces only, and force an all-green safety-car trace (both switches are needed because, under the revised environment design, safety cars are <em>sampled</em> stochastically rather than replayed from a fixed trace — filtering weather alone wouldn't also suppress SC events). In terms specific to this state space: restricting to dry, no-SC episodes early in training holds <code>weather_regime</code> and <code>safety_car_active</code> effectively constant, so early training concentrates its limited number of episodes on fewer distinct table cells — more visits per cell, faster movement away from the all-zero start discussed above — before the full scenario library reintroduces the dimensions that were held fixed.</p>
+
+      <h2>Two bugs recorded against the real plan</h2>
+      <p>Both are design lessons a reader who did page 7's exercises will already recognize the shape of, not just warnings to memorize:</p>
+      <div class="note grounded">
+        <div class="tag">Evaluated agent still exploring</div>
+        <p><code>select_action</code> branches on <code>self.epsilon</code> at every call, and nothing in <code>evaluate.py</code> ever turns exploration off before running a trained agent's evaluation races. At the trained floor <code>ε = 0.05</code> and a ≈52-step race, the expected number of random actions per evaluated race is <code>0.05 × 52 ≈ 2.6</code> — not a rare edge case but a near-certainty on <em>every</em> reported race, some of those random draws landing on a full 18-second pit stop the agent's actual policy would never have chosen. The fix is an explicit <code>eval_mode</code> / <code>deterministic</code> flag that forces pure-greedy action selection, set by <code>evaluate_agent</code> before any comparison run, with a test asserting two evaluation runs on the same seed produce byte-identical trajectories.</p>
+      </div>
+      <div class="note grounded">
+        <div class="tag">The SARSA pre-commit leak, for real</div>
+        <p>The exact bug reproduced on page 7 stage 6: <code>SARSAAgent._next_action</code> has no <code>reset()</code> and nothing in the training or evaluation loop clears it between episodes, so a pre-committed action chosen for the <em>previous</em> episode's final state can be returned as the very first action of a completely different race — a stale decision applied to an observation it was never chosen for. The fix mirrors what page 7 stage 6 demonstrates is missing: add <code>reset()</code> to <code>SARSAAgent</code> and call it at the start of every episode, both during training and evaluation.</p>
+      </div>
+
+      <h2>The optimality-gap metric, with real numbers to reference</h2>
+      <p>Carried over unchanged from Phase 3.5: <code>optimality_gap = mean_race_time(agent) − mean_race_time(Oracle B)</code>, in seconds, with a paired bootstrap confidence interval. The real Definition of Done's "≥60/100 seeds beating the threshold baseline" is the necessary-but-not-sufficient bar — a trained agent that clears it has shown it learned <em>something</em> better than a fixed heuristic, but the actual headline result this phase reports is how much of the gap between that baseline and the Phase 3.5 DP oracle's exact optimum the agent closed. A Q-learning agent that beats the baseline on 61/100 seeds while leaving most of the baseline-to-oracle gap unclosed has technically passed the DoD bullet and still failed the phase's real pedagogical point.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="07-build-it-yourself.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 07 — Build It Yourself</span>
+        </a>
+        <a class="next" href="09-code-walkthrough.html">
+          <span class="dir">Next</span>
+          <span class="label">09 — Code Walkthrough →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

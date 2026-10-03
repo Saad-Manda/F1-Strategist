@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 Multi-Car Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 6</span>
+      <span class="title">Multi-Car Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:18%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-multi-car-mdp.html"><span class="n">01</span><span>One car to N</span></a></li>
+      <li><a class="active" href="02-credit-assignment.html"><span class="n">02</span><span>Credit assignment</span></a></li>
+      <li><a href="03-potential-based-shaping.html"><span class="n">03</span><span>Potential-based shaping</span></a></li>
+      <li><a href="04-overtaking-dirty-air.html"><span class="n">04</span><span>Overtaking &amp; dirty air</span></a></li>
+      <li><a href="05-position-and-blocking.html"><span class="n">05</span><span>Position vs. the undercut</span></a></li>
+      <li><a href="06-bug-ledger.html"><span class="n">06</span><span>The bug ledger</span></a></li>
+      <li><a href="07-non-stationarity.html"><span class="n">07</span><span>Non-stationarity preview</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-6-multi-car-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 02 / 11 — Foundations</p>
+      <h1>What "Doing Well" Even Means Now</h1>
+      <p class="dek">Phase 1's reward was the cleanest one this project will ever have. Phase 6 forces a tradeoff <code>docs/idea.md</code> warned about from the very first page.</p>
+
+      <h2>The reward Phase 1 through 5 had</h2>
+      <p><code>-lap_time</code>, every step. Summed over an episode, this equals <code>-total_race_time</code> exactly — the dense, per-step reward literally <em>is</em> the true objective, not a proxy standing in for it. There was never any question of whether the reward measured the right thing; the only open questions were about learning it well.</p>
+
+      <h2>What the equivalent reward for "race well" would be</h2>
+      <p>If the goal shifts from "go as fast as possible" to "finish as high as possible relative to rivals," the equally honest reward is final position. It exists, and it's exactly what the agent should care about — but it's <strong>sparse</strong>: known only once, on the terminal step of the episode, after hundreds of per-lap decisions have already been made. Every lap in between contributes to that eventual position, but none of them get told, in the moment, whether the choice just made helped or hurt.</p>
+
+      <h2>The credit-assignment problem</h2>
+      <p>When a reward arrives many steps after the decisions that caused it, the learning signal has to somehow apportion credit backward across every intervening step — did lap 14's early pit help or hurt the eventual P3 finish, as opposed to lap 31's tyre choice, or lap 40's overtake attempt? TD learning (Phase 4) already does a version of this through bootstrapping, propagating value backward one step at a time. But a reward that's exactly zero for fifty consecutive steps and then one number at the very end gives that machinery very little to work with per update, compared to Phase 1 through 5's fully dense <code>-lap_time</code>, which supplied a learning signal on <em>every single lap</em>.</p>
+
+      <h2>Dense proxies, and their own failure mode</h2>
+      <p>The obvious fix is a denser proxy reward — something computable every lap that's correlated with the true sparse goal. The real plan offers two, and they sit at different points on a real tradeoff:</p>
+      <ul>
+        <li><strong><code>lap_time_plus_position</code></strong> — the familiar dense <code>-lap_time</code> every lap, plus a one-time terminal bonus scaled by final position (<code>position_bonus_scale = 20.0</code> seconds-equivalent per position). This is still mostly the honest per-lap signal, with a shaped nudge toward caring about position layered on top only at the end.</li>
+        <li><strong><code>gap_change</code></strong> — a reward every lap for closing the gap to the leader (or car ahead). Dense every step, unlike the terminal-only bonus above — but it's a <em>proxy</em> for the real goal, not the goal itself.</li>
+      </ul>
+      <p>The real plan names <code>gap_change</code>'s own risk explicitly, and it's worth taking seriously rather than dismissing as a hypothetical: an agent rewarded for closing gaps every lap has a direct incentive to push its tyres harder right now for a short-term gap-closing gain, even if that means degrading them faster and paying for it with a slower final stint — a decision that could cost a podium finish later in exchange for a reward bump now. This is the general shape of <strong>reward hacking</strong> (sometimes called Goodhart's-law-style optimization): once a proxy stands in for the real objective, the fastest way to raise the proxy's number isn't always the same as the best way to achieve the thing the proxy was supposed to measure.</p>
+
+      <div class="note generic">
+        <div class="tag">Not a hypothetical</div>
+        <p><code>docs/idea.md</code>'s own "common pitfalls" section names this as the #1 RL debugging trap, project-wide: <em>a rising learning curve isn't proof of anything by itself</em>, because the agent may be exploiting a flaw in the reward function rather than learning good strategy. <code>gap_change</code> is Phase 6's most concrete, plannable instance of exactly that risk — which is precisely why it's worth training deliberately rather than avoiding it out of caution.</p>
+      </div>
+
+      <h2>Why the real plan trains three designs instead of choosing one</h2>
+      <p>Given this tradeoff, the real plan doesn't try to reason its way to the single best reward design up front. It trains all three — <code>lap_time_plus_position</code>, <code>gap_change</code>, and a third design, <code>potential_shaping</code> (page 03) — and compares what each one actually produces: does <code>gap_change</code> visibly push tyres harder (checkable via average tyre age at pit stops)? Does one converge faster than the others? Which produces the best actual race outcome? This is presented in the real plan as good practice — try the tradeoff empirically and report what happened — not as a gap where the plan should have just picked one.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="01-multi-car-mdp.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 01 — From One Car to N</span>
+        </a>
+        <a class="next" href="03-potential-based-shaping.html">
+          <span class="dir">Next</span>
+          <span class="label">03 — Potential-Based Shaping →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

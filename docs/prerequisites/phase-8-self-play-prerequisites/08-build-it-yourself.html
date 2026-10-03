@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 8 Self-Play Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 8</span>
+      <span class="title">Self-Play Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:73%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-non-stationarity-revisited.html"><span class="n">01</span><span>Non-stationarity, revisited</span></a></li>
+      <li><a href="02-nash-and-fictitious-play.html"><span class="n">02</span><span>Nash &amp; fictitious play</span></a></li>
+      <li><a href="03-checkpoint-pool.html"><span class="n">03</span><span>Checkpoint pool</span></a></li>
+      <li><a href="04-pettingzoo-apis.html"><span class="n">04</span><span>PettingZoo APIs</span></a></li>
+      <li><a href="05-first-opponent-problem.html"><span class="n">05</span><span>The first opponent</span></a></li>
+      <li><a href="06-blocking-model-dependency.html"><span class="n">06</span><span>The blocking dependency</span></a></li>
+      <li><a href="07-is-it-bimodal.html"><span class="n">07</span><span>Is it bimodal?</span></a></li>
+      <li><a class="active" href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-8-self-play-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 08 / 11 — Building it yourself</p>
+      <h1>Build It Yourself: A Toy Self-Play Loop</h1>
+      <p class="dek">Five stages: naive self-play cycling, pool-based convergence, a bug you plant on purpose, a toy blocking mechanic, and the null-baseline check from page 07 applied to your own result.</p>
+
+      <p>Every name below (<code>TinyDuel</code>, <code>Snapshot</code>, <code>SnapshotPool</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match <code>F1PettingZooEnv</code>, <code>CheckpointPool</code>, or <code>train_self_play</code>. As with every toy build in this project's prerequisite sets, the point is to arrive at the same <em>shape</em> of solution independently, so the real pseudocode on page 10 reads as familiar structure rather than new material.</p>
+
+      <h2>Stage 0 — the toy game and a tabular learner</h2>
+      <p>Reuse page 02's reduced rock-paper-scissors payoff matrix (Rock beats nothing, loses to Paper; Paper beats Rock, ties itself) and a tiny tabular Q-learning agent, reusing Phase 4's update rule (assumed background):</p>
+      <pre><code>import numpy as np
+
+ACTIONS = ["R", "P"]
+PAYOFF = {("R","R"): 0, ("R","P"): -1, ("P","R"): +1, ("P","P"): 0}
+
+class TinyDuelist:
+    """Tabular Q-learner over a 2-action matrix game. No state -- one shared Q per action."""
+    def __init__(self, alpha=0.1, eps=0.2, seed=0):
+        self.q = {a: 0.0 for a in ACTIONS}
+        self.alpha, self.eps = alpha, eps
+        self.rng = np.random.default_rng(seed)
+
+    def act(self):
+        if self.rng.random() < self.eps:
+            return self.rng.choice(ACTIONS)
+        return max(self.q, key=self.q.get)
+
+    def update(self, action, reward):
+        self.q[action] += self.alpha * (reward - self.q[action])
+
+    def snapshot(self):
+        return dict(self.q)   # a frozen copy of current Q-values</code></pre>
+
+      <h2>Stage 1 — naive self-play: train against only the latest snapshot</h2>
+      <p>Each episode, the learner plays one round against a frozen copy of <em>its own current</em> Q-table (no pool at all):</p>
+      <pre><code>def frozen_action(q_snapshot, rng, eps=0.0):
+    if rng.random() < eps:
+        return rng.choice(ACTIONS)
+    return max(q_snapshot, key=q_snapshot.get)
+
+learner = TinyDuelist(seed=1)
+history = []
+for ep in range(400):
+    opponent_snapshot = learner.snapshot()          # only ever the LATEST self
+    opp_rng = np.random.default_rng(ep)
+    my_action  = learner.act()
+    opp_action = frozen_action(opponent_snapshot, opp_rng)
+    learner.update(my_action, PAYOFF[(my_action, opp_action)])
+    history.append(dict(learner.q))
+
+# Plot history["R"] and history["P"] over episodes: the two values chase
+# each other back and forth without settling -- reproducing page 02's
+# best-respond-to-the-latest-only cycling, now as a training curve you ran.</code></pre>
+
+      <h2>Stage 2 — add a checkpoint pool with recency-biased sampling</h2>
+      <pre><code>class SnapshotPool:
+    """Recency-biased pool of past Q-table snapshots -- own version of page 03's math."""
+    def __init__(self, recency_bias=0.7, max_size=20):
+        self.snapshots = []
+        self.recency_bias = recency_bias
+        self.max_size = max_size
+
+    def add(self, q_snapshot):
+        self.snapshots.append(q_snapshot)
+        if len(self.snapshots) > self.max_size:
+            self.snapshots.pop(0)
+
+    def sample(self, rng):
+        n = len(self.snapshots)
+        recent_cutoff = max(1, int(0.8 * n))
+        if rng.random() < self.recency_bias:
+            idx = rng.integers(recent_cutoff, n)
+        else:
+            idx = rng.integers(0, recent_cutoff)
+        return self.snapshots[idx]
+
+learner = TinyDuelist(seed=1)
+pool = SnapshotPool()
+pool.add(learner.snapshot())          # stage 3 revisits this line on purpose
+history = []
+for ep in range(400):
+    rng = np.random.default_rng(ep)
+    opponent_snapshot = pool.sample(rng)
+    my_action  = learner.act()
+    opp_action = frozen_action(opponent_snapshot, rng)
+    learner.update(my_action, PAYOFF[(my_action, opp_action)])
+    history.append(dict(learner.q))
+    if ep % 20 == 0:
+        pool.add(learner.snapshot())
+
+# Now plot history["R"] and history["P"] again: the two values should visibly
+# settle toward a roughly equal split instead of cycling -- page 02-03's
+# argument, confirmed with code you ran rather than taken on faith.</code></pre>
+
+      <h2>Stage 3 — catch the leak: plant the degenerate-seed bug on purpose</h2>
+      <p>Reproduce page 05's bug directly: seed the pool's very first entry with a <em>fixed</em> placeholder action instead of the learner's own (already somewhat-random, epsilon-greedy) starting snapshot, and make the sampler fully greedy against it:</p>
+      <pre><code>degenerate_pool = SnapshotPool()
+degenerate_pool.snapshots.append({"R": 5.0, "P": 0.0})   # deterministic: always picks "R"
+
+learner = TinyDuelist(seed=1)
+history = []
+for ep in range(60):                       # look at just the early episodes
+    rng = np.random.default_rng(ep)
+    opponent_snapshot = degenerate_pool.sample(rng) if degenerate_pool.snapshots else learner.snapshot()
+    my_action  = learner.act()
+    opp_action = frozen_action(opponent_snapshot, rng, eps=0.0)   # fully greedy, per page 05
+    learner.update(my_action, PAYOFF[(my_action, opp_action)])
+    history.append(dict(learner.q))
+    if ep % 20 == 0 and ep > 0:
+        degenerate_pool.add(learner.snapshot())
+
+# The opponent plays "R" on literally every one of these early episodes.
+# Compare against stage 2's history over the same first 60 episodes: the
+# degenerate-seeded run's Q("P") shoots up fast (P always beats a fixed R)
+# and the learner overfits hard to "always play P" -- a policy that then
+# needs extra episodes to unlearn once real variety enters the pool.
+# This is page 05's bug, now something you watched happen.</code></pre>
+
+      <h2>Stage 4 — a toy blocking mechanic, and where timing starts to matter</h2>
+      <p>Extend the toy game with a small positional resource, page 06's lesson in miniature: whoever's cumulative score is currently <em>behind</em> gets a one-time bonus the first time they play <code>P</code> while trailing — but only if they haven't already "blocked" that opportunity by having played <code>P</code> in the previous round too (a toy stand-in for "you can only undercut once, and it only works if the timing is right"):</p>
+      <pre><code>def run_with_timing_bonus(pool, n_episodes=400, seed=1):
+    learner = TinyDuelist(seed=seed)
+    score, opp_score = 0.0, 0.0
+    last_action = None
+    hist = []
+    for ep in range(n_episodes):
+        rng = np.random.default_rng(ep + 1000)
+        opp_snapshot = pool.sample(rng)
+        my_action  = learner.act()
+        opp_action = frozen_action(opp_snapshot, rng)
+        reward = PAYOFF[(my_action, opp_action)]
+        if score < opp_score and my_action == "P" and last_action != "P":
+            reward += 2.0             # the "undercut" bonus: timed correctly, while trailing
+        learner.update(my_action, reward)
+        score += reward
+        last_action = my_action
+        hist.append(dict(learner.q))
+        if ep % 20 == 0:
+            pool.add(learner.snapshot())
+    return hist
+
+pool_no_timing = SnapshotPool(); pool_no_timing.add(TinyDuelist(seed=1).snapshot())
+pool_timing    = SnapshotPool(); pool_timing.add(TinyDuelist(seed=1).snapshot())
+
+hist_plain  = ... # stage 2's loop, unmodified -- no bonus, no notion of "trailing"
+hist_timed  = run_with_timing_bonus(pool_timing)
+
+# Only in hist_timed does the learner's Q-value for "P" pick up a component
+# that specifically depends on *when* it's played (while trailing, not
+# repeating the previous move) rather than just its raw payoff -- exactly
+# page 06's point: only once a blocking/timing mechanic exists does anything
+# about *relative timing* show up in what gets learned at all.</code></pre>
+
+      <h2>Stage 5 — apply page 07's null baseline to your own toy result</h2>
+      <p>Record, across many runs of stage 4's <code>run_with_timing_bonus</code>, the episode number at which the learner's action flips relative to when its own score was trailing versus leading. Then shuffle the pairing between "trailing/leading" and "action taken" across episodes, exactly as page 07 shuffled agent/rival pit-lap pairings, and recompute the same statistic:</p>
+      <pre><code>def timing_correlation_stat(actions, was_trailing):
+    """Crude stand-in for page 07's histogram-shape statistic: how often
+    'P' coincides with 'trailing', versus chance."""
+    return np.mean([(a == "P") == t for a, t in zip(actions, was_trailing)])
+
+real_stat = timing_correlation_stat(actions_from_stage4, trailing_flags_from_stage4)
+
+rng = np.random.default_rng(0)
+null_stats = []
+for _ in range(500):
+    shuffled_trailing = rng.permutation(trailing_flags_from_stage4)
+    null_stats.append(timing_correlation_stat(actions_from_stage4, shuffled_trailing))
+
+print("real:", real_stat, " null mean:", np.mean(null_stats), " null std:", np.std(null_stats))
+# Rerun this whole stage-5 check against a run of STAGE 2's loop (no timing
+# bonus at all): there, real_stat should land squarely inside the null
+# distribution -- no separation, because there's nothing for the action to
+# be correlated with. Only stage 4's blocking-enabled run should show
+# real_stat clearly outside the null spread, closing the loop between
+# page 06 (needs a mechanism to exist) and page 07 (checking that its
+# effect is real, not an artifact) in code you controlled end to end.</code></pre>
+
+      <div class="pagenav">
+        <a class="prev" href="07-is-it-bimodal.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 07 — Is It Really Bimodal?</span>
+        </a>
+        <a class="next" href="09-this-project-formalized.html">
+          <span class="dir">Next</span>
+          <span class="label">09 — This Project, Formalized →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

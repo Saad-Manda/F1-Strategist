@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 Multi-Car Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  dl.glossary { margin: 0; }
+  dl.glossary > div {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 18px;
+    align-items: baseline;
+  }
+  dl.glossary > div:first-child { border-top: none; }
+  dl.glossary dt {
+    font-family: "Sora", sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--accent);
+  }
+  dl.glossary dd { margin: 0; font-size: 15.5px; }
+  @media (max-width: 620px) {
+    dl.glossary > div { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 6</span>
+      <span class="title">Multi-Car Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-multi-car-mdp.html"><span class="n">01</span><span>One car to N</span></a></li>
+      <li><a href="02-credit-assignment.html"><span class="n">02</span><span>Credit assignment</span></a></li>
+      <li><a href="03-potential-based-shaping.html"><span class="n">03</span><span>Potential-based shaping</span></a></li>
+      <li><a href="04-overtaking-dirty-air.html"><span class="n">04</span><span>Overtaking &amp; dirty air</span></a></li>
+      <li><a href="05-position-and-blocking.html"><span class="n">05</span><span>Position vs. the undercut</span></a></li>
+      <li><a href="06-bug-ledger.html"><span class="n">06</span><span>The bug ledger</span></a></li>
+      <li><a href="07-non-stationarity.html"><span class="n">07</span><span>Non-stationarity preview</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a class="active" href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-6-multi-car-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 11 / 11 — Reference</p>
+      <h1>Glossary</h1>
+      <p class="dek">Every term used across pages 1–10 — nothing beyond them. Keep this open while reading the Phase 6 plan or its eventual code.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope note</div>
+        <p>Terms belonging to self-play, PettingZoo, or genuinely non-stationary multi-agent learning aren't listed here because Phase 6 doesn't implement them — page 07 previews <em>why</em> Phase 8 needs them, not what they are. See the eventual Phase 8 prerequisites for that vocabulary.</p>
+      </div>
+
+      <dl class="glossary">
+        <div><dt>Multi-car state extension</dt><dd>The three features added to Phase 1's 16-dimensional observation for Phase 6: <code>gap_to_car_ahead</code>, <code>gap_to_car_behind</code>, <code>position_normalized</code>. See page 1.</dd></div>
+        <div><dt>Race position</dt><dd>A car's rank among all cars in the race, computed by sorting cumulative <code>total_time</code> ascending. Page 5 explains why this computation alone isn't enough to make position matter strategically.</dd></div>
+        <div><dt>Credit-assignment problem</dt><dd>The difficulty of apportioning a reward that arrives many steps after the decisions that caused it back across those decisions — acute here because "final position" is known only at the very end of an episode. See page 2.</dd></div>
+        <div><dt>Sparse reward</dt><dd>A reward that's zero (or absent) on most steps and non-zero only rarely, such as final position, known only on the terminal step. Contrasted with Phase 1–5's fully dense <code>-lap_time</code>. See page 2.</dd></div>
+        <div><dt>Reward shaping</dt><dd>Adding an extra term to a base reward to make learning easier or faster. Can be principled (potential-based, page 3) or ad-hoc (page 2's <code>gap_change</code>, page 3's pit-bonus example), with very different guarantees about whether the optimal policy is preserved.</dd></div>
+        <div><dt>Reward hacking / proxy optimization</dt><dd>An agent finding the fastest way to raise a proxy reward's number, which isn't always the same as the best way to achieve the real objective the proxy stands in for — the tyre-pushing risk named for <code>gap_change</code> on page 2, and the general lesson behind E3 on page 6.</dd></div>
+        <div><dt>Potential-based shaping</dt><dd>A shaping term of the specific form <code>F(s,a,s') = γ·Φ(s') − Φ(s)</code>, for any function of state alone <code>Φ</code>. Ng, Harada &amp; Russell (1999) prove this form, and only this form, preserves the optimal policy exactly. See page 3.</dd></div>
+        <div><dt>Potential function Φ(s)</dt><dd>The state-only function a potential-based shaping term is built from — the real plan's choice is <code>Φ(s) = -position_normalized</code>. See pages 3 and 9.</dd></div>
+        <div><dt>Ng-Harada-Russell theorem</dt><dd>Cross-reference to "potential-based shaping" above — the paper's central result, worked through via a one-step Bellman-consistency check on page 3 rather than the full proof.</dd></div>
+        <div><dt>Dirty air</dt><dd>The real aerodynamic effect where a trailing car loses downforce, and pace, running close behind another. Modeled as a linear penalty from 0.5s at zero gap to 0s at a 1.5s gap. See page 4.</dd></div>
+        <div><dt>Following gap / DRS-style attempt gap</dt><dd>The distance threshold (1.0s in the real plan) within which an overtake attempt becomes possible at all. See page 4.</dd></div>
+        <div><dt>Probabilistic overtaking model</dt><dd>The sigmoid function converting a car's pace advantage over the car ahead into a probability that an attempted pass succeeds, plus a small bonus for consecutive laps spent following. See page 4.</dd></div>
+        <div><dt>Track position as a resource</dt><dd>The idea that being ahead has value <em>in itself</em>, beyond the time already banked to get there — only true once a blocking constraint exists; without one, position is purely a readout of accumulated time. See page 5.</dd></div>
+        <div><dt>Blocking constraint</dt><dd>The rule that a trailing car within the following gap, absent a successful overtake, is held to at best the pace of the car ahead (plus dirty air). The one addition that makes track position a real resource. See page 5.</dd></div>
+        <div><dt>Undercut</dt><dd>Pitting before a rival on comparable pace so that fresh tyres convert into track position the rival can't immediately take back, because — with a blocking constraint in place — the rival can't simply drive around a stopped or slower car. See page 5.</dd></div>
+        <div><dt>Overcut</dt><dd>The mirror strategy: staying out longer than a rival to bank track position on old tyres before eventually pitting, betting that the time lost to degradation is worth less than the position gained by staying out. Named alongside "undercut" throughout this set; the mechanism is symmetric.</dd></div>
+        <div><dt>Non-stationarity</dt><dd>The breakdown of the fixed-environment assumption underlying standard RL convergence results, once more than one agent in the environment is learning and changing its behavior over time. See page 7; full treatment deferred to the eventual Phase 8 prerequisites.</dd></div>
+        <div><dt>Stationary opponent / fixed-script rival</dt><dd>An opponent whose behavior is decided in advance and never adapts to what the learning agent does — Phase 6's <code>RivalState</code>, which sidesteps non-stationarity entirely by construction. See pages 1, 7 &amp; 9.</dd></div>
+        <div><dt>Double-counting bug (E1, as a general pattern)</dt><dd>Two separate pieces of code both updating the same piece of state, each unaware the other already did. See page 6.</dd></div>
+        <div><dt>Dead-code overwrite (E2, as a general pattern)</dt><dd>A stateful, partial update to a quantity immediately followed by a from-scratch recomputation of that same quantity, where the recomputation silently wins. See page 6.</dd></div>
+        <div><dt>Reward/dynamics disagreement (E3, as a general pattern)</dt><dd>A reward that penalizes or rewards something the actual state transitions don't reflect — a reward-hacking surface, not a cosmetic inconsistency. See page 6.</dd></div>
+      </dl>
+
+      <div class="pagenav">
+        <a class="prev" href="10-reading-the-plan.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 10 — Reading the Implementation Plan's Code</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Back to start</span>
+          <span class="label">00 — Index →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

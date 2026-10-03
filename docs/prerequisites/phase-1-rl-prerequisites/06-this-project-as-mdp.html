@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 RL Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 1</span>
+      <span class="title">RL Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-rl-fundamentals.html"><span class="n">01</span><span>RL fundamentals</span></a></li>
+      <li><a href="02-markov-decision-processes.html"><span class="n">02</span><span>Markov decision processes</span></a></li>
+      <li><a href="03-value-functions-bellman.html"><span class="n">03</span><span>Value functions &amp; Bellman</span></a></li>
+      <li><a href="04-gymnasium-api.html"><span class="n">04</span><span>The Gymnasium API</span></a></li>
+      <li><a href="05-building-the-environment.html"><span class="n">05</span><span>Building the environment</span></a></li>
+      <li><a class="active" href="06-this-project-as-mdp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-1-rl-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 06 / 08 — Grounding</p>
+      <h1>This Project, Formalized as an MDP</h1>
+      <p class="dek">Pages 1–5, inverted: every formal object from page 2's tuple, matched to exactly what it is in this project's actual design.</p>
+
+      <h2>The state space, S</h2>
+      <p>The observation is a 16-dimensional vector, entirely in <code>[0, 1]</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Index</th><th>Feature</th><th>Encoding</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">0</td><td>Laps remaining</td><td>Normalized fraction of the race left</td></tr>
+            <tr><td class="mono">1–5</td><td>Tyre compound</td><td>One-hot: SOFT, MEDIUM, HARD, INTERMEDIATE, WET</td></tr>
+            <tr><td class="mono">6</td><td>Tyre age</td><td>Normalized (capped at an assumed max age of 50 laps)</td></tr>
+            <tr><td class="mono">7–9</td><td>Weather regime</td><td>One-hot: DRY, DAMP, WET</td></tr>
+            <tr><td class="mono">10</td><td>Track temperature</td><td>Rescaled from a 15–65 °C range</td></tr>
+            <tr><td class="mono">11</td><td>Safety car active</td><td>Binary</td></tr>
+            <tr><td class="mono">12–14</td><td>Compounds used</td><td>Bitmask over SOFT/MEDIUM/HARD</td></tr>
+            <tr><td class="mono">15</td><td>Mandatory pit needed</td><td>Binary — derived from 12–14 and the two-compound rule</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every feature here is either directly observable in a real race broadcast or trivially derivable from it — a deliberate modelling choice: the agent gets exactly the information a strategist actually has, no more (it never sees the exact calibration constants) and no less.</p>
+
+      <h2>The action space, A</h2>
+      <p>Six discrete choices: <code>STAY_OUT</code>, or pit for one of <code>SOFT</code>, <code>MEDIUM</code>, <code>HARD</code>, <code>INTERMEDIATE</code>, <code>WET</code>. Not all six are legal in every state — see the action mask below.</p>
+
+      <h2>The transition function, P</h2>
+      <p><code>dynamics.py</code> is where <code>P</code> lives, and by the time you're reading it, none of its shape should be a surprise — page 5 built exactly this transition function, term by term, in a toy of your own: a pace term per compound, a degradation term with a cliff, a fuel term, a weather-mismatch term, a warmup term, all summed into one lap time, with an explicit escape hatch for a fixed, calibrated time on safety-car and VSC laps where nobody's choices affect the outcome. What's different in the real file is only scale and precision — real calibrated constants instead of illustrative ones, five real compounds instead of a toy's two or three, a proper weather-mismatch table instead of a single penalty — not structure. If any piece of that composition feels unfamiliar, that's the signal to go back to page 5 and build the missing piece as a toy before reading the real file.</p>
+      <p>The tyre-age, weather-regime, and compounds-used bookkeeping that turns one state into the next lives in <code>F1StrategyEnv.step()</code>, and it embeds the same ordering rule page 5's pit-stop stage built by hand: a pit stop is charged against the <strong>lap you're currently finishing</strong>, on the <strong>tyre you started that lap on</strong> — the new tyre (and its warmup penalty) only takes effect from the <em>next</em> lap. Getting this order backward would let a pit stop simultaneously avoid a lap of degradation, dodge the warmup penalty, <em>and</em> gain fresh-tyre pace — three unearned advantages stacked on the exact lap where the model should be charging the agent the most, not the least.</p>
+      <p>Two further pieces of <code>P</code> are stochastic and sampled independently at every <code>reset()</code>: <strong>weather</strong> (<code>ScenarioLoader</code>, from real historical race traces) and <strong>safety cars</strong> (<code>SafetyCarSampler</code>, drawn fresh from a calibrated hazard rate every episode, deliberately <em>not</em> replayed from history — see page 1's note on reward hacking, and page 5's own hazard-sampling stage for why "fresh every episode" has to be true in code, not just in principle).</p>
+
+      <h2>The reward function, R</h2>
+      <p><code>R = -lap_time</code> on every single lap, safety cars included, plus a <code>-500</code> terminal backstop if the race ends without the mandatory two-dry-compound rule satisfied (structurally unreachable in normal play — see the mask section below). An optional <code>reward_offset</code> setting subtracts a constant (<code>base_pace</code>) from every step for numerical reasons (page 3) without changing which policy is optimal; <code>info["lap_time"]</code> always reports the true, uncentred value regardless of this setting.</p>
+
+      <h2>The discount factor, γ</h2>
+      <p><code>γ = 1.0</code>. Justified on pages 2 and 3: episodes are guaranteed fixed-length, so the return sum is always finite regardless of γ, and γ = 1 is the <em>only</em> choice under which <code>return = -total_race_time</code> exactly, with no implicit bias toward early- or late-race pace.</p>
+
+      <h2>The action mask</h2>
+      <p><code>compute_action_mask</code> encodes five rules as a single boolean array, shared verbatim between the environment and the Phase 3.5 DP oracle:</p>
+      <ol>
+        <li>Slick compounds (SOFT/MEDIUM/HARD) are only legal in DRY or DAMP.</li>
+        <li>INTERMEDIATE is only legal in DAMP or WET.</li>
+        <li>WET is only legal in WET.</li>
+        <li>You cannot "pit" for the compound you're already on.</li>
+        <li><code>STAY_OUT</code> is forced off if the two-compound rule isn't yet satisfied and only 2 laps remain — unless the race has been declared wet, which voids the rule entirely (the real regulation).</li>
+      </ol>
+      <p>Rule 5 is why the <code>-500</code> terminal penalty above should never actually fire during ordinary play: the mask makes the violation it punishes structurally impossible for any agent that respects <code>action_masks()</code>. The penalty exists purely as a backstop for consumers that bypass masking, and the Phase 1 test suite treats "the penalty never fires in normal play" as a <em>success</em> condition, not a gap in test coverage.</p>
+
+      <h2>Worked example: a complete <code>step()</code> call</h2>
+      <p>Page 2 hand-computed the lap-time arithmetic for one decision. Here's the same decision — PIT_HARD, lap 30 of 52, on a 14-lap-old MEDIUM, DRY, track temperature 42°C, only MEDIUM used so far — carried all the way through <code>step()</code>: the full 16-dim observation before and after, and the info dict returned alongside it. This is every idea on this page, in one trace.</p>
+
+      <p><strong>Observation before the call</strong> (<code>laps_remaining = (52−30+1)/52</code>, tyre age 14 → <code>14/50</code>, track temp <code>(42−15)/50</code>, only MEDIUM used so the two-compound rule isn't met yet):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Index</th><th>Meaning</th><th class="mono">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">0</td><td>laps_remaining</td><td class="mono">0.4423</td></tr>
+            <tr><td class="mono">1–5</td><td>compound one-hot (S,M,H,I,W)</td><td class="mono">0, 1, 0, 0, 0</td></tr>
+            <tr><td class="mono">6</td><td>tyre_age norm</td><td class="mono">0.2800</td></tr>
+            <tr><td class="mono">7–9</td><td>weather one-hot (DRY,DAMP,WET)</td><td class="mono">1, 0, 0</td></tr>
+            <tr><td class="mono">10</td><td>track_temp norm</td><td class="mono">0.5400</td></tr>
+            <tr><td class="mono">11</td><td>safety_car_active</td><td class="mono">0</td></tr>
+            <tr><td class="mono">12–14</td><td>compounds_used (S,M,H)</td><td class="mono">0, 1, 0</td></tr>
+            <tr><td class="mono">15</td><td>mandatory_pit_needed</td><td class="mono">1.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Call:</strong> <code>obs, reward, terminated, truncated, info = env.step(PIT_HARD)</code></p>
+      <p>Inside <code>step()</code>, in order: the lap is timed on the tyre that was fitted coming into it — MEDIUM, age 14 — giving <code>93.582 s</code> exactly as on page 2; pit loss is added since the action isn't STAY_OUT (<code>+22.000 s</code>, GREEN flag, total <code>115.582 s</code>); <em>then</em> the compound switches to HARD and <code>tyre_age</code> resets, effective from next lap; the lap counter advances to 31; <code>terminated</code> stays <code>False</code> (31 ≤ 52).</p>
+
+      <p><strong>Observation after the call</strong> — HARD is now active, its age is 1 (this coming lap is HARD's out-lap), both dry compounds have now been used so the mandatory-pit flag clears:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Index</th><th>Meaning</th><th class="mono">Value</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">0</td><td>laps_remaining</td><td class="mono">0.4231</td></tr>
+            <tr><td class="mono">1–5</td><td>compound one-hot (S,M,H,I,W)</td><td class="mono">0, 0, 1, 0, 0</td></tr>
+            <tr><td class="mono">6</td><td>tyre_age norm</td><td class="mono">0.0200</td></tr>
+            <tr><td class="mono">7–9</td><td>weather one-hot (DRY,DAMP,WET)</td><td class="mono">1, 0, 0</td></tr>
+            <tr><td class="mono">10</td><td>track_temp norm</td><td class="mono">0.5400</td></tr>
+            <tr><td class="mono">11</td><td>safety_car_active</td><td class="mono">0</td></tr>
+            <tr><td class="mono">12–14</td><td>compounds_used (S,M,H)</td><td class="mono">0, 1, 1</td></tr>
+            <tr><td class="mono">15</td><td>mandatory_pit_needed</td><td class="mono">0.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Returned alongside it:</strong> <code>reward = -115.582</code>, <code>terminated = False</code>, <code>truncated = False</code>, and an <code>info</code> dictionary — the plan's public contract, described here rather than reproduced, since it's a specification other phases depend on, not something to copy-paste:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Key</th><th>Value this call</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">lap</td><td class="mono">31</td><td>the lap just started, not the one just finished</td></tr>
+            <tr><td class="mono">compound</td><td class="mono">"HARD"</td><td>the newly fitted tyre</td></tr>
+            <tr><td class="mono">tire_age</td><td class="mono">1</td><td>HARD's out-lap is next</td></tr>
+            <tr><td class="mono">compounds_used</td><td class="mono">["MEDIUM","HARD"]</td><td>both dry compounds now used</td></tr>
+            <tr><td class="mono">two_compound_rule_met</td><td class="mono">True</td><td>the mandatory-pit condition has cleared</td></tr>
+            <tr><td class="mono">track_status</td><td class="mono">0 (GREEN)</td><td>authoritative flag state</td></tr>
+            <tr><td class="mono">pit_laps</td><td class="mono">[30]</td><td>history of pit stops so far</td></tr>
+            <tr><td class="mono">lap_time</td><td class="mono">115.582</td><td>true, uncentred, regardless of <code>reward_offset</code></td></tr>
+            <tr><td class="mono">pit_done</td><td class="mono">True</td><td>this lap included a pit stop</td></tr>
+            <tr><td class="mono">lap_time_compound</td><td class="mono">"MEDIUM"</td><td>the <strong>old</strong> tyre this lap was actually run on — not HARD</td></tr>
+            <tr><td class="mono">lap_time_tyre_age</td><td class="mono">14</td><td>the old tyre's age when that lap was timed</td></tr>
+            <tr><td class="mono">action_masks</td><td class="mono">(recomputed)</td><td>legal actions for lap 31, <em>not</em> for the lap the action was chosen in</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Two entries are worth noticing precisely because they're easy to get backward: <code>lap_time_compound</code> is <strong>MEDIUM</strong>, not HARD — it records what the just-completed lap was actually run on, which is the old tyre, per the ordering rule above. And <code>action_masks</code> describes what's legal <em>next</em> (lap 31, on HARD), not what was legal when the action was chosen — a consumer reading this for the state the action was taken <em>in</em> is reading the wrong lap's mask.</p>
+
+      <h2>Why one shared implementation matters more here than usual</h2>
+      <p>Nothing above is unusual RL design in isolation — every piece has a name and a textbook description on pages 1–5. What <em>is</em> specific to this project is the insistence that <code>P</code> and the action mask exist in <strong>exactly one place</strong> (<code>dynamics.py</code>), called identically by the environment, the baselines, and the DP oracle. A DP oracle that computes optimal Q-values against a subtly different transition function than the one agents actually train against produces numbers that look authoritative and are simply wrong — and because both implementations would look individually correct, this class of bug is close to invisible without the "single implementation, multiple callers" discipline the plan insists on.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="05-building-the-environment.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 05 — Building the Environment</span>
+        </a>
+        <a class="next" href="07-code-walkthrough.html">
+          <span class="dir">Next</span>
+          <span class="label">07 — Code Walkthrough →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

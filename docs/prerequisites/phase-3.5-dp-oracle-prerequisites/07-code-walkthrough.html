@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3.5 DP Oracle Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 3.5</span>
+      <span class="title">DP Oracle Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:87.5%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-planning-vs-learning.html"><span class="n">01</span><span>Planning vs. learning</span></a></li>
+      <li><a href="02-backward-induction.html"><span class="n">02</span><span>Backward induction</span></a></li>
+      <li><a href="03-stochastic-transitions.html"><span class="n">03</span><span>Expectations over randomness</span></a></li>
+      <li><a href="04-markov-chains.html"><span class="n">04</span><span>Markov chains</span></a></li>
+      <li><a href="05-build-a-toy-solver.html"><span class="n">05</span><span>Build a toy DP solver</span></a></li>
+      <li><a href="06-this-project-as-dp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a class="active" href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-3.5-dp-oracle-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 07 / 08 — Grounding</p>
+      <h1>Annotated Code Walkthrough</h1>
+      <p class="dek"><code>src/evaluation/dp_oracle.py</code>, <code>src/env/weather_markov.py</code>, and <code>scripts/run_dp_oracle.py</code>, read by dependency order: state enumeration first, then the recursion itself, then the two things that wrap it for evaluation.</p>
+
+      <p>This page does not reproduce the real code — by now you've built an equivalent structure yourself across page 5's five stages, and every piece named below should map onto something you already wrote in your own words. Treat it as labels for a shape you already know.</p>
+
+      <h2><code>src/evaluation/dp_oracle.py</code></h2>
+      <p>Reading order within the file, and what each piece is <em>for</em>:</p>
+      <ul>
+        <li><strong><code>DPState</code></strong> — the frozen dataclass from page 6. Indexed into a flat NumPy array via strides rather than kept as a dict of tuples (page 5's toy dicts were fine at a few hundred states; 363,000 states need the flat-array layout to stay fast). <code>np.full(n_states, -np.inf, dtype=np.float64)</code> is the whole value table, one array.</li>
+        <li><strong>The reachability pass</strong> — a forward sweep from the race's actual start state, run once before solving, marking which of the 363,000 candidate states can ever actually occur (<code>tyre_age &lt;= lap</code>, a fitted compound implies a bit in <code>used_mask</code>, and so on). This is page 6's 5–10× pruning number, made concrete: the backward pass below only ever touches states this sweep marked reachable.</li>
+        <li><strong>The backward-induction loop</strong> — structurally identical to page 5's stage-4 solver: <code>V[T+1, ·] = 0</code> (plus the two-compound terminal penalty where the rule is unmet, mirroring stage 3's mandatory-service rule), then for each lap from <code>T</code> down to 1, for each reachable state, for each action the (shared) mask permits, compute <code>cost + E[V(s')]</code> and keep the minimum. <code>γ = 1.0</code>, matching the environment — the same justification page 6's Phase 1 prerequisite page gave for the live environment applies unchanged here.</li>
+        <li><strong>The expected-immediate-cost step</strong> — calls <code>dynamics.compute_lap_time(..., rng=None)</code> and <code>dynamics.compute_pit_loss(...)</code> directly, never a reimplementation. Page 3's zero-noise argument is <em>why</em> this call is exact rather than an approximation; page 6's "why one shared implementation matters" section is why it has to be this exact function, not an equivalent-looking one.</li>
+        <li><strong>Action validity</strong> — imported from <code>dynamics.compute_action_mask</code>, the same function <code>F1StrategyEnv.action_masks()</code> calls. Never restated locally — page 6 explains why a second, independently-written mask would be close to invisible as a bug.</li>
+        <li><strong><code>DPOraclePolicy</code></strong> — wraps the solved table behind <code>act(obs, action_mask) -&gt; int</code>, the same interface every other agent implements, so <code>evaluate.py</code>'s paired-seed harness (Phase 3) runs it with no special-casing.</li>
+      </ul>
+
+      <h2><code>src/env/weather_markov.py</code></h2>
+      <ul>
+        <li><strong>Fitting</strong> — page 4's counting-and-normalizing procedure, applied per circuit to every historical weather template Phase 0.5 extracted for that circuit: tally observed regime-to-regime transitions, divide each row by its total. The zero-row fallback page 4 mentioned (uniform row when a state was never observed as a starting point) is handled here, not left to crash on a division by zero.</li>
+        <li><strong>Fit-quality reporting</strong> — per-transition counts and a held-out log-likelihood, alongside the fitted matrix. This exists so a thin data sample for a given circuit is visible and reported honestly, rather than silently producing a confident-looking matrix from too little evidence (page 4's closing note).</li>
+        <li><strong>Sampling</strong> — page 4's cumulative-draw procedure, used both by Oracle B's expectation step and by <code>F1StrategyEnv</code> itself when <code>weather_mode="markov"</code>, so the environment and the oracle draw from the identical fitted chain.</li>
+      </ul>
+
+      <h2><code>scripts/run_dp_oracle.py</code></h2>
+      <p>The driver: solve every circuit (both oracle modes), cache each solved policy to <code>data/processed/{circuit}/dp_policy.npz</code>, and report the per-circuit solve time against the plan's under-10-seconds target. Re-run whenever <code>dynamics.py</code> or the calibration changes underneath it — a stale cached policy solved against an older version of the physics is exactly the kind of silent drift page 6 warns about, just at the level of a cache file instead of a second implementation.</p>
+
+      <h2>What the test suite is actually checking</h2>
+      <p>Each test in <code>tests/test_dp_oracle.py</code> targets one specific way this phase could go wrong — reading it alongside the implementation is, in effect, a list of every failure mode this page has already walked through:</p>
+      <ul>
+        <li><strong><code>test_oracle_value_matches_rollout</code></strong> — page 6's <code>V[s_0]</code>-vs-rollout check, made concrete: agreement within a small multiple of the noise standard error over 500 episodes.</li>
+        <li><strong><code>test_dp_action_mask_matches_env</code></strong> — for 1,000 sampled reachable states, the DP's mask equals <code>env.action_masks()</code> exactly. This is the automated version of page 5's stage-3 sanity habit.</li>
+        <li><strong><code>test_oracle_no_absurd_exploit</code></strong> — page 5's stage-5 exercise, for real: the oracle's race time must land within 15% of the best hand-computed 1-stop plan. By some distance the highest-value test in the file — it's the thing that would have caught "the agent learned to pit every lap because a warmup penalty has the wrong sign" before three days get spent blaming a learning algorithm for a bug in the model it was faithfully optimizing against.</li>
+        <li><strong><code>test_oracle_a_dominates_oracle_b</code></strong> — a correctness check on both oracles at once: perfect foresight can never be worse than the achievable version, by page 6's own definition of the two.</li>
+        <li><strong><code>test_oracle_respects_two_compound_rule</code></strong> / <strong><code>test_oracle_pit_count_plausible</code></strong> — the mandatory-service constraint (page 5's stage 3, for real) actually binds, and the resulting strategy makes a plausible number of stops (1–3 on a dry circuit, never 0, never more than 4).</li>
+      </ul>
+
+      <div class="pagenav">
+        <a class="prev" href="06-this-project-as-dp.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 06 — This Project, Formalized</span>
+        </a>
+        <a class="next" href="08-glossary.html">
+          <span class="dir">Next</span>
+          <span class="label">08 — Glossary →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

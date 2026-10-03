@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 Multi-Car Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 6</span>
+      <span class="title">Multi-Car Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:45%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-multi-car-mdp.html"><span class="n">01</span><span>One car to N</span></a></li>
+      <li><a href="02-credit-assignment.html"><span class="n">02</span><span>Credit assignment</span></a></li>
+      <li><a href="03-potential-based-shaping.html"><span class="n">03</span><span>Potential-based shaping</span></a></li>
+      <li><a href="04-overtaking-dirty-air.html"><span class="n">04</span><span>Overtaking &amp; dirty air</span></a></li>
+      <li><a class="active" href="05-position-and-blocking.html"><span class="n">05</span><span>Position vs. the undercut</span></a></li>
+      <li><a href="06-bug-ledger.html"><span class="n">06</span><span>The bug ledger</span></a></li>
+      <li><a href="07-non-stationarity.html"><span class="n">07</span><span>Non-stationarity preview</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-6-multi-car-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 05 / 11 — The central design gap</p>
+      <h1>Why "Position = Sorted by Time" Kills the Undercut</h1>
+      <p class="dek">Not a bug in the usual sense — a missing model that quietly makes this phase's most interesting goal impossible, no matter how long training runs.</p>
+
+      <h2>The undercut, as real F1 strategy</h2>
+      <p>A driver pits <em>before</em> a rival running comparable pace. Fresh tyres let them post much faster out-laps than the rival — still on old, worn tyres — can respond to in time. By the time the rival reacts and pits too, the undercutting driver has converted a pit stop into real track position. This only works because of one specific fact about real racing: the rival <strong>cannot simply drive around</strong> the pitted car once it rejoins the track. Track position, once lost in traffic, is genuinely hard to get back — that difficulty is the entire reason the undercut is a strategy worth timing carefully, rather than just an incidental side effect of pitting.</p>
+
+      <h2>What the plan's pseudocode actually computes</h2>
+      <p>Every position in the plan's <code>_update_positions()</code> is recomputed each lap by sorting every car's cumulative <code>total_time</code>, ascending. Walk through what that implies directly: if nothing in the model prevents a faster car from instantly passing a slower one — if position is <em>purely</em> a readout of who has accumulated less time — then there is no separate value to timing a pit stop relative to a rival's. "Pit early while you're faster" and "just be faster" become the same statement, because being ahead or behind on track never costs or saves any time on its own. The model has no notion of being <em>stuck</em>.</p>
+
+      <div class="note grounded">
+        <div class="tag">Why this makes attempt_overtake pointless even before any bug</div>
+        <p>An overtake model only has something to <em>do</em> if there's a state — being stuck behind a car you can't get past — that succeeding releases you from. Without a constraint that holds a faster car to a slower one's pace, no car in this simulation is ever stuck behind anything. There is nothing for an overtake to overcome, independent of whether <code>attempt_overtake</code>'s own bookkeeping is correct (page 06 covers a bug in that bookkeeping too, but fixing that bug alone would not fix this).</p>
+      </div>
+
+      <h2>The fix: one line that turns position into a resource</h2>
+      <p>Add a blocking constraint to the multi-car lap-time model — a car close behind another, that hasn't successfully overtaken it, is held to at best the pace of the car ahead plus the dirty-air cost from page 04:</p>
+      <blockquote class="eq">if gap_to_car_ahead &lt; OVERTAKE_ATTEMPT_GAP and not overtake_succeeded:
+    lap_time = max(own_lap_time, car_ahead_lap_time + dirty_air_penalty(gap))</blockquote>
+      <p>That single line is the entire difference between a race where position is just a scoreboard reading of accumulated time, and a race where being behind has a real, ongoing cost that only an overtake can end. With it in place, <code>attempt_overtake</code> finally has a job: it's the mechanism that releases a car from the pace cap this line imposes. Positions still ultimately follow from cumulative time — nothing about how position is <em>computed</em> changes — but now the lap times feeding into that computation depend on who's stuck behind whom, which is exactly the missing ingredient the undercut needs to exist at all.</p>
+
+      <h2>Traced forward: why this blocks Phase 8, not just Phase 6</h2>
+      <p>Phase 8's headline Definition of Done is a bimodal undercut/overcut pit-timing histogram emerging from training — pit-lap choices clustering around "just before a rival" and "just after," arising on their own rather than being explicitly programmed. That emergence is unreachable without this fix, for the same reason stated above: an agent cannot learn to exploit a track-position advantage that its simulator doesn't actually grant for being ahead. Phase 8's own Risks table, written before this gap was found, misdiagnoses the eventual symptom (undercut/overcut not appearing) as a possible bug in the out-lap warmup penalty. The warmup penalty is implemented correctly — the missing piece was always here, one phase earlier, in whether position carries any cost or benefit of its own.</p>
+
+      <div class="note generic">
+        <div class="tag">The general shape of this kind of gap</div>
+        <p>This isn't an off-by-one or a typo — it's a case where a system was built with all the visible pieces of a mechanism (overtaking probabilities, dirty air, position tracking) but missing the one structural constraint that makes those pieces interact meaningfully. Worth recognizing the shape: individually-reasonable components can add up to nothing, if the piece connecting them to consequence is never added. A test proving a faster car stuck behind a slower one gains no time until it overtakes is the concrete way to confirm this constraint actually exists, rather than assuming its presence from the existence of the surrounding pieces.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="04-overtaking-dirty-air.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 04 — Overtaking and Dirty Air</span>
+        </a>
+        <a class="next" href="06-bug-ledger.html">
+          <span class="dir">Next</span>
+          <span class="label">06 — Six Ways the Plan's Own Pseudocode Breaks Its Own Physics →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

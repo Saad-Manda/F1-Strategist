@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 Q-Learning Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 4</span>
+      <span class="title">Q-Learning Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-from-equation-to-update-rule.html"><span class="n">01</span><span>From equation to update rule</span></a></li>
+      <li><a href="02-q-learning-derived.html"><span class="n">02</span><span>Q-learning, derived &amp; hand-run</span></a></li>
+      <li><a href="03-epsilon-greedy-exploration.html"><span class="n">03</span><span>Exploration: ε-greedy</span></a></li>
+      <li><a class="active" href="04-sarsa-on-policy.html"><span class="n">04</span><span>On- vs. off-policy: SARSA</span></a></li>
+      <li><a href="05-state-discretization-tradeoff.html"><span class="n">05</span><span>State discretization</span></a></li>
+      <li><a href="06-the-binning-bug.html"><span class="n">06</span><span>The binning bug</span></a></li>
+      <li><a href="07-build-it-yourself.html"><span class="n">07</span><span>Build it yourself</span></a></li>
+      <li><a href="08-this-project-formalized.html"><span class="n">08</span><span>This project, formalized</span></a></li>
+      <li><a href="09-code-walkthrough.html"><span class="n">09</span><span>Code walkthrough</span></a></li>
+      <li><a href="10-glossary.html"><span class="n">10</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-4-q-learning-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 04 / 10 — Foundations</p>
+      <h1>On-Policy vs. Off-Policy: SARSA</h1>
+      <p class="dek">Change exactly one term in Q-learning's update and the algorithm starts to account for its own future clumsiness. That single term is the entire difference between off-policy and on-policy learning.</p>
+
+      <h2>SARSA's update</h2>
+      <blockquote class="eq">Q(s, a) ← Q(s, a) + α [ r + γ · Q(s', a')  −  Q(s, a) ]</blockquote>
+      <p>Set next to Q-learning's update from page 2, the only change is in the target:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Q-learning</td><td class="mono">r + γ · max_a' Q(s', a')</td></tr>
+            <tr><td>SARSA</td><td class="mono">r + γ · Q(s', a')  — a' is the action actually taken next</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Q-learning's target asks "what's the best I could possibly do from <code>s'</code>?" SARSA's target asks "what will I actually do from <code>s'</code>, given that I'm still an ε-greedy agent who sometimes acts randomly?" <code>a'</code> in SARSA isn't a hypothetical best action — it's whatever the agent's own ε-greedy policy actually selects as its next move, which the agent commits to <em>before</em> computing this step's update (the "pre-commit" mechanic page 7 builds and page 9 traces through the real code).</p>
+
+      <h2>On-policy, defined precisely</h2>
+      <p>SARSA's name is literally its signature: <strong>S</strong>tate, <strong>A</strong>ction, <strong>R</strong>eward, <strong>S</strong>tate, <strong>A</strong>ction — the five-tuple <code>(s, a, r, s', a')</code> its update consumes, with the final <code>a'</code> coming from the same policy generating the data. That's what <strong>on-policy</strong> means: the target is computed using the same policy (ε-greedy) that's actually producing the agent's behavior, not a hypothetical greedy policy it isn't really following yet. Q-learning is <strong>off-policy</strong> for the opposite reason — its target always assumes the greedy policy, regardless of what the ε-greedy behavior policy actually does next.</p>
+      <p>The practical consequence: SARSA's learned values account for the real chance that the agent's own future exploration could stumble into something costly. Q-learning's don't — its target is blind to what its behavior policy actually samples, so it never "pays for" the risk of its own exploration inside the value it's learning.</p>
+
+      <h2>Worked example: a risky push vs. a safe pit, hand-run side by side</h2>
+      <p>The standard textbook cliff-walking contrast, in this project's own flavor. A decision point <code>s1</code> with two choices: pit now (known, safe cost) or push one more lap (cheaper if followed by a clean pit, but one lap closer to the tire cliff):</p>
+      <blockquote class="eq">s1, PIT_NOW  →  r = −12,  terminal                    (safe: known cost, race over)
+s1, PUSH     →  r = −1,   next = s2                    (cheap this lap, but risk waits at s2)
+
+s2, PIT      →  r = −8,   terminal                     (recover cleanly: the good outcome)
+s2, PUSH_MORE→  r = −30,  terminal                      (the cliff: tire failure)</blockquote>
+      <p>Ignoring exploration entirely, the greedy-optimal policy is clear: <code>PUSH</code> then <code>PIT</code> costs <code>−1 + (−8) = −9</code>, beating <code>PIT_NOW</code>'s <code>−12</code> outright. But an ε-greedy agent training at <code>s2</code> doesn't always pick <code>PIT</code> — sometimes, by exploration, it picks <code>PUSH_MORE</code> and pays <code>−30</code>. Whether that real risk gets priced into <code>Q(s1, PUSH)</code> is exactly what separates the two algorithms. Hand-run both from identical rewards, <code>α = 0.5</code>, <code>γ = 1</code>, tables starting at 0, across three training episodes:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Ep.</th><th>What happens at s2 (ε-greedy draw)</th><th>Q-learning: Q(s1,PUSH) after</th><th>SARSA: Q(s1,PUSH) after</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td>Explores into <code>PUSH_MORE</code> (r=−30). Both tables start at 0, so Q-learning's <code>max</code> and SARSA's actual <code>a'</code> agree by coincidence (both point at an untrained 0-cell).</td><td class="mono">−0.5</td><td class="mono">−0.5</td></tr>
+            <tr><td class="mono">2</td><td>Now <code>Q(s2,PIT)=0 &gt; Q(s2,PUSH_MORE)=−15</code>, so both the greedy max <em>and</em> the ε-greedy draw land on <code>PIT</code> (r=−8) — still no divergence.</td><td class="mono">−0.75</td><td class="mono">−0.75</td></tr>
+            <tr><td class="mono">3</td><td>An unlucky exploratory draw hits <code>PUSH_MORE</code> again (r=−30). Q-learning's target still uses <code>max(Q(s2,PIT)=−4, Q(s2,PUSH_MORE)=−15) = −4</code> — it ignores that <code>PUSH_MORE</code> is what actually happened. SARSA's target plugs in <code>Q(s2,PUSH_MORE)=−15</code> directly, because that's the action it actually took next.</td><td class="mono"><strong>−2.875</strong></td><td class="mono"><strong>−8.375</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>By the end of episode 3 the two tables have visibly diverged: Q-learning's estimate for <code>PUSH</code> barely registers the close call with the cliff, because its target is computed as if the agent will always play the best available action afterward — even on the very episode where it didn't. SARSA's estimate is punished directly, because its target is built from what the agent actually did next, exploration and all. Run this same contrast for thousands of episodes (page 7's exercise) and the pattern holds: Q-learning converges toward the aggressive, optimal-if-perfectly-executed policy (<code>PUSH</code>, trusting that <code>PIT</code> will always be chosen afterward); SARSA converges toward a more cautious policy that accounts for the real, nonzero chance its own future self stumbles into the cliff while still exploring.</p>
+
+      <h2>Tying back to the real plan</h2>
+      <p>This is why the real Definition of Done trains and compares <em>both</em> agents on the same races rather than picking whichever seems obviously better in the abstract — the difference between their learned policies is itself the lesson, not a redundant extra experiment. Q-learning is expected to learn the theoretically optimal policy faster, since its target has no interest in how risky its own exploration is; SARSA is expected to learn something a bit more conservative, since its values are shaped by the exploration it's actually doing at training time. Neither is "more correct" — they're answers to two different questions (page 9's Definition of Done note frames it exactly this way), and the comparison notebook exists to make the gap between them visible on real race data, not just on a three-state toy.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="03-epsilon-greedy-exploration.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 03 — Exploration: ε-Greedy</span>
+        </a>
+        <a class="next" href="05-state-discretization-tradeoff.html">
+          <span class="dir">Next</span>
+          <span class="label">05 — State Discretization →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

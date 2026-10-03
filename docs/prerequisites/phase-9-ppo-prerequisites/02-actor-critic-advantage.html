@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:17%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a class="active" href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 02 / 12 — A little math</p>
+      <h1>Actor-Critic and the Advantage Function</h1>
+      <p class="dek">Fixing REINFORCE's variance problem without changing what its gradient estimator is aiming at.</p>
+
+      <h2>Baselines don't change the target, only the noise</h2>
+      <p>Page 01 ended with a real limitation: the raw return <code>G</code> in <code>∇_θ log π_θ(a|s) · G</code> is a noisy training signal. The general fix: subtract any <strong>state-dependent baseline</strong> <code>b(s)</code> from <code>G</code> before scaling the log-gradient by it. This doesn't change the expected gradient at all — the correction term itself has expectation exactly zero:</p>
+      <blockquote class="eq">E_a~π[ ∇_θ log π_θ(a|s) · b(s) ] = b(s) · E_a~π[ ∇_θ log π_θ(a|s) ]
+                                = b(s) · ∇_θ Σ_a π_θ(a|s)
+                                = b(s) · ∇_θ (1) = 0</blockquote>
+      <p>The middle step uses the same log-derivative identity as page 01 in reverse (<code>∇_θ log π · π = ∇_θ π</code>), and the last step uses the fact that a probability distribution always sums to 1 regardless of <code>θ</code>, so its gradient is exactly zero. Because <code>b(s)</code> doesn't depend on which action was sampled, subtracting it changes nothing about where the gradient points on average — only how much it varies from one sampled trajectory to the next, and a well-chosen baseline can cut that variance sharply.</p>
+
+      <h2>The natural baseline: the state-value function</h2>
+      <p>The obvious choice of <code>b(s)</code> is <code>V(s)</code> — "how good is this state on average, regardless of which action gets taken from here." This is a second function that has to be learned alongside the policy: the <strong>critic</strong>. The policy being improved is the <strong>actor</strong>. The critic is trained with the same TD/Bellman machinery already assumed as background from Phase 4/5 — bootstrapped value learning — just repurposed here as a variance-reduction tool for a policy gradient, rather than as the thing an agent acts on directly by taking its argmax.</p>
+
+      <h2>The advantage function</h2>
+      <p>Subtracting <code>V(s)</code> from <code>Q(s,a)</code> (rather than from the sampled return directly) gives exactly idea.md's stated concept:</p>
+      <blockquote class="eq">A(s,a) = Q(s,a) − V(s)</blockquote>
+      <p>"How much better was taking action <code>a</code> in state <code>s</code>, compared to the state's own average outcome." Substituting the advantage in for the raw return in page 01's gradient gives the actor-critic policy gradient:</p>
+      <blockquote class="eq">∇_θ J(θ) = E_π [ ∇_θ log π_θ(a|s) · A(s,a) ]</blockquote>
+      <p>The intuition sharpens directly: push up the log-probability of actions with positive advantage (better than average for that state), push down actions with negative advantage — rather than chasing the raw, noisy magnitude of <code>G</code>, which says nothing on its own about whether a given action was actually a <em>good choice</em> relative to the alternatives available in that state.</p>
+
+      <h2>A hand-worked comparison: advantage vs. raw return</h2>
+      <p>Two trajectories pass through the same state <code>s</code>. In the first, action <code>a1</code> is taken and the episode returns <code>G = 8</code>. In the second, action <code>a2</code> is taken and the episode returns <code>G = 2</code>. Suppose the critic has learned <code>V(s) = 5</code>.</p>
+      <blockquote class="eq">Raw-return update (page 01):
+  a1: push log π(a1|s) up,  scaled by  G = +8   (positive push)
+  a2: push log π(a2|s) up,  scaled by  G = +2   (also a positive push — just smaller)
+
+Advantage update (this page):
+  A(s,a1) = 8 − 5 = +3   →  push log π(a1|s) UP
+  A(s,a2) = 2 − 5 = −3   →  push log π(a2|s) DOWN</blockquote>
+      <p>The raw-return version pushes <em>both</em> actions' probabilities up — it never actually says a2 was a comparatively bad choice for this state, only that it was somewhat less good than a1. The advantage version correctly identifies that a2 underperformed this state's average and pushes its probability down, a qualitatively sharper and more useful training signal than a magnitude difference in an all-positive update.</p>
+
+      <div class="note generic">
+        <div class="tag">What's still missing</div>
+        <p>Nothing here has said <em>how</em> to estimate <code>Q(s,a)</code> (or the advantage directly) from a single rollout — only that doing so beats using the raw return. There's more than one way to estimate it, and the choice trades off bias against variance exactly like Phase 4/5's n-step-vs-Monte-Carlo TD tradeoff (assumed background) generalizes. Page 03 works through the specific estimator Stable-Baselines3 actually uses.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="01-policy-gradients-reinforce.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 01 — Policy Gradients From Scratch</span>
+        </a>
+        <a class="next" href="03-generalized-advantage-estimation.html">
+          <span class="dir">Next</span>
+          <span class="label">03 — Generalized Advantage Estimation →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

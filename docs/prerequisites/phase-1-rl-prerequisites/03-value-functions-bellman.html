@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 RL Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 1</span>
+      <span class="title">RL Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:37.5%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-rl-fundamentals.html"><span class="n">01</span><span>RL fundamentals</span></a></li>
+      <li><a href="02-markov-decision-processes.html"><span class="n">02</span><span>Markov decision processes</span></a></li>
+      <li><a class="active" href="03-value-functions-bellman.html"><span class="n">03</span><span>Value functions &amp; Bellman</span></a></li>
+      <li><a href="04-gymnasium-api.html"><span class="n">04</span><span>The Gymnasium API</span></a></li>
+      <li><a href="05-building-the-environment.html"><span class="n">05</span><span>Building the environment</span></a></li>
+      <li><a href="06-this-project-as-mdp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-1-rl-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 03 / 08 — Foundations</p>
+      <h1>Value Functions and the Bellman Equations</h1>
+      <p class="dek">"How good is this situation?" — the question nearly every RL algorithm is, in one form or another, trying to answer.</p>
+
+      <h2>State-value function, V</h2>
+      <p><code>V^π(s)</code> is the expected return if you start in state <code>s</code> and follow policy <code>π</code> from then on:</p>
+      <blockquote class="eq">V^π(s) = E_π[ G_t | S_t = s ]</blockquote>
+      <p>In plain language: "if I'm in this situation and I play according to my current strategy, how much total (discounted) reward do I expect to get from here to the end?"</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p><code>V^π(s)</code> for a given race state — say, lap 30 of 52, on a 14-lap-old MEDIUM, dry — is the expected total remaining <code>-lap_time</code> if the current policy is followed from here on. A <em>better</em> policy has a <em>higher</em> (less negative) value in every state, because it means less total time to the finish.</p>
+      </div>
+
+      <h2>Action-value function, Q</h2>
+      <p><code>Q^π(s, a)</code> is one step more specific: the expected return if you take action <code>a</code> right now, in state <code>s</code>, and then follow <code>π</code> for everything after:</p>
+      <blockquote class="eq">Q^π(s, a) = E_π[ G_t | S_t = s, A_t = a ]</blockquote>
+      <p>The difference matters in practice: <code>V</code> tells you how good a <em>situation</em> is, but doesn't by itself tell you <em>what to do</em> — for that you need to compare <code>Q(s, a)</code> across all the actions available in <code>s</code> and pick the best one. This is exactly why Phases 4 and 5 (Q-learning and DQN) both learn <code>Q</code>, not <code>V</code> — a table or network of Q-values directly gives you a policy for free: "pick the action with the highest Q-value in this state," subject to the action mask.</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p><code>Q^π(s, PIT_SOFT)</code> at lap 30 on old mediums, versus <code>Q^π(s, STAY_OUT)</code> in that same state, is precisely the comparison a race engineer makes in their head when deciding whether now is the moment to pit. Learning good Q-values <em>is</em> learning race strategy.</p>
+      </div>
+
+      <h2>The Bellman equations</h2>
+      <p>The Bellman equations are the recursive relationship that makes value functions tractable: the value of a state can be written in terms of the <em>immediate</em> reward plus the (discounted) value of <em>wherever you end up next</em>. It isn't an extra assumption bolted onto the return — it falls straight out of the definition of <code>G_t</code> from page 2, by peeling off the first term.</p>
+
+      <h3>Deriving it, step by step</h3>
+      <p>Start from the definition of the return, and split off the very first reward:</p>
+      <blockquote class="eq">G_t = R_(t+1) + γ·R_(t+2) + γ²·R_(t+3) + ...
+    = R_(t+1) + γ·( R_(t+2) + γ·R_(t+3) + ... )
+    = R_(t+1) + γ·G_(t+1)</blockquote>
+      <p>The bracketed term is just <code>G_(t+1)</code> — the return starting one step later — factored out by <code>γ</code>. That's the whole trick: the return at any point is this step's reward plus <code>γ</code> times the return from the next state on. Now take the expectation of both sides, conditioned on being in state <code>s</code> and taking action <code>a</code>, which by definition is <code>Q(s,a)</code>:</p>
+      <blockquote class="eq">Q^π(s,a) = E[ R_(t+1) + γ·G_(t+1) | S_t=s, A_t=a ]
+          = E[ R_(t+1) | s,a ] + γ·E[ G_(t+1) | s,a ]</blockquote>
+      <p>The first term is just the expected immediate reward. The second term — the expected return from wherever you land next — is, by definition, the expected value of <code>V^π(s')</code> (or <code>Q^π(s',a')</code> under the next action) over the distribution of next states <code>P(s'|s,a)</code>. Writing that out explicitly, and switching to the <em>optimal</em> policy (which always picks <code>max_a'</code> rather than averaging over <code>π</code>), gives the Bellman optimality equation:</p>
+      <blockquote class="eq">Q*(s, a) = Σ_s' P(s'|s,a) · [ R(s,a,s') + γ · max_a' Q*(s', a') ]</blockquote>
+      <p>Nothing here is a new axiom — it's the return's own recursive structure, made explicit. This equation is the engine behind almost everything downstream:</p>
+      <ul>
+        <li><strong>Q-learning</strong> makes a table of Q-values satisfy this equation approximately, by repeatedly nudging <code>Q(s,a)</code> toward <code>R + γ·max Q(s',a')</code> from observed transitions. (How to do that is Phase 4's job, not this page's — the point here is only that the equation itself comes from page 2's return, not from anywhere new.)</li>
+        <li><strong>Dynamic programming</strong> (Phase 3.5's oracle) solves this equation <em>exactly</em>, working backward from the last lap of the race — because with a finite, fixed-length episode and a known transition model, the true optimal Q-values can be computed directly, no learning or sampling required.</li>
+      </ul>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>This is exactly why the plan insists <code>compute_lap_time(rng=None)</code> must return the <em>exact</em> expected lap time, not an approximation — the DP oracle needs a noise-free version of the transition model to plug directly into this equation.</p>
+      </div>
+
+      <h2>Why γ = 1 doesn't break the Bellman equation here</h2>
+      <p>The <code>γ·V(s')</code> term is what makes value "recursive" — it lets an agent reason about consequences several steps into the future without simulating the whole future explicitly. Setting γ = 1 (page 2) simply removes the discount: future lap-time reward counts exactly as much as the current lap's. Nothing about the equation breaks, because the episode is guaranteed finite, so the recursion still bottoms out at the last lap rather than running forever.</p>
+
+      <h2>Why this matters for reward scale</h2>
+      <p>The plan's <strong>reward centring</strong> step is a direct, practical consequence of this page.</p>
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>With γ = 1 and roughly 52 laps at around −95 reward per lap, <code>V^π</code> and <code>Q^π</code> for a typical state are around <strong>−5,000</strong> — the value function literally sums up all remaining rewards to the end of the episode, undiscounted. A Q-table initialized at zero, or a freshly initialized neural network centred near zero, then has to learn a value ~5,000 away from its starting point before it represents anything useful — slow, and in practice a common reason a training run "runs but doesn't learn anything."</p>
+      </div>
+
+      <h3>The centring proof, worked with numbers</h3>
+      <p>Claim: subtracting a fixed constant <code>c</code> from every step's reward shifts every policy's return by exactly the same amount, so it cannot change which policy is optimal. Take two candidate policies over the same fixed-length, <code>T = 52</code>-lap race, with per-lap rewards centred around, say, <code>−93</code> for the better policy and <code>−97</code> for the worse one (a 4-second-per-lap difference, accumulated):</p>
+      <blockquote class="eq">Return(better) ≈ 52 × (−93) = −4,836
+Return(worse)  ≈ 52 × (−97) = −5,044
+
+Difference: Return(better) − Return(worse) = 208   (better wins, by 208)</blockquote>
+      <p>Now centre every reward by subtracting <code>c = base_pace = 92</code> from each step before summing — <code>reward_offset="base_pace"</code> in the plan:</p>
+      <blockquote class="eq">Return(better)_centred ≈ 52 × (−93 − (−92)) = 52 × (−1) = −52
+Return(worse)_centred  ≈ 52 × (−97 − (−92)) = 52 × (−5) = −260
+
+Difference: Return(better)_centred − Return(worse)_centred = 208</blockquote>
+      <p>The absolute numbers shrank by roughly two orders of magnitude — exactly what makes them learnable — but the <em>difference</em> between the two policies, <code>208</code> in both cases, is untouched. That's the whole proof: subtracting the same constant <code>c</code> from every one of <code>T</code> equal-length episodes' rewards shifts every policy's return by exactly <code>c × T</code>, a term that doesn't depend on which policy you're looking at, so it cancels out of every comparison between policies. The <em>ranking</em> — and therefore the optimal policy — is provably unchanged. This is why the plan notes it needs no potential function and isn't reward shaping in the technical sense: it's a fixed additive constant, not something that depends on the state, and <code>info["lap_time"]</code> is defined to always report the true, uncentred value regardless of this setting.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="02-markov-decision-processes.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 02 — Markov Decision Processes</span>
+        </a>
+        <a class="next" href="04-gymnasium-api.html">
+          <span class="dir">Next</span>
+          <span class="label">04 — The Gymnasium API →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

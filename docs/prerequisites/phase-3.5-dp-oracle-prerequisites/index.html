@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3.5 DP Oracle Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 3.5</span>
+      <span class="title">DP Oracle Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    <ul class="nav-list">
+      <li><a class="active" href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-planning-vs-learning.html"><span class="n">01</span><span>Planning vs. learning</span></a></li>
+      <li><a href="02-backward-induction.html"><span class="n">02</span><span>Backward induction</span></a></li>
+      <li><a href="03-stochastic-transitions.html"><span class="n">03</span><span>Expectations over randomness</span></a></li>
+      <li><a href="04-markov-chains.html"><span class="n">04</span><span>Markov chains</span></a></li>
+      <li><a href="05-build-a-toy-solver.html"><span class="n">05</span><span>Build a toy DP solver</span></a></li>
+      <li><a href="06-this-project-as-dp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-3.5-dp-oracle-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 00 / 08 — Start here</p>
+      <h1>Phase 3.5 DP Oracle Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to read and build the exact optimality oracle described in <code>phase-3.5-dp-oracle.md</code>, assuming you already have Phase 1's prerequisites and nothing more.</p>
+
+      <h2>Why this phase exists, and why it isn't "more RL"</h2>
+      <p>Every phase before this one either builds the world (Phase 1) or acts in it reactively (Phase 2's dashboard, Phase 3's hand-written rules). Phase 3.5 does something different: it <strong>computes</strong> the optimal strategy for the single-car race, exactly, by exhaustively working out the consequence of every decision in every reachable situation. Nothing is learned from trial and error here — there is no exploration, no Q-table being nudged toward a target, no gradient step. Given the transition model and reward function Phase 1 already built, the optimal policy is computed directly, once, and cached.</p>
+
+      <p>That distinction — <strong>planning</strong> (compute the answer from a known model) versus <strong>learning</strong> (estimate the answer from experience) — is the single idea this whole doc set exists to teach. Phases 4, 5, and 9 all learn. Phase 3.5 plans. It is worth being precise about which is which, because the oracle's entire value as an evaluation tool depends on it being the *exact* answer, not an approximation competing with the agents it's meant to judge.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>Phase 3.5 builds an evaluator, not an agent. So this doc set teaches exactly two things in depth: <strong>backward induction</strong> (the algorithm that makes exact solving tractable for a finite-horizon MDP) and <strong>Markov chains</strong> (the tool the oracle's weather model needs). Nothing about Q-learning, TD updates, exploration, or neural networks is covered here, even in preview — that material belongs to Phase 4 and 5's own prerequisites, and this doc set assumes none of it.</p>
+      </div>
+
+      <h2>How this folder teaches the implementation half</h2>
+      <p>Page 5 has you build a small backward-induction solver yourself, in your own names, across five stages — a deterministic toy first, then a stochastic exogenous event, then an action mask, then a second correlated random process sampled from a small Markov chain you fit yourself, then a sanity test comparing the DP's answer against a brute-force baseline. None of it touches the real project's code. Only page 6 names which piece of the real <code>dp_oracle.py</code> and <code>weather_markov.py</code> corresponds to which toy stage.</p>
+
+      <h2>Reading order</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">#</th><th>Page</th><th>Covers</th><th>Why Phase 3.5 needs it</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">01</td><td><a class="inline-link" href="01-planning-vs-learning.html">Planning vs. Learning</a></td><td>What makes an MDP exactly solvable, and why that's a size argument, not a magic trick</td><td>Frames why this phase looks nothing like Phases 4/5, and why that's the point</td></tr>
+            <tr><td class="mono">02</td><td><a class="inline-link" href="02-backward-induction.html">Backward Induction</a></td><td>The finite-horizon Bellman recursion, derived step by step, with a fully worked numeric race example</td><td>The exact algorithm <code>dp_oracle.py</code> implements</td></tr>
+            <tr><td class="mono">03</td><td><a class="inline-link" href="03-stochastic-transitions.html">Expectations Over Randomness</a></td><td>Computing <code>E[V(s')]</code> when the next state is random — the safety-car hazard term, and why <code>compute_lap_time(noise=0)</code> is the exact expectation, not an approximation</td><td>The one genuinely new piece of math the oracle needs beyond page 3's Bellman equation</td></tr>
+            <tr><td class="mono">04</td><td><a class="inline-link" href="04-markov-chains.html">Markov Chains</a></td><td>Transition matrices, fitting one from data by counting, sampling from a fitted chain — with a fully worked numeric weather example</td><td>What Oracle B's weather model is, precisely, and why it's "exactly achievable" while Oracle A is only a bound</td></tr>
+            <tr><td class="mono">05</td><td><a class="inline-link" href="05-build-a-toy-solver.html">Build a Toy DP Solver</a></td><td>A sequence of small, runnable backward-induction solvers, each adding one complication a plain toy ignores</td><td>Understanding by building, not by reading someone else's finished solver</td></tr>
+            <tr><td class="mono">06</td><td><a class="inline-link" href="06-this-project-as-dp.html">This Project, Formalized</a></td><td>The real <code>DPState</code>, the state-space size arithmetic, and the Oracle A / Oracle B distinction grounded in this project's actual design</td><td>Bridges the general theory above to the specific files you are about to write</td></tr>
+            <tr><td class="mono">07</td><td><a class="inline-link" href="07-code-walkthrough.html">Code Walkthrough</a></td><td>A reading guide to <code>dp_oracle.py</code>, <code>weather_markov.py</code>, and <code>run_dp_oracle.py</code> — what to look for and why</td><td>Line-level understanding before implementation</td></tr>
+            <tr><td class="mono">08</td><td><a class="inline-link" href="08-glossary.html">Glossary</a></td><td>Every term used above, one paragraph each</td><td>Quick lookup while reading the plan or the code</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>How to use this alongside the Phase 3.5 plan</h2>
+      <p>Read pages 1–4 once, in order, treating the F1 examples inside them as illustrations only. Page 5 is hands-on: build the toy solver yourself, one complication at a time. Page 6 then re-derives the same concepts using nothing but this project's actual design decisions — the abstractions from pages 1–4 should stop feeling abstract at that point. Page 7 is the closest thing to a line-by-line reading guide for <code>dp_oracle.py</code> itself. Keep page 8 open as a reference while you work.</p>
+
+      <div class="pagenav">
+        <span class="spacer"></span>
+        <a class="next" href="01-planning-vs-learning.html">
+          <span class="dir">Next</span>
+          <span class="label">01 — Planning vs. Learning →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

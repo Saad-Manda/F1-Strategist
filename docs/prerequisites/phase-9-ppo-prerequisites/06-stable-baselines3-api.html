@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a class="active" href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 06 / 12 — Library mechanics, taught generically</p>
+      <h1>Stable-Baselines3 and sb3-contrib's API Surface</h1>
+      <p class="dek">Taught generically first, per this set's standing pattern, so "this project, formalized" (page 10) is a direct instantiation rather than new API surface.</p>
+
+      <h2>VecEnv: why PPO trains against several environments at once</h2>
+      <p>SB3 trains against a <strong>vectorized environment</strong> — <code>n_envs</code> copies running in lockstep, where a single <code>step()</code> call advances all of them and returns stacked arrays of observations, rewards, and done-flags. This follows directly from page 04's on-policy constraint: PPO needs a fresh, diverse batch of rollout data before every update (old data goes stale the moment the policy has changed, unlike Phase 5's replay buffer), and running several environment copies in parallel is the standard way to collect a large, diverse batch quickly without an off-policy buffer to fall back on.</p>
+      <p>Two implementations of the same interface: <strong><code>DummyVecEnv</code></strong> steps every copy sequentially inside one process — simple, no serialization needed to communicate between copies. <strong><code>SubprocVecEnv</code></strong> runs each copy in its own OS process and steps them genuinely in parallel — faster only when a single environment step is expensive enough that the added process/inter-process-communication overhead pays for itself. Which one this project should actually use is a specific, load-bearing question — deferred to page 07.</p>
+
+      <h2>The rollout-buffer arithmetic</h2>
+      <p><code>n_steps</code>, <code>n_envs</code>, <code>batch_size</code>, and <code>n_epochs</code> relate in a fixed way worth working through numerically, using the real plan's own values:</p>
+      <blockquote class="eq">n_steps = 256      (per env, per update)
+n_envs  = 4
+
+transitions collected per update = n_steps × n_envs = 256 × 4 = 1024
+
+batch_size = 64
+minibatches per update = 1024 / 64 = 16   (must divide evenly)
+
+n_epochs = 10
+→ each of the 16 minibatches is used for 10 separate gradient steps
+  before the next rollout of 1024 transitions is collected</blockquote>
+      <p><code>batch_size</code> must divide <code>n_steps × n_envs</code> evenly, or SB3 raises a configuration error rather than silently dropping leftover transitions.</p>
+
+      <h2>The <code>.learn()</code> / <code>.predict()</code> shape</h2>
+      <p><code>model.learn(total_timesteps=...)</code> internally alternates two phases, repeated until the timestep budget is exhausted: a <strong>rollout phase</strong> (run the current policy across all <code>n_envs</code> copies for <code>n_steps</code>, storing observations, actions, rewards, log-probabilities, and value estimates as it goes), and an <strong>update phase</strong> (compute GAE per page 03 over the collected rollout, then run <code>n_epochs</code> of clipped-objective gradient steps per page 04 over minibatches of it). This one method call encapsulates the entire pages 01–04 derivation chain — precisely what page 05 said a library buys: nobody calling <code>.learn()</code> has to get GAE's backward recursion or the clip's minibatch-epoch interaction right themselves. <code>model.predict(obs, deterministic=...)</code> is the acting side: sample (or, if <code>deterministic=True</code>, take the mode of) the current policy's action distribution for a given observation.</p>
+
+      <h2>Action masking via <code>sb3-contrib</code>'s <code>MaskablePPO</code></h2>
+      <p>Masking invalid actions is not a new <em>concept</em> here — the reader already knows from Phase 1/4 background why actions that would be illegal (like pitting again immediately after just pitting) must be masked out before an agent can choose among them. What's new is only the <em>mechanism</em> SB3 expects: wrap the base environment with <code>ActionMasker(env, mask_fn)</code>, where <code>mask_fn</code> is a callable that returns a boolean array over the action space. <code>MaskablePPO</code> then applies that mask to the policy's output <em>before</em> sampling — zeroing out invalid actions' probability mass and renormalizing — rather than sampling freely and rejecting invalid draws after the fact. This matters for page 04's math: it guarantees the log-probabilities used in the ratio <code>r_t(θ)</code> are always computed over the valid-action subset only, so an action that happened to be invalid at collection time never distorts the ratio for a policy update.</p>
+
+      <h2>Logging</h2>
+      <p><code>tensorboard_log=...</code> is SB3's built-in equivalent of whatever logging Phase 4/5's from-scratch training loops hand-rolled for tracking episode reward, loss, and entropy over time — one configuration line, not a new topic to learn.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="05-build-vs-buy.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 05 — Why Build vs. Buy</span>
+        </a>
+        <a class="next" href="07-pickling-and-subprocvecenv.html">
+          <span class="dir">Next</span>
+          <span class="label">07 — Lambdas, Multiprocessing, and a Windows-Fatal Bug →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

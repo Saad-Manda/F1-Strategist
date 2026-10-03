@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 Q-Learning Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 4</span>
+      <span class="title">Q-Learning Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:10%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a class="active" href="01-from-equation-to-update-rule.html"><span class="n">01</span><span>From equation to update rule</span></a></li>
+      <li><a href="02-q-learning-derived.html"><span class="n">02</span><span>Q-learning, derived &amp; hand-run</span></a></li>
+      <li><a href="03-epsilon-greedy-exploration.html"><span class="n">03</span><span>Exploration: ε-greedy</span></a></li>
+      <li><a href="04-sarsa-on-policy.html"><span class="n">04</span><span>On- vs. off-policy: SARSA</span></a></li>
+      <li><a href="05-state-discretization-tradeoff.html"><span class="n">05</span><span>State discretization</span></a></li>
+      <li><a href="06-the-binning-bug.html"><span class="n">06</span><span>The binning bug</span></a></li>
+      <li><a href="07-build-it-yourself.html"><span class="n">07</span><span>Build it yourself</span></a></li>
+      <li><a href="08-this-project-formalized.html"><span class="n">08</span><span>This project, formalized</span></a></li>
+      <li><a href="09-code-walkthrough.html"><span class="n">09</span><span>Code walkthrough</span></a></li>
+      <li><a href="10-glossary.html"><span class="n">10</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-4-q-learning-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 01 / 10 — Foundations</p>
+      <h1>From an Equation to an Update Rule</h1>
+      <p class="dek">Phase 3.5 solved the Bellman equation exactly because it was handed the model. Q-learning has to estimate the same equation from one sampled transition at a time — and that shift, from solving to nudging, is the entire idea this page exists to teach.</p>
+
+      <h2>The equation hasn't changed</h2>
+      <p>Phase 1 page 3 derived the Bellman optimality equation, and Phase 3.5 page 2 solved it directly with backward induction:</p>
+      <blockquote class="eq">Q*(s, a) = Σ_s' P(s'|s,a) · [ R(s,a,s') + γ · max_a' Q*(s', a') ]</blockquote>
+      <p>Backward induction could solve this because the right-hand side was fully computable — <code>P</code> and <code>R</code> were <code>dynamics.py</code>, not a mystery. Q-learning faces the same equation with one crucial difference: it never has <code>P</code> or <code>R</code> written out anywhere. It only ever gets to observe <em>one</em> sampled transition <code>(s, a, r, s')</code> at a time, produced by an environment it can act in but not inspect. There is no sum over every possible <code>s'</code> weighted by its probability — only the single <code>s'</code> that actually happened.</p>
+
+      <h2>The temporal-difference idea</h2>
+      <p>Given only one sampled transition, an exact expectation over all possible next states is out of reach. The temporal-difference (TD) idea, introduced generally in Sutton &amp; Barto chapter 6, is to use that one real <code>s'</code> as a stand-in for the expectation, and to nudge the current value estimate toward it a little at a time, rather than trying to solve for the exact value in one shot the way DP did. Chapter 4 — Phase 3.5's chapter — covered the case where nothing needs estimating because the model is fully known; this page is chapter 6's case, where it isn't.</p>
+      <p>"A little at a time" is the operative phrase. Any single transition is a noisy, one-sample glimpse of what usually happens from <code>(s, a)</code> — the race might have hit an unlucky safety car, or a lucky dry stint. Moving the whole way to match one sample would make the table chase noise. Moving a small step toward it, over and over across many episodes, lets the noise average out while the signal accumulates.</p>
+
+      <h2>TD error, defined once, used by every algorithm in this set</h2>
+      <p>Every update rule in this doc set — Q-learning on page 2, SARSA on page 4 — is one instance of the same general form:</p>
+      <blockquote class="eq">δ = target − Q(s, a)                     (TD error: "how wrong was my last guess?")
+
+Q(s, a) ← Q(s, a) + α · δ                 (nudge the estimate toward the target)</blockquote>
+      <p><code>δ</code> ("delta") is the TD error: the gap between what the table currently believes <code>Q(s,a)</code> is worth, and a fresher estimate — the <code>target</code> — built from the one real transition that was just observed. The two algorithms in this phase, Q-learning and SARSA, differ in exactly one place: what they use as <code>target</code>. Everything else — the <code>α</code>-scaled nudge toward it — is identical, and pages 2 and 4 will make that difference the entire story.</p>
+
+      <h2>Bootstrapping: learning from a guess about a guess</h2>
+      <p>Look closely at what <code>target</code> is built from in every TD method: it uses the real observed reward <code>r</code>, plus an <em>estimated</em> value of the next state, <code>Q(s', a')</code> — not the true value, which is never available while learning is still in progress. Updating an estimate using another estimate is called <strong>bootstrapping</strong>, and it's the feature that separates TD methods from Monte Carlo methods, which wait until an entire episode finishes (so the "target" becomes the actual observed return, with no estimate involved) before updating anything.</p>
+      <div class="note generic">
+        <div class="tag">Why bootstrapping is worth naming, not just using</div>
+        <p>Bootstrapping is what lets Q-learning and SARSA update <em>every single step</em>, instead of waiting until a race is over — useful, since a race here runs roughly 52–90 steps and waiting for all of them before learning anything would be slow and wasteful of a lap's worth of signal. The cost is that an update can be built from a value that is itself still wrong; that's fine, because the table converges through repeated correction over many episodes, not through any single update being exactly right.</p>
+      </div>
+
+      <h2>What's still ahead</h2>
+      <p>Page 2 fills in the one piece left unspecified here — exactly what <code>target</code> is for Q-learning, and why <code>max_a'</code> appears in it. Page 3 covers how actions actually get chosen while learning is happening (nothing so far has said how the agent decides what to try). Page 4 repeats page 2's derivation for SARSA, whose <code>target</code> differs in exactly one term, and shows the two algorithms' learned tables diverging on a worked example.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="index.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 00 — Index</span>
+        </a>
+        <a class="next" href="02-q-learning-derived.html">
+          <span class="dir">Next</span>
+          <span class="label">02 — Q-Learning, Derived and Hand-Run →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

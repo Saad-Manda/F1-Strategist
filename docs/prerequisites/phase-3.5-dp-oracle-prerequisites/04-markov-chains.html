@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3.5 DP Oracle Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 3.5</span>
+      <span class="title">DP Oracle Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-planning-vs-learning.html"><span class="n">01</span><span>Planning vs. learning</span></a></li>
+      <li><a href="02-backward-induction.html"><span class="n">02</span><span>Backward induction</span></a></li>
+      <li><a href="03-stochastic-transitions.html"><span class="n">03</span><span>Expectations over randomness</span></a></li>
+      <li><a class="active" href="04-markov-chains.html"><span class="n">04</span><span>Markov chains</span></a></li>
+      <li><a href="05-build-a-toy-solver.html"><span class="n">05</span><span>Build a toy DP solver</span></a></li>
+      <li><a href="06-this-project-as-dp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-3.5-dp-oracle-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 04 / 08 — Foundations</p>
+      <h1>Markov Chains</h1>
+      <p class="dek">Oracle B needs a weather model the agent could plausibly know in advance — not "here is what actually happened," but "here is how likely each condition is to follow the current one." A Markov chain is exactly that model, fit from nothing more than counting.</p>
+
+      <h2>The same idea page 2 of the Phase 1 prerequisites already taught you</h2>
+      <p>An MDP's Markov property says the next state depends only on the <em>current</em> state, not on the full history of how you got there — that's what made <code>laps_remaining</code>, not <code>cumulative_race_time_so_far</code>, the right state feature back in Phase 1. A <strong>Markov chain</strong> is the same idea, stripped of actions and rewards entirely: just a set of states and the probability of moving from each one to each other one at each step. Weather regime is a natural fit — tomorrow's conditions depend mostly on today's, not on the conditions three days ago — which is exactly the assumption Oracle B's weather model makes explicit and calibrates.</p>
+
+      <h2>The transition matrix</h2>
+      <p>With <code>n</code> states, a Markov chain is completely described by an <code>n × n</code> <strong>transition matrix</strong> <code>P</code>, where each entry is a conditional probability:</p>
+      <blockquote class="eq">P[i, j] = P(next state = j | current state = i)</blockquote>
+      <p>Every row of <code>P</code> must sum to 1 — from state <code>i</code>, the chain has to go <em>somewhere</em> at the next step, possibly back to <code>i</code> itself. A matrix with this property is called <strong>row-stochastic</strong>. For this project, <code>n = 3</code>: DRY, DAMP, WET.</p>
+
+      <h2>Fitting a chain from data: count, then normalize</h2>
+      <p>Given a log of observed weather sequences, the transition matrix that makes those exact sequences most probable (its <strong>maximum-likelihood estimate</strong>) has a famously simple closed form: count how many times each transition <code>i → j</code> actually occurred, then divide by how many times state <code>i</code> occurred as a starting point at all:</p>
+      <blockquote class="eq">n_ij = number of observed transitions from state i to state j
+n_i  = Σ_j n_ij    (total number of times state i was the starting point of a transition)
+
+P̂[i, j] = n_ij / n_i</blockquote>
+      <p>No optimization, no iteration — just counting and dividing. This is the standard estimator for a Markov chain's transition probabilities, and it falls directly out of maximizing the likelihood of the observed sequences under a Markov-chain model (a classical result, e.g. Anderson &amp; Goodman 1957). One practical edge case worth knowing before it surprises you: a state that was never observed as a starting point has <code>n_i = 0</code>, making the division undefined — the standard fix is to fall back to a uniform row (equal probability to every state) rather than leaving that row undefined or crashing on it.</p>
+
+      <h2>Worked example: fitting a 3×3 matrix from three toy races</h2>
+      <p>Three short, invented 6-lap weather logs (D = DRY, P = DAMP, W = WET), one letter per lap:</p>
+      <blockquote class="eq">Race 1:  D D D P P D
+Race 2:  D D P W W P
+Race 3:  D P P D D D</blockquote>
+      <p>Read off every consecutive pair <em>within</em> each race (never across race boundaries — race 1's last lap says nothing about race 2's first) and tally them by starting state:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">From</th><th class="mono">→ D</th><th class="mono">→ P</th><th class="mono">→ W</th><th class="mono">Row total (n_i)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">D</td><td class="mono">5</td><td class="mono">3</td><td class="mono">0</td><td class="mono">8</td></tr>
+            <tr><td class="mono">P</td><td class="mono">2</td><td class="mono">2</td><td class="mono">1</td><td class="mono">5</td></tr>
+            <tr><td class="mono">W</td><td class="mono">0</td><td class="mono">1</td><td class="mono">1</td><td class="mono">2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Divide each row by its total to get the fitted transition matrix <code>P̂</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">From \ To</th><th class="mono">DRY</th><th class="mono">DAMP</th><th class="mono">WET</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">DRY</td><td class="mono">0.625</td><td class="mono">0.375</td><td class="mono">0.000</td></tr>
+            <tr><td class="mono">DAMP</td><td class="mono">0.400</td><td class="mono">0.400</td><td class="mono">0.200</td></tr>
+            <tr><td class="mono">WET</td><td class="mono">0.000</td><td class="mono">0.500</td><td class="mono">0.500</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every row sums to 1, as required. Notice what the matrix quietly encodes just from three short races: DRY is "sticky" (62.5% chance of staying DRY), WET never jumped straight back to DRY in this small sample (a real fit, with far more than three races of data, would likely assign that transition a small but nonzero probability rather than exactly zero — a reminder that a fitted chain is only as good as the data behind it, a point Oracle B's fit-quality reporting takes seriously; see below).</p>
+
+      <h2>Sampling a trace from a fitted chain</h2>
+      <p>To generate a new, synthetic weather trace lap by lap: start in some initial state, then at each step draw the next state from the current row of <code>P̂</code>, treated as a probability distribution over the three states — a single random draw weighted by that row's three numbers, then move to whichever state was drawn and repeat using <em>its</em> row next. Two traces sampled this way, even starting identically, will almost always diverge after a few laps, precisely because each step re-samples the randomness fresh — the same "no memorisable answer key" property page 1 flagged as the reason safety cars can't just be replayed from history.</p>
+
+      <div class="note generic">
+        <div class="tag">Worth knowing, not needed for this project</div>
+        <p>Multiplying the matrix by itself, <code>P²</code>, gives two-step transition probabilities; <code>P^k</code> gives <code>k</code>-step ones. As <code>k</code> grows large, most well-behaved chains converge to a fixed <strong>stationary distribution</strong> — the long-run fraction of time spent in each state, independent of where the chain started. The oracle never needs this (races are short and the exact lap-by-lap distribution is what backward induction consumes, not a long-run average), but it's the concept you'll see if you read further about Markov chains anywhere else.</p>
+      </div>
+
+      <h2>Why this is what makes Oracle B "achievable" and Oracle A only a "bound"</h2>
+      <p>This is the piece that makes the two-oracle design in the Phase 3.5 plan precise rather than hand-wavy:</p>
+      <ul>
+        <li><strong>Oracle A</strong> conditions the backward induction on one <em>specific, fixed</em> historical weather trace — lap 12 really was DAMP in that particular real race, and Oracle A is allowed to know that in advance while solving. No RL agent, which only observes weather up to the current lap, could ever know that. Oracle A is provably an upper bound the agent cannot reach — not because the agent isn't good enough, but because it's being asked a harder question than the agent is ever asked.</li>
+        <li><strong>Oracle B</strong> instead conditions on the <em>fitted transition matrix</em> above, tracking <code>weather_regime</code> as part of the DP state exactly the way the live environment does, and computing the expectation over next-lap weather using <code>P̂</code>'s row for the current regime — precisely the mechanism page 3 introduced for the safety car, applied to a second, independent random process. Because the agent, too, only ever observes the <em>current</em> regime and has to reason probabilistically about what comes next, Oracle B is solving <em>exactly</em> the MDP the agent actually faces. Its value is a target the agent could, in principle, actually reach.</li>
+        <li>The gap between them — <code>Oracle A − Oracle B</code> — is the value of knowing the future in advance: a genuinely interesting number in its own right, not RL underperformance. Page 6 returns to this with the real project's numbers.</li>
+      </ul>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p><code>weather_markov.py</code> fits one 3×3 matrix like the one above <em>per circuit</em>, from every historical race template Phase 0.5 extracted for that circuit — the exact counting-and-normalizing procedure above, just with far more than three races and far more than six laps behind it. It also reports fit quality (per-transition counts, held-out likelihood): if a circuit's historical sample is too thin for the fitted chain to be trustworthy, the honest response is to say so and lean on Oracle A's information-gap framing instead of quietly presenting a poorly-fit Oracle B as the tight benchmark.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="03-stochastic-transitions.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 03 — Expectations Over Randomness</span>
+        </a>
+        <a class="next" href="05-build-a-toy-solver.html">
+          <span class="dir">Next</span>
+          <span class="label">05 — Build a Toy DP Solver →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 8 Self-Play Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 8</span>
+      <span class="title">Self-Play Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:82%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-non-stationarity-revisited.html"><span class="n">01</span><span>Non-stationarity, revisited</span></a></li>
+      <li><a href="02-nash-and-fictitious-play.html"><span class="n">02</span><span>Nash &amp; fictitious play</span></a></li>
+      <li><a href="03-checkpoint-pool.html"><span class="n">03</span><span>Checkpoint pool</span></a></li>
+      <li><a href="04-pettingzoo-apis.html"><span class="n">04</span><span>PettingZoo APIs</span></a></li>
+      <li><a href="05-first-opponent-problem.html"><span class="n">05</span><span>The first opponent</span></a></li>
+      <li><a href="06-blocking-model-dependency.html"><span class="n">06</span><span>The blocking dependency</span></a></li>
+      <li><a href="07-is-it-bimodal.html"><span class="n">07</span><span>Is it bimodal?</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a class="active" href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-8-self-play-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 09 / 11 — Project-specific implementation</p>
+      <h1>This Project, Formalized</h1>
+      <p class="dek">Everything above, re-derived using nothing but the real plan's own classes, shapes, and parameters.</p>
+
+      <h2><code>F1PettingZooEnv</code> as a direct instantiation of the Parallel API</h2>
+      <p><code>possible_agents = ["agent_0", ..., "agent_N"]</code>, per page 04. Each agent's observation is <code>N_MULTI_OBS = 19</code> — Phase 6's own multi-car dimension (assumed background), unchanged: every agent still sees its own car's 19-dimensional state, not a joint observation of every car at once. <code>reset()</code> and <code>step(actions: dict)</code> both return per-agent dicts, exactly the shared surface page 04 set up generically. <code>_extend_obs</code> computes exactly Phase 6's own gap-ahead/gap-behind/position features, now recomputed per-agent inside a multi-agent wrapper rather than against Phase 6's fixed-script rivals.</p>
+
+      <h2>The independent-learner training loop, against page 01's paradigm choice</h2>
+      <p>One <code>DuelingDoubleDQNAgent</code> instance plays the role of <code>agent_0</code>, the learner — the only agent whose replay buffer is updated and whose weights actually change during training (<code>learner.store(...)</code> and <code>learner.update()</code> are called only for <code>agent_0</code> inside the episode's step loop). Every other agent (<code>agent_1</code>, ...) is sampled fresh each episode from the <code>CheckpointPool</code>, with <code>epsilon = 0.0</code> once page 05's fix is applied to the pool's seeding logic. This is page 01's "independent learners" paradigm exactly: no shared network, no centralized critic, each agent's own DQN (or, for the opponents, a frozen snapshot of one) acting purely on its own local 19-dimensional observation.</p>
+
+      <h2><code>CheckpointPool</code>'s parameters, mapped to page 03's math</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Parameter</th><th>Value</th><th>Role (page 03)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">recency_bias</td><td class="mono">0.7</td><td>Probability of sampling from the most recent 20% of the pool — the practical approximation of favoring recent history over page 02's full running average</td></tr>
+            <tr><td class="mono">max_pool_size</td><td class="mono">50</td><td>A sliding window over fictitious-play history, not an unbounded archive — oldest checkpoint evicted on overflow</td></tr>
+            <tr><td class="mono">checkpoint_freq</td><td class="mono">1000 episodes</td><td>How often a new snapshot is added to the pool during <code>train_self_play</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The page 05 fix is a concrete, required change to one specific line: <code>pool.add(learner, episode=0)</code>'s seeding call currently stores an untrained network and relies on the sampler's <code>epsilon = 0.0</code> to make it "greedy" — per page 05, this needs to be replaced with either an explicitly stochastic seed (<code>epsilon = 1.0</code>) or, preferably, Phase 3's rule-based agents (assumed background), before any training run's early episodes are trustworthy.</p>
+
+      <h2>Definition-of-Done items that exist because of pages 03–07</h2>
+      <p>Several of the real plan's Definition-of-Done items are there specifically because of the mechanisms and findings this set spent several pages on, not because they're generic "does the feature work" checks:</p>
+      <ul>
+        <li><strong>Recency-bias sampling test</strong> (page 03) — confirms the pool's most-recent-20% slice is actually sampled roughly 70% of the time, not merely that <code>sample()</code> runs without error.</li>
+        <li><strong>"Learner's mean finishing position &lt; random agent's"</strong> (page 03's evaluation-trap argument) — the one Definition-of-Done item that evaluates the learner <em>outside</em> the self-play loop, precisely because a rising self-play reward curve on its own proves nothing about skill against an opponent the learner never trained against.</li>
+        <li><strong>The bimodal pit-timing histogram</strong> (page 06's precondition) — the item that cannot pass at all until Phase 6's blocking constraint exists, independent of how well every other item on this list passes.</li>
+        <li><strong>The analysis notebook's interpretation section</strong> (page 07) — should report the shuffled null-baseline comparison alongside the raw histogram, not the histogram alone.</li>
+      </ul>
+
+      <div class="pagenav">
+        <a class="prev" href="08-build-it-yourself.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 08 — Build It Yourself</span>
+        </a>
+        <a class="next" href="10-reading-the-plan.html">
+          <span class="dir">Next</span>
+          <span class="label">10 — Reading the Implementation Plan's Code →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

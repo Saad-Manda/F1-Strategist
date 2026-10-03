@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 8 Self-Play Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 8</span>
+      <span class="title">Self-Play Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:27%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-non-stationarity-revisited.html"><span class="n">01</span><span>Non-stationarity, revisited</span></a></li>
+      <li><a href="02-nash-and-fictitious-play.html"><span class="n">02</span><span>Nash &amp; fictitious play</span></a></li>
+      <li><a class="active" href="03-checkpoint-pool.html"><span class="n">03</span><span>Checkpoint pool</span></a></li>
+      <li><a href="04-pettingzoo-apis.html"><span class="n">04</span><span>PettingZoo APIs</span></a></li>
+      <li><a href="05-first-opponent-problem.html"><span class="n">05</span><span>The first opponent</span></a></li>
+      <li><a href="06-blocking-model-dependency.html"><span class="n">06</span><span>The blocking dependency</span></a></li>
+      <li><a href="07-is-it-bimodal.html"><span class="n">07</span><span>Is it bimodal?</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-8-self-play-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 03 / 11 — A little math</p>
+      <h1>The Checkpoint Pool as Approximate Fictitious Self-Play</h1>
+      <p class="dek">Storing weights doesn't let you literally average policies the way you can average a mixed strategy in a matrix game — so the real plan approximates the average with a sampled pool instead.</p>
+
+      <h2>Why "average the strategies" needs a stand-in for a DQN</h2>
+      <p>Page 02's convergence argument depended on tracking a running <em>average</em> of the opponent's strategy. That's a clean operation for a matrix game, where a strategy is just a probability over a handful of actions. It doesn't translate directly to a DQN: there's no meaningful way to "average" the weights of ten different neural networks and expect the result to behave like the average of their policies. The practical fix: instead of averaging weights, keep a <strong>pool</strong> of past policy snapshots (checkpoints) and sample among them — an empirical distribution over past strategies that approximates fictitious play's running average without ever averaging a single weight.</p>
+
+      <h2>The real plan's sampling rule</h2>
+      <p>Not a uniform sample over the whole pool, either. The real plan's <code>CheckpointPool.sample()</code> uses a recency-biased rule: with probability <code>recency_bias = 0.7</code>, sample uniformly from the most recent 20% of the pool; otherwise (probability 0.3), sample uniformly from the older 80%.</p>
+      <blockquote class="eq">pool size n = 50
+recent slice  = most recent 20% of 50  = 10 checkpoints  (n − int(0.8·n) = 50 − 40)
+older slice   = remaining 80% of 50    = 40 checkpoints
+
+P(sample any one specific recent checkpoint) = 0.7 / 10  = 0.07   (7% each)
+P(sample any one specific older checkpoint)  = 0.3 / 40  = 0.0075 (0.75% each)
+
+Per-checkpoint weighting, recent : older  =  0.07 / 0.0075  ≈  9.3 : 1</blockquote>
+      <p>Roughly a 9:1 per-checkpoint weighting of recent versus old — not a flat average across all 50. This is a deliberate departure from page 02's pure running-average argument, and worth naming as a trade-off rather than a derived-from-first-principles number:</p>
+      <ul>
+        <li>Too much weight on ancient checkpoints wastes training signal on opponents the learner has long since outgrown — every episode spent beating a policy from 15,000 episodes ago teaches little about the current frontier.</li>
+        <li>Too little weight on old checkpoints risks "chasing the tail" — re-learning only to beat the newest policy while forgetting how to beat older styles, exactly the cycling failure page 02's worked example showed for best-responding to the single latest strategy alone.</li>
+      </ul>
+      <p>Recency bias is the practical middle ground: strongly favor the frontier, but never fully forget the pool's history.</p>
+
+      <div class="note grounded">
+        <div class="tag">The self-play evaluation trap</div>
+        <p>A self-play agent's training reward curve going up only proves it's getting better at beating <em>its own recent history</em> — it says nothing about whether it would beat a genuinely different strategy it's never encountered, such as a Phase 3 rule-based agent (assumed background) or a human's intuition. This is exactly why the real plan's Definition of Done checks the trained learner against something <strong>outside</strong> the self-play loop entirely ("learner's mean finishing position &lt; random agent's"), rather than trusting the self-play reward curve on its own. A rising curve inside a closed loop is evidence of progress relative to that loop, not evidence of skill in any absolute sense.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="02-nash-and-fictitious-play.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 02 — The Game Underneath</span>
+        </a>
+        <a class="next" href="04-pettingzoo-apis.html">
+          <span class="dir">Next</span>
+          <span class="label">04 — Two Ways to Formalize "Everyone Acts" →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

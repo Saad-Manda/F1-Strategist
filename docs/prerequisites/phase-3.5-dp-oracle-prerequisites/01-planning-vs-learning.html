@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3.5 DP Oracle Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 3.5</span>
+      <span class="title">DP Oracle Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:12.5%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a class="active" href="01-planning-vs-learning.html"><span class="n">01</span><span>Planning vs. learning</span></a></li>
+      <li><a href="02-backward-induction.html"><span class="n">02</span><span>Backward induction</span></a></li>
+      <li><a href="03-stochastic-transitions.html"><span class="n">03</span><span>Expectations over randomness</span></a></li>
+      <li><a href="04-markov-chains.html"><span class="n">04</span><span>Markov chains</span></a></li>
+      <li><a href="05-build-a-toy-solver.html"><span class="n">05</span><span>Build a toy DP solver</span></a></li>
+      <li><a href="06-this-project-as-dp.html"><span class="n">06</span><span>This project, formalized</span></a></li>
+      <li><a href="07-code-walkthrough.html"><span class="n">07</span><span>Code walkthrough</span></a></li>
+      <li><a href="08-glossary.html"><span class="n">08</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-3.5-dp-oracle-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 01 / 08 — Foundations</p>
+      <h1>Planning vs. Learning</h1>
+      <p class="dek">Phase 4 will estimate a good policy from thousands of simulated races. Phase 3.5 computes the optimal one directly, from the model alone, without playing a single episode to learn from.</p>
+
+      <h2>Two ways to solve an MDP</h2>
+      <p>Page 1 of the Phase 1 prerequisites established the RL loop: an agent observes a state, acts, receives a reward, and repeats — learning, over many such interactions, which actions tend to pay off. That framing quietly assumes the agent does <em>not</em> know the transition function or reward function in advance; it has to find out by trying things and observing what happens. Every algorithm downstream of Phase 1 in this project's plan — Q-learning, SARSA, DQN, PPO — is built around that assumption. They are all <strong>model-free</strong> methods: they never see <code>P(s'|s,a)</code> written down anywhere. They infer good behaviour from samples.</p>
+      <p>But this project's MDP isn't actually unknown. <code>dynamics.py</code> <em>is</em> the transition function, in closed form, and the reward is simply <code>-lap_time</code>. Nothing about how a lap plays out is hidden from the person who wrote the simulator. When the model is fully known like this, a different family of methods becomes available: <strong>planning</strong> — compute the optimal policy directly from the model, with no trial and error, no exploration, and no sampling error. <strong>Dynamic programming</strong> is the classic planning method, and it's what Phase 3.5 builds.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Learning (Phases 4, 5, 9)</th><th>Planning (Phase 3.5)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Needs the model?</td><td>No — learns from sampled <code>(s,a,r,s')</code> transitions</td><td>Yes — needs <code>P</code> and <code>R</code> written down explicitly</td></tr>
+            <tr><td class="mono">Exploration?</td><td>Yes — epsilon-greedy, has to try things to find out what's good</td><td>None — every consequence is already computable</td></tr>
+            <tr><td class="mono">Answer quality</td><td>Approximate, improves with more training</td><td>Exact, for the model as written</td></tr>
+            <tr><td class="mono">What can go wrong</td><td>Slow convergence, reward hacking, unstable training</td><td>Only: the model itself is wrong, or the state space is too large to enumerate</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>Because Phase 3.5's oracle uses the exact same <code>dynamics.compute_lap_time</code> function the live environment and every learning agent train against, its answer isn't a competing model of the world — it's the provably best possible play <em>within the world the agents already live in</em>. That's what makes "optimality gap" a meaningful number rather than a comparison between two different simulators.</p>
+      </div>
+
+      <h2>Why "exact" is possible here at all</h2>
+      <p>Solving an MDP exactly by exhaustively considering every state is, in general, hopeless — most interesting MDPs have astronomically large or continuous state spaces (imagine trying to enumerate every possible pixel-frame of an Atari game). Exact solving is a <em>size</em> argument, not a different kind of intelligence: it works exactly when the number of distinct situations the agent can be in is small enough to fit in memory and iterate over in reasonable time.</p>
+      <p>This project's single-car race state is unusually small for a reason worth naming explicitly: every feature in it was chosen, back in Phase 1, to be a <em>compact, discretizable summary</em> — lap number, which of five compounds is fitted, tyre age in laps, a three-bit used-compound mask, whether a safety car is active, which of three weather regimes is in effect. None of that is an accident of convenience; it's the direct payoff of Phase 1's insistence on a minimal, disciplined state (page 2 of the Phase 1 prerequisites' "sufficient statistic" argument). A state design bloated with continuous, high-precision features would have made this phase impossible.</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>Multiplying out <code>lap × compound × tyre_age × used_mask × sc_active × weather</code> gives roughly <strong>55 × 5 × 55 × 8 × 2 × 3 ≈ 363,000</strong> states, times 6 actions. A modern laptop can fill a value table of that size, for every lap of a race, in well under a second using NumPy array operations — page 2 works through exactly why. Most of those 363,000 combinations are actually unreachable (a tyre can't be older than the number of laps run so far, and the used-mask is implied by which compounds could plausibly have been fitted) — a reachability pass typically cuts the real work by another 5–10×.</p>
+      </div>
+
+      <h2>What planning buys that learning can't</h2>
+      <p>The headline reason this phase exists is evaluation. "My RL agent beat the rule-based baseline I also wrote" is a comparison against a strawman of your own construction — the baseline's weaknesses are exactly the weaknesses you happened to think of. "My RL agent came within 0.4 seconds of the provably optimal strategy, and here's exactly where the remaining time is lost" is a claim about the ceiling of the problem itself, independent of anyone's cleverness in writing rules.</p>
+      <p>There's a second, quieter benefit: an exact solver is also the strongest possible test of the simulator. If backward induction — which cannot make a mistake, only report the true optimum of the model as written — discovers a policy that saves an implausible amount of time, that isn't a strategic insight. It's a bug in <code>dynamics.py</code>, found before an RL agent spent three days learning to exploit it and getting blamed for "not really understanding strategy." Page 6 returns to this as the single highest-value test in the whole DP oracle test suite.</p>
+
+      <div class="note generic">
+        <div class="tag">One discipline to hold onto now</div>
+        <p>The oracle computes an answer; it must never <em>teach</em> one. Training an RL agent to imitate the DP policy's actions is a legitimate technique in its own right (imitation learning), but it is a different project from what Phases 4, 5, and 9 are trying to demonstrate — that an agent can discover good strategy from experience, without being shown the answer first. The oracle's role for the rest of this project is strictly evaluator, never teacher.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="index.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 00 — Index</span>
+        </a>
+        <a class="next" href="02-backward-induction.html">
+          <span class="dir">Next</span>
+          <span class="label">02 — Backward Induction →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

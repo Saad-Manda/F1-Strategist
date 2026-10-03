@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 8 Self-Play Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 8</span>
+      <span class="title">Self-Play Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:64%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-non-stationarity-revisited.html"><span class="n">01</span><span>Non-stationarity, revisited</span></a></li>
+      <li><a href="02-nash-and-fictitious-play.html"><span class="n">02</span><span>Nash &amp; fictitious play</span></a></li>
+      <li><a href="03-checkpoint-pool.html"><span class="n">03</span><span>Checkpoint pool</span></a></li>
+      <li><a href="04-pettingzoo-apis.html"><span class="n">04</span><span>PettingZoo APIs</span></a></li>
+      <li><a href="05-first-opponent-problem.html"><span class="n">05</span><span>The first opponent</span></a></li>
+      <li><a href="06-blocking-model-dependency.html"><span class="n">06</span><span>The blocking dependency</span></a></li>
+      <li><a class="active" href="07-is-it-bimodal.html"><span class="n">07</span><span>Is it bimodal?</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-8-self-play-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 07 / 11 — Project-specific math</p>
+      <h1>Is It Really Bimodal? A Null Baseline for the Headline Result</h1>
+      <p class="dek">A histogram that looks bimodal and a histogram that <em>is</em> evidence of reactive strategy are not automatically the same thing.</p>
+
+      <h2>The real plan's analysis, restated</h2>
+      <p>For every pit stop the trained agent makes, record the signed lap-gap to the nearest rival pit stop (agent's pit lap minus rival's pit lap), across many evaluation episodes. Plot a histogram of these deltas. Look for peaks at small negative deltas (the agent pits shortly before the rival — an undercut) and small positive deltas (shortly after — an overcut), with a dip near zero (pitting at the same time as the rival, which neither strategy actually is).</p>
+
+      <h2>Why "looks bimodal" is a weaker claim than it sounds</h2>
+      <p>Pit laps for <em>both</em> cars are already clustered near a handful of preferred stint lengths, independent of any interaction between them — Phase 0's calibration (assumed background) produces a preferred tyre window regardless of what any other car on track is doing. If both cars independently prefer pitting in, say, laps 18–22, then a good fraction of their pit-lap deltas will land near zero-ish values purely from two cars separately following similar schedules — with no dip at zero and no genuine bimodality required for that clustering to appear. A histogram that shows structure near small deltas is therefore <em>consistent with</em> reactive undercut/overcut behavior, but it does not, on its own, rule out "both cars just like similar lap windows."</p>
+
+      <h2>A concrete null baseline: shuffle the pairing</h2>
+      <p>Take the exact same recorded lists — this agent's pit laps across all evaluation episodes, and the rival's pit laps across those same episodes — but break the real pairing between them: shuffle which episode's rival-pit-lap list each agent-pit-lap is compared against, so the agent's pit choice in episode 12 gets compared to the rival's pit lap from, say, episode 47 instead of its own actual race. Recompute the identical delta histogram on this shuffled, non-corresponding data.</p>
+      <blockquote class="eq">real_deltas    = [agent_pit_lap[i] − rival_pit_lap[i]  for i in all recorded pit-stop pairs]
+
+shuffled_rival = random.permutation(rival_pit_lap)     # same values, episodes reassigned at random
+null_deltas    = [agent_pit_lap[i] − shuffled_rival[i]  for i in all recorded pit-stop pairs]
+
+# real_deltas came from cars that actually raced each other and could react
+# null_deltas came from cars that never shared a race — any structure here
+# can only be an artifact of each side's own independent stint-length habits</blockquote>
+      <p>If <code>real_deltas</code> and <code>null_deltas</code> produce visibly similar histograms, the apparent bimodality is an artifact of independent stint-length preferences, not evidence either agent reacted to the other. A genuinely reactive undercut/overcut pattern should show <code>real_deltas</code> with a visibly <em>deeper</em> dip near zero and <em>taller</em> near-zero-offset peaks than <code>null_deltas</code> — a difference the shuffled data has no way to produce, since it was built specifically to destroy any real interaction while preserving each side's own marginal pit-timing habits.</p>
+
+      <div class="note generic">
+        <div class="tag">Naming the general technique</div>
+        <p>This is a <strong>permutation test</strong> by name: comparing an observed statistic (here, the shape of the delta histogram) against the same statistic recomputed under a randomized version of the data that destroys the specific relationship being tested for (here, the real pairing between an agent's race and its rival's race) is a standard, simple way to ask "could this pattern have happened by chance alone," without needing to assume any particular parametric distribution for pit-timing deltas. One technique, one paragraph — not a general course in hypothesis testing.</p>
+      </div>
+
+      <h2>An addition to the Definition of Done, not a replacement</h2>
+      <p>The histogram itself stays — it's the intuitive, presentable result, and the real plan's Definition of Done is right to ask for it. The null-baseline comparison above is what turns "emergent undercut/overcut behavior" from an eyeballed claim into a defensible one: report both histograms side by side, and let the gap between them (or its absence) be the actual evidence, rather than the shape of the real histogram in isolation.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="06-blocking-model-dependency.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 06 — The Blocking Rule Everything Here Depends On</span>
+        </a>
+        <a class="next" href="08-build-it-yourself.html">
+          <span class="dir">Next</span>
+          <span class="label">08 — Build It Yourself →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

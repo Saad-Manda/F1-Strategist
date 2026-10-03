@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a class="active" href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 09 / 12 — Building it yourself</p>
+      <h1>Build It Yourself: Toy REINFORCE, Then Toy PPO</h1>
+      <p class="dek">Five stages: plain REINFORCE, adding a critic and advantage, a deliberate destructive update, PPO's clip fixing it on the same loop, and a from-scratch repro of the pickling bug.</p>
+
+      <p>Every name below (<code>ToyChooser</code>, <code>bandit_reward</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match <code>PPOAgent</code>, <code>MaskablePPO</code>, or anything in <code>sb3_wrapper.py</code>. As with every toy build in this project's prerequisite sets, the point is to arrive at the same <em>shape</em> of solution independently, so the real code on page 11 reads as familiar structure rather than new material.</p>
+
+      <h2>Stage 0 — a tiny noisy bandit and a softmax policy</h2>
+      <p>A single-state, 2-action toy directly reusing page 01's softmax-gradient example, but with <em>noisy</em> rewards instead of a single fixed return per action — noise is what actually makes REINFORCE's variance problem visible:</p>
+      <pre><code>import numpy as np
+
+ACTIONS = ["R", "P"]
+
+def bandit_reward(action, rng):
+    """R has higher expected reward but high noise; P is lower-mean, low-noise."""
+    if action == "R":
+        return rng.normal(loc=1.0, scale=2.0)
+    return rng.normal(loc=0.0, scale=0.5)
+
+class ToyChooser:
+    """A 2-action softmax policy over two logits, updated by a policy gradient."""
+    def __init__(self, seed=0):
+        self.logits = {"R": 0.0, "P": 0.0}
+        self.rng = np.random.default_rng(seed)
+
+    def probs(self):
+        z = np.array([self.logits["R"], self.logits["P"]])
+        p = np.exp(z - z.max())
+        return {a: v for a, v in zip(ACTIONS, p / p.sum())}
+
+    def act(self):
+        p = self.probs()
+        return self.rng.choice(ACTIONS, p=[p["R"], p["P"]])
+
+    def log_grad(self, action):
+        """Page 01's softmax log-gradient: d log pi(a)/d z_b."""
+        p = self.probs()
+        grad = {b: (1 - p[b] if b == action else -p[b]) for b in ACTIONS}
+        return grad, p</code></pre>
+
+      <h2>Stage 1 — plain REINFORCE: update directly on the raw sampled reward</h2>
+      <pre><code>def train_reinforce(n_episodes=500, alpha=0.05, seed=1):
+    agent = ToyChooser(seed=seed)
+    rng = np.random.default_rng(seed + 1)
+    history = []
+    for ep in range(n_episodes):
+        action = agent.act()
+        reward = bandit_reward(action, rng)
+        grad, _ = agent.log_grad(action)
+        for b in ACTIONS:
+            agent.logits[b] += alpha * reward * grad[b]     # page 01's update, raw G
+        history.append(dict(agent.logits))
+    return agent, history
+
+# Plot history's P(R) over episodes: it should trend toward preferring R
+# (the higher-mean action) but visibly jitter around a lot along the way --
+# R's own noise (std=2.0) is directly injected into every single update,
+# exactly page 01's stated limitation, now something you can watch happen.</code></pre>
+
+      <h2>Stage 2 — add a critic (an exponential moving average) and use the advantage</h2>
+      <pre><code>def train_actor_critic(n_episodes=500, alpha=0.05, critic_lr=0.1, seed=1):
+    agent = ToyChooser(seed=seed)
+    rng = np.random.default_rng(seed + 1)
+    baseline = 0.0                      # the "critic" -- trivial here: one state, so V(s) is one scalar
+    history, baselines = [], []
+    for ep in range(n_episodes):
+        action = agent.act()
+        reward = bandit_reward(action, rng)
+        advantage = reward - baseline    # page 02's A(s,a) = reward - V(s), V estimated by an EMA
+        grad, _ = agent.log_grad(action)
+        for b in ACTIONS:
+            agent.logits[b] += alpha * advantage * grad[b]
+        baseline += critic_lr * (reward - baseline)   # critic's own TD-style update
+        history.append(dict(agent.logits))
+        baselines.append(baseline)
+    return agent, history, baselines
+
+# Compare this run's history against stage 1's, over the same 500 episodes:
+# the trajectory of P(R) should settle toward its final value with visibly
+# less episode-to-episode jitter -- the variance-reduction claim from page 02,
+# confirmed by a plot you produced rather than taken on faith.</code></pre>
+
+      <h2>Stage 3 — catch the collapse: a deliberate destructive update</h2>
+      <p>Reproduce page 04's motivating problem directly: take Stage 2's loop, run it for a while, then apply one artificially inflated update following an unusually large sampled reward:</p>
+      <pre><code>agent, history, baselines = train_actor_critic(n_episodes=200, seed=2)
+
+# Force one destructively large update: an inflated "alpha" applied to a
+# single, unusually high reward sample for whichever action is CURRENTLY
+# the less-preferred one under the policy's own probabilities.
+rng = np.random.default_rng(999)
+probs_before = agent.probs()
+under_preferred = min(probs_before, key=probs_before.get)
+huge_reward = 8.0                       # an outlier draw, well above bandit_reward's usual range
+grad, _ = agent.log_grad(under_preferred)
+BLOWUP_ALPHA = 2.0                      # 40x stage 2's alpha
+for b in ACTIONS:
+    agent.logits[b] += BLOWUP_ALPHA * (huge_reward - baselines[-1]) * grad[b]
+probs_after = agent.probs()
+
+print("before:", probs_before, " after one destructive update:", probs_after)
+# probs_after should show the policy has swung hard toward the action that
+# was previously LESS preferred -- a single outlier update overriding
+# everything learned in the preceding 200 episodes. This is the collapse
+# page 04 describes, produced on purpose so stage 4 has something to fix.</code></pre>
+
+      <h2>Stage 4 — add PPO's clip on top of the exact same update</h2>
+      <p>Reuse Stage 3's identical scenario (the same outlier reward, the same starting policy), but replace the one-shot update with a small number of clipped-objective gradient steps against a fixed "old" policy snapshot — the reader's own version of page 06's <code>n_epochs</code> reuse and page 04's clip, combined:</p>
+      <pre><code>def clipped_update(agent, action, reward, baseline, old_probs, epsilon=0.2, n_epochs=20, step=0.1):
+    advantage = reward - baseline
+    for _ in range(n_epochs):
+        grad, probs = agent.log_grad(action)
+        ratio = probs[action] / old_probs[action]
+        clipped_ratio = min(max(ratio, 1 - epsilon), 1 + epsilon)
+        # page 04's min(): pick whichever surrogate term is smaller
+        surrogate_unclipped = ratio * advantage
+        surrogate_clipped = clipped_ratio * advantage
+        using_clipped = surrogate_clipped < surrogate_unclipped
+        effective_ratio = clipped_ratio if using_clipped else ratio
+        # gradient step scaled by how far the (possibly clipped) ratio has
+        # allowed the update to move, times the log-gradient direction
+        for b in ACTIONS:
+            agent.logits[b] += step * effective_ratio * advantage * grad[b] / max(ratio, 1e-8)
+    return agent
+
+agent2, history2, baselines2 = train_actor_critic(n_episodes=200, seed=2)   # identical seed to stage 3
+probs_before2 = agent2.probs()
+old_probs = dict(probs_before2)     # the "pi_theta_old" snapshot, frozen before any of these steps
+under_preferred2 = min(probs_before2, key=probs_before2.get)
+clipped_update(agent2, under_preferred2, reward=8.0, baseline=baselines2[-1], old_probs=old_probs)
+probs_after2 = agent2.probs()
+
+print("before:", probs_before2, " after clipped update:", probs_after2)
+# Compare directly against stage 3's probs_after: this run's swing toward
+# the under-preferred action should be visibly SMALLER and bounded, even
+# though it saw the exact same outlier reward -- the clip stopped the
+# surrogate objective from rewarding the ratio moving arbitrarily far,
+# exactly page 04's argument, now demonstrated on a collapse you triggered
+# yourself in stage 3.</code></pre>
+
+      <h2>Stage 5 — reproduce the pickling bug from scratch</h2>
+      <p>A minimal, from-scratch repro of page 07's lesson — no SB3 import, own names throughout:</p>
+      <pre><code># toy_vec_bug.py
+import multiprocessing as mp
+
+class TinyToyEnv:
+    def __init__(self, tag):
+        self.tag = tag
+    def step(self):
+        return f"stepped env {self.tag}"
+
+def _broken_worker(make_env_fn, q):
+    env = make_env_fn()
+    q.put(env.step())
+
+if __name__ == "__main__":
+    q = mp.Queue()
+    # This lambda cannot be pickled once mp's start method is "spawn" --
+    # which is the ONLY start method available on Windows.
+    make_env = lambda: TinyToyEnv(tag=0)          # noqa: reproduces page 07 on purpose
+    p = mp.Process(target=_broken_worker, args=(make_env, q))
+    p.start()          # raises PicklingError here on Windows
+    p.join()</code></pre>
+      <pre><code># fixed_vec.py -- the page 07 fix: a module-level named function instead
+def _make_env():
+    return TinyToyEnv(tag=0)
+
+if __name__ == "__main__":
+    q = mp.Queue()
+    p = mp.Process(target=_broken_worker, args=(_make_env, q))
+    p.start()          # works: _make_env has a name mp can look up after spawning
+    p.join()
+    print(q.get())</code></pre>
+      <p>Run the first script on whatever OS you have — on Windows it fails immediately with a pickling error naming the lambda; on Linux's default <code>fork</code> start method it may well succeed, silently hiding the exact bug page 07 describes. Run the second script and confirm it completes and prints the worker's result — the same fix applies verbatim to <code>make_vec_masked_envs</code>'s real <code>lambda e: e.action_masks()</code>.</p>
+
+      <div class="pagenav">
+        <a class="prev" href="08-unfair-comparison.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 08 — "Same Timesteps" Isn't "Same Experience"</span>
+        </a>
+        <a class="next" href="10-this-project-formalized.html">
+          <span class="dir">Next</span>
+          <span class="label">10 — This Project, Formalized →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

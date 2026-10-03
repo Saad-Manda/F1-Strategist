@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:67%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a class="active" href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 08 / 12 — An audit finding, taught as a core lesson (J2)</p>
+      <h1>"Same Timesteps" Isn't "Same Experience"</h1>
+      <p class="dek">A stated fairness protocol, and the arithmetic that quietly contradicts it.</p>
+
+      <h2>The stated protocol</h2>
+      <p>The real plan's fair-comparison protocol states, as item 4 of 5: "Same total environment steps — ~2M steps for both." This is exactly the right instinct — Phase 3's paired-seed evaluation discipline (assumed background) only controls for luck in which scenarios got sampled during <em>evaluation</em>; it says nothing about whether the two agents being compared were actually given the same amount of <em>training</em> experience to work with.</p>
+
+      <h2>The arithmetic that contradicts it</h2>
+      <blockquote class="eq">DQN (Phase 5):  5,000 episodes × ~52 laps/episode  ≈  260,000 environment steps
+PPO (this phase):  configs/ppo.yaml sets total_timesteps: 2,000,000
+
+2,000,000 / 260,000  ≈  7.7</blockquote>
+      <p>PPO receives roughly <strong>eight times</strong> the environment interaction the stated protocol claims to be controlling for.</p>
+
+      <h2>A compounding error, worth naming precisely</h2>
+      <p>The same config file's own comment describes its <code>total_timesteps: 2000000</code> as "~2M steps; equivalent to ~5000 episodes" — but <code>2,000,000 / 52 ≈ 38,500</code> episodes, not 5,000. The config's own self-description is off by roughly the same 7.7× factor as the actual DQN/PPO mismatch, which is itself informative: it suggests this wasn't a deliberate choice to give PPO more data, but two numbers that were meant to agree and quietly didn't.</p>
+
+      <h2>Why this specifically undermines the phase's headline claim</h2>
+      <p>Any result of the form "PPO reached a better (or worse) race time than DQN" is uninterpretable once one algorithm has had 7.7× the training data. The difference could reflect the algorithm, the sample budget, or some mix of both, and the real plan's Definition of Done as written — "DQN vs PPO comparison runs on 100 paired seeds" — controls only for evaluation-time luck, not for this training-time confound. A comparison can be statistically rigorous at evaluation time and still be a comparison of the wrong thing.</p>
+
+      <h2>Two genuine fixes</h2>
+      <p>Not "just increase DQN's budget to match" in isolation — that would silently change a separately-tuned hyperparameter (Phase 5's 5,000-episode budget) without stating that's what happened. Two options that are actually principled:</p>
+      <ol>
+        <li><strong>Match the budgets explicitly</strong> before training either agent, so the protocol's own stated intent — "same total environment steps" — is genuinely met, and say in the write-up what number was chosen and why.</li>
+        <li><strong>Train both to their own tuned budget, but report learning curves on a shared environment-step x-axis</strong> — which the comparison notebook's own Cell 3 already intends to do ("Align x-axis on 'environment steps' for fair comparison"), but which the current configs actively work against. This option is arguably the better one: <strong>sample efficiency is itself a genuine, reportable difference between an off-policy method (DQN) and an on-policy one (PPO)</strong>, so making the training-step gap a visible, labeled part of the result turns a hidden confound into a real finding, rather than papering over it.</li>
+      </ol>
+
+      <div class="note grounded">
+        <div class="tag">Tied to Phase 3's evaluation discipline, not a separate concern</div>
+        <p>Controlling the <em>evaluation</em> seeds carefully — Phase 3's paired-seed framework, assumed background — means very little if the <em>training</em> budgets that produced the two agents being compared were never matched, or at least never reported. A rigorous evaluation protocol wrapped around an unmatched training setup is still an unfair comparison; the rigor at the end doesn't retroactively fix the confound built in at the start.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="07-pickling-and-subprocvecenv.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 07 — Lambdas, Multiprocessing, and a Windows-Fatal Bug</span>
+        </a>
+        <a class="next" href="09-build-it-yourself.html">
+          <span class="dir">Next</span>
+          <span class="label">09 — Build It Yourself →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

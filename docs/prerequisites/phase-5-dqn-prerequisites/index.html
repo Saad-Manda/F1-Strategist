@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 5 DQN Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 5</span>
+      <span class="title">DQN Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    <ul class="nav-list">
+      <li><a class="active" href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-table-to-function.html"><span class="n">01</span><span>Table to function</span></a></li>
+      <li><a href="02-neural-networks-primer.html"><span class="n">02</span><span>Neural networks primer</span></a></li>
+      <li><a href="03-target-network.html"><span class="n">03</span><span>The target network</span></a></li>
+      <li><a href="04-experience-replay.html"><span class="n">04</span><span>Experience replay</span></a></li>
+      <li><a href="05-dueling-architecture.html"><span class="n">05</span><span>The dueling architecture</span></a></li>
+      <li><a href="06-double-dqn.html"><span class="n">06</span><span>Double DQN</span></a></li>
+      <li><a href="07-prioritized-experience-replay.html"><span class="n">07</span><span>Prioritized experience replay</span></a></li>
+      <li><a href="08-reward-scale-trap.html"><span class="n">08</span><span>The reward-scale trap</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-code-walkthrough.html"><span class="n">11</span><span>Code walkthrough</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-5-dqn-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 00 / 12 — Start here</p>
+      <h1>Phase 5 Dueling Double DQN Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to build the Dueling Double DQN agent with prioritized experience replay described in <code>phase-5-dueling-double-dqn.md</code>, assuming you already have the Phase 1, Phase 3.5, and Phase 4 prerequisite sets and nothing more.</p>
+
+      <h2>Why this phase is different from the one before it</h2>
+      <p>Phase 4 page 05 already named the wall tabular methods hit: a Q-table needs a <em>finite</em> number of discrete states, and no binning scheme is fine enough to represent the optimal policy without exploding past what a fixed training budget can visit. Phase 4 page 06 then showed that wall isn't hypothetical — the real plan's first <code>tire_age</code> binning scheme was coarse enough to erase the exact decision the DP oracle could tell apart.</p>
+      <p>Phase 5 doesn't fix the binning. It removes the table. <code>Q(s,a)</code> stops being a lookup and becomes a function <code>Q(s,a;θ)</code> that a neural network computes — so two states that would never have shared a table cell can still be recognized as "similar" and share what's been learned about them. Everything else carries over unchanged: the Bellman target, the TD-error idea, even the ε-greedy exploration schedule from Phase 4 page 03. Only <em>how the number gets stored and updated</em> changes, and this set exists to make that change concrete rather than magical.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>This set teaches value-based deep RL exactly as the real plan uses it: a small MLP replacing the Q-table, the two instabilities that come with training a network online (a moving target, correlated data) and their standard fixes (a target network, an experience replay buffer), and the three specific techniques the real agent layers on top — the dueling architecture, Double DQN, and prioritized experience replay (PER) — plus the reward-scale trap the project's own audit already flags as the most likely reason this phase looks broken when it isn't. It does not cover multi-car states, rival modeling, self-play, or anything from Phase 6 onward, even as a preview, and it does not turn into a general deep-learning course — the neural-network primer on page 1 covers exactly the mechanics DQN needs and stops there.</p>
+      </div>
+
+      <h2>How this folder teaches the implementation half</h2>
+      <p>Page 9 has you build a small toy DQN agent in your own names, deliberately not matching <code>dqn_agent.py</code>, and stage it the same way the real agent is layered: a plain toy DQN first (built to visibly misbehave), then a target network and replay buffer, then the dueling head and Double DQN's decoupled target, then a small prioritized replay buffer swapped in for the uniform one — including reproducing, and then fixing, the exact PER bug recorded against the real plan. Only page 10 names which piece of the real network shape and hyperparameters corresponds to what you built, and only page 11 walks the real files themselves.</p>
+
+      <h2>Reading order</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">#</th><th>Page</th><th>Covers</th><th>Why Phase 5 needs it</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">01</td><td><a class="inline-link" href="01-table-to-function.html">From a Table Cell to a Function</a></td><td>Why tabular breaks even with better binning, and function approximation defined generally</td><td>Frames every technique in the rest of this set as a way to make one update rule work on a function instead of a table</td></tr>
+            <tr><td class="mono">02</td><td><a class="inline-link" href="02-neural-networks-primer.html">Neural Networks in Four Steps</a></td><td>Forward pass, loss, backpropagation, gradient descent, Adam — scoped tightly to what the real network's training step does</td><td>The reader has not needed a neural network until this phase</td></tr>
+            <tr><td class="mono">03</td><td><a class="inline-link" href="03-target-network.html">The Target Network</a></td><td>Why training a network on its own moving target is unstable, and the fix — a slowly-tracking second copy</td><td>The exact mechanism behind <code>target_net</code> and the Polyak update</td></tr>
+            <tr><td class="mono">04</td><td><a class="inline-link" href="04-experience-replay.html">Experience Replay</a></td><td>Why correlated, in-order training data is a second, separate instability, and the replay-buffer fix</td><td>The exact mechanism behind <code>PrioritizedReplayBuffer</code>'s uniform-sampling baseline</td></tr>
+            <tr><td class="mono">05</td><td><a class="inline-link" href="05-dueling-architecture.html">The Dueling Architecture</a></td><td>Separating <code>V(s)</code> from <code>A(s,a)</code>, the identifiability problem, and the mean-subtraction fix, derived</td><td>The exact shape of <code>DuelingDQN</code>'s two heads</td></tr>
+            <tr><td class="mono">06</td><td><a class="inline-link" href="06-double-dqn.html">Double DQN</a></td><td>Why <code>max</code> over noisy estimates is optimistic, and the online-selects/target-evaluates fix</td><td>The exact three-line change inside <code>update()</code>'s target computation</td></tr>
+            <tr><td class="mono">07</td><td><a class="inline-link" href="07-prioritized-experience-replay.html">Prioritized Experience Replay</a></td><td>Why uniform sampling starves the network of rare pit transitions, the priority/importance-sampling math, and the SumTree</td><td>The exact data structure and math behind <code>PrioritizedReplayBuffer.sample()</code></td></tr>
+            <tr><td class="mono">08</td><td><a class="inline-link" href="08-reward-scale-trap.html">The Reward-Scale Trap</a></td><td>Why an untrained network's ≈0 output against a ≈−5,000 true value looks like "training but not learning," worked through against the audit's own finding</td><td>An audit finding recorded against the real plan — read before training anything, not after a confusing flat loss curve</td></tr>
+            <tr><td class="mono">09</td><td><a class="inline-link" href="09-build-it-yourself.html">Build It Yourself</a></td><td>A staged toy DQN — vanilla, then target network + replay, then dueling + Double DQN, then PER — plus a deliberately reproduced PER bug</td><td>Understanding by building each layer yourself, in the same order the real agent stacks them</td></tr>
+            <tr><td class="mono">10</td><td><a class="inline-link" href="10-this-project-formalized.html">This Project, Formalized</a></td><td>The real network shape, every hyperparameter tied to the page that introduced its concept, and two bugs recorded against the real plan</td><td>Bridges the general theory above to the specific files you are about to write</td></tr>
+            <tr><td class="mono">11</td><td><a class="inline-link" href="11-code-walkthrough.html">Code Walkthrough</a></td><td>A reading guide to <code>dqn_agent.py</code>, <code>train_dqn.py</code>, and <code>dqn.yaml</code> — what to look for and why</td><td>Line-level understanding before implementation</td></tr>
+            <tr><td class="mono">12</td><td><a class="inline-link" href="12-glossary.html">Glossary</a></td><td>Every term used above, one paragraph each</td><td>Quick lookup while reading the plan or the code</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>How to use this alongside the Phase 5 plan</h2>
+      <p>Read pages 1–8 once, in order — they build one continuous argument, from "why a table stops working" through the neural-network mechanics needed to replace it, the two instabilities training one online creates, the three techniques the real agent adds on top, and the one numerical trap that makes all of it look broken if skipped. Page 9 is hands-on: build the staged toy agent yourself and let the PER bug actually skew a run before reading about it in the abstract. Page 10 then re-derives the same concepts using nothing but this project's actual network shape, hyperparameters, and recorded gotchas — the abstractions from pages 1–8 should stop feeling abstract at that point. Page 11 is the closest thing to a line-by-line reading guide for <code>dqn_agent.py</code> itself. Keep page 12 open as a reference while you work.</p>
+
+      <div class="pagenav">
+        <span class="spacer"></span>
+        <a class="next" href="01-table-to-function.html">
+          <span class="dir">Next</span>
+          <span class="label">01 — From a Table Cell to a Function →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

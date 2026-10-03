@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  dl.glossary { margin: 0; }
+  dl.glossary > div {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 18px;
+    align-items: baseline;
+  }
+  dl.glossary > div:first-child { border-top: none; }
+  dl.glossary dt {
+    font-family: "Sora", sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--accent);
+  }
+  dl.glossary dd { margin: 0; font-size: 15.5px; }
+  @media (max-width: 620px) {
+    dl.glossary > div { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a class="active" href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 12 / 12 — Reference</p>
+      <h1>Glossary</h1>
+      <p class="dek">Every term used across pages 1–11 — nothing beyond them. Keep this open while reading the Phase 9 plan or its eventual code.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope note</div>
+        <p>Terms belonging to multi-agent RL, self-play, or PettingZoo aren't listed here because Phase 9 doesn't use them — those belong to the Phase 8 prerequisites, and Phase 9 is architecturally independent of that phase.</p>
+      </div>
+
+      <dl class="glossary">
+        <div><dt>Policy gradient</dt><dd>Directly parameterizing a policy <code>π_θ(a|s)</code> and adjusting <code>θ</code> to maximize expected return, rather than learning a value function and acting greedily with respect to it. See page 1.</dd></div>
+        <div><dt>Policy gradient theorem</dt><dd>The result <code>∇_θJ(θ) = E_π[∇_θ log π_θ(a|s)·G]</code>, derived via the log-derivative trick, which lets the gradient be estimated from sampled trajectories without differentiating through the environment's own dynamics. See page 1.</dd></div>
+        <div><dt>REINFORCE</dt><dd>The Monte Carlo algorithm built directly on the policy gradient theorem: for every visited (state, action), nudge θ in the direction of the log-probability gradient scaled by the full episode return. See page 1.</dd></div>
+        <div><dt>Log-derivative trick</dt><dd>The identity <code>∇_θP = P·∇_θ log P</code>, used to rewrite a gradient of an expectation as an expectation of a gradient — the step that makes policy gradients estimable by sampling. See page 1.</dd></div>
+        <div><dt>Baseline</dt><dd>Any state-dependent function <code>b(s)</code> subtracted from the return before scaling the log-gradient by it; provably does not change the expected gradient, but can sharply reduce its variance. See page 2.</dd></div>
+        <div><dt>Actor-critic</dt><dd>Training a policy (the actor) using a separately-learned value function (the critic) as a variance-reducing baseline, rather than the raw episode return. See page 2.</dd></div>
+        <div><dt>Advantage function A(s,a)</dt><dd><code>Q(s,a) − V(s)</code> — how much better an action was than a state's own average outcome; the natural choice of "return minus baseline." See page 2.</dd></div>
+        <div><dt>TD residual δ_t</dt><dd><code>r_t + γV(s_{t+1}) − V(s_t)</code> — the 1-step advantage estimate, low-variance but biased when the critic's own estimates are inaccurate. See page 3.</dd></div>
+        <div><dt>Generalized Advantage Estimation (GAE-λ)</dt><dd>An exponentially-weighted sum of TD residuals, <code>Σ(γλ)^l δ_{t+l}</code>, that interpolates between the 1-step estimate (λ=0) and the full Monte Carlo advantage (λ=1). What Stable-Baselines3's <code>MaskablePPO</code> actually computes. See page 3.</dd></div>
+        <div><dt>Bias-variance tradeoff (in advantage estimation)</dt><dd>GAE's λ parameter trades a lower-variance, more-biased estimate at λ=0 against a higher-variance, unbiased one at λ=1 — the same dial as Sutton &amp; Barto's TD(λ), applied to advantage estimation for a policy gradient. See page 3.</dd></div>
+        <div><dt>Probability ratio r_t(θ)</dt><dd><code>π_θ(a_t|s_t) / π_θ_old(a_t|s_t)</code> — how much more or less likely the current policy makes an action the batch-collecting policy actually took. See page 4.</dd></div>
+        <div><dt>Clipped surrogate objective</dt><dd><code>min(r_t(θ)·A_t, clip(r_t(θ), 1−ε, 1+ε)·A_t)</code> — PPO's mechanism for bounding how far a policy update can move probabilities away from the policy that collected the current batch. See page 4.</dd></div>
+        <div><dt>On-policy vs. off-policy</dt><dd>PPO is on-policy — its ratio is only meaningful for data collected under a policy close to the current one — unlike Phase 5's DQN, which reuses arbitrarily old off-policy transitions from a replay buffer. See page 4.</dd></div>
+        <div><dt>Entropy bonus</dt><dd>A term added to the training objective that rewards keeping the policy's action distribution spread out rather than collapsing early — the real plan's <code>ent_coef</code>, relevant given this project's sparse pit-stop rewards. See page 10.</dd></div>
+        <div><dt>Build-vs-buy (as an engineering heuristic)</dt><dd>Build from scratch when an algorithm's failure modes are loud (easy to catch by inspection); reach for a well-tested library when they're quiet (a plausible-looking result that's silently worse than it should be). See page 5.</dd></div>
+        <div><dt>VecEnv / DummyVecEnv / SubprocVecEnv</dt><dd>SB3's vectorized-environment abstraction for running several environment copies at once; <code>DummyVecEnv</code> steps them sequentially in one process, <code>SubprocVecEnv</code> steps them in parallel worker processes. See page 6.</dd></div>
+        <div><dt>ActionMasker / MaskablePPO</dt><dd><code>sb3-contrib</code>'s mechanism for exposing an environment's existing action-validity mask to a PPO policy, which applies the mask before sampling rather than rejecting invalid draws afterward. See page 6.</dd></div>
+        <div><dt>Rollout buffer</dt><dd>The store of observations, actions, rewards, log-probabilities, and value estimates collected during a rollout phase, used to compute GAE and run the clipped-objective update. See page 6.</dd></div>
+        <div><dt>n_steps / batch_size / n_epochs</dt><dd>How many transitions per environment are collected before an update (<code>n_steps</code>), how they're split into minibatches (<code>batch_size</code>), and how many gradient passes each minibatch gets (<code>n_epochs</code>) before the next rollout. See page 6.</dd></div>
+        <div><dt>Pickling / process-start method (fork vs. spawn)</dt><dd>Serializing an object to cross a process boundary; lambdas and closures cannot be pickled. Linux's <code>fork</code> can accidentally hide this bug by copying parent memory wholesale; Windows's <code>spawn</code> cannot, and raises <code>PicklingError</code> reliably. See page 7.</dd></div>
+        <div><dt>Paired training-budget comparison</dt><dd>The requirement that two algorithms being compared receive the same amount of environment interaction during training, not just the same number of paired evaluation seeds — distinct from, and just as necessary as, Phase 3's paired-seed evaluation discipline. See page 8.</dd></div>
+      </dl>
+
+      <div class="pagenav">
+        <a class="prev" href="11-reading-the-plan.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 11 — Reading the Implementation Plan's Code</span>
+        </a>
+        <a class="next" href="index.html">
+          <span class="dir">Back to start</span>
+          <span class="label">00 — Index →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

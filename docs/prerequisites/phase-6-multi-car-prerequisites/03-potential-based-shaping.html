@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 6 Multi-Car Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 6</span>
+      <span class="title">Multi-Car Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:27%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-multi-car-mdp.html"><span class="n">01</span><span>One car to N</span></a></li>
+      <li><a href="02-credit-assignment.html"><span class="n">02</span><span>Credit assignment</span></a></li>
+      <li><a class="active" href="03-potential-based-shaping.html"><span class="n">03</span><span>Potential-based shaping</span></a></li>
+      <li><a href="04-overtaking-dirty-air.html"><span class="n">04</span><span>Overtaking &amp; dirty air</span></a></li>
+      <li><a href="05-position-and-blocking.html"><span class="n">05</span><span>Position vs. the undercut</span></a></li>
+      <li><a href="06-bug-ledger.html"><span class="n">06</span><span>The bug ledger</span></a></li>
+      <li><a href="07-non-stationarity.html"><span class="n">07</span><span>Non-stationarity preview</span></a></li>
+      <li><a href="08-build-it-yourself.html"><span class="n">08</span><span>Build it yourself</span></a></li>
+      <li><a href="09-this-project-formalized.html"><span class="n">09</span><span>This project, formalized</span></a></li>
+      <li><a href="10-reading-the-plan.html"><span class="n">10</span><span>Reading the plan's code</span></a></li>
+      <li><a href="11-glossary.html"><span class="n">11</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-6-multi-car-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 03 / 11 — A little math</p>
+      <h1>Potential-Based Shaping: The Principled Version</h1>
+      <p class="dek">Ng, Harada &amp; Russell (1999) found the one shape a shaping bonus can take without ever being able to change what's optimal.</p>
+
+      <h2>Ad-hoc shaping can change the answer</h2>
+      <p>Nothing stops a designer from adding <em>any</em> extra term to a reward to make learning faster — a bonus for exploring a certain area, a penalty for a certain action. But nothing about an arbitrary extra term guarantees it leaves the optimal policy alone. A quick illustration: imagine adding a flat bonus for making any pit stop at all, meant only to encourage the agent to try pitting early in training. If that bonus is large enough, it can make pitting look attractive <em>regardless of tyre age</em> — the shaped optimum genuinely becomes "pit constantly," a different, worse policy than the true optimum. Ad-hoc shaping doesn't just risk slowing learning down; done carelessly, it risks teaching the wrong thing outright.</p>
+
+      <h2>The theorem</h2>
+      <p>Ng, Harada &amp; Russell (1999) show that shaping terms of one specific form are safe. Given any function of state alone, <code>Φ(s)</code> — a "potential function" — define the shaping reward as the discounted difference in potential between consecutive states:</p>
+      <blockquote class="eq">F(s, a, s') = γ·Φ(s') − Φ(s)</blockquote>
+      <p>Add this to the base reward at every step. The claim: no matter what <code>Φ</code> is, the <strong>optimal policy under the shaped reward is identical to the optimal policy under the unshaped reward</strong> — only how fast that optimal policy is found changes.</p>
+
+      <h2>Why, without the full proof</h2>
+      <p>Take any policy <code>π</code> and check what the shaped action-value function <code>Q'^π(s,a)</code> works out to, using the ordinary Bellman equation with the shaped reward substituted in:</p>
+      <blockquote class="eq">Q'^π(s,a) = E[ r + F(s,a,s') + γ·V'^π(s') ]
+
+Try the guess  V'^π(s) = V^π(s) − Φ(s)  (shift every value by the potential at that state)
+and check it's self-consistent:
+
+Q'^π(s,a) = E[ r + γ·Φ(s') − Φ(s) + γ·(V^π(s') − Φ(s')) ]
+          = E[ r + γ·V^π(s') ] − Φ(s)      (the γ·Φ(s') terms cancel)
+          = Q^π(s,a) − Φ(s)</blockquote>
+      <p>The guess checks out: <code>Q'^π(s,a) = Q^π(s,a) − Φ(s)</code>, for <em>every</em> policy <code>π</code>, including the optimal one. This holds state by state, not just at the start of an episode. Since <code>Φ(s)</code> doesn't depend on the action <code>a</code>, subtracting it from every <code>Q(s,a)</code> at a given state shifts all of that state's action-values by the same amount — which can never change which action has the <em>highest</em> value there:</p>
+      <blockquote class="eq">argmax_a Q'*(s,a) = argmax_a [ Q*(s,a) − Φ(s) ] = argmax_a Q*(s,a)</blockquote>
+      <p>The optimal action at every single state is unchanged. This is the same "subtracting something constant across the choice being compared can't change the argmax" move Phase 5 page 08 used for reward centring — reused here in a per-state rather than per-episode form.</p>
+
+      <h2>One hand-worked example</h2>
+      <p>A toy 3-state chain: start at <code>A</code>, choose either a two-step route through <code>B</code> or a one-step direct route to the terminal state <code>C</code>. <code>γ = 1</code>. Potential: <code>Φ(A) = 5</code>, <code>Φ(B) = 2</code>, <code>Φ(C) = 0</code> (terminal potential zero, a common but not required choice).</p>
+      <blockquote class="eq">Unshaped rewards:      A→B: −3        B→C: −1        A→C (direct): −10
+Unshaped returns:      via B: −3 + −1 = −4          direct: −10
+  → Optimal choice: via B (−4 beats −10 by 6)
+
+Shaping terms, F(s,s') = Φ(s') − Φ(s), since γ=1:
+  F(A,B) = 2 − 5 = −3        F(B,C) = 0 − 2 = −2        F(A,C) = 0 − 5 = −5
+
+Shaped rewards:        A→B: −3 + −3 = −6      B→C: −1 + −2 = −3     A→C: −10 + −5 = −15
+Shaped returns:        via B: −6 + −3 = −9            direct: −15
+  → Optimal choice: via B (−9 beats −15 by 6 — same gap, same winner)</blockquote>
+      <p>Both routes' returns shift by exactly <code>−Φ(A) = −5</code> — the same constant, because <code>Φ(C) = 0</code> cancels the far end of the telescoping sum and only the shared starting potential is left over. The <em>ranking</em> between the two options — the only thing that determines which policy is optimal — is untouched. This is the numeric face of the algebra above: shift every value at a state by the same amount, and nothing about which action looks best there can change.</p>
+
+      <div class="note generic">
+        <div class="tag">The real plan's choice of Φ</div>
+        <p>The real plan's <code>potential_shaping</code> reward design uses <code>Φ(s) = -position_normalized = -(position / n_cars)</code> — "being in a better position is a better potential," so a car that moves from P4 to P2 gets a positive shaping bump exactly when it improves its standing, and by the theorem above, this can never change what the truly optimal racing policy is, only how quickly an agent finds it. Whether the plan's actual code computes this correctly is a separate question, taken up on page 06.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="02-credit-assignment.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 02 — What "Doing Well" Even Means Now</span>
+        </a>
+        <a class="next" href="04-overtaking-dirty-air.html">
+          <span class="dir">Next</span>
+          <span class="label">04 — Overtaking and Dirty Air →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

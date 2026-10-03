@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 9 PPO Prerequisites</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <a class="brand" href="index.html">
+      <span class="kicker">F1 Strategy Agent · Phase 9</span>
+      <span class="title">PPO Prerequisites</span>
+    </a>
+    <button class="menu-toggle" onclick="document.querySelector('.nav-list').classList.toggle('open')">☰ Pages</button>
+    <div class="progress-track"><div class="progress-fill" style="width:42%"></div></div>
+    <ul class="nav-list">
+      <li><a href="index.html"><span class="n">00</span><span>Index &amp; roadmap</span></a></li>
+      <li><a href="01-policy-gradients-reinforce.html"><span class="n">01</span><span>Policy gradients: REINFORCE</span></a></li>
+      <li><a href="02-actor-critic-advantage.html"><span class="n">02</span><span>Actor-critic &amp; advantage</span></a></li>
+      <li><a href="03-generalized-advantage-estimation.html"><span class="n">03</span><span>Generalized advantage estimation</span></a></li>
+      <li><a href="04-ppo-clipped-objective.html"><span class="n">04</span><span>PPO's clipped objective</span></a></li>
+      <li><a class="active" href="05-build-vs-buy.html"><span class="n">05</span><span>Why build vs. buy</span></a></li>
+      <li><a href="06-stable-baselines3-api.html"><span class="n">06</span><span>Stable-Baselines3's API</span></a></li>
+      <li><a href="07-pickling-and-subprocvecenv.html"><span class="n">07</span><span>Lambdas &amp; a Windows-fatal bug</span></a></li>
+      <li><a href="08-unfair-comparison.html"><span class="n">08</span><span>The unfair comparison</span></a></li>
+      <li><a href="09-build-it-yourself.html"><span class="n">09</span><span>Build it yourself</span></a></li>
+      <li><a href="10-this-project-formalized.html"><span class="n">10</span><span>This project, formalized</span></a></li>
+      <li><a href="11-reading-the-plan.html"><span class="n">11</span><span>Reading the plan's code</span></a></li>
+      <li><a href="12-glossary.html"><span class="n">12</span><span>Glossary</span></a></li>
+    </ul>
+    <div class="sidebar-foot">Source: <code>docs/phase-9-ppo-prerequisites/*.md</code></div>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Page 05 / 12 — Conceptual</p>
+      <h1>Why Build vs. Buy: PPO's Hidden Implementation Subtleties</h1>
+      <p class="dek">The project's portfolio-framing point, made concrete: knowing when to reach for a library is itself a skill worth being able to explain.</p>
+
+      <h2>The contrast with what came before</h2>
+      <p>Phase 4 and Phase 5 built Q-learning and DQN from scratch, and that was the right call. Their update rules — the TD target, the Bellman backup, the target-network sync — are a handful of lines each, and they're easy to unit-test in isolation: does one update move a Q-value in the right direction, by roughly the right amount, given a known reward and a known next-state value? Getting one of these pieces slightly wrong also tends to fail <em>loudly</em> — visible divergence, Q-values that are obviously nonsensical, a learning curve that flatlines at a clearly wrong level. Loud failures are exactly the kind that are cheap to catch by testing and inspection.</p>
+
+      <h2>Why PPO is different in kind, not just longer</h2>
+      <p>Walk back through pages 01–04 and ask, for each piece, what happens if it's implemented slightly wrong:</p>
+      <ul>
+        <li><strong>GAE's recursive computation</strong> (page 03) sums residuals backward across an entire rollout buffer. An off-by-one in that backward pass — using the wrong terminal value, or misaligning which residual belongs to which timestep — silently biases every advantage estimate in the batch. Nothing crashes. The training curve just looks a bit worse than it should, indefinitely.</li>
+        <li><strong>Advantage normalization</strong> — standardizing the batch of advantage estimates to zero mean and unit variance before using them in the clipped objective — is never mentioned in the core equations on page 04, yet is present in essentially every working PPO implementation, including SB3's. Omitting it doesn't produce an error. It quietly hurts sample efficiency and can make <code>clip_range</code> behave differently than intended, because the clip's effect (page 04) depends on the scale of <code>A_t</code>.</li>
+        <li><strong>Correct reuse of old log-probabilities</strong> across <code>n_epochs</code> (page 04) — the ratio <code>r_t(θ)</code> is only correct if <code>π_θ_old(a_t|s_t)</code> is genuinely the probability under the policy that collected the batch, cached once, not accidentally recomputed against a policy that's already been updated partway through the epoch loop. A subtle bug here doesn't crash; it just makes the clip bind at the wrong points.</li>
+        <li><strong>Orthogonal weight initialization</strong> for the policy and value networks is empirically important for policy-gradient stability but appears nowhere in the objective's math on pages 01–04 — it's a detail that papers assume and implementations quietly rely on.</li>
+      </ul>
+
+      <h2>The general principle</h2>
+      <p>An algorithm is a good build-from-scratch candidate when its failure modes are <strong>loud</strong> — wrong answers, crashes, visibly non-converging curves — because loud failures are cheap to catch by inspection and testing, which is exactly what Phase 4 and 5's from-scratch implementations were. An algorithm is a good <strong>buy</strong> (well-tested library) candidate when its failure modes are <strong>quiet</strong> — a training curve that looks like it's working but is, say, 20% less sample-efficient than it should be, with no error message or obviously wrong number to point at. Quiet failures are exactly the hardest kind to catch by inspection alone, and a widely-used, heavily-scrutinized implementation is precisely what has already had that class of bug shaken out by the accumulated experience of thousands of other users hitting the same subtle mistakes first.</p>
+
+      <div class="note grounded">
+        <div class="tag">This is the README material, not just theory</div>
+        <p>The real plan's own stated goal is explicit about this: training PPO via <code>stable-baselines3</code> "validates the custom implementation, demonstrates knowledge of production-grade RL libraries," and the plan calls out "knowing <em>when</em> to build from scratch versus when to reach for a battle-tested library" as itself a judgment call worth making explicit. This page's argument — the loud-vs-quiet failure distinction above, applied concretely to GAE, advantage normalization, and log-probability reuse — is the content of that README section, not a separate piece of theory to file away.</p>
+      </div>
+
+      <div class="pagenav">
+        <a class="prev" href="04-ppo-clipped-objective.html">
+          <span class="dir">Previous</span>
+          <span class="label">← 04 — PPO's Clipped Surrogate Objective</span>
+        </a>
+        <a class="next" href="06-stable-baselines3-api.html">
+          <span class="dir">Next</span>
+          <span class="label">06 — Stable-Baselines3 and sb3-contrib's API Surface →</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
