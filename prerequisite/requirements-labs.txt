@@ -1,0 +1,5 @@
+# Local exercises and the core Python test suite; no F1 project dependencies.
+numpy>=1.26,<3
+gymnasium>=1.0,<2
+torch>=2.2,<3
+pettingzoo>=1.24,<2

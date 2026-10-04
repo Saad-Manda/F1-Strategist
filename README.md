@@ -6,6 +6,13 @@ Stratex is a reinforcement learning platform that solves the F1 pit stop and tir
 
 A FastAPI backend serves race simulations and agent decision trails (Q-values, action masks) to an interactive React dashboard, enabling historical counterfactual analysis ("what if the agent had strategized this Grand Prix?").
 
+## RL Learning Site
+
+The standalone RL learning website and its authoring tools/tests live in
+[`prerequisite/`](prerequisite/README.md). Preview it with
+`python prerequisite/scripts/preview.py`; its static publish folder is
+`prerequisite/site/`. It can be copied out and used independently of this project.
+
 ## The Problem
 
 In Formula 1, tire strategy is one of the few areas where teams can gain or lose significant time. A strategist must decide:

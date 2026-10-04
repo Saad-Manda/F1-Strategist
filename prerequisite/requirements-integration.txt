@@ -1,0 +1,4 @@
+# Optional masked-PPO library integration and recording. Not needed for hosting.
+-r requirements-labs.txt
+stable-baselines3>=2.3,<3
+sb3-contrib>=2.3,<3

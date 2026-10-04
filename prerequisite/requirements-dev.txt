@@ -1,0 +1,3 @@
+# Generators, validators and static packaging use only Python's standard library.
+# Curriculum/pack tests additionally use requirements-labs.txt.
+pytest>=7.3,<10

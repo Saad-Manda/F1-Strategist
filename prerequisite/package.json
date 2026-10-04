@@ -1,0 +1,14 @@
+{
+  "name": "rl-prerequisite-learning",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Static RL learning site with standalone Python exercises and author tools",
+  "scripts": {
+    "test": "node --test tests/*.mjs",
+    "check": "python scripts/check_project.py",
+    "preview": "python scripts/preview.py",
+    "package": "python scripts/build_static_delivery.py --write"
+  },
+  "engines": { "node": ">=22" }
+}
