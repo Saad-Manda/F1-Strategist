@@ -1,0 +1,71 @@
+{
+  "python": "3.12.7",
+  "platform": "Windows",
+  "device": "cpu",
+  "versions": {
+    "numpy": "2.5.1",
+    "torch": "2.13.0+cpu",
+    "gymnasium": "1.3.0",
+    "stable_baselines3": "2.9.0",
+    "sb3_contrib": "2.9.0"
+  },
+  "factories": {
+    "ordinary_pickle_lambda": "AttributeError",
+    "sb3_cloudpickle_lambda_spawn": "passed",
+    "captured_lock_failure": "cannot pickle '_thread.lock' object"
+  },
+  "settings": {
+    "seed": 7,
+    "n_envs": 2,
+    "n_steps": 16,
+    "batch_size": 32,
+    "n_epochs": 2,
+    "threads": 1
+  },
+  "requested_transitions": 128,
+  "actual_transitions": 128,
+  "worker_transition_counts": [
+    64,
+    64
+  ],
+  "rollout_transitions": 32,
+  "evaluation": [
+    {
+      "seed": 101,
+      "return_": 1.0,
+      "transitions": 3
+    },
+    {
+      "seed": 102,
+      "return_": 1.0,
+      "transitions": 3
+    },
+    {
+      "seed": 103,
+      "return_": 1.0,
+      "transitions": 3
+    },
+    {
+      "seed": 104,
+      "return_": 1.0,
+      "transitions": 3
+    }
+  ],
+  "auto_reset_boundary": {
+    "done": true,
+    "time_limit_truncated": true,
+    "final_observation": [
+      2.0
+    ],
+    "reset_observation": [
+      0.0
+    ]
+  },
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-04T08:23:15.117862+00:00",
+  "sourceHashes": {
+    "compare.py": "3b4f2b3f8ad0f840d33928dd5359137805107e57374bd9801eb8c8abbc3a8cf5",
+    "solution.py": "e181f78834eaecff2aeb8a8af99e2a1cc9c1e0dae283c201ee7cde788d4d93f3",
+    "exercise_common.py": "a530a7951227f9d3036e226472b7c6ea9a7748f60a3674b69a5b11f0f6164589"
+  }
+}

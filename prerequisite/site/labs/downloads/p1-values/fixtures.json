@@ -1,0 +1,11 @@
+{
+  "gamma_half": [
+    3,
+    3
+  ],
+  "gamma_one": [
+    4,
+    5
+  ],
+  "illegal_value": 99
+}

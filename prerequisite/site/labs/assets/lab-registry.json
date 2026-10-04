@@ -1,0 +1,1287 @@
+{
+  "schemaVersion": 1,
+  "baseline": "c8edc96",
+  "pathBase": "site",
+  "phases": [
+    {
+      "id": "1",
+      "title": "Foundations",
+      "readingDirectory": "phase-1-rl-prerequisites",
+      "plan": "phase-1-gym-environment.md",
+      "objective": "Build the interaction loop, describe state, and reason about returns and values."
+    },
+    {
+      "id": "3.5",
+      "title": "Planning and uncertainty",
+      "readingDirectory": "phase-3.5-dp-oracle-prerequisites",
+      "plan": "phase-3.5-dp-oracle.md",
+      "objective": "Compute exact answers before learning from samples."
+    },
+    {
+      "id": "4",
+      "title": "Learning from samples",
+      "readingDirectory": "phase-4-q-learning-prerequisites",
+      "plan": "phase-4-q-learning-sarsa.md",
+      "objective": "Implement tabular learning and diagnose exploration and representation failures."
+    },
+    {
+      "id": "5",
+      "title": "Neural value learning",
+      "readingDirectory": "phase-5-dqn-prerequisites",
+      "plan": "phase-5-dueling-double-dqn.md",
+      "objective": "Understand each component of a neural value learner."
+    },
+    {
+      "id": "6",
+      "title": "Multiple agents and rewards",
+      "readingDirectory": "phase-6-multi-car-prerequisites",
+      "plan": "phase-6-multi-car-rivals.md",
+      "objective": "Separate interaction mechanics, credit assignment, and reward design."
+    },
+    {
+      "id": "8",
+      "title": "Self-play and evaluation",
+      "readingDirectory": "phase-8-self-play-prerequisites",
+      "plan": "phase-8-self-play.md",
+      "objective": "Evaluate learning against changing and historical opponents."
+    },
+    {
+      "id": "9",
+      "title": "Policy gradients and PPO",
+      "readingDirectory": "phase-9-ppo-prerequisites",
+      "plan": "phase-9-ppo-sb3.md",
+      "objective": "Learn policies directly and inspect their update rules."
+    }
+  ],
+  "models": {
+    "chain": {
+      "state": "Position 0, 1, or terminal 2.",
+      "observation": "Integer position.",
+      "actions": "LEFT or RIGHT; both legal before termination.",
+      "transitions": "RIGHT increases position by 1; LEFT decreases it by 1, bounded at 0.",
+      "reward": "-1 per transition, except arrival at 2 gives +5.",
+      "boundary": "Arrival at 2 is true termination. A separate 6-step wrapper demonstrates external truncation; underlying chain continues.",
+      "randomness": "Deterministic dynamics; optionally seeded random action choices."
+    },
+    "switch": {
+      "state": "Hidden mode bit 0/1 and whether an action has finished the episode.",
+      "observation": "Broken observation is constant 0; repaired observation includes mode.",
+      "actions": "FLIP (0) or CLAIM (1).",
+      "transitions": "FLIP toggles mode; CLAIM terminates without changing mode.",
+      "reward": "FLIP gives 0; CLAIM gives +1 in mode 1, -1 in mode 0.",
+      "boundary": "CLAIM terminates; optional external collection cap truncates.",
+      "randomness": "Reset mode sampled uniformly with an explicit seed; witness traces set mode directly."
+    },
+    "trajectory": {
+      "state": "Index into the fixed rewards [2, -1, 4].",
+      "observation": "Index and remaining length.",
+      "actions": "ADVANCE only.",
+      "transitions": "Advance one index per step.",
+      "reward": "The next number in [2, -1, 4].",
+      "boundary": "Terminate after all three rewards; no bootstrap.",
+      "randomness": "None."
+    },
+    "branch": {
+      "state": "A (start), B, T (terminal); finite-horizon extension includes decisions remaining.",
+      "observation": "Full state; remaining decisions in the horizon extension.",
+      "actions": "At A: DIRECT or VIA; at B: FINISH. No terminal actions.",
+      "transitions": "DIRECT: A->T; VIA: A->B; FINISH: B->T.",
+      "reward": "DIRECT +3, VIA +1, FINISH +4. Discount default 0.5.",
+      "boundary": "At most two decisions, then true termination.",
+      "randomness": "None; fixed-policy evaluation uses a 50/50 choice at A."
+    },
+    "lottery": {
+      "state": "Start S and terminal outcomes WIN/LOSS/SAFE.",
+      "observation": "Full state.",
+      "actions": "SAFE or RISKY.",
+      "transitions": "SAFE->SAFE surely; RISKY->WIN with p=0.25, otherwise LOSS.",
+      "reward": "SAFE +2; WIN +10; LOSS -2.",
+      "boundary": "One decision; true termination.",
+      "randomness": "Bernoulli outcome, seeded; widget computes exact expectation."
+    },
+    "weather": {
+      "state": "DRY or WET.",
+      "observation": "Current regime; future regime hidden.",
+      "actions": "State evolves independently; one-step decision extension chooses UMBRELLA or NONE before next regime.",
+      "transitions": "Rows DRY,WET: [[0.8,0.2],[0.3,0.7]].",
+      "reward": "Chain alone gives 0; decision extension gives 1 for matching UMBRELLA to WET or NONE to DRY, else 0.",
+      "boundary": "Chain is continuing, sample length truncates; extension is one-step terminal.",
+      "randomness": "Seeded categorical transition sampling."
+    },
+    "td": {
+      "state": "S, successor N, terminal T; transitions supplied as a fixed batch.",
+      "observation": "Full state and legal-action mask.",
+      "actions": "At N three stored action values [4,8,99], with mask [true,true,false].",
+      "transitions": "Witness supplies S->N with reward 1, or S->T with reward 1.",
+      "reward": "Specified sample reward, not an assumed training distribution.",
+      "boundary": "T terminal; separate N time-limit truncation retains bootstrap.",
+      "randomness": "No randomness in update witnesses."
+    },
+    "bandit": {
+      "state": "One start state and terminal after action.",
+      "observation": "Constant 0.",
+      "actions": "A or B; optional third masked action C.",
+      "transitions": "Each action ends one episode; reset starts a new independent draw.",
+      "reward": "A yields Bernoulli(0.4), B Bernoulli(0.8); C is illegal.",
+      "boundary": "One-step terminal bandit.",
+      "randomness": "Seeded rewards and independent seeded behaviour policy. Gradient witnesses supply reward explicitly."
+    },
+    "shortcut": {
+      "state": "START, RISK, SAFE, T.",
+      "observation": "Full state.",
+      "actions": "START: shortcut or detour; RISK: careful or slip; SAFE: finish.",
+      "transitions": "START shortcut->RISK, detour->SAFE; all subsequent actions->T.",
+      "reward": "START actions 0; careful +6, slip -10, finish +3.",
+      "boundary": "Two-step true termination.",
+      "randomness": "Environment deterministic; epsilon-greedy chooses RISK actions."
+    },
+    "bins": {
+      "state": "One decision with continuous x in [0,1].",
+      "observation": "Exact x; broken encoder merges values 0.49 and 0.51.",
+      "actions": "LEFT or RIGHT.",
+      "transitions": "Both terminate immediately.",
+      "reward": "LEFT=1 if x<0.5, else 0; RIGHT=1 if x>=0.5, else 0.",
+      "boundary": "One-step terminal.",
+      "randomness": "Training x sampled uniformly with seed; deterministic witnesses use boundary values."
+    },
+    "regression": {
+      "state": "Teaching dataset, not an interacting environment: x in [0,1].",
+      "observation": "Batch shape (B,1).",
+      "actions": "Two output coordinates representing action values.",
+      "transitions": "No environment transitions; supervised warm-up before DQN.",
+      "reward": "Known labels Q(x)=[x,1-x]; no reward sampling.",
+      "boundary": "Fixed optimizer-step budget; not an RL episode.",
+      "randomness": "Seeded initialization; exact forward/gradient witnesses use fixed parameters."
+    },
+    "replay": {
+      "state": "Four-state chain and a FIFO buffer of transitions.",
+      "observation": "Position plus action mask; inspectable buffer and separate online/target parameters.",
+      "actions": "ADVANCE or RESET at nonterminal positions.",
+      "transitions": "ADVANCE progresses 0->1->2->3; RESET returns to 0. Buffer capacity 4.",
+      "reward": "ADVANCE into 3 gives +1, other actions 0.",
+      "boundary": "3 terminates; cap collection at 8 steps with truncation.",
+      "randomness": "Seeded uniform sampling with replacement from stored transitions."
+    },
+    "double": {
+      "state": "Fixed transition S->N and inspectable online/target outputs.",
+      "observation": "Batch of supplied states with next-action masks.",
+      "actions": "Three actions; mask [true,true,false] for witness.",
+      "transitions": "No sampled dynamics needed; target calculation consumes fixed transition.",
+      "reward": "Witness reward 1, gamma 0.5.",
+      "boundary": "Terminal variant drops the bootstrap.",
+      "randomness": "None; optional noisy-estimate illustration is seeded and labelled illustrative."
+    },
+    "priorities": {
+      "state": "Replay entries i=0,1,2 with raw priorities [1,4,9].",
+      "observation": "Priority, sampling probability, and importance weight per item.",
+      "actions": "Sample a replay index; no environment actions.",
+      "transitions": "Update raw priority after observing TD error; FIFO replacement stage.",
+      "reward": "No environment reward; witness squared TD losses [1,4,9].",
+      "boundary": "Fixed number of sample/update operations, not an episode.",
+      "randomness": "Seeded weighted categorical sampling."
+    },
+    "team": {
+      "state": "Ready or terminal; two agents act simultaneously.",
+      "observation": "Both see ready; inspect joint action in diagnostic view.",
+      "actions": "Each chooses HELP=1 or IDLE=0.",
+      "transitions": "All joint actions terminate.",
+      "reward": "Team reward R(a,b)=2*a+b; both agents receive that scalar.",
+      "boundary": "One joint action, true termination.",
+      "randomness": "None; model-known counterfactual replaces each agent's action by IDLE."
+    },
+    "shaping": {
+      "state": "A, B, T with decisions remaining h=2 or 1.",
+      "observation": "Position and remaining decisions.",
+      "actions": "At A: DIRECT or VIA; B: FINISH or WAIT.",
+      "transitions": "DIRECT->T; VIA->B; FINISH->T; WAIT stays B until horizon reaches 0 and then T.",
+      "reward": "DIRECT +3, VIA 0, FINISH +4, WAIT 0. Ad-hoc bonus +5 on WAIT only.",
+      "boundary": "Two-decision finite horizon terminates; Phi(T)=0, Phi(A)=2, Phi(B)=1, gamma=1.",
+      "randomness": "None."
+    },
+    "congestion": {
+      "state": "One shared lane and opponent policy parameter p.",
+      "observation": "Lane condition; opponent choice hidden until joint transition. Fixed known p is part of the task specification.",
+      "actions": "Agent CROSS or WAIT; opponent occupies lane with probability p.",
+      "transitions": "CROSS succeeds only if lane is unoccupied when blocking is enabled; WAIT always ends safely.",
+      "reward": "Successful CROSS +1, blocked CROSS -1, WAIT 0.",
+      "boundary": "One-step terminal.",
+      "randomness": "Seeded Bernoulli opponent action; changing p during training changes the agent's induced MDP."
+    },
+    "rps": {
+      "state": "One-round simultaneous zero-sum rock-paper-scissors.",
+      "observation": "Constant start; opponent choice revealed only after both act.",
+      "actions": "ROCK, PAPER, SCISSORS, or a distribution over them.",
+      "transitions": "Joint action leads to terminal; subsequent rounds reset.",
+      "reward": "Win +1, tie 0, loss -1; opponent gets negative reward.",
+      "boundary": "Each round terminates.",
+      "randomness": "Seeded independent action draws; exact payoff matrix for acceptance."
+    },
+    "gae": {
+      "state": "A two-step rollout with rewards [1,2], values [0.5,1], and endpoint value 3 if continuing.",
+      "observation": "Time index and boundary flags.",
+      "actions": "ADVANCE only.",
+      "transitions": "Index 0->1->endpoint; distinguish genuine terminal from truncation/cutoff.",
+      "reward": "1 then 2.",
+      "boundary": "Terminal case endpoint value forced 0; truncated/cutoff case bootstraps value 3, then cuts GAE recursion across reset.",
+      "randomness": "None."
+    },
+    "ppo": {
+      "state": "Frozen rollout tuples (old log probability, new log probability, advantage).",
+      "observation": "Ratios and advantage per sampled action.",
+      "actions": "Inspect/update a two-logit policy; positive and negative advantage examples.",
+      "transitions": "No environment transition in objective exercise; later library stage uses chain.",
+      "reward": "Supplied advantage, not an environment reward. Clip epsilon 0.2.",
+      "boundary": "Fixed rollout batch and old policy remain unchanged across update epochs.",
+      "randomness": "None in objective witnesses; local integration uses seeded chain."
+    }
+  },
+  "labs": [
+    {
+      "id": "p1-loop",
+      "phase": "1",
+      "title": "Build the interaction loop",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-1/p1-loop.html",
+      "milestone": "M1",
+      "minutes": 30,
+      "prerequisites": [],
+      "background": [
+        "Python functions, loops, and lists"
+      ],
+      "model": "chain",
+      "references": [
+        "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+        "phase-1-rl-prerequisites/04-gymnasium-api.html",
+        "phase-1-rl-prerequisites/05-building-the-environment.html"
+      ],
+      "planSections": [
+        "Reset Method",
+        "Step Method",
+        "Validate with SB3 Env Checker"
+      ],
+      "audit": [
+        "A"
+      ],
+      "objective": "Implement how an agent and environment exchange actions, observations, and rewards.",
+      "browser": "Step through position, action, transition, reward, and terminal flag; reset or apply a collection cap.",
+      "localTask": "Complete reset/step and a random-agent loop with Gymnasium signatures.",
+      "misconception": "The agent changes the environment state directly, or can keep stepping after an episode ends.",
+      "acceptance": [
+        "Reset gives position 0 and fresh info; RIGHT,RIGHT yields observations 1,2, rewards -1,5, flags false,true, total return 4.",
+        "After terminal, step raises a clear error. Reset restores 0. LEFT from 0 returns 0 with reward -1.",
+        "A 1-step external cap on RIGHT gives terminated=false,truncated=true; the collector stops without treating state 1 as terminal."
+      ],
+      "dependencies": [
+        "gymnasium"
+      ],
+      "transfer": "Which reset/step and info contracts must the project environment preserve?"
+    },
+    {
+      "id": "p1-state",
+      "phase": "1",
+      "title": "When an observation hides the state",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-1/p1-state.html",
+      "milestone": "M2",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "background": [
+        "Python functions, loops, and lists"
+      ],
+      "model": "switch",
+      "references": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+        "phase-1-rl-prerequisites/06-this-project-as-mdp.html"
+      ],
+      "planSections": [
+        "Observation Builder"
+      ],
+      "audit": [],
+      "objective": "Identify when two identical observations require different transition models.",
+      "browser": "Compare two histories, their constant observation, and the next reward; optionally reveal mode.",
+      "localTask": "Add the missing mode feature; separate task state from unrelated history.",
+      "misconception": "Any convenient feature vector automatically satisfies the Markov property.",
+      "acceptance": [
+        "From mode 0, CLAIM gives -1; after FLIP the same broken observation 0 followed by CLAIM gives +1.",
+        "Repaired observation distinguishes modes 0 and 1; repeating CLAIM from a given full state always has the same outcome.",
+        "Finite-horizon extension adds remaining time; a full unbounded history is not required."
+      ],
+      "dependencies": [],
+      "transfer": "Which project features affect future rewards or legal actions?"
+    },
+    {
+      "id": "p1-return",
+      "phase": "1",
+      "title": "Reward is not return",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-1/p1-return.html",
+      "milestone": "M2",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "background": [
+        "Python functions, loops, and lists"
+      ],
+      "model": "trajectory",
+      "references": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+        "phase-1-rl-prerequisites/03-value-functions-bellman.html"
+      ],
+      "planSections": [
+        "Reward design",
+        "Reward centring"
+      ],
+      "audit": [
+        "C"
+      ],
+      "objective": "Compute return at each time index and explain discount weighting.",
+      "browser": "Move gamma and show each contribution in the three-reward sequence.",
+      "localTask": "Repair backward return accumulation and show all returns, not just the episode sum.",
+      "misconception": "Discounting each immediate reward once produces the trajectory return.",
+      "acceptance": [
+        "Rewards [2,-1,4] produce returns [2,-1,4] at gamma=0; [2.5,1,4] at gamma=0.5; [5,3,4] at gamma=1.",
+        "The first reward is undiscounted at its own time; terminal tail contributes zero."
+      ],
+      "dependencies": [],
+      "transfer": "Why is the project training return distinct from physical race time if rewards are centred?"
+    },
+    {
+      "id": "p1-values",
+      "phase": "1",
+      "title": "One Bellman backup",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-1/p1-values.html",
+      "milestone": "M2",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-state",
+        "p1-return"
+      ],
+      "background": [
+        "Python functions, loops, and lists"
+      ],
+      "model": "branch",
+      "references": [
+        "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html"
+      ],
+      "planSections": [
+        "Shared Action Mask",
+        "Reward centring"
+      ],
+      "audit": [
+        "C"
+      ],
+      "objective": "Distinguish state value, action value, policy evaluation, and optimality.",
+      "browser": "Inspect action branches and toggle policy probabilities and gamma.",
+      "localTask": "Implement expectation/optimality backups with terminal value zero and legal-action masks.",
+      "misconception": "A policy-average value and the best action's value are interchangeable.",
+      "acceptance": [
+        "At gamma=0.5, Q(A,DIRECT)=3, Q(A,VIA)=1+0.5*4=3; a uniform policy gives V(A)=3.",
+        "At gamma=1, action values are 3 and 5, V under uniform policy is 4 and optimal value is 5.",
+        "An illegal action with stored value 99 never participates in the maximum."
+      ],
+      "dependencies": [],
+      "transfer": "Why must the agent and oracle share action validity?"
+    },
+    {
+      "id": "p35-backward",
+      "phase": "3.5",
+      "title": "Solve a tiny model exactly",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-3.5/p35-backward.html",
+      "milestone": "M2",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-values"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p1-values"
+      ],
+      "model": "branch",
+      "references": [
+        "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+        "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html"
+      ],
+      "planSections": [
+        "Backward induction",
+        "Enumerate the state space"
+      ],
+      "audit": [],
+      "objective": "Solve a finite known model and verify it without using its own recurrence as the oracle.",
+      "browser": "Animate leaves-to-root values with remaining decisions visible.",
+      "localTask": "Complete a time-indexed solver and independent enumeration of legal policies.",
+      "misconception": "Backward induction is trial-and-error training, or time need not appear in a finite-horizon value table.",
+      "acceptance": [
+        "At gamma=1 with two decisions, optimal start value is 5 via B; exhaustive route returns are 3 and 5.",
+        "With one decision and reward-only horizon termination, VIA returns 1, so DIRECT wins with 3.",
+        "Terminal value is zero at all horizons; no look-ahead beyond the boundary."
+      ],
+      "dependencies": [],
+      "transfer": "Which quantities does the DP oracle know that a model-free learner does not?"
+    },
+    {
+      "id": "p35-stochastic",
+      "phase": "3.5",
+      "title": "What happens to the unlikely outcome?",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-3.5/p35-stochastic.html",
+      "milestone": "M2",
+      "minutes": 25,
+      "prerequisites": [
+        "p35-backward"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p35-backward"
+      ],
+      "model": "lottery",
+      "references": [
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html"
+      ],
+      "planSections": [
+        "Expected immediate cost",
+        "Backward induction"
+      ],
+      "audit": [],
+      "objective": "Compute probability-weighted values rather than pick the modal outcome.",
+      "browser": "Change probability p and inspect outcome contributions and best action.",
+      "localTask": "Repair an expected-value backup and validate transition normalization.",
+      "misconception": "The most likely next state is an adequate substitute for the transition distribution.",
+      "acceptance": [
+        "RISKY at p=0.25 is 0.25*10+0.75*(-2)=1, so SAFE=2 wins; at p=0.5 RISKY=4 wins.",
+        "At p=1/3 both actions have expected return 2.",
+        "Reject negative probabilities or a row summing to 1.1 rather than silently normalizing an erroneous model."
+      ],
+      "dependencies": [],
+      "transfer": "How does the oracle account for possible safety-car/weather outcomes?"
+    },
+    {
+      "id": "p35-markov",
+      "phase": "3.5",
+      "title": "Sampling a Markov chain",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-3.5/p35-markov.html",
+      "milestone": "M2",
+      "minutes": 30,
+      "prerequisites": [
+        "p35-stochastic",
+        "p1-state"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p35-stochastic",
+        "Concepts from p1-state"
+      ],
+      "model": "weather",
+      "references": [
+        "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+        "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html"
+      ],
+      "planSections": [
+        "Oracle A",
+        "Oracle B",
+        "Rollout and evaluation harness"
+      ],
+      "audit": [
+        "B"
+      ],
+      "objective": "Separate an observed stochastic state from knowledge of its future realization.",
+      "browser": "Compare exact transition probabilities, seeded samples, and foresight decisions.",
+      "localTask": "Implement seeded sampling and a one-step foresight comparison.",
+      "misconception": "A policy with advance knowledge is a fair achievable target for a policy that only sees the current state.",
+      "acceptance": [
+        "From DRY, probability of DRY after two transitions is 0.8*0.8+0.2*0.3=0.70.",
+        "One-step prediction reward from DRY is at most 0.8 without foresight and 1 with next regime revealed.",
+        "Stationary distribution is [0.6,0.4]; use a fixed sample budget and stated sampling tolerance for frequency checks, not exact counts."
+      ],
+      "dependencies": [],
+      "transfer": "Explain information gap versus learning gap for the two project oracles."
+    },
+    {
+      "id": "p4-td",
+      "phase": "4",
+      "title": "Update one Q-table cell",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-4/p4-td.html",
+      "milestone": "M3",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-values"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p1-values"
+      ],
+      "model": "td",
+      "references": [
+        "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+        "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Q-Learning Agent"
+      ],
+      "audit": [
+        "D"
+      ],
+      "objective": "Calculate target, TD error, and the resulting table update.",
+      "browser": "Change alpha/gamma and next-action mask; compare true terminal with time-limit truncation.",
+      "localTask": "Complete masked Q-learning update and boundary handling.",
+      "misconception": "All collection boundaries erase bootstrap, or invalid next actions can enter the target.",
+      "acceptance": [
+        "Q=2,r=1,gamma=0.5,alpha=0.25 and legal next values [4,8] give target 5,error 3,new Q=2.75.",
+        "For true terminal with same stored next values, target 1,new Q=1.75; a time-limit truncation of N retains target 5.",
+        "The masked 99 must not give target 50.5."
+      ],
+      "dependencies": [],
+      "transfer": "Where do next-state action masks and terminated flags enter the project update?"
+    },
+    {
+      "id": "p4-explore",
+      "phase": "4",
+      "title": "An agent that never discovers B",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-4/p4-explore.html",
+      "milestone": "M3",
+      "minutes": 25,
+      "prerequisites": [
+        "p4-td"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p4-td"
+      ],
+      "model": "bandit",
+      "references": [
+        "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Q-Learning Agent",
+        "Evaluation & Comparison"
+      ],
+      "audit": [
+        "D",
+        "Other Phase 4 items"
+      ],
+      "objective": "Separate behaviour exploration from greedy evaluation.",
+      "browser": "Inspect action probabilities and visits as epsilon changes; label sampled runs.",
+      "localTask": "Implement legal epsilon-greedy sampling, seeded tie-breaking, and evaluation mode.",
+      "misconception": "Greedy choice necessarily finds the best action, or exploration belongs only in evaluation.",
+      "acceptance": [
+        "With Q=[0.6,0.1], two legal actions and epsilon=0.2, probabilities are [0.9,0.1].",
+        "With epsilon=1 and mask [true,true,false], C has probability 0 and A/B each 0.5.",
+        "Evaluation epsilon=0 selects current best action; report multi-seed training rather than require a win on one seed."
+      ],
+      "dependencies": [],
+      "transfer": "What state must be reset or disabled when evaluating a trained agent?"
+    },
+    {
+      "id": "p4-sarsa",
+      "phase": "4",
+      "title": "The action you actually take next",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-4/p4-sarsa.html",
+      "milestone": "M3",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-td",
+        "p4-explore"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p4-td",
+        "Concepts from p4-explore"
+      ],
+      "model": "shortcut",
+      "references": [
+        "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+      ],
+      "planSections": [
+        "SARSA Agent",
+        "Evaluation & Comparison"
+      ],
+      "audit": [
+        "Other Phase 4 items",
+        "D"
+      ],
+      "objective": "Use the executed next action for an on-policy TD target.",
+      "browser": "Show careful/slip sampling and contrast max-Q with the committed sampled action.",
+      "localTask": "Implement SARSA action commitment; clear it on reset and evaluation.",
+      "misconception": "SARSA can resample the next action after using a different one in its update target.",
+      "acceptance": [
+        "With Q(RISK)=[6,-10], gamma=1 and r=0, max target is 6; sampled slip gives SARSA target -10.",
+        "At epsilon=0.2, the risky state's behaviour value is 0.9*6+0.1*(-10)=4.4, not 6.",
+        "A supplied slip action is executed on the next step; a reset cannot leak it into the next episode."
+      ],
+      "dependencies": [],
+      "transfer": "Why does cached next-action state require episode reset in the project SARSA agent?"
+    },
+    {
+      "id": "p4-bins",
+      "phase": "4",
+      "title": "When more training cannot help",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-4/p4-bins.html",
+      "milestone": "M3",
+      "minutes": 25,
+      "prerequisites": [
+        "p4-td",
+        "p1-state"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p4-td",
+        "Concepts from p1-state"
+      ],
+      "model": "bins",
+      "references": [
+        "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+        "phase-4-q-learning-prerequisites/06-the-binning-bug.html"
+      ],
+      "planSections": [
+        "Design the State Binning",
+        "State Discretization"
+      ],
+      "audit": [
+        "F"
+      ],
+      "objective": "Diagnose an encoder unable to represent two different optimal choices.",
+      "browser": "Move bin boundaries and compare encoded states and best actions.",
+      "localTask": "Repair the boundary convention and nonuniform bins; inspect resulting table size.",
+      "misconception": "More training can recover distinctions the observation encoder has removed.",
+      "acceptance": [
+        "x=0.49 prefers LEFT and x=0.51 prefers RIGHT; one bin forces the same deterministic action for both.",
+        "Bins [0,0.5,1] distinguish these values; x=0.5 belongs to the RIGHT side and x=1 remains in the final valid bin.",
+        "Doubling every axis across d dimensions multiplies dense table entries by 2^d."
+      ],
+      "dependencies": [],
+      "transfer": "Can the project's bins distinguish critical neighbouring pit decisions?"
+    },
+    {
+      "id": "p5-network",
+      "phase": "5",
+      "title": "From table entries to a function",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-5/p5-network.html",
+      "milestone": "M4",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-td"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p4-td"
+      ],
+      "model": "regression",
+      "references": [
+        "phase-5-dqn-prerequisites/01-table-to-function.html",
+        "phase-5-dqn-prerequisites/02-neural-networks-primer.html"
+      ],
+      "planSections": [
+        "Dueling MLP Network"
+      ],
+      "audit": [
+        "C"
+      ],
+      "objective": "Follow tensors through forward pass, scalar loss, gradients, and an optimizer step.",
+      "browser": "Inspect a one-input/two-output linear network before introducing hidden layers.",
+      "localTask": "Implement prediction/MSE/update; then fit Q labels on a small held-out split.",
+      "misconception": "Changing predicted Q-values is the same operation as choosing an action.",
+      "acceptance": [
+        "At x=0.25 with zero weights/biases, outputs [0,0], target [0.25,0.75], mean squared error is 0.3125.",
+        "Bias gradient for that mean loss is [-0.25,-0.75]; weight gradient is [-0.0625,-0.1875].",
+        "Batch B has output shape (B,2), finite gradients, and a held-out error metric; warm-up is supervised learning, not DQN training."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch"
+      ],
+      "transfer": "What shape must the project's network return for every observation batch?"
+    },
+    {
+      "id": "p5-stability",
+      "phase": "5",
+      "title": "A target that changes under your feet",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-5/p5-stability.html",
+      "milestone": "M4",
+      "minutes": 25,
+      "prerequisites": [
+        "p5-network",
+        "p4-explore"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p5-network",
+        "Concepts from p4-explore"
+      ],
+      "model": "replay",
+      "references": [
+        "phase-5-dqn-prerequisites/03-target-network.html",
+        "phase-5-dqn-prerequisites/04-experience-replay.html"
+      ],
+      "planSections": [
+        "Dueling Double DQN Agent",
+        "Training Loop"
+      ],
+      "audit": [
+        "G",
+        "C"
+      ],
+      "objective": "Distinguish replay decorrelation, sample reuse, target lag, and target detachment.",
+      "browser": "Inspect buffer order and online/target snapshots; replay recorded training only with provenance.",
+      "localTask": "Implement FIFO replay, detached target outputs, scheduled copies, and small ablations.",
+      "misconception": "A second variable pointing to the online network is an independent frozen target.",
+      "acceptance": [
+        "Online outputs change from [1,2] to [3,4] while target stays [1,2] until explicit synchronization.",
+        "Backpropagation produces online gradients but no target gradients.",
+        "Capacity 4 after inserting transition IDs 0..5 contains 2,3,4,5; each has uniform sampling probability 0.25."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch"
+      ],
+      "transfer": "How do you prove the target is an independent snapshot rather than an alias?"
+    },
+    {
+      "id": "p5-double-dueling",
+      "phase": "5",
+      "title": "Selection, evaluation, and advantage",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-5/p5-double-dueling.html",
+      "milestone": "M4",
+      "minutes": 30,
+      "prerequisites": [
+        "p5-stability"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p5-stability"
+      ],
+      "model": "double",
+      "references": [
+        "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+        "phase-5-dqn-prerequisites/06-double-dqn.html"
+      ],
+      "planSections": [
+        "Dueling MLP Network",
+        "Dueling Double DQN Agent"
+      ],
+      "audit": [
+        "G"
+      ],
+      "objective": "Separate online action selection from target evaluation and centre advantages.",
+      "browser": "Show the selected legal action and value/advantage contributions.",
+      "localTask": "Implement masked Double DQN targets and dueling aggregation; teach Double DQN as an extension because its linked reading page is absent.",
+      "misconception": "Double DQN takes the target network maximum; dueling advantages have a unique absolute level.",
+      "acceptance": [
+        "Online=[5,4,100],target=[1,7,99],mask=[true,true,false],r=1,gamma=0.5: Double DQN target=1.5; masked vanilla DQN target=4.5.",
+        "V=2,A=[1,3] gives Q=[1,3]; adding 10 to both advantages leaves Q unchanged.",
+        "Terminal target is 1; invalid action 2 is never selected even though it has the largest online value."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch"
+      ],
+      "transfer": "Which network chooses and which evaluates the next action in the project agent?"
+    },
+    {
+      "id": "p5-per",
+      "phase": "5",
+      "title": "Why is this transition sampled so often?",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-5/p5-per.html",
+      "milestone": "M4",
+      "minutes": 25,
+      "prerequisites": [
+        "p5-stability"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p5-stability"
+      ],
+      "model": "priorities",
+      "references": [
+        "phase-5-dqn-prerequisites/04-experience-replay.html",
+        "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html"
+      ],
+      "planSections": [
+        "Prioritized Experience Replay Buffer"
+      ],
+      "audit": [
+        "G"
+      ],
+      "objective": "Distinguish raw priority, probability, and importance weight.",
+      "browser": "Adjust alpha/beta and show exact probabilities and sampled counts.",
+      "localTask": "Implement priority updates and weighted loss; supply missing PER theory in the lab.",
+      "misconception": "Priority exponentiation and importance weighting are the same operation.",
+      "acceptance": [
+        "Priorities [1,4,9] with alpha=0.5 give weights [1,2,3] and probabilities [1/6,1/3,1/2].",
+        "For N=3,beta=1, unnormalized importance weights are [2,1,2/3]; max-normalized weights [1,0.5,1/3].",
+        "Adding a new item with max raw priority 9 gives transformed priority 3 once, not sqrt(3); alpha=0 gives uniform probabilities."
+      ],
+      "dependencies": [
+        "numpy"
+      ],
+      "transfer": "Does the project buffer store raw or transformed priorities, and where is alpha applied?"
+    },
+    {
+      "id": "p6-credit",
+      "phase": "6",
+      "title": "One reward, two contributors",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-6/p6-credit.html",
+      "milestone": "M5",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-state",
+        "p4-td"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p1-state",
+        "Concepts from p4-td"
+      ],
+      "model": "team",
+      "references": [
+        "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+        "phase-6-multi-car-prerequisites/02-credit-assignment.html"
+      ],
+      "planSections": [
+        "Reward Design Comparison Protocol"
+      ],
+      "audit": [],
+      "objective": "Understand why identical team rewards need not mean identical contributions.",
+      "browser": "Inspect joint actions and optional model-known counterfactuals.",
+      "localTask": "Implement simultaneous joint actions and shared rewards; enumerate contributions.",
+      "misconception": "A shared scalar reward identifies how much each agent caused the outcome.",
+      "acceptance": [
+        "Joint HELP,HELP yields reward 3 to both agents, but IDLE counterfactual differences are 2 for agent A and 1 for B.",
+        "HELP,IDLE gives 2; IDLE,HELP gives 1; IDLE,IDLE gives 0.",
+        "Explain that counterfactual rewards require the supplied model, not free information available in all environments."
+      ],
+      "dependencies": [],
+      "transfer": "What tradeoff appears when the project objective changes from elapsed time to relative position?"
+    },
+    {
+      "id": "p6-shaping",
+      "phase": "6",
+      "title": "A reward bonus changes the goal",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-6/p6-shaping.html",
+      "milestone": "M5",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-return",
+        "p35-backward"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p1-return",
+        "Concepts from p35-backward"
+      ],
+      "model": "shaping",
+      "references": [
+        "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+        "phase-6-multi-car-prerequisites/08-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Reward Design Comparison Protocol"
+      ],
+      "audit": [
+        "E5"
+      ],
+      "objective": "Preserve the base objective while adding a potential difference.",
+      "browser": "Enumerate routes and compare base, arbitrary, and potential-shaped totals.",
+      "localTask": "Implement shaping with task discount and zero terminal potential; compare all tiny policies.",
+      "misconception": "Any dense reward bonus preserves the original optimal policy.",
+      "acceptance": [
+        "Unshaped DIRECT=3,VIA+FINISH=4,VIA+WAIT=0; a +5 bonus on WAIT gives 3,4,5 and makes failing to finish optimal.",
+        "With Phi(A)=2,Phi(B)=1,Phi(T)=0,gamma=1, shaped route returns are 1,2,-2: every route shifts by -2.",
+        "Nonzero terminal potentials can change rankings when endpoints differ; verify finite-horizon telescoping including the boundary term."
+      ],
+      "dependencies": [],
+      "transfer": "What terminal handling does the project's potential function need?"
+    },
+    {
+      "id": "p6-opponent",
+      "phase": "6",
+      "title": "The environment changes when others act",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-6/p6-opponent.html",
+      "milestone": "M5",
+      "minutes": 25,
+      "prerequisites": [
+        "p6-credit",
+        "p35-stochastic"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p6-credit",
+        "Concepts from p35-stochastic"
+      ],
+      "model": "congestion",
+      "references": [
+        "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+        "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+        "phase-6-multi-car-prerequisites/07-non-stationarity.html"
+      ],
+      "planSections": [
+        "Implement `src/env/overtaking.py`",
+        "Implement `src/env/f1_multi_env.py`"
+      ],
+      "audit": [
+        "E2",
+        "E3",
+        "E4"
+      ],
+      "objective": "Distinguish missing interaction mechanics from a changing opponent distribution.",
+      "browser": "Toggle blocking separately from p; inspect exact expected reward and sampled outcomes.",
+      "localTask": "Implement the shared-lane effect and controlled changes of opponent policy.",
+      "misconception": "An opponent affects learning even when its actions never affect dynamics.",
+      "acceptance": [
+        "With blocking on, CROSS expected reward is 1-2p: p=0.2 gives 0.6; p=0.8 gives -0.6, so WAIT wins.",
+        "With blocking off, CROSS always gives 1 regardless of p; an unused collision function cannot change outcomes.",
+        "Holding p fixed gives stationary induced transitions; changing p changes them even for the same observed agent action."
+      ],
+      "dependencies": [],
+      "transfer": "How can you verify overtaking/traffic functions actually affect the project transition?"
+    },
+    {
+      "id": "p8-game",
+      "phase": "8",
+      "title": "Best against whom?",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-8/p8-game.html",
+      "milestone": "M5",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-explore",
+        "p6-opponent"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p4-explore",
+        "Concepts from p6-opponent"
+      ],
+      "model": "rps",
+      "references": [
+        "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Background: Why Self-Play Needs Special Handling"
+      ],
+      "audit": [],
+      "objective": "Distinguish a best response to one opponent from a robust mixed strategy.",
+      "browser": "Explore the exact payoff matrix and mixed distributions.",
+      "localTask": "Build fixed-opponent updates and exact payoff evaluation; introduce distribution/vector math beside it.",
+      "misconception": "Beating a fixed opponent proves convergence to a game equilibrium.",
+      "acceptance": [
+        "Against pure ROCK, PAPER scores +1; PAPER against SCISSORS scores -1.",
+        "Uniform [1/3,1/3,1/3] has expected payoff 0 against each pure opponent.",
+        "Against mixture [0.5,0.25,0.25], PAPER expected payoff is 0.5-0.25=0.25."
+      ],
+      "dependencies": [],
+      "transfer": "Why should project evaluation cover multiple opponent styles?"
+    },
+    {
+      "id": "p8-pool",
+      "phase": "8",
+      "title": "Winning today, forgetting yesterday",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-8/p8-pool.html",
+      "milestone": "M5",
+      "minutes": 25,
+      "prerequisites": [
+        "p8-game"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p8-game"
+      ],
+      "model": "rps",
+      "references": [
+        "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+        "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+        "phase-8-self-play-prerequisites/05-first-opponent-problem.html"
+      ],
+      "planSections": [
+        "Checkpoint Pool"
+      ],
+      "audit": [
+        "I"
+      ],
+      "objective": "Keep independent historical snapshots and evaluate opponent coverage.",
+      "browser": "Show payoff matrices and normalized pool-sampling weights.",
+      "localTask": "Implement immutable policy copies, bounded pool, seeded sampling, and held-out evaluations.",
+      "misconception": "A list of references to a changing learner is a history of independent checkpoints.",
+      "acceptance": [
+        "Snapshot [0.2,0.3,0.5] stays unchanged after learner becomes [1,0,0].",
+        "Pool weights [1,2,3] normalize to [1/6,1/3,1/2]; a genuinely random initial policy samples all three actions.",
+        "PAPER scores +1 against ROCK but -1 against held-out SCISSORS; latest-opponent wins alone do not demonstrate overall improvement."
+      ],
+      "dependencies": [
+        "numpy"
+      ],
+      "transfer": "How is pool initialization different from greedy action selection with random weights?"
+    },
+    {
+      "id": "p8-audit",
+      "phase": "8",
+      "title": "An impressive result with a weak comparison",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-8/p8-audit.html",
+      "milestone": "M5",
+      "minutes": 25,
+      "prerequisites": [
+        "p8-pool",
+        "p35-markov"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p8-pool",
+        "Concepts from p35-markov"
+      ],
+      "model": "rps",
+      "references": [
+        "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+        "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+      ],
+      "planSections": [
+        "PettingZoo Environment",
+        "Emergent Strategy Analysis"
+      ],
+      "audit": [
+        "B",
+        "D",
+        "I"
+      ],
+      "objective": "Audit pairings, exploration mode, null comparisons, and multi-agent lifecycle.",
+      "browser": "Inspect seed/score rows and compare marginals with paired differences.",
+      "localTask": "Repair evaluation scheduling and add a small AEC/parallel lifecycle stage using the same one-round game.",
+      "misconception": "Using the same master seed alone guarantees identical per-scenario evaluation pairings.",
+      "acceptance": [
+        "Scenario scores A=[2,8],B=[1,7] give paired differences [1,1]; reversed B pairing gives [-5,7] with same mean but misleading spread.",
+        "A parallel one-round game consumes both live-agent actions once and then agents is empty; AEC dead-agent cleanup uses the selected agent's termination flag.",
+        "A shuffled-pairing null result is not evidence of no learning by itself; inspect the defined statistic and opponent coverage."
+      ],
+      "dependencies": [
+        "numpy",
+        "pettingzoo"
+      ],
+      "transfer": "What must be held fixed in the project's paired evaluation?"
+    },
+    {
+      "id": "p9-reinforce",
+      "phase": "9",
+      "title": "Learn probabilities directly",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-9/p9-reinforce.html",
+      "milestone": "M6",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-return",
+        "p5-network"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p1-return",
+        "Concepts from p5-network"
+      ],
+      "model": "bandit",
+      "references": [
+        "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Implement `src/agents/ppo_agent.py`"
+      ],
+      "audit": [],
+      "objective": "Translate a log-probability gradient into a sampled policy update.",
+      "browser": "Change two logits, pick an explicit sample, and inspect probabilities before/after.",
+      "localTask": "Implement REINFORCE loss and explain gradient ascent versus loss descent.",
+      "misconception": "A positive return should lower the sampled action's log probability under loss minimization.",
+      "acceptance": [
+        "Logits [0,0], sampled action A,return 2: loss gradient [-1,1]; SGD rate 0.1 produces logits [0.1,-0.1].",
+        "New A probability is approximately 0.549834; a negative return reverses the gradient.",
+        "Positive sampled return increases that sampled action even if it is suboptimal on average; distinguish one sample from expected improvement."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch"
+      ],
+      "transfer": "How is the PPO acting policy different from the project Q-value argmax policy?"
+    },
+    {
+      "id": "p9-advantage",
+      "phase": "9",
+      "title": "Better than the baseline",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-9/p9-advantage.html",
+      "milestone": "M6",
+      "minutes": 25,
+      "prerequisites": [
+        "p9-reinforce",
+        "p4-td"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p9-reinforce",
+        "Concepts from p4-td"
+      ],
+      "model": "bandit",
+      "references": [
+        "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+      ],
+      "planSections": [
+        "Implement `src/agents/ppo_agent.py`"
+      ],
+      "audit": [
+        "C"
+      ],
+      "objective": "Subtract a valid action-independent baseline and separate actor/critic gradients.",
+      "browser": "Compare explicit returns with a frozen state-only baseline.",
+      "localTask": "Implement baseline, critic loss, and actor advantage detachment.",
+      "misconception": "Any baseline, including one depending on sampled action, leaves the policy gradient unbiased.",
+      "acceptance": [
+        "Returns 8 and 2 with baseline 5 give advantages +3 and -3.",
+        "At uniform policy, E[score*b]=0 for state-only b=5; with b(A)=1,b(B)=0 expected baseline score is [0.25,-0.25], not zero.",
+        "Actor backward does not update critic through the detached advantage; critic updates separately. Compare variance rather than assume any baseline reduces it."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch"
+      ],
+      "transfer": "Which learned value head helps estimate PPO's training signal?"
+    },
+    {
+      "id": "p9-gae",
+      "phase": "9",
+      "title": "Carry the right signal backward",
+      "mode": "build",
+      "status": "ready",
+      "route": "phase-9/p9-gae.html",
+      "milestone": "M6",
+      "minutes": 30,
+      "prerequisites": [
+        "p9-advantage",
+        "p1-loop"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p9-advantage",
+        "Concepts from p1-loop"
+      ],
+      "model": "gae",
+      "references": [
+        "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html"
+      ],
+      "planSections": [
+        "PPO Hyperparameters"
+      ],
+      "audit": [],
+      "objective": "Compute GAE without mixing true terminals, time limits, and rollout cutoffs.",
+      "browser": "Walk residuals backward with gamma=0.9 and lambda controls.",
+      "localTask": "Implement bootstrap mask and separate trace-continuation mask.",
+      "misconception": "Lambda 1 always equals a nonbootstrapped Monte Carlo return, even on a truncated rollout.",
+      "acceptance": [
+        "Terminal endpoint: residuals [1.4,1]; lambda=0 gives [1.4,1], lambda=1 gives [2.3,1].",
+        "Continuing endpoint V=3: residuals [1.4,3.7]; lambda=1 gives [4.73,3.7], lambda=0.5 gives [3.065,3.7].",
+        "Use the final observation for truncation bootstrap, not the auto-reset observation; cut recursion across an episode reset."
+      ],
+      "dependencies": [
+        "numpy"
+      ],
+      "transfer": "Which PPO configuration and rollout boundaries control the advantage estimate?"
+    },
+    {
+      "id": "p9-ppo",
+      "phase": "9",
+      "title": "Clipping an incentive, not a probability",
+      "mode": "debug",
+      "status": "ready",
+      "route": "phase-9/p9-ppo.html",
+      "milestone": "M6",
+      "minutes": 25,
+      "prerequisites": [
+        "p9-gae",
+        "p5-double-dueling"
+      ],
+      "background": [
+        "Python functions, loops, and lists",
+        "Concepts from p9-gae",
+        "Concepts from p5-double-dueling"
+      ],
+      "model": "ppo",
+      "references": [
+        "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+        "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+        "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+        "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+        "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+      ],
+      "planSections": [
+        "SB3-Compatible Action Masking Wrapper",
+        "Fair Comparison Protocol"
+      ],
+      "audit": [
+        "J1",
+        "J2"
+      ],
+      "objective": "Implement the clipped surrogate and recognize its limits; inspect library integration separately.",
+      "browser": "Move ratio and advantage sign; label clipped versus unclipped branches and KL diagnostic.",
+      "localTask": "Implement negative-mean surrogate loss; freeze old log probabilities; stage optional Windows factory and experience-budget checks.",
+      "misconception": "PPO clip epsilon is a hard bound on every action probability ratio.",
+      "acceptance": [
+        "At epsilon=0.2: (ratio 1.3,A=1)->1.2; (0.7,1)->0.7; (0.7,-1)->-0.8; (1.3,-1)->-1.3.",
+        "Updating new logits leaves old log probabilities unchanged; negative mean objective is the loss being minimized.",
+        "Eight environments * 128 vector steps yields 1024 transitions; compare with 1024 single-environment steps. Demonstrate actual spawn serialization behaviour for installed library versions instead of assuming every lambda fails."
+      ],
+      "dependencies": [
+        "numpy",
+        "torch",
+        "gymnasium",
+        "stable-baselines3",
+        "sb3-contrib"
+      ],
+      "transfer": "What makes DQN/PPO budgets and evaluation conditions comparable?"
+    }
+  ]
+}

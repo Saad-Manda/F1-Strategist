@@ -1,0 +1,6 @@
+{
+  "description": "Independent, hand-calculated acceptance traces. No training curve.",
+  "right_right": {"actions": [1, 1], "observations": [1, 2], "rewards": [-1, 5], "terminated": [false, true], "truncated": [false, false], "total": 4},
+  "left_boundary": {"actions": [0], "observations": [0], "rewards": [-1], "terminated": [false], "truncated": [false], "total": -1},
+  "cap_one": {"actions": [1], "observations": [1], "rewards": [-1], "terminated": [false], "truncated": [true], "total": -1}
+}

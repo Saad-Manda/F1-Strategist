@@ -1,0 +1,14 @@
+{
+  "advantages": [
+    3,
+    -3
+  ],
+  "constant_baseline_score": [
+    0,
+    0
+  ],
+  "action_dependent_baseline_score": [
+    0.25,
+    -0.25
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "capacity": 4,
+  "retained": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "probability": 0.25,
+  "target_before_sync": [
+    1,
+    2
+  ],
+  "target_after_sync": [
+    3,
+    4
+  ]
+}

@@ -1,0 +1,71 @@
+/* Catalog extension of the existing prerequisite theme. */
+[hidden] { display: none !important; }
+.skip-link { position: absolute; left: 16px; top: -80px; z-index: 10; padding: 10px; background: var(--surface); }
+.skip-link:focus { top: 12px; }
+.catalog-summary { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0; }
+.catalog-summary span, .status { font-family: "Sora", "Segoe UI", sans-serif; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; }
+.status { white-space: nowrap; background: var(--surface-2); color: var(--muted); }
+.catalog-controls { display: flex; flex-wrap: wrap; gap: 14px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.catalog-controls label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; flex: 1 1 180px; }
+.catalog-controls select { width: 100%; font: inherit; background: var(--surface-2); color: var(--text); padding: 9px; border: 1px solid var(--border); border-radius: 6px; }
+.catalog-controls select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.filter-count { flex-basis: 100%; margin: 0; font-size: 14px; color: var(--muted); }
+.phase-section { margin-top: 44px; scroll-margin-top: 18px; }
+.phase-heading { margin-bottom: 6px; }
+.phase-intro { color: var(--muted); }
+.lab-card { padding: 22px; margin: 18px 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); scroll-margin-top: 18px; }
+.lab-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.lab-meta code { color: var(--accent); }
+.lab-card h3 { margin: 12px 0 8px; font-size: 20px; }
+.lab-card p { margin: 10px 0; }
+.lab-card .dependencies, .lab-card .reading { font-size: 14px; line-height: 1.7; }
+.lab-card details { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; font-size: 15px; }
+.lab-card summary { cursor: pointer; font-weight: 600; }
+.lab-card a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.catalog-footer { color: var(--muted); font-size: 14px; margin-top: 40px; }
+@media (max-width: 860px) {
+  .sidebar { height: auto; }
+  .sidebar .nav-list { display: flex; flex-direction: row; flex-wrap: wrap; }
+  .sidebar-foot { display: none; }
+  .lab-card { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+/* Shared lesson shell. */
+main, .doc { min-width: 0; }
+.lab-panel { min-width: 0; }
+pre { max-width: 100%; overflow-x: auto; }
+.lab-panel { padding: 20px; margin: 18px 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.lab-panel fieldset { border: 0; padding: 0; margin: 0 0 16px; min-width: 0; }
+.lab-panel legend { font-weight: 600; margin-bottom: 12px; }
+.choice { display: flex; gap: 10px; align-items: baseline; margin: 12px 0; font-size: 15px; }
+.choice input { flex-shrink: 0; }
+button, .start-lab { font-family: "Sora", "Segoe UI", sans-serif; font-size: 14px; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; padding: 10px 14px; cursor: pointer; }
+button:hover, .start-lab:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: default; }
+.start-lab { display: inline-block; background: var(--accent); color: var(--accent-ink); text-decoration: none; }
+.button-row, .input-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0; }
+.input-row label { flex: 1 1 130px; display: flex; flex-direction: column; font-size: 14px; gap: 6px; }
+.input-row input, textarea { width: 100%; font: inherit; padding: 10px; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; box-sizing: border-box; }
+.input-row select { width: 100%; font: inherit; padding: 10px; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; }
+.input-row input[type="range"] { padding: 8px 0; accent-color: var(--accent); }
+.model-path { padding: 14px; border-left: 3px solid var(--accent); line-height: 2; }
+textarea { display: block; margin: 10px 0; resize: vertical; }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.file-input { font-size: 14px; max-width: 100%; }
+.file-input input { display: block; max-width: 100%; margin-top: 8px; }
+.small, .experiment-label { font-size: 13px; color: var(--muted); }
+.chain-track { display: flex; gap: 12px; list-style: none; padding: 0; }
+.chain-track li { flex: 1; text-align: center; padding: 18px 10px; border: 2px solid var(--border); background: var(--surface); border-radius: 10px; }
+.chain-track strong { display: block; font-size: 28px; }
+.chain-track span { font-size: 13px; }
+.chain-track li.current { border-color: var(--accent); background: var(--accent-tint); }
+.readouts { display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px; }
+.readouts p { margin: 6px 0; }
+caption { text-align: left; padding: 10px 14px; font-size: 13px; color: var(--muted); }
+body:is([data-lab-id^="p5-"], [data-lab-id^="p6-"], [data-lab-id^="p8-"], [data-lab-id^="p9-"]) #experiment-controls > label:not(.choice) { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; font-size: 14px; }
+body:is([data-lab-id^="p5-"], [data-lab-id^="p6-"], [data-lab-id^="p8-"], [data-lab-id^="p9-"]) #experiment-controls select,
+body:is([data-lab-id^="p5-"], [data-lab-id^="p6-"], [data-lab-id^="p8-"], [data-lab-id^="p9-"]) #experiment-controls input[type="number"] { max-width: 100%; padding: 9px; font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; }
+body:is([data-lab-id^="p5-"], [data-lab-id^="p6-"], [data-lab-id^="p8-"], [data-lab-id^="p9-"]) #experiment-controls input[type="range"] { width: 100%; accent-color: var(--accent); }
+#priority-bars meter { width: 90px; max-width: 100%; vertical-align: middle; }
+@media (max-width: 600px) { .lab-panel { padding: 14px; } .chain-track { gap: 6px; } .readouts code { overflow-wrap: anywhere; } }

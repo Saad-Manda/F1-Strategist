@@ -1,0 +1,10 @@
+{
+  "paper_rock": 1,
+  "paper_scissors": -1,
+  "mixed": 0.25,
+  "uniform": [
+    0,
+    0,
+    0
+  ]
+}

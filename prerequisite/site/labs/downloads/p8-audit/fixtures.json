@@ -1,0 +1,18 @@
+{
+  "paired": [
+    1,
+    1
+  ],
+  "wrong_pairing": [
+    -5,
+    7
+  ],
+  "joint_transitions": 1024,
+  "parallel_live_after": [],
+  "aec_actions": [
+    1,
+    0,
+    null,
+    null
+  ]
+}

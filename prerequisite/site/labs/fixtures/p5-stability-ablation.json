@@ -1,0 +1,507 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "chain-advance-reset-v1",
+  "recordedAt": "2026-10-04T07:08:38.548667+00:00",
+  "generator": "scripts/prerequisites/record_neural_fixtures.py --write",
+  "sourceHashes": {
+    "solution.py": "70a2410ddedfd1745e92c99986298d7a6e5eb181222cf8b4bace53520fde1a23",
+    "exercise_common.py": "f80067e73a11fea1b6060abaa2e5e855e6b268a9ee1864ef8d6827ba15093125",
+    "compare.py": "75d72359d7ec7d3c629ad81b6f0dc73a789d9748f8f283ba35096d62c624b4f0"
+  },
+  "python": "3.12.7",
+  "numpy": "2.5.1",
+  "torch": "2.13.0+cpu",
+  "device": "cpu",
+  "dtype": "float64",
+  "seeds": [
+    7,
+    19,
+    31
+  ],
+  "settings": {
+    "transitions": 192,
+    "warmup": 4,
+    "update_every": 4,
+    "batch_size": 4,
+    "capacity": 4,
+    "target_interval": 8,
+    "gamma": 0.9,
+    "learning_rate": 0.05,
+    "epsilon": 0.3,
+    "episode_cap": 8,
+    "hidden": 8,
+    "threads": 1
+  },
+  "evaluation": "Frozen greedy policy, four identical starts at state 0, cap 8, no RNG or optimizer updates. Repeated starts are not independent uncertainty estimates.",
+  "interpretation": "Paired budgets and initialization; policies collect different trajectories. Tiny runs are contextual evidence, not score-order correctness gates.",
+  "runs": [
+    {
+      "seed": 7,
+      "variant": "replay+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 18,
+      "truncations": 14,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.026050163074361865,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.014672244517265658,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.00348804055597854,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.003218147204112358,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.0006676748139927496,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0015093188079464762,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "variant": "latest+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 18,
+      "truncations": 14,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.04936756462385225,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.0009280339706356783,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.00022277866034559282,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.004825898941420756,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.0009809704436104703,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0026970547046350885,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "variant": "replay+online",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 18,
+      "truncations": 14,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.0276627874338571,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.011347992139623581,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.003832588865845046,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.0032094830313115115,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.00039067783253030574,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0025026274956670065,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "variant": "replay+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 1,
+      "truncations": 23,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.0009404165176971638,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.033339602169832436,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 4.38420537943371e-05,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.01587790518885943,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.00020080087410378266,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0003725499477649802,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "variant": "latest+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 1,
+      "truncations": 23,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 8.148066157517671e-05,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.22251539358662265,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 1.5163110499842046e-05,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.019532094755609224,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.000595396908761763,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0004851402135899858,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 19,
+      "variant": "replay+online",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 1,
+      "truncations": 23,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.0010297149882363677,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.03390137118078853,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 8.611992016585701e-05,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.015668018984612994,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.0001971815920987407,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.00034379290803892627,
+          "evaluation_return": 0.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "variant": "replay+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 43,
+      "truncations": 4,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.01525548576544012,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.00015971050042297286,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.0420105217730157,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.01694848830296272,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.01211271838918155,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.004799725919497451,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "variant": "latest+target",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 43,
+      "truncations": 4,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.048834881749390976,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 1.4427176273704154e-05,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.0074094491487581805,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.0014909262285156294,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.00012045130798787516,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0014627998743898963,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "variant": "replay+online",
+      "transitions": 192,
+      "optimizer_steps": 48,
+      "terminations": 43,
+      "truncations": 4,
+      "checkpoints": [
+        {
+          "transitions": 32,
+          "optimizer_steps": 8,
+          "td_mse": 0.05092255801815388,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 64,
+          "optimizer_steps": 16,
+          "td_mse": 0.010800289530343059,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 96,
+          "optimizer_steps": 24,
+          "td_mse": 0.01778799757852054,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 128,
+          "optimizer_steps": 32,
+          "td_mse": 0.008725742226268464,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 160,
+          "optimizer_steps": 40,
+          "td_mse": 0.016947367373867917,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        },
+        {
+          "transitions": 192,
+          "optimizer_steps": 48,
+          "td_mse": 0.0041303798855098495,
+          "evaluation_return": 1.0,
+          "evaluation_episodes": 4
+        }
+      ]
+    }
+  ]
+}

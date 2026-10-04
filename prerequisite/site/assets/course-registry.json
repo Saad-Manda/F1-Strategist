@@ -1,0 +1,1967 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "id": "foundations",
+      "number": 1,
+      "title": "Foundations",
+      "objective": "Build the interaction loop, describe state, and reason about returns and values.",
+      "phase": "1",
+      "route": "modules/foundations.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 1",
+        "plan": "phase-1-gym-environment.md",
+        "required": [
+          "phase-1-rl-prerequisites/05-building-the-environment.html",
+          "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+          "phase-1-rl-prerequisites/07-code-walkthrough.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain state/action/reward and termination versus truncation."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map the toy reset/step contract to the project environment."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review action masking, reward units, and the project environment implementation plan."
+          }
+        ],
+        "route": "modules/foundations.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 1",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p1-loop",
+        "p1-state",
+        "p1-return",
+        "p1-values"
+      ]
+    },
+    {
+      "id": "planning",
+      "number": 2,
+      "title": "Planning and uncertainty",
+      "objective": "Compute exact answers before learning from samples.",
+      "phase": "3.5",
+      "route": "modules/planning.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 3.5",
+        "plan": "phase-3.5-dp-oracle.md",
+        "required": [
+          "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+          "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+          "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain time-indexed backward induction and expectation over outcomes."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map legal actions and terminal values to the project DP oracle."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review the toy solver and independent optimality checks."
+          }
+        ],
+        "route": "modules/planning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 3.5",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p35-backward",
+        "p35-stochastic",
+        "p35-markov"
+      ]
+    },
+    {
+      "id": "tabular-learning",
+      "number": 3,
+      "title": "Learning from samples",
+      "objective": "Implement tabular learning and diagnose exploration and representation failures.",
+      "phase": "4",
+      "route": "modules/tabular-learning.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 4",
+        "plan": "phase-4-q-learning-sarsa.md",
+        "required": [
+          "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+          "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+          "phase-4-q-learning-prerequisites/09-code-walkthrough.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain TD targets, exploration, SARSA, and bin conventions."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map legal masks and observation bins to the project Q-table."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review training/evaluation separation and the tabular implementation plan."
+          }
+        ],
+        "route": "modules/tabular-learning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 4",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p4-td",
+        "p4-explore",
+        "p4-sarsa",
+        "p4-bins"
+      ]
+    },
+    {
+      "id": "neural-value-learning",
+      "number": 4,
+      "title": "Neural value learning",
+      "objective": "Understand each component of a neural value learner.",
+      "phase": "5",
+      "route": "modules/neural-value-learning.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 5",
+        "plan": "phase-5-dueling-double-dqn.md",
+        "required": [
+          "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+          "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+          "phase-5-dqn-prerequisites/11-code-walkthrough.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain target snapshots, replay, Double/dueling mechanisms, and priorities."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map tensor shapes, reward units, and optimizer/update schedules to the project."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review DQN integration contracts and the local training walkthrough."
+          }
+        ],
+        "route": "modules/neural-value-learning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 5",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p5-network",
+        "p5-stability",
+        "p5-double-dueling",
+        "p5-per"
+      ]
+    },
+    {
+      "id": "multiple-agents",
+      "number": 5,
+      "title": "Multiple agents and rewards",
+      "objective": "Separate interaction mechanics, credit assignment, and reward design.",
+      "phase": "6",
+      "route": "modules/multiple-agents.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 6",
+        "plan": "phase-6-multi-car-rivals.md",
+        "required": [
+          "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+          "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+          "phase-6-multi-car-prerequisites/10-reading-the-plan.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain team credit, shaping boundaries, and changing opponents."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map action validity, simultaneous transitions, and reward ownership to the environment."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review the multi-car build walkthrough and mechanics bug ledger."
+          }
+        ],
+        "route": "modules/multiple-agents.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 6",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p6-credit",
+        "p6-shaping",
+        "p6-opponent"
+      ]
+    },
+    {
+      "id": "self-play",
+      "number": 6,
+      "title": "Self-play and evaluation",
+      "objective": "Evaluate learning against changing and historical opponents.",
+      "phase": "8",
+      "route": "modules/self-play.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 8",
+        "plan": "phase-8-self-play.md",
+        "required": [
+          "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+          "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+          "phase-8-self-play-prerequisites/10-reading-the-plan.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain opponent pools, frozen snapshots, and historical evaluation."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map agent IDs, action masks, and environment lifecycle to the project API."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review evaluation budgets and the self-play implementation plan."
+          }
+        ],
+        "route": "modules/self-play.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 8",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p8-game",
+        "p8-pool",
+        "p8-audit"
+      ]
+    },
+    {
+      "id": "policy-gradients",
+      "number": 7,
+      "title": "Policy gradients and PPO",
+      "objective": "Learn policies directly and inspect their update rules.",
+      "phase": "9",
+      "route": "modules/policy-gradients.html",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 9",
+        "plan": "phase-9-ppo-sb3.md",
+        "required": [
+          "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+          "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+          "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+          "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+          "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+          "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+          "phase-9-ppo-prerequisites/11-reading-the-plan.html"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain frozen rollout data, actor/critic gradients, GAE masks, and PPO clipping."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map final observations, legal masks, and transition budgets to the collector."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review library integration and Windows spawn guidance before implementation."
+          }
+        ],
+        "route": "modules/policy-gradients.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 9",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      },
+      "lessons": [
+        "p9-reinforce",
+        "p9-advantage",
+        "p9-gae",
+        "p9-ppo"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "p1-loop",
+      "module": "foundations",
+      "title": "Build the interaction loop",
+      "objective": "Implement how an agent and environment exchange actions, observations, and rewards.",
+      "route": "lessons/p1-loop.html",
+      "required": [
+        "phase-1-rl-prerequisites/01-rl-fundamentals.html#course-the-agent-environment-loop-b2d40b",
+        "phase-1-rl-prerequisites/04-gymnasium-api.html#course-the-env-class-and-its-two-core-methods-a83361",
+        "phase-1-rl-prerequisites/04-gymnasium-api.html#course-check-env-validating-the-contract-51bcbe"
+      ],
+      "optional": [
+        "phase-1-rl-prerequisites/05-building-the-environment.html",
+        "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+        "phase-1-rl-prerequisites/04-gymnasium-api.html"
+      ],
+      "lab": "labs/phase-1/p1-loop.html",
+      "minutes": 30,
+      "prerequisites": [],
+      "readingGoal": "Implement how an agent and environment exchange actions, observations, and rewards."
+    },
+    {
+      "id": "p1-state",
+      "module": "foundations",
+      "title": "When an observation hides the state",
+      "objective": "Identify when two identical observations require different transition models.",
+      "route": "lessons/p1-state.html",
+      "required": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-the-formal-tuple-8b485e"
+      ],
+      "optional": [
+        "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html"
+      ],
+      "lab": "labs/phase-1/p1-state.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "readingGoal": "Identify when two identical observations require different transition models."
+    },
+    {
+      "id": "p1-return",
+      "module": "foundations",
+      "title": "Reward is not return",
+      "objective": "Compute return at each time index and explain discount weighting.",
+      "route": "lessons/p1-return.html",
+      "required": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-return-and-the-discount-factor-f88f33"
+      ],
+      "optional": [
+        "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html"
+      ],
+      "lab": "labs/phase-1/p1-return.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "readingGoal": "Compute return at each time index and explain discount weighting."
+    },
+    {
+      "id": "p1-values",
+      "module": "foundations",
+      "title": "One Bellman backup",
+      "objective": "Distinguish state value, action value, policy evaluation, and optimality.",
+      "route": "lessons/p1-values.html",
+      "required": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-policies-4fdf90",
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-action-masking-0bc377",
+        "phase-1-rl-prerequisites/03-value-functions-bellman.html#course-state-value-function-v-023959"
+      ],
+      "optional": [
+        "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+        "phase-1-rl-prerequisites/03-value-functions-bellman.html"
+      ],
+      "lab": "labs/phase-1/p1-values.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-state",
+        "p1-return"
+      ],
+      "readingGoal": "Distinguish state value, action value, policy evaluation, and optimality."
+    },
+    {
+      "id": "p35-backward",
+      "module": "planning",
+      "title": "Solve a tiny model exactly",
+      "objective": "Solve a finite known model and verify it without using its own recurrence as the oracle.",
+      "route": "lessons/p35-backward.html",
+      "required": [
+        "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html#course-two-ways-to-solve-an-mdp-eb7092",
+        "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html#course-starting-from-a-bellman-equation-you-already-have-87c244"
+      ],
+      "optional": [
+        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+        "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+        "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html"
+      ],
+      "lab": "labs/phase-3.5/p35-backward.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-values"
+      ],
+      "readingGoal": "Solve a finite known model and verify it without using its own recurrence as the oracle."
+    },
+    {
+      "id": "p35-stochastic",
+      "module": "planning",
+      "title": "What happens to the unlikely outcome?",
+      "objective": "Compute probability-weighted values rather than pick the modal outcome.",
+      "route": "lessons/p35-stochastic.html",
+      "required": [
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8"
+      ],
+      "optional": [
+        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html"
+      ],
+      "lab": "labs/phase-3.5/p35-stochastic.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p35-backward"
+      ],
+      "readingGoal": "Compute probability-weighted values rather than pick the modal outcome."
+    },
+    {
+      "id": "p35-markov",
+      "module": "planning",
+      "title": "Sampling a Markov chain",
+      "objective": "Separate an observed stochastic state from knowledge of its future realization.",
+      "route": "lessons/p35-markov.html",
+      "required": [
+        "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html#course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7"
+      ],
+      "optional": [
+        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+        "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+        "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html"
+      ],
+      "lab": "labs/phase-3.5/p35-markov.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p35-stochastic",
+        "p1-state"
+      ],
+      "readingGoal": "Separate an observed stochastic state from knowledge of its future realization."
+    },
+    {
+      "id": "p4-td",
+      "module": "tabular-learning",
+      "title": "Update one Q-table cell",
+      "objective": "Calculate target, TD error, and the resulting table update.",
+      "route": "lessons/p4-td.html",
+      "required": [
+        "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html#course-the-equation-hasn-t-changed-1a52f0",
+        "phase-4-q-learning-prerequisites/02-q-learning-derived.html#course-the-full-update-6cd72b"
+      ],
+      "optional": [
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+        "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+        "phase-4-q-learning-prerequisites/02-q-learning-derived.html"
+      ],
+      "lab": "labs/phase-4/p4-td.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-values"
+      ],
+      "readingGoal": "Calculate target, TD error, and the resulting table update."
+    },
+    {
+      "id": "p4-explore",
+      "module": "tabular-learning",
+      "title": "An agent that never discovers B",
+      "objective": "Separate behaviour exploration from greedy evaluation.",
+      "route": "lessons/p4-explore.html",
+      "required": [
+        "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-greedy-only-fails-34b48c",
+        "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6"
+      ],
+      "optional": [
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+        "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html"
+      ],
+      "lab": "labs/phase-4/p4-explore.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p4-td"
+      ],
+      "readingGoal": "Separate behaviour exploration from greedy evaluation."
+    },
+    {
+      "id": "p4-sarsa",
+      "module": "tabular-learning",
+      "title": "The action you actually take next",
+      "objective": "Use the executed next action for an on-policy TD target.",
+      "route": "lessons/p4-sarsa.html",
+      "required": [
+        "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html#course-sarsa-s-update-e79c82"
+      ],
+      "optional": [
+        "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+        "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html"
+      ],
+      "lab": "labs/phase-4/p4-sarsa.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-td",
+        "p4-explore"
+      ],
+      "readingGoal": "Use the executed next action for an on-policy TD target."
+    },
+    {
+      "id": "p4-bins",
+      "module": "tabular-learning",
+      "title": "When more training cannot help",
+      "objective": "Diagnose an encoder unable to represent two different optimal choices.",
+      "route": "lessons/p4-bins.html",
+      "required": [
+        "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html#course-why-tabular-methods-need-a-finite-table-bbf2e7",
+        "phase-4-q-learning-prerequisites/06-the-binning-bug.html"
+      ],
+      "optional": [
+        "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html"
+      ],
+      "lab": "labs/phase-4/p4-bins.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p4-td",
+        "p1-state"
+      ],
+      "readingGoal": "Diagnose an encoder unable to represent two different optimal choices."
+    },
+    {
+      "id": "p5-network",
+      "module": "neural-value-learning",
+      "title": "From table entries to a function",
+      "objective": "Follow tensors through forward pass, scalar loss, gradients, and an optimizer step.",
+      "route": "lessons/p5-network.html",
+      "required": [
+        "phase-5-dqn-prerequisites/01-table-to-function.html#course-the-tabular-update-restated-as-what-it-actually-is-719161",
+        "phase-5-dqn-prerequisites/01-table-to-function.html#course-function-approximation-defined-generally-52500f",
+        "phase-5-dqn-prerequisites/02-neural-networks-primer.html"
+      ],
+      "optional": [
+        "phase-5-dqn-prerequisites/01-table-to-function.html"
+      ],
+      "lab": "labs/phase-5/p5-network.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-td"
+      ],
+      "readingGoal": "Follow tensors through forward pass, scalar loss, gradients, and an optimizer step."
+    },
+    {
+      "id": "p5-stability",
+      "module": "neural-value-learning",
+      "title": "A target that changes under your feet",
+      "objective": "Distinguish replay decorrelation, sample reuse, target lag, and target detachment.",
+      "route": "lessons/p5-stability.html",
+      "required": [
+        "phase-5-dqn-prerequisites/03-target-network.html#course-the-naive-idea-c54e39",
+        "phase-5-dqn-prerequisites/03-target-network.html#course-snapshot-storage-and-detachment-are-separate-134cfd",
+        "phase-5-dqn-prerequisites/04-experience-replay.html#course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3"
+      ],
+      "optional": [
+        "phase-5-dqn-prerequisites/03-target-network.html",
+        "phase-5-dqn-prerequisites/04-experience-replay.html"
+      ],
+      "lab": "labs/phase-5/p5-stability.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p5-network",
+        "p4-explore"
+      ],
+      "readingGoal": "Distinguish replay decorrelation, sample reuse, target lag, and target detachment."
+    },
+    {
+      "id": "p5-double-dueling",
+      "module": "neural-value-learning",
+      "title": "Selection, evaluation, and advantage",
+      "objective": "Separate online action selection from target evaluation and centre advantages.",
+      "route": "lessons/p5-double-dueling.html",
+      "required": [
+        "phase-5-dqn-prerequisites/06-double-dqn.html",
+        "phase-5-dqn-prerequisites/05-dueling-architecture.html#course-the-motivating-observation-1dd682"
+      ],
+      "optional": [
+        "phase-5-dqn-prerequisites/05-dueling-architecture.html"
+      ],
+      "lab": "labs/phase-5/p5-double-dueling.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p5-stability"
+      ],
+      "readingGoal": "Separate online action selection from target evaluation and centre advantages."
+    },
+    {
+      "id": "p5-per",
+      "module": "neural-value-learning",
+      "title": "Why is this transition sampled so often?",
+      "objective": "Distinguish raw priority, probability, and importance weight.",
+      "route": "lessons/p5-per.html",
+      "required": [
+        "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html"
+      ],
+      "optional": [
+        "phase-5-dqn-prerequisites/04-experience-replay.html"
+      ],
+      "lab": "labs/phase-5/p5-per.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p5-stability"
+      ],
+      "readingGoal": "Distinguish raw priority, probability, and importance weight."
+    },
+    {
+      "id": "p6-credit",
+      "module": "multiple-agents",
+      "title": "One reward, two contributors",
+      "objective": "Understand why identical team rewards need not mean identical contributions.",
+      "route": "lessons/p6-credit.html",
+      "required": [
+        "phase-6-multi-car-prerequisites/01-multi-car-mdp.html#course-what-breaks-and-what-doesn-t-5aefbd",
+        "phase-6-multi-car-prerequisites/02-credit-assignment.html#course-the-reward-phase-1-through-5-had-31dfdb"
+      ],
+      "optional": [
+        "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+        "phase-6-multi-car-prerequisites/02-credit-assignment.html"
+      ],
+      "lab": "labs/phase-6/p6-credit.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-state",
+        "p4-td"
+      ],
+      "readingGoal": "Understand why identical team rewards need not mean identical contributions."
+    },
+    {
+      "id": "p6-shaping",
+      "module": "multiple-agents",
+      "title": "A reward bonus changes the goal",
+      "objective": "Preserve the base objective while adding a potential difference.",
+      "route": "lessons/p6-shaping.html",
+      "required": [
+        "phase-6-multi-car-prerequisites/03-potential-based-shaping.html"
+      ],
+      "optional": [
+        "phase-6-multi-car-prerequisites/08-build-it-yourself.html"
+      ],
+      "lab": "labs/phase-6/p6-shaping.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p1-return",
+        "p35-backward"
+      ],
+      "readingGoal": "Preserve the base objective while adding a potential difference."
+    },
+    {
+      "id": "p6-opponent",
+      "module": "multiple-agents",
+      "title": "The environment changes when others act",
+      "objective": "Distinguish missing interaction mechanics from a changing opponent distribution.",
+      "route": "lessons/p6-opponent.html",
+      "required": [
+        "phase-6-multi-car-prerequisites/07-non-stationarity.html"
+      ],
+      "optional": [
+        "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+        "phase-6-multi-car-prerequisites/06-bug-ledger.html"
+      ],
+      "lab": "labs/phase-6/p6-opponent.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p6-credit",
+        "p35-stochastic"
+      ],
+      "readingGoal": "Distinguish missing interaction mechanics from a changing opponent distribution."
+    },
+    {
+      "id": "p8-game",
+      "module": "self-play",
+      "title": "Best against whom?",
+      "objective": "Distinguish a best response to one opponent from a robust mixed strategy.",
+      "route": "lessons/p8-game.html",
+      "required": [
+        "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html"
+      ],
+      "optional": [
+        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+      ],
+      "lab": "labs/phase-8/p8-game.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p4-explore",
+        "p6-opponent"
+      ],
+      "readingGoal": "Distinguish a best response to one opponent from a robust mixed strategy."
+    },
+    {
+      "id": "p8-pool",
+      "module": "self-play",
+      "title": "Winning today, forgetting yesterday",
+      "objective": "Keep independent historical snapshots and evaluate opponent coverage.",
+      "route": "lessons/p8-pool.html",
+      "required": [
+        "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html#course-a-quick-recap-of-the-shield-c568ce",
+        "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+        "phase-8-self-play-prerequisites/05-first-opponent-problem.html"
+      ],
+      "optional": [
+        "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html"
+      ],
+      "lab": "labs/phase-8/p8-pool.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p8-game"
+      ],
+      "readingGoal": "Keep independent historical snapshots and evaluate opponent coverage."
+    },
+    {
+      "id": "p8-audit",
+      "module": "self-play",
+      "title": "An impressive result with a weak comparison",
+      "objective": "Audit pairings, exploration mode, null comparisons, and multi-agent lifecycle.",
+      "route": "lessons/p8-audit.html",
+      "required": [
+        "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+        "phase-8-self-play-prerequisites/07-is-it-bimodal.html"
+      ],
+      "optional": [
+        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+      ],
+      "lab": "labs/phase-8/p8-audit.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p8-pool",
+        "p35-markov"
+      ],
+      "readingGoal": "Audit pairings, exploration mode, null comparisons, and multi-agent lifecycle."
+    },
+    {
+      "id": "p9-reinforce",
+      "module": "policy-gradients",
+      "title": "Learn probabilities directly",
+      "objective": "Translate a log-probability gradient into a sampled policy update.",
+      "route": "lessons/p9-reinforce.html",
+      "required": [
+        "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html"
+      ],
+      "optional": [
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+      ],
+      "lab": "labs/phase-9/p9-reinforce.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p1-return",
+        "p5-network"
+      ],
+      "readingGoal": "Translate a log-probability gradient into a sampled policy update."
+    },
+    {
+      "id": "p9-advantage",
+      "module": "policy-gradients",
+      "title": "Better than the baseline",
+      "objective": "Subtract a valid action-independent baseline and separate actor/critic gradients.",
+      "route": "lessons/p9-advantage.html",
+      "required": [
+        "phase-9-ppo-prerequisites/02-actor-critic-advantage.html"
+      ],
+      "optional": [
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+      ],
+      "lab": "labs/phase-9/p9-advantage.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p9-reinforce",
+        "p4-td"
+      ],
+      "readingGoal": "Subtract a valid action-independent baseline and separate actor/critic gradients."
+    },
+    {
+      "id": "p9-gae",
+      "module": "policy-gradients",
+      "title": "Carry the right signal backward",
+      "objective": "Compute GAE without mixing true terminals, time limits, and rollout cutoffs.",
+      "route": "lessons/p9-gae.html",
+      "required": [
+        "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html"
+      ],
+      "optional": [],
+      "lab": "labs/phase-9/p9-gae.html",
+      "minutes": 30,
+      "prerequisites": [
+        "p9-advantage",
+        "p1-loop"
+      ],
+      "readingGoal": "Compute GAE without mixing true terminals, time limits, and rollout cutoffs."
+    },
+    {
+      "id": "p9-ppo",
+      "module": "policy-gradients",
+      "title": "Clipping an incentive, not a probability",
+      "objective": "Implement the clipped surrogate and recognize its limits; inspect library integration separately.",
+      "route": "lessons/p9-ppo.html",
+      "required": [
+        "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+        "phase-9-ppo-prerequisites/05-build-vs-buy.html#course-why-ppo-is-different-in-kind-not-just-longer-707fac"
+      ],
+      "optional": [
+        "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+        "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+        "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+        "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+        "phase-9-ppo-prerequisites/05-build-vs-buy.html"
+      ],
+      "lab": "labs/phase-9/p9-ppo.html",
+      "minutes": 25,
+      "prerequisites": [
+        "p9-gae",
+        "p5-double-dueling"
+      ],
+      "readingGoal": "Implement the clipped surrogate and recognize its limits; inspect library integration separately."
+    }
+  ],
+  "resources": [
+    {
+      "id": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "route": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "title": "RL Fundamentals",
+      "phase": "1",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "title": "Markov Decision Processes",
+      "phase": "1",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "route": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "title": "Value Functions and the Bellman Equations",
+      "phase": "1",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "route": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "title": "The Gymnasium API",
+      "phase": "1",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/05-building-the-environment.html",
+      "route": "phase-1-rl-prerequisites/05-building-the-environment.html",
+      "title": "Building the Environment, Step by Step",
+      "phase": "1",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+      "route": "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+      "title": "This Project, Formalized as an MDP",
+      "phase": "1",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/07-code-walkthrough.html",
+      "route": "phase-1-rl-prerequisites/07-code-walkthrough.html",
+      "title": "Annotated Code Walkthrough",
+      "phase": "1",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/08-glossary.html",
+      "route": "phase-1-rl-prerequisites/08-glossary.html",
+      "title": "Glossary",
+      "phase": "1",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/index.html",
+      "route": "phase-1-rl-prerequisites/index.html",
+      "title": "Phase 1 RL Prerequisites",
+      "phase": "1",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "title": "Planning vs. Learning",
+      "phase": "3.5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "title": "Backward Induction",
+      "phase": "3.5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "title": "Expectations Over Randomness",
+      "phase": "3.5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "title": "Markov Chains",
+      "phase": "3.5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+      "title": "Build a Toy DP Solver, Step by Step",
+      "phase": "3.5",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+      "title": "This Project, Formalized as a DP",
+      "phase": "3.5",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html",
+      "title": "Annotated Code Walkthrough",
+      "phase": "3.5",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/08-glossary.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/08-glossary.html",
+      "title": "Glossary",
+      "phase": "3.5",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/index.html",
+      "route": "phase-3.5-dp-oracle-prerequisites/index.html",
+      "title": "Phase 3.5 DP Oracle Prerequisites",
+      "phase": "3.5",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "route": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "title": "From an Equation to an Update Rule",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "route": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "title": "Q-Learning: The Update Rule, Derived and Hand-Run",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "route": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "title": "Exploration: ε-Greedy",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "route": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "title": "On-Policy vs. Off-Policy: SARSA",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "route": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "title": "State Discretization: The General Tradeoff",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/06-the-binning-bug.html",
+      "route": "phase-4-q-learning-prerequisites/06-the-binning-bug.html",
+      "title": "The Binning Bug: When Coarseness Erases the Decision",
+      "phase": "4",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+      "route": "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+      "title": "Build It Yourself: A Toy Q-Learning and SARSA, Side by Side",
+      "phase": "4",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+      "route": "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+      "title": "This Project, Formalized",
+      "phase": "4",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/09-code-walkthrough.html",
+      "route": "phase-4-q-learning-prerequisites/09-code-walkthrough.html",
+      "title": "Code Walkthrough",
+      "phase": "4",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/10-glossary.html",
+      "route": "phase-4-q-learning-prerequisites/10-glossary.html",
+      "title": "Glossary",
+      "phase": "4",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/index.html",
+      "route": "phase-4-q-learning-prerequisites/index.html",
+      "title": "Phase 4 Q-Learning Prerequisites",
+      "phase": "4",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "route": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "title": "From a Table Cell to a Function",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/02-neural-networks-primer.html",
+      "route": "phase-5-dqn-prerequisites/02-neural-networks-primer.html",
+      "title": "Neural Networks in Four Steps: Forward Pass, Loss, Backward Pass, Update",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/03-target-network.html",
+      "route": "phase-5-dqn-prerequisites/03-target-network.html",
+      "title": "The Target Network",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "route": "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "title": "Experience Replay",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "route": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "title": "The Dueling Architecture: Separating \"How Good Is This Spot\" from \"Which Move Helps\"",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/06-double-dqn.html",
+      "route": "phase-5-dqn-prerequisites/06-double-dqn.html",
+      "title": "Double DQN",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html",
+      "route": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html",
+      "title": "Prioritized experience replay",
+      "phase": "5",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/08-reward-scale-trap.html",
+      "route": "phase-5-dqn-prerequisites/08-reward-scale-trap.html",
+      "title": "The reward-scale trap",
+      "phase": "5",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+      "route": "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+      "title": "Build it yourself",
+      "phase": "5",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+      "route": "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+      "title": "This project, formalized",
+      "phase": "5",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/11-code-walkthrough.html",
+      "route": "phase-5-dqn-prerequisites/11-code-walkthrough.html",
+      "title": "Code walkthrough",
+      "phase": "5",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/12-glossary.html",
+      "route": "phase-5-dqn-prerequisites/12-glossary.html",
+      "title": "Glossary",
+      "phase": "5",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/index.html",
+      "route": "phase-5-dqn-prerequisites/index.html",
+      "title": "Phase 5 Dueling Double DQN Prerequisites",
+      "phase": "5",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "route": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "title": "From One Car to N",
+      "phase": "6",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "route": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "title": "What \"Doing Well\" Even Means Now",
+      "phase": "6",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+      "route": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+      "title": "Potential-Based Shaping: The Principled Version",
+      "phase": "6",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html",
+      "route": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html",
+      "title": "Overtaking and Dirty Air: Modeling What Cumulative Time Alone Can't",
+      "phase": "6",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+      "route": "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+      "title": "Why \"Position = Sorted by Time\" Kills the Undercut",
+      "phase": "6",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+      "route": "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+      "title": "Six Ways the Plan's Own Pseudocode Breaks Its Own Physics",
+      "phase": "6",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/07-non-stationarity.html",
+      "route": "phase-6-multi-car-prerequisites/07-non-stationarity.html",
+      "title": "Non-Stationarity: Why Fixed Rivals Are the Right First Step",
+      "phase": "6",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+      "route": "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+      "title": "Build It Yourself: A Toy Blocking Race With Shaped Rewards",
+      "phase": "6",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+      "route": "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+      "title": "This Project, Formalized",
+      "phase": "6",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/10-reading-the-plan.html",
+      "route": "phase-6-multi-car-prerequisites/10-reading-the-plan.html",
+      "title": "Reading the Implementation Plan's Code",
+      "phase": "6",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/11-glossary.html",
+      "route": "phase-6-multi-car-prerequisites/11-glossary.html",
+      "title": "Glossary",
+      "phase": "6",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/index.html",
+      "route": "phase-6-multi-car-prerequisites/index.html",
+      "title": "Phase 6 Multi-Car Prerequisites",
+      "phase": "6",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "route": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "title": "When the Opponent Learns Too: Non-Stationarity, Revisited",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+      "route": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+      "title": "The Game Underneath: Nash Equilibria and Fictitious Self-Play",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+      "route": "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+      "title": "The Checkpoint Pool as Approximate Fictitious Self-Play",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+      "route": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+      "title": "Two Ways to Formalize \"Everyone Acts\": AEC and Parallel",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/05-first-opponent-problem.html",
+      "route": "phase-8-self-play-prerequisites/05-first-opponent-problem.html",
+      "title": "Why the Pool's First Member Matters",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html",
+      "route": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html",
+      "title": "The Blocking Rule Everything Here Depends On",
+      "phase": "8",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+      "route": "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+      "title": "Is It Really Bimodal? A Null Baseline for the Headline Result",
+      "phase": "8",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+      "route": "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+      "title": "Build It Yourself: A Toy Self-Play Loop",
+      "phase": "8",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+      "route": "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+      "title": "This Project, Formalized",
+      "phase": "8",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/10-reading-the-plan.html",
+      "route": "phase-8-self-play-prerequisites/10-reading-the-plan.html",
+      "title": "Reading the Implementation Plan's Code",
+      "phase": "8",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/11-glossary.html",
+      "route": "phase-8-self-play-prerequisites/11-glossary.html",
+      "title": "Glossary",
+      "phase": "8",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/index.html",
+      "route": "phase-8-self-play-prerequisites/index.html",
+      "title": "Phase 8 Self-Play Prerequisites",
+      "phase": "8",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+      "route": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+      "title": "Policy Gradients From Scratch: The REINFORCE Idea",
+      "phase": "9",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+      "route": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+      "title": "Actor-Critic and the Advantage Function",
+      "phase": "9",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html",
+      "route": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html",
+      "title": "Generalized Advantage Estimation (GAE-λ)",
+      "phase": "9",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+      "route": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+      "title": "PPO's Clipped Surrogate Objective",
+      "phase": "9",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "route": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "title": "Why Build vs. Buy: PPO's Hidden Implementation Subtleties",
+      "phase": "9",
+      "category": "Core theory",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+      "route": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+      "title": "Stable-Baselines3 and sb3-contrib's API Surface",
+      "phase": "9",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+      "route": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+      "title": "Factories, Serialization, and Windows Spawn",
+      "phase": "9",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+      "route": "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+      "title": "\"Same Timesteps\" Isn't \"Same Experience\"",
+      "phase": "9",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+      "route": "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+      "title": "Build It Yourself: Toy REINFORCE, Then Toy PPO",
+      "phase": "9",
+      "category": "Deeper reading",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+      "route": "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+      "title": "This Project, Formalized",
+      "phase": "9",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/11-reading-the-plan.html",
+      "route": "phase-9-ppo-prerequisites/11-reading-the-plan.html",
+      "title": "Reading the Implementation Plan's Code",
+      "phase": "9",
+      "category": "Project application",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/12-glossary.html",
+      "route": "phase-9-ppo-prerequisites/12-glossary.html",
+      "title": "Glossary",
+      "phase": "9",
+      "category": "Glossary",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/index.html",
+      "route": "phase-9-ppo-prerequisites/index.html",
+      "title": "Phase 9 PPO Prerequisites",
+      "phase": "9",
+      "category": "Topic overview",
+      "kind": "page",
+      "instruction": "Read the complete page; use its examples to check your understanding."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/01-rl-fundamentals.html#course-the-agent-environment-loop-b2d40b",
+      "route": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "kind": "section",
+      "anchor": "course-the-agent-environment-loop-b2d40b",
+      "heading": "The agent–environment loop",
+      "through": "Episodes, and episodic vs. continuing tasks",
+      "title": "The agent–environment loop → Episodes, and episodic vs. continuing tasks",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read from \"The agent–environment loop\" through \"Episodes, and episodic vs. continuing tasks\", including the worked examples. Stop before \"Exploration vs. exploitation\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-the-env-class-and-its-two-core-methods-a83361",
+      "route": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "kind": "section",
+      "anchor": "course-the-env-class-and-its-two-core-methods-a83361",
+      "heading": "The Env class and its two core methods",
+      "through": "Spaces: describing what observations and actions look like",
+      "title": "The Env class and its two core methods → Spaces: describing what observations and actions look like",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read from \"The Env class and its two core methods\" through \"Spaces: describing what observations and actions look like\", including the worked examples. Stop before \"A standard example: GridWorld, built piece by piece\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-check-env-validating-the-contract-51bcbe",
+      "route": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "kind": "section",
+      "anchor": "course-check-env-validating-the-contract-51bcbe",
+      "heading": "check_env: validating the contract",
+      "through": "check_env: validating the contract",
+      "title": "check_env: validating the contract",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Action masking in Gymnasium\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-the-formal-tuple-8b485e",
+      "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "kind": "section",
+      "anchor": "course-the-formal-tuple-8b485e",
+      "heading": "The formal tuple",
+      "through": "The Markov property",
+      "title": "The formal tuple → The Markov property",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read from \"The formal tuple\" through \"The Markov property\", including the worked examples. Stop before \"Policies\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-return-and-the-discount-factor-f88f33",
+      "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "kind": "section",
+      "anchor": "course-return-and-the-discount-factor-f88f33",
+      "heading": "Return and the discount factor",
+      "through": "Return and the discount factor",
+      "title": "Return and the discount factor",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Action masking\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/03-value-functions-bellman.html#course-state-value-function-v-023959",
+      "route": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "kind": "section",
+      "anchor": "course-state-value-function-v-023959",
+      "heading": "State-value function, V",
+      "through": "The Bellman equations",
+      "title": "State-value function, V → The Bellman equations",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read from \"State-value function, V\" through \"The Bellman equations\", including the worked examples. Stop before \"Why γ = 1 doesn't break the Bellman equation here\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-policies-4fdf90",
+      "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "kind": "section",
+      "anchor": "course-policies-4fdf90",
+      "heading": "Policies",
+      "through": "Policies",
+      "title": "Policies",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Return and the discount factor\"."
+    },
+    {
+      "id": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-action-masking-0bc377",
+      "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "kind": "section",
+      "anchor": "course-action-masking-0bc377",
+      "heading": "Action masking",
+      "through": "Action masking",
+      "title": "Action masking",
+      "phase": "1",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Worked example: one lap, two possible actions\"."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html#course-two-ways-to-solve-an-mdp-eb7092",
+      "route": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "kind": "section",
+      "anchor": "course-two-ways-to-solve-an-mdp-eb7092",
+      "heading": "Two ways to solve an MDP",
+      "through": "Two ways to solve an MDP",
+      "title": "Two ways to solve an MDP",
+      "phase": "3.5",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Why \"exact\" is possible here at all\"."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html#course-starting-from-a-bellman-equation-you-already-have-87c244",
+      "route": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "kind": "section",
+      "anchor": "course-starting-from-a-bellman-equation-you-already-have-87c244",
+      "heading": "Starting from a Bellman equation you already have",
+      "through": "Why a one-step-ahead (\"greedy\") policy would have missed this",
+      "title": "Starting from a Bellman equation you already have → Why a one-step-ahead (\"greedy\") policy would have missed this",
+      "phase": "3.5",
+      "category": "Core theory",
+      "instruction": "Read from \"Starting from a Bellman equation you already have\" through \"Why a one-step-ahead (\"greedy\") policy would have missed this\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+      "route": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "kind": "section",
+      "anchor": "course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+      "heading": "What changes when the next state isn't certain",
+      "through": "What changes when the next state isn't certain",
+      "title": "What changes when the next state isn't certain",
+      "phase": "3.5",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Where the probabilities come from: a hazard-rate model\"."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8",
+      "route": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "kind": "section",
+      "anchor": "course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8",
+      "heading": "Worked example: how much does the risk of a safety car change today's decision?",
+      "through": "Worked example: how much does the risk of a safety car change today's decision?",
+      "title": "Worked example: how much does the risk of a safety car change today's decision?",
+      "phase": "3.5",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"The pit-under-safety-car discount, and why it belongs in the transition, not the reward\"."
+    },
+    {
+      "id": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html#course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7",
+      "route": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "kind": "section",
+      "anchor": "course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7",
+      "heading": "The same idea page 2 of the Phase 1 prerequisites already taught you",
+      "through": "Sampling a trace from a fitted chain",
+      "title": "The same idea page 2 of the Phase 1 prerequisites already taught you → Sampling a trace from a fitted chain",
+      "phase": "3.5",
+      "category": "Core theory",
+      "instruction": "Read from \"The same idea page 2 of the Phase 1 prerequisites already taught you\" through \"Sampling a trace from a fitted chain\", including the worked examples. Stop before \"Why this is what makes Oracle B \"achievable\" and Oracle A only a \"bound\"\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html#course-the-equation-hasn-t-changed-1a52f0",
+      "route": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "kind": "section",
+      "anchor": "course-the-equation-hasn-t-changed-1a52f0",
+      "heading": "The equation hasn't changed",
+      "through": "Bootstrapping: learning from a guess about a guess",
+      "title": "The equation hasn't changed → Bootstrapping: learning from a guess about a guess",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read from \"The equation hasn't changed\" through \"Bootstrapping: learning from a guess about a guess\", including the worked examples. Stop before \"What's still ahead\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/02-q-learning-derived.html#course-the-full-update-6cd72b",
+      "route": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "kind": "section",
+      "anchor": "course-the-full-update-6cd72b",
+      "heading": "The full update",
+      "through": "Worked example: a 3-state toy, hand-run for four steps",
+      "title": "The full update → Worked example: a 3-state toy, hand-run for four steps",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read from \"The full update\" through \"Worked example: a 3-state toy, hand-run for four steps\", including the worked examples. Stop before \"Convergence, stated but not proven\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-greedy-only-fails-34b48c",
+      "route": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "kind": "section",
+      "anchor": "course-why-greedy-only-fails-34b48c",
+      "heading": "Why greedy-only fails",
+      "through": "ε-greedy, defined",
+      "title": "Why greedy-only fails → ε-greedy, defined",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read from \"Why greedy-only fails\" through \"ε-greedy, defined\", including the worked examples. Stop before \"Linear decay, worked with the real plan's numbers\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6",
+      "route": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "kind": "section",
+      "anchor": "course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6",
+      "heading": "Why masking has to apply inside exploration, not just at evaluation time",
+      "through": "Why masking has to apply inside exploration, not just at evaluation time",
+      "title": "Why masking has to apply inside exploration, not just at evaluation time",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html#course-sarsa-s-update-e79c82",
+      "route": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "kind": "section",
+      "anchor": "course-sarsa-s-update-e79c82",
+      "heading": "SARSA's update",
+      "through": "Worked example: a risky push vs. a safe pit, hand-run side by side",
+      "title": "SARSA's update → Worked example: a risky push vs. a safe pit, hand-run side by side",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read from \"SARSA's update\" through \"Worked example: a risky push vs. a safe pit, hand-run side by side\", including the worked examples. Stop before \"Tying back to the real plan\"."
+    },
+    {
+      "id": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html#course-why-tabular-methods-need-a-finite-table-bbf2e7",
+      "route": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "kind": "section",
+      "anchor": "course-why-tabular-methods-need-a-finite-table-bbf2e7",
+      "heading": "Why tabular methods need a finite table",
+      "through": "Worked arithmetic: how many states does a binning scheme actually produce?",
+      "title": "Why tabular methods need a finite table → Worked arithmetic: how many states does a binning scheme actually produce?",
+      "phase": "4",
+      "category": "Core theory",
+      "instruction": "Read from \"Why tabular methods need a finite table\" through \"Worked arithmetic: how many states does a binning scheme actually produce?\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/01-table-to-function.html#course-the-tabular-update-restated-as-what-it-actually-is-719161",
+      "route": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "kind": "section",
+      "anchor": "course-the-tabular-update-restated-as-what-it-actually-is-719161",
+      "heading": "The tabular update, restated as what it actually is",
+      "through": "The tabular update, restated as what it actually is",
+      "title": "The tabular update, restated as what it actually is",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"The curse of dimensionality, with this project's own numbers\"."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/01-table-to-function.html#course-function-approximation-defined-generally-52500f",
+      "route": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "kind": "section",
+      "anchor": "course-function-approximation-defined-generally-52500f",
+      "heading": "Function approximation, defined generally",
+      "through": "What carries over unchanged",
+      "title": "Function approximation, defined generally → What carries over unchanged",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read from \"Function approximation, defined generally\" through \"What carries over unchanged\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/03-target-network.html#course-the-naive-idea-c54e39",
+      "route": "phase-5-dqn-prerequisites/03-target-network.html",
+      "kind": "section",
+      "anchor": "course-the-naive-idea-c54e39",
+      "heading": "The naive idea",
+      "through": "Keeping θ⁻ from going stale forever",
+      "title": "The naive idea → Keeping θ⁻ from going stale forever",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read from \"The naive idea\" through \"Keeping θ⁻ from going stale forever\", including the worked examples. Stop before \"Worked arithmetic: how slow is \"slowly\"?\"."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/03-target-network.html#course-snapshot-storage-and-detachment-are-separate-134cfd",
+      "route": "phase-5-dqn-prerequisites/03-target-network.html",
+      "kind": "section",
+      "anchor": "course-snapshot-storage-and-detachment-are-separate-134cfd",
+      "heading": "Snapshot storage and detachment are separate",
+      "through": "Snapshot storage and detachment are separate",
+      "title": "Snapshot storage and detachment are separate",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/04-experience-replay.html#course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3",
+      "route": "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "kind": "section",
+      "anchor": "course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3",
+      "heading": "Why in-order training data is a problem, even with a stable target",
+      "through": "A minimal replay buffer",
+      "title": "Why in-order training data is a problem, even with a stable target → A minimal replay buffer",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read from \"Why in-order training data is a problem, even with a stable target\" through \"A minimal replay buffer\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-5-dqn-prerequisites/05-dueling-architecture.html#course-the-motivating-observation-1dd682",
+      "route": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "kind": "section",
+      "anchor": "course-the-motivating-observation-1dd682",
+      "heading": "The motivating observation",
+      "through": "Architecture: two heads on a shared trunk",
+      "title": "The motivating observation → Architecture: two heads on a shared trunk",
+      "phase": "5",
+      "category": "Core theory",
+      "instruction": "Read from \"The motivating observation\" through \"Architecture: two heads on a shared trunk\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html#course-what-breaks-and-what-doesn-t-5aefbd",
+      "route": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "kind": "section",
+      "anchor": "course-what-breaks-and-what-doesn-t-5aefbd",
+      "heading": "What breaks, and what doesn't",
+      "through": "Rivals as fixed scripts, not learners",
+      "title": "What breaks, and what doesn't → Rivals as fixed scripts, not learners",
+      "phase": "6",
+      "category": "Core theory",
+      "instruction": "Read from \"What breaks, and what doesn't\" through \"Rivals as fixed scripts, not learners\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-6-multi-car-prerequisites/02-credit-assignment.html#course-the-reward-phase-1-through-5-had-31dfdb",
+      "route": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "kind": "section",
+      "anchor": "course-the-reward-phase-1-through-5-had-31dfdb",
+      "heading": "The reward Phase 1 through 5 had",
+      "through": "Why the real plan trains three designs instead of choosing one",
+      "title": "The reward Phase 1 through 5 had → Why the real plan trains three designs instead of choosing one",
+      "phase": "6",
+      "category": "Core theory",
+      "instruction": "Read from \"The reward Phase 1 through 5 had\" through \"Why the real plan trains three designs instead of choosing one\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html#course-a-quick-recap-of-the-shield-c568ce",
+      "route": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "kind": "section",
+      "anchor": "course-a-quick-recap-of-the-shield-c568ce",
+      "heading": "A quick recap of the shield",
+      "through": "Three ways to structure multi-agent training",
+      "title": "A quick recap of the shield → Three ways to structure multi-agent training",
+      "phase": "8",
+      "category": "Core theory",
+      "instruction": "Read from \"A quick recap of the shield\" through \"Three ways to structure multi-agent training\", including the worked examples. Stop before \"Try it in a lab\"."
+    },
+    {
+      "id": "phase-9-ppo-prerequisites/05-build-vs-buy.html#course-why-ppo-is-different-in-kind-not-just-longer-707fac",
+      "route": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "kind": "section",
+      "anchor": "course-why-ppo-is-different-in-kind-not-just-longer-707fac",
+      "heading": "Why PPO is different in kind, not just longer",
+      "through": "Why PPO is different in kind, not just longer",
+      "title": "Why PPO is different in kind, not just longer",
+      "phase": "9",
+      "category": "Core theory",
+      "instruction": "Read this section and its subsections. Stop before \"The general principle\"."
+    }
+  ],
+  "projectStages": [
+    {
+      "phase": "0",
+      "title": "Data foundation",
+      "module": null,
+      "guidance": "Prepare project data using the project plan; there is no dedicated RL lesson module for this stage."
+    },
+    {
+      "phase": "0.5",
+      "title": "Calibration",
+      "module": null,
+      "guidance": "Complete calibration remediation using the project plan; there is no dedicated RL lesson module for this stage."
+    },
+    {
+      "phase": "1",
+      "title": "Gymnasium environment",
+      "module": "foundations",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 1 locally, then return for the next project stage."
+    },
+    {
+      "phase": "2",
+      "title": "Dashboard skeleton",
+      "module": null,
+      "guidance": "Implement the dashboard skeleton after the project environment; no additional RL module is required."
+    },
+    {
+      "phase": "3",
+      "title": "Rule-based baseline",
+      "module": null,
+      "guidance": "Implement rule-based baselines after the environment and runner exist. Reuse the Foundations concepts; this is project implementation, not an additional RL course module."
+    },
+    {
+      "phase": "3.5",
+      "title": "DP oracle",
+      "module": "planning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 3.5 locally, then return for the next project stage."
+    },
+    {
+      "phase": "4",
+      "title": "Q-learning and SARSA",
+      "module": "tabular-learning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 4 locally, then return for the next project stage."
+    },
+    {
+      "phase": "5",
+      "title": "Dueling Double DQN",
+      "module": "neural-value-learning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 5 locally, then return for the next project stage."
+    },
+    {
+      "phase": "6",
+      "title": "Multi-car rivals",
+      "module": "multiple-agents",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 6 locally, then return for the next project stage."
+    },
+    {
+      "phase": "7",
+      "title": "Dashboard polish",
+      "module": null,
+      "guidance": "Implement dashboard polish after the earlier project stages; no additional RL module is required."
+    },
+    {
+      "phase": "8",
+      "title": "Self-play",
+      "module": "self-play",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 8 locally, then return for the next project stage."
+    },
+    {
+      "phase": "9",
+      "title": "PPO",
+      "module": "policy-gradients",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 9 locally, then return for the next project stage."
+    }
+  ],
+  "navigationContract": {
+    "steps": [
+      "theory",
+      "browser",
+      "python"
+    ],
+    "contextParameters": [
+      "lesson",
+      "step"
+    ],
+    "home": "index.html",
+    "roadmap": "roadmap.html",
+    "library": "library.html",
+    "progressKeys": [
+      "rl-labs:v1",
+      "rl-course:v1"
+    ],
+    "checkpointContextParameter": "module"
+  }
+}

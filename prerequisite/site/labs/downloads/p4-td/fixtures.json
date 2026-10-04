@@ -1,0 +1,26 @@
+{
+  "q": 2,
+  "reward": 1,
+  "alpha": 0.25,
+  "gamma": 0.5,
+  "next_values": [
+    4,
+    8,
+    99
+  ],
+  "legal": [
+    true,
+    true,
+    false
+  ],
+  "ongoing": {
+    "target": 5,
+    "error": 3,
+    "value": 2.75
+  },
+  "terminal": {
+    "target": 1,
+    "error": -1,
+    "value": 1.75
+  }
+}

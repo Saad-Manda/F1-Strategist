@@ -1,0 +1,10 @@
+{
+  "risk_q": [
+    6,
+    -10
+  ],
+  "sampled_slip_target": -10,
+  "q_learning_target": 6,
+  "epsilon_02_behaviour": 4.4,
+  "epsilon_06_behaviour": 1.2
+}
