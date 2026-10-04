@@ -1,0 +1,25 @@
+{
+  "phase-1-rl-prerequisites/index.html": {
+    "Why this project is an RL problem at all": "9cb6b846864eee557b7da541f5c9f61d2bc05a10071277bb9698fd07f83b2c88",
+    "How this folder teaches the implementation half": "1b72f0add8ecc5f6808ada1cf8435e194aef2216c616d2f2508e47518bd8e388",
+    "Topic contents": "93bf62a61fdb8cd098e7b4115de6a1c07a2cdefa73f4c6332202b3f19e8a60c0"
+  },
+  "phase-3.5-dp-oracle-prerequisites/index.html": {
+    "Why this phase exists, and why it isn't \"more RL\"": "dd5d6f09264ff6bad25fed8ee1f3a7e6535c5fad7710b6e595663f017b290a12",
+    "How this folder teaches the implementation half": "11b7b0720f20daa85c51d5c5cf6ae31865124bc8b2708c4e7a80fc2ef1078e45",
+    "Topic contents": "576e36dc87e7a7585b2655c0bfe42345086e43d12125daf0278d7c78edc8c10e"
+  },
+  "phase-4-q-learning-prerequisites/index.html": {
+    "Why this phase is different from the one before it": "6d2a45bb7fc9638661cf1444e764d84ab86445d52a2b35b697caa3fb0b9687fa",
+    "How this folder teaches the implementation half": "b92149bc0f4c7452c3b7346d19582d20de3911c8581946f0aa51d9697947fad2",
+    "Topic contents": "cee195b597084db79d0e7723c066fb8985dc11ad1a39d0af5ffef0bbb32cd24b"
+  },
+  "phase-6-multi-car-prerequisites/index.html": {
+    "Why this phase is different from everything before it": "a3491555903901b80b27d9754fec70c74bc4d2fb6a589588029e12cfc6c7205f",
+    "Topic contents": "7b3bf18bf043c8e6eabb60544041f4d9d9cc4871dbf1b17152d032a3a20279fc"
+  },
+  "phase-8-self-play-prerequisites/index.html": {
+    "Why this phase is different from everything before it": "7afb4aebb0b813af54f3a83b32394cf4836ff9f32964419a099c3f2bcb9fa3d7",
+    "Topic contents": "bb007b08a5e995a427816a056f55474079884be74031bf4c7480e78be1826a13"
+  }
+}
