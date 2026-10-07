@@ -139,8 +139,13 @@ def validate_page(path, site=SITE, cache=None):
     cache = {} if cache is None else cache
     publish_root = site.resolve()
     routes = cache.setdefault('resolved_routes', {})
+    asset_paths = cache.setdefault('resolved_asset_paths', {})
     def assets(target):
-        target=target.resolve()
+        # Many sidebar links revisit the same anchored page. Resolve each path
+        # once per audit while retaining symlink-aware containment checks.
+        if target not in asset_paths:
+            asset_paths[target] = target.resolve()
+        target = asset_paths[target]
         if target not in cache:
             parsed=PageAssets();parsed.feed(target.read_text(encoding="utf-8"));cache[target]=parsed
         return cache[target]

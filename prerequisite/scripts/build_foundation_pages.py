@@ -79,7 +79,7 @@ CONTENT = {
 }
 
 
-def page(lab, content=None, experiment_module='foundations.js', milestone='m2'):
+def page(lab, content=None, experiment_module='foundations.js', milestone='m2', raw=False):
     c = CONTENT[lab['id']] if content is None else content
     key = lab['id']
     reading = next(p['readingDirectory'] for p in load_registry()['phases'] if p['id'] == lab['phase'])
@@ -115,11 +115,11 @@ python checks.py --candidate starter.py</code></pre>{c.get('localExtra', '')}<p>
 
 
     from build_navigation import integrate_navigation
-    return integrate_navigation(LABS / lab['route'], source)
+    return source if raw else integrate_navigation(LABS / lab['route'], source)
 
 
-def outputs():
-    return {LABS / lab['route']: page(lab) for lab in load_registry()['labs'] if lab['id'] in CONTENT}
+def outputs(raw=False):
+    return {LABS / lab['route']: page(lab, raw=raw) for lab in load_registry()['labs'] if lab['id'] in CONTENT}
 
 
 def main():

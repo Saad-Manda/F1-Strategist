@@ -62,8 +62,8 @@ CONTENT = {
  },
 }
 
-def outputs():
-    return {LABS/lab['route']:page(lab, CONTENT[lab['id']], 'tabular.js', 'm3')
+def outputs(raw=False):
+    return {LABS/lab['route']:page(lab, CONTENT[lab['id']], 'tabular.js', 'm3',raw=raw)
             for lab in load_registry()['labs'] if lab['id'] in CONTENT}
 
 def main():

@@ -1,0 +1,16 @@
+.reading-page .doc { font-size:1.06rem; }
+.reading-page h1 { font-size:clamp(2rem,5vw,3rem);line-height:1.18; }
+.reading-page .doc p,.reading-page .doc li { line-height:1.75; }
+.reading-page .course-outline summary { padding:.65rem .4rem;font-weight:600; }
+.reading-page .outline-link small { display:block;margin-left:auto;white-space:nowrap; }
+.reading-page .planned { color:var(--muted)!important;font-size:.85rem; }
+.reading-page button { font:inherit;cursor:pointer;max-width:100%; }
+.reading-page button:focus-visible,.reading-page a:focus-visible { outline:3px solid var(--accent);outline-offset:3px; }
+.reading-page pre { max-width:100%;overflow:auto; }
+.reading-page .table-wrap { max-width:100%;overflow-x:auto; }
+.reading-page .doc > section { margin:2rem 0; }
+.reading-page .doc details { padding:1rem;border:1px solid var(--border);border-radius:.5rem; }
+.reading-page .course-actions { align-items:center; }
+.reading-page #reading-status { color:var(--muted); }
+.reading-page .course-primary { border:0; }
+@media(max-width:960px) { .reading-page .course-brand { font-size:1rem; }.reading-page .course-nav { gap:.5rem; }.reading-page .doc { font-size:1rem; } }

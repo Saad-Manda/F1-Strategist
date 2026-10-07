@@ -52,7 +52,7 @@ CONTENT={
  solution='At ε=.2, (1.3,+1)→1.2, (.7,+1)→.7, (.7,−1)→−.8, (1.3,−1)→−1.3. The ratio 1.3 stays 1.3 even when the clipped branch supplies objective 1.2. Frozen data must be cloned/detached; optimization changes only the new policy. Multiple samples and additional losses can still move probabilities outside the clip interval.',
  reflect='Explain both advantage signs, loss sign, old-policy freezing and KL diagnostics. What experience budgets and masked evaluation settings must match before comparing algorithms?')}
 
-def outputs():
+def outputs(raw=False):
     result={}
     for lab in load_registry()['labs']:
         if lab['id'] not in CONTENT:continue
@@ -62,7 +62,7 @@ def outputs():
         c['setup']='<pre><code>python -m pip install -r requirements.txt</code></pre>'
         if key=='p9-reinforce':c['localExtra']='<p>After checking your functions:</p><pre><code>python compare.py --candidate starter.py --seed 7</code></pre>'
         if key=='p9-ppo':c['localExtra']='<p>The optional library stage needs Gymnasium, SB3 and sb3-contrib as well:</p><pre><code>python -m pip install gymnasium stable-baselines3 sb3-contrib\npython compare.py --candidate starter.py --integration</code></pre><p>Run from a terminal on this machine; the script includes the Windows main guard.</p>'
-        result[LABS/lab['route']]=page(lab,c,'policy.js','m6')
+        result[LABS/lab['route']]=page(lab,c,'policy.js','m6',raw=raw)
     return result
 
 if __name__=='__main__':

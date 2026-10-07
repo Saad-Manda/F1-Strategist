@@ -4,13 +4,13 @@ import sys
 from paths import ROOT, SCRIPTS
 
 CHECKS = (
-    'build_course.py',
-    'build_navigation.py',
+    'check_course_v2.py',
+    'build_readings.py',
     'build_catalog.py', 'build_foundation_pages.py', 'build_foundation_packs.py',
-    'build_tabular_pages.py', 'build_tabular_packs.py', 'build_neural_readings.py',
+    'build_tabular_pages.py', 'build_tabular_packs.py',
     'build_neural_pages.py', 'build_neural_packs.py', 'build_multiagent_pages.py',
     'build_multiagent_packs.py', 'build_policy_pages.py', 'build_policy_packs.py',
-    'build_reading_links.py', 'build_reading_sections.py', 'build_lab_downloads.py', 'validate_labs.py', 'audit_course.py',
+    'build_lab_downloads.py', 'validate_labs.py', 'audit_course.py', 'audit_reading_rebuild.py',
 )
 
 

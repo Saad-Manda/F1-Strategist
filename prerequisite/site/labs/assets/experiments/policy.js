@@ -1,4 +1,4 @@
-import {softmax,policyStep,baselineWitness,gae,clippedObjective,ppoDiagnostics} from './policy-models.js';
+import {softmax,policyStep,baselineWitness,gae,clippedObjective,ppoDiagnostics} from './policy-models.js?v=reading-20261006-r8';
 const $=id=>document.getElementById(id),num=id=>Number($(id).value),fmt=x=>Number(x.toFixed(6)).toString();
 function row(id,cells){const tr=document.createElement('tr');for(const value of cells){const td=document.createElement('td');td.textContent=value;tr.append(td);}$(id).append(tr);}
 function listen(id,event,action){$(id).addEventListener(event,()=>{try{action();$('experiment-error').textContent='';}catch(e){$('experiment-error').textContent=e.message;}});}

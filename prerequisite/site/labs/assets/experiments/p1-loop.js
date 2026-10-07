@@ -1,4 +1,4 @@
-import { resetChain, stepChain, seededActionGenerator } from './chain-model.js';
+import { resetChain, stepChain, seededActionGenerator } from './chain-model.js?v=reading-20261006-r8';
 const panel = document.querySelector('#chain-controls');
 const cap = document.querySelector('#step-cap');
 const seed = document.querySelector('#random-seed');

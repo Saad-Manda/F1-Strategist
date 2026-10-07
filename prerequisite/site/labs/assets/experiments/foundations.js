@@ -1,4 +1,4 @@
-import {returns, branchValues, backward, expectedValue, advance, WEATHER, randomGenerator, sampleNext, switchStep} from './foundation-models.js';
+import {returns, branchValues, backward, expectedValue, advance, WEATHER, randomGenerator, sampleNext, switchStep} from './foundation-models.js?v=reading-20261006-r8';
 
 const $ = id => document.getElementById(id);
 const num = id => {

@@ -50,7 +50,7 @@ CONTENT={
  solution='Masses [1,2,3] yield probabilities [1/6,1/3,1/2]. Weights [2,1,2/3] globally normalize to [1,1/2,1/3]. New raw 9 transforms once to 3. Error −3 becomes 3+epsilon. Fixed weights multiply each loss before the mean.',
  reflect='Trace raw priority → mass → probability → importance weight → loss. Explain double exponentiation and where detachment belongs in PyTorch.')}
 
-def outputs():
+def outputs(raw=False):
     result={}
     for lab in load_registry()['labs']:
         key=lab['id']
@@ -60,7 +60,7 @@ def outputs():
         c['pythonLabel']='Python 3.10+ with NumPy.' if per else 'Python 3.10+ with NumPy and CPU PyTorch.'
         c['setup']='<pre><code>python -m pip install -r requirements.txt</code></pre>'
         c['localExtra']='<p>After your candidate passes checks:</p><pre><code>python compare.py --candidate starter.py --seed 7</code></pre>' if key in ('p5-network','p5-stability') else ''
-        result[LABS/lab['route']]=page(lab,c,'neural.js','m4')
+        result[LABS/lab['route']]=page(lab,c,'neural.js','m4',raw=raw)
     return result
 
 if __name__=='__main__':

@@ -29,7 +29,10 @@ def safe_route(route):
             and all(part not in {'', '.', '..'} for part in route.split('/')))
 
 
-def validate_course(course, labs, site=SITE):
+def validate_course(course, labs, site=SITE, *, check_sources=True, allow_planned=False):
+    if isinstance(course, dict) and course.get('schemaVersion') == 2:
+        from course_v2 import validate_course_v2
+        return validate_course_v2(course, labs, source_root=site.parent, check_sources=check_sources, allow_planned=allow_planned)
     errors = []
     if not isinstance(course, dict) or course.get('schemaVersion') != 1:
         return ['Unsupported course schema.']
@@ -198,12 +201,17 @@ def validate_course(course, labs, site=SITE):
 
 
 def reading_url(resource, lesson_id=None):
+    if resource.get('role') in {'core', 'further-depth', 'application'}:
+        return resource['route']
     query = '?' + urlencode({'lesson': lesson_id, 'step': 'theory'}) if lesson_id else ''
     fragment = '#' + resource['anchor'] if resource.get('kind') == 'section' else ''
     return resource['route'] + query + fragment
 
 
 def lesson_navigation(course, lesson_id):
+    if course.get('schemaVersion') == 2:
+        from course_v2 import lesson_navigation_v2
+        return lesson_navigation_v2(course, lesson_id)
     lessons = course['lessons']
     index = next(i for i, lesson in enumerate(lessons) if lesson['id'] == lesson_id)
     lesson = lessons[index]
@@ -225,11 +233,21 @@ def lesson_navigation(course, lesson_id):
 
 
 def checkpoint_reading_url(resource, module_id):
+    if resource.get('role') == 'application':
+        return resource['route']
     return resource['route'] + '?' + urlencode({'module': module_id})
 
 
 def resolve_context(course, route, *, lesson_id=None, step=None, module_id=None):
     """Reject arbitrary return URLs and context unrelated to the visited page."""
+    if course.get('schemaVersion') == 2:
+        from course_v2 import reading_context
+        reading = next((r for r in course['readings'] if r['route'] == route), None)
+        if (reading is None or (lesson_id is not None and lesson_id != reading['lesson'])
+                or (module_id is not None and module_id != reading['module'])
+                or (step is not None and step != 'theory')):
+            return None
+        return reading_context(course, reading['id'])
     resources = {r['id']: r for r in course['resources']}
     if not safe_route(route):
         return None

@@ -1,4 +1,4 @@
-import {unit, randomGenerator} from './foundation-models.js';
+import {unit, randomGenerator} from './foundation-models.js?v=reading-20261006-r8';
 
 export function legalIndices(values, legal) {
   if (!Array.isArray(values) || values.length !== legal.length || !values.every(Number.isFinite)) throw new Error('Finite values and a matching mask are required.');

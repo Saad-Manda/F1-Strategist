@@ -1,5 +1,5 @@
-import {tdUpdate, epsilonProbabilities, selectAction, sarsaTarget, binIndex, tableSize, representationCeiling, trainBandit, trainShortcut, trainBins} from './tabular-models.js';
-import {randomGenerator} from './foundation-models.js';
+import {tdUpdate, epsilonProbabilities, selectAction, sarsaTarget, binIndex, tableSize, representationCeiling, trainBandit, trainShortcut, trainBins} from './tabular-models.js?v=reading-20261006-r8';
+import {randomGenerator} from './foundation-models.js?v=reading-20261006-r8';
 const $=id=>document.getElementById(id);
 const num=id=>{if(!$(id).value.trim())throw new Error('Enter a value in each numeric control.');return Number($(id).value);};
 const fmt=x=>Number(x.toFixed(6)).toString();

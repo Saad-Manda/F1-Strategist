@@ -74,7 +74,7 @@ CONTENT={
  solution='ID-matched differences are [1,1]. Incorrect positional pairing gives [−5,7]; both means are 1 but the latter spread is spurious. Eight environments ×128 vector steps=1024 joint environment transitions (not per-agent action calls). Parallel resolves one joint action then has no live agents; AEC requires two live commitments followed by selected dead-agent cleanup.',
  reflect='List what a fair evaluation fixes and what it measures. Explain the shuffled-pairing statistic, joint transitions versus per-agent calls, hidden commitments and selected-agent cleanup.')}
 
-def outputs():
+def outputs(raw=False):
     result={}
     for lab in load_registry()['labs']:
         if lab['id'] not in CONTENT:continue
@@ -85,7 +85,7 @@ def outputs():
             c['setup']='<pre><code>python -m pip install -r requirements.txt</code></pre>'
         if lab['id']=='p8-game':c['localExtra']='<p>After checking your implementation:</p><pre><code>python compare.py --candidate starter.py --seed 7</code></pre>'
         if lab['id']=='p8-audit':c['localExtra']='<p>Run the real lifecycle and official API checks after implementing:</p><pre><code>python compare.py --candidate starter.py</code></pre>'
-        result[LABS/lab['route']]=page(lab,c,'multiagent.js','m5')
+        result[LABS/lab['route']]=page(lab,c,'multiagent.js','m5',raw=raw)
     return result
 
 if __name__=='__main__':

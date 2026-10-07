@@ -1,6 +1,6 @@
-import {MATRIX,team,shapingRoutes,laneExpected,laneSamples,expectedPayoff,bestResponses,snapshot,poolProbabilities,pairedScores,lifecycle} from './multiagent-models.js';
-import {drawCounts} from './neural-models.js';
-import {randomGenerator} from './foundation-models.js';
+import {MATRIX,team,shapingRoutes,laneExpected,laneSamples,expectedPayoff,bestResponses,snapshot,poolProbabilities,pairedScores,lifecycle} from './multiagent-models.js?v=reading-20261006-r8';
+import {drawCounts} from './neural-models.js?v=reading-20261006-r8';
+import {randomGenerator} from './foundation-models.js?v=reading-20261006-r8';
 const $=id=>document.getElementById(id),fmt=x=>Number(x.toFixed(6)).toString();
 const num=id=>{if(!$(id).value.trim())throw new Error('Enter a numeric value.');const n=Number($(id).value);if(!Number.isFinite(n))throw new Error('Finite value required.');return n;};
 const integer=(id,lo,hi)=>{const n=num(id);if(!Number.isInteger(n)||n<lo||n>hi)throw new Error(`Enter an integer from ${lo} to ${hi}.`);return n;};

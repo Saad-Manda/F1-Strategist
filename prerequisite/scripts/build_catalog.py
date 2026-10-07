@@ -227,6 +227,11 @@ def source_inventory(data):
 
 
 def outputs(data):
+    from build_readings import render_outputs
+    return {LABS/'index.html':render_outputs()[1]['labs/index.html'],
+            DOCS/'AUTHOR_SPECIFICATIONS.md':specifications(data)}
+
+def retired_outputs(data):
     return {LABS / "index.html": catalog(data), DOCS / "AUTHOR_SPECIFICATIONS.md": specifications(data),
             DOCS / "SOURCE_INVENTORY.md": source_inventory(data)}
 

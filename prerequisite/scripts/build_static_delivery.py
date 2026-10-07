@@ -17,7 +17,9 @@ def resource_links(path):
     if path.suffix not in {'.js','.css'}:return []
     source=path.read_text(encoding='utf-8')
     if path.suffix=='.js':
-        return re.findall(r'''(?:\bfrom\s*|\bimport\s*|\bnew URL\(\s*)['"]([^'"]+)['"]''',source)
+        links = re.findall(r'''(?:\bfrom\s+|\bimport\s+|\bimport\s*\(\s*|\bnew URL\(\s*)['"]([^'"]+)['"]''',source)
+        # URL bases resolve a mount directory, rather than a published asset.
+        return [link for link in links if link not in {'.', './', '..', '../'}]
     if path.suffix=='.css':
         return [x.strip(' \"\'') for x in re.findall(r'url\(([^)]+)\)',source)]
     return []
@@ -33,7 +35,15 @@ def validate_delivery(site=SITE):
     data=json.loads((site/'labs'/'assets'/'lab-registry.json').read_text(encoding='utf-8'))
     try:
         course=json.loads((site/'assets'/'course-registry.json').read_text(encoding='utf-8'))
-        errors.extend(validate_course(course,data,site=site))
+        # Authoring fragments stay outside publication. A delivered v2 site checks
+        # authored metadata and its rendered routes, not unpublished source paths.
+        errors.extend(validate_course(course,data,site=site,check_sources=False))
+        if course.get('schemaVersion') == 2:
+            for reading in course.get('readings', []):
+                route = reading.get('route')
+                if (not isinstance(route, str) or not re.fullmatch(r'(?:readings|applications)/[a-z0-9-]+/[a-z0-9-]+\.html', route)
+                        or not (site / route).is_file()):
+                    errors.append(f'{reading.get("id")}: missing published v2 reading route')
     except (OSError,json.JSONDecodeError) as error:
         errors.append(f'Invalid course registry: {error}')
     for lab in data['labs']:
