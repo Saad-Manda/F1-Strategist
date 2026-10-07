@@ -1,0 +1,1383 @@
+{
+  "version": 1,
+  "reviewedOn": "2026-10-05",
+  "routes": [
+    {
+      "oldUrl": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-loop/agent-environment-loop.html",
+        "readings/p1-loop/one-step.html",
+        "readings/p1-loop/episode-endings.html",
+        "readings/p1-loop/spaces-and-contract.html",
+        "readings/p1-return/reward-return.html",
+        "readings/p1-return/discounting.html",
+        "readings/p1-return/horizons.html",
+        "readings/p1-return/return-calculation.html",
+        "readings/p4-explore/greedy-discovery.html",
+        "readings/p4-explore/epsilon-probabilities.html",
+        "readings/p4-explore/behavior-evaluation.html",
+        "readings/p4-explore/exploration-schedules.html",
+        "readings/p35-markov/transition-matrix.html",
+        "readings/p35-markov/sampling-not-foresight.html",
+        "readings/p35-markov/rollout-variability.html",
+        "readings/p35-markov/empirical-checks.html",
+        "applications/foundations/environment-contract.html",
+        "applications/foundations/reward-units.html",
+        "applications/tabular-learning/tabular-training.html",
+        "applications/foundations/race-dynamics.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-state/state-observation.html",
+        "readings/p1-state/markov-property.html",
+        "readings/p1-state/mdp-model.html",
+        "readings/p1-state/missing-information.html",
+        "readings/p1-return/reward-return.html",
+        "readings/p1-return/discounting.html",
+        "readings/p1-return/horizons.html",
+        "readings/p1-return/return-calculation.html",
+        "readings/p1-values/policies-legal-actions.html",
+        "readings/p1-values/state-action-values.html",
+        "readings/p1-values/bellman-backup.html",
+        "readings/p1-values/expectation-maximization.html",
+        "readings/p1-values/evaluation-optimality.html",
+        "readings/p1-values/bellman-fixed-points.html",
+        "applications/foundations/environment-contract.html",
+        "applications/foundations/race-dynamics.html",
+        "applications/foundations/reward-units.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-values/policies-legal-actions.html",
+        "readings/p1-values/state-action-values.html",
+        "readings/p1-values/bellman-backup.html",
+        "readings/p1-values/expectation-maximization.html",
+        "readings/p1-values/evaluation-optimality.html",
+        "readings/p1-values/bellman-fixed-points.html",
+        "applications/foundations/reward-units.html",
+        "readings/p1-return/horizons.html",
+        "applications/neural-value-learning/dqn-reward-scale.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-loop/agent-environment-loop.html",
+        "readings/p1-loop/one-step.html",
+        "readings/p1-loop/episode-endings.html",
+        "readings/p1-loop/spaces-and-contract.html",
+        "applications/foundations/environment-contract.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/05-building-the-environment.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "applications/foundations/race-dynamics.html",
+        "applications/foundations/environment-contract.html",
+        "applications/foundations/reward-units.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "applications/foundations/environment-contract.html",
+        "applications/foundations/race-dynamics.html",
+        "applications/foundations/reward-units.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/07-code-walkthrough.html",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "applications/foundations/environment-verification.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/08-glossary.html",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#foundations"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/index.html",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "modules/foundations.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-backward/planning-learning.html",
+        "readings/p35-backward/finite-model.html",
+        "readings/p35-backward/backward-induction.html",
+        "readings/p35-backward/verify-solver.html",
+        "readings/p35-backward/value-iteration.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-backward/planning-learning.html",
+        "readings/p35-backward/finite-model.html",
+        "readings/p35-backward/backward-induction.html",
+        "readings/p35-backward/verify-solver.html",
+        "readings/p35-backward/value-iteration.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-stochastic/expectation-refresher.html",
+        "readings/p35-stochastic/weighted-backups.html",
+        "readings/p35-stochastic/rare-outcomes.html",
+        "readings/p35-stochastic/stochastic-solver.html",
+        "applications/planning/oracle-model.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-markov/transition-matrix.html",
+        "readings/p35-markov/sampling-not-foresight.html",
+        "readings/p35-markov/rollout-variability.html",
+        "readings/p35-markov/empirical-checks.html",
+        "applications/planning/oracle-bound.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-backward/planning-learning.html",
+        "readings/p35-backward/finite-model.html",
+        "readings/p35-backward/backward-induction.html",
+        "readings/p35-backward/verify-solver.html",
+        "readings/p35-backward/value-iteration.html",
+        "readings/p35-stochastic/expectation-refresher.html",
+        "readings/p35-stochastic/weighted-backups.html",
+        "readings/p35-stochastic/rare-outcomes.html",
+        "readings/p35-stochastic/stochastic-solver.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "applications/planning/oracle-model.html",
+        "applications/planning/oracle-bound.html",
+        "applications/planning/oracle-verification.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "applications/planning/oracle-verification.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/08-glossary.html",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#planning"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/index.html",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "modules/planning.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-td/sampled-learning.html",
+        "readings/p4-td/td-error.html",
+        "readings/p4-td/q-learning.html",
+        "readings/p4-td/terminal-masked-targets.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-td/sampled-learning.html",
+        "readings/p4-td/td-error.html",
+        "readings/p4-td/q-learning.html",
+        "readings/p4-td/terminal-masked-targets.html",
+        "readings/p4-sarsa/policy-targets.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-explore/greedy-discovery.html",
+        "readings/p4-explore/epsilon-probabilities.html",
+        "readings/p4-explore/behavior-evaluation.html",
+        "readings/p4-explore/exploration-schedules.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-sarsa/policy-targets.html",
+        "readings/p4-sarsa/sampled-sarsa.html",
+        "readings/p4-sarsa/expected-sarsa.html",
+        "readings/p4-sarsa/algorithm-comparison.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-bins/table-representation.html",
+        "readings/p4-bins/interval-boundaries.html",
+        "readings/p4-bins/state-aliasing.html",
+        "readings/p4-bins/encoder-checks.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/06-the-binning-bug.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-bins/table-representation.html",
+        "readings/p4-bins/interval-boundaries.html",
+        "readings/p4-bins/state-aliasing.html",
+        "readings/p4-bins/encoder-checks.html",
+        "applications/tabular-learning/tabular-contract.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-sarsa/policy-targets.html",
+        "readings/p4-sarsa/sampled-sarsa.html",
+        "readings/p4-sarsa/expected-sarsa.html",
+        "readings/p4-sarsa/algorithm-comparison.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "applications/tabular-learning/tabular-contract.html",
+        "applications/tabular-learning/tabular-training.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/09-code-walkthrough.html",
+      "module": "tabular-learning",
+      "kind": "redirect",
+      "targets": [
+        "applications/tabular-learning/tabular-training.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/10-glossary.html",
+      "module": "tabular-learning",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#tabular-learning"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/index.html",
+      "module": "tabular-learning",
+      "kind": "redirect",
+      "targets": [
+        "modules/tabular-learning.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html",
+        "readings/p5-network/adam-moments.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/02-neural-networks-primer.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html",
+        "readings/p5-network/adam-moments.html",
+        "applications/neural-value-learning/dqn-reward-scale.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/03-target-network.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html",
+        "readings/p5-stability/replay.html",
+        "readings/p5-stability/complete-dqn-update.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html",
+        "readings/p5-stability/replay.html",
+        "readings/p5-stability/complete-dqn-update.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-double-dueling/maximization-bias.html",
+        "readings/p5-double-dueling/double-selection.html",
+        "readings/p5-double-dueling/dueling-values.html",
+        "readings/p5-double-dueling/dueling-centering.html",
+        "readings/p5-double-dueling/double-dueling-masks.html",
+        "applications/neural-value-learning/dqn-integration.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/06-double-dqn.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-double-dueling/maximization-bias.html",
+        "readings/p5-double-dueling/double-selection.html",
+        "readings/p5-double-dueling/dueling-values.html",
+        "readings/p5-double-dueling/dueling-centering.html",
+        "readings/p5-double-dueling/double-dueling-masks.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-per/prioritize-errors.html",
+        "readings/p5-per/priority-probability.html",
+        "readings/p5-per/importance-weights.html",
+        "readings/p5-per/priority-updates.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/08-reward-scale-trap.html",
+      "module": "neural-value-learning",
+      "kind": "redirect",
+      "targets": [
+        "applications/neural-value-learning/dqn-reward-scale.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html",
+        "readings/p5-network/adam-moments.html",
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html",
+        "readings/p5-stability/replay.html",
+        "readings/p5-stability/complete-dqn-update.html",
+        "readings/p5-double-dueling/maximization-bias.html",
+        "readings/p5-double-dueling/double-selection.html",
+        "readings/p5-double-dueling/dueling-values.html",
+        "readings/p5-double-dueling/dueling-centering.html",
+        "readings/p5-double-dueling/double-dueling-masks.html",
+        "readings/p5-per/prioritize-errors.html",
+        "readings/p5-per/priority-probability.html",
+        "readings/p5-per/importance-weights.html",
+        "readings/p5-per/priority-updates.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "applications/neural-value-learning/dqn-integration.html",
+        "applications/neural-value-learning/dqn-reward-scale.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/11-code-walkthrough.html",
+      "module": "neural-value-learning",
+      "kind": "redirect",
+      "targets": [
+        "applications/neural-value-learning/dqn-evidence.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/12-glossary.html",
+      "module": "neural-value-learning",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#neural-value-learning"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/index.html",
+      "module": "neural-value-learning",
+      "kind": "redirect",
+      "targets": [
+        "modules/neural-value-learning.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-credit/joint-actions.html",
+        "readings/p6-credit/team-contribution.html",
+        "readings/p6-credit/credit-examples.html",
+        "readings/p6-credit/credit-diagnostics.html",
+        "applications/multiple-agents/multi-car-dynamics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-credit/joint-actions.html",
+        "readings/p6-credit/team-contribution.html",
+        "readings/p6-credit/credit-examples.html",
+        "readings/p6-credit/credit-diagnostics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-shaping/base-bonuses.html",
+        "readings/p6-shaping/potential-differences.html",
+        "readings/p6-shaping/telescoping.html",
+        "readings/p6-shaping/shaping-conditions.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html",
+      "module": "multiple-agents",
+      "kind": "redirect",
+      "targets": [
+        "applications/multiple-agents/multi-car-dynamics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html",
+        "applications/multiple-agents/multi-car-dynamics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+      "module": "multiple-agents",
+      "kind": "redirect",
+      "targets": [
+        "applications/multiple-agents/multi-car-bugs.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/07-non-stationarity.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html",
+        "readings/p6-shaping/base-bonuses.html",
+        "readings/p6-shaping/potential-differences.html",
+        "readings/p6-shaping/telescoping.html",
+        "readings/p6-shaping/shaping-conditions.html",
+        "applications/multiple-agents/multi-car-checks.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "applications/multiple-agents/multi-car-dynamics.html",
+        "applications/multiple-agents/multi-car-checks.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/10-reading-the-plan.html",
+      "module": "multiple-agents",
+      "kind": "redirect",
+      "targets": [
+        "applications/multiple-agents/multi-car-checks.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/11-glossary.html",
+      "module": "multiple-agents",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#multiple-agents"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/index.html",
+      "module": "multiple-agents",
+      "kind": "redirect",
+      "targets": [
+        "modules/multiple-agents.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html",
+        "readings/p8-game/best-response.html",
+        "readings/p8-game/payoff-matrices.html",
+        "readings/p8-game/mixed-equilibrium.html",
+        "readings/p8-game/robustness.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-game/best-response.html",
+        "readings/p8-game/payoff-matrices.html",
+        "readings/p8-game/mixed-equilibrium.html",
+        "readings/p8-game/robustness.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-pool/forgetting.html",
+        "readings/p8-pool/independent-snapshots.html",
+        "readings/p8-pool/pool-sampling.html",
+        "readings/p8-pool/pool-coverage.html",
+        "readings/p8-game/robustness.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-audit/fair-pairings.html",
+        "readings/p8-audit/uncertainty.html",
+        "readings/p8-audit/agent-lifecycle.html",
+        "readings/p8-audit/comparison-protocol.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/05-first-opponent-problem.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-pool/forgetting.html",
+        "readings/p8-pool/independent-snapshots.html",
+        "readings/p8-pool/pool-sampling.html",
+        "readings/p8-pool/pool-coverage.html",
+        "applications/self-play/self-play-mechanics.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html",
+      "module": "self-play",
+      "kind": "redirect",
+      "targets": [
+        "applications/self-play/self-play-mechanics.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-audit/fair-pairings.html",
+        "readings/p8-audit/uncertainty.html",
+        "readings/p8-audit/agent-lifecycle.html",
+        "readings/p8-audit/comparison-protocol.html",
+        "applications/self-play/self-play-evidence.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p8-game/best-response.html",
+        "readings/p8-game/payoff-matrices.html",
+        "readings/p8-game/mixed-equilibrium.html",
+        "readings/p8-game/robustness.html",
+        "readings/p8-pool/forgetting.html",
+        "readings/p8-pool/independent-snapshots.html",
+        "readings/p8-pool/pool-sampling.html",
+        "readings/p8-pool/pool-coverage.html",
+        "readings/p8-audit/fair-pairings.html",
+        "readings/p8-audit/uncertainty.html",
+        "readings/p8-audit/agent-lifecycle.html",
+        "readings/p8-audit/comparison-protocol.html",
+        "applications/self-play/self-play-mechanics.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+      "module": "self-play",
+      "kind": "redirect",
+      "targets": [
+        "applications/self-play/self-play-integration.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/10-reading-the-plan.html",
+      "module": "self-play",
+      "kind": "redirect",
+      "targets": [
+        "applications/self-play/self-play-evidence.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/11-glossary.html",
+      "module": "self-play",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#self-play"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/index.html",
+      "module": "self-play",
+      "kind": "redirect",
+      "targets": [
+        "modules/self-play.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "readings/p9-probability/policy-probabilities.html",
+        "readings/p9-probability/score-gradient.html",
+        "readings/p9-reinforce/gradient-intuition.html",
+        "readings/p9-reinforce/score-function.html",
+        "readings/p9-reinforce/reinforce-example.html",
+        "readings/p9-reinforce/sampled-update.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "readings/p9-advantage/value-baselines.html",
+        "readings/p9-advantage/baseline-proof.html",
+        "readings/p9-advantage/actor-critic.html",
+        "readings/p9-advantage/separate-gradients.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "readings/p9-gae/td-residuals.html",
+        "readings/p9-gae/lambda-sum.html",
+        "readings/p9-gae/reverse-recursion.html",
+        "readings/p9-gae/gae-boundaries.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "readings/p9-ppo/old-current.html",
+        "readings/p9-ppo/likelihood-ratios.html",
+        "readings/p9-ppo/clipping-branches.html",
+        "readings/p9-ppo/surrogate-limits.html",
+        "readings/p9-ppo/ppo-minibatches.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/library-choice.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/vector-library.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/workers.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/fair-budget.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "readings/p9-reinforce/gradient-intuition.html",
+        "readings/p9-reinforce/score-function.html",
+        "readings/p9-reinforce/reinforce-example.html",
+        "readings/p9-reinforce/sampled-update.html",
+        "readings/p9-advantage/value-baselines.html",
+        "readings/p9-advantage/baseline-proof.html",
+        "readings/p9-advantage/actor-critic.html",
+        "readings/p9-advantage/separate-gradients.html",
+        "readings/p9-ppo/old-current.html",
+        "readings/p9-ppo/likelihood-ratios.html",
+        "readings/p9-ppo/clipping-branches.html",
+        "readings/p9-ppo/surrogate-limits.html",
+        "readings/p9-ppo/ppo-minibatches.html",
+        "applications/policy-gradients/workers.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+      "module": "policy-gradients",
+      "kind": "choices",
+      "targets": [
+        "applications/policy-gradients/ppo-integration.html",
+        "applications/policy-gradients/vector-library.html",
+        "applications/policy-gradients/workers.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/11-reading-the-plan.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/ppo-integration.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/12-glossary.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "glossary.html#policy-gradients"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/index.html",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "modules/policy-gradients.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/01-rl-fundamentals.html#course-the-agent-environment-loop-b2d40b",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-loop/agent-environment-loop.html",
+        "applications/foundations/environment-contract.html",
+        "readings/p1-return/reward-return.html",
+        "applications/foundations/reward-units.html",
+        "readings/p1-loop/episode-endings.html",
+        "readings/p1-return/horizons.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-the-env-class-and-its-two-core-methods-a83361",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-loop/one-step.html",
+        "readings/p1-loop/episode-endings.html",
+        "readings/p1-loop/spaces-and-contract.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-check-env-validating-the-contract-51bcbe",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "readings/p1-loop/spaces-and-contract.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-the-formal-tuple-8b485e",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-state/mdp-model.html",
+        "readings/p1-state/markov-property.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-return-and-the-discount-factor-f88f33",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "readings/p1-return/discounting.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/03-value-functions-bellman.html#course-state-value-function-v-023959",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-values/state-action-values.html",
+        "readings/p1-values/bellman-backup.html",
+        "readings/p1-values/evaluation-optimality.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-policies-4fdf90",
+      "module": "foundations",
+      "kind": "redirect",
+      "targets": [
+        "readings/p1-values/policies-legal-actions.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-action-masking-0bc377",
+      "module": "foundations",
+      "kind": "choices",
+      "targets": [
+        "readings/p1-values/policies-legal-actions.html",
+        "applications/foundations/environment-contract.html"
+      ],
+      "fallback": "modules/foundations.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html#course-two-ways-to-solve-an-mdp-eb7092",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "readings/p35-backward/planning-learning.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html#course-starting-from-a-bellman-equation-you-already-have-87c244",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-backward/backward-induction.html",
+        "readings/p35-backward/finite-model.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "readings/p35-stochastic/weighted-backups.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8",
+      "module": "planning",
+      "kind": "redirect",
+      "targets": [
+        "readings/p35-stochastic/rare-outcomes.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html#course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7",
+      "module": "planning",
+      "kind": "choices",
+      "targets": [
+        "readings/p35-markov/transition-matrix.html",
+        "readings/p35-markov/sampling-not-foresight.html",
+        "readings/p35-markov/rollout-variability.html",
+        "readings/p35-markov/empirical-checks.html",
+        "applications/planning/oracle-bound.html"
+      ],
+      "fallback": "modules/planning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html#course-the-equation-hasn-t-changed-1a52f0",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-td/sampled-learning.html",
+        "readings/p4-td/td-error.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/02-q-learning-derived.html#course-the-full-update-6cd72b",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-td/q-learning.html",
+        "readings/p4-sarsa/policy-targets.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-greedy-only-fails-34b48c",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-explore/greedy-discovery.html",
+        "readings/p4-explore/epsilon-probabilities.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6",
+      "module": "tabular-learning",
+      "kind": "redirect",
+      "targets": [
+        "readings/p4-explore/exploration-schedules.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html#course-sarsa-s-update-e79c82",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-sarsa/sampled-sarsa.html",
+        "readings/p4-sarsa/policy-targets.html",
+        "readings/p4-sarsa/algorithm-comparison.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html#course-why-tabular-methods-need-a-finite-table-bbf2e7",
+      "module": "tabular-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p4-bins/table-representation.html",
+        "readings/p4-bins/state-aliasing.html"
+      ],
+      "fallback": "modules/tabular-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/01-table-to-function.html#course-the-tabular-update-restated-as-what-it-actually-is-719161",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html",
+        "readings/p5-network/adam-moments.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/01-table-to-function.html#course-function-approximation-defined-generally-52500f",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html",
+        "readings/p5-network/adam-moments.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/03-target-network.html#course-the-naive-idea-c54e39",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/03-target-network.html#course-snapshot-storage-and-detachment-are-separate-134cfd",
+      "module": "neural-value-learning",
+      "kind": "redirect",
+      "targets": [
+        "readings/p5-stability/target-detachment.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Dedicated topic equivalent destination."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/04-experience-replay.html#course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html",
+        "readings/p5-stability/replay.html",
+        "readings/p5-stability/complete-dqn-update.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-5-dqn-prerequisites/05-dueling-architecture.html#course-the-motivating-observation-1dd682",
+      "module": "neural-value-learning",
+      "kind": "choices",
+      "targets": [
+        "readings/p5-double-dueling/maximization-bias.html",
+        "readings/p5-double-dueling/double-selection.html",
+        "readings/p5-double-dueling/dueling-values.html",
+        "readings/p5-double-dueling/dueling-centering.html",
+        "readings/p5-double-dueling/double-dueling-masks.html",
+        "applications/neural-value-learning/dqn-integration.html"
+      ],
+      "fallback": "modules/neural-value-learning.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html#course-what-breaks-and-what-doesn-t-5aefbd",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-credit/joint-actions.html",
+        "readings/p6-credit/team-contribution.html",
+        "readings/p6-credit/credit-examples.html",
+        "readings/p6-credit/credit-diagnostics.html",
+        "applications/multiple-agents/multi-car-dynamics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-6-multi-car-prerequisites/02-credit-assignment.html#course-the-reward-phase-1-through-5-had-31dfdb",
+      "module": "multiple-agents",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-credit/joint-actions.html",
+        "readings/p6-credit/team-contribution.html",
+        "readings/p6-credit/credit-examples.html",
+        "readings/p6-credit/credit-diagnostics.html"
+      ],
+      "fallback": "modules/multiple-agents.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html#course-a-quick-recap-of-the-shield-c568ce",
+      "module": "self-play",
+      "kind": "choices",
+      "targets": [
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html",
+        "readings/p8-game/best-response.html",
+        "readings/p8-game/payoff-matrices.html",
+        "readings/p8-game/mixed-equilibrium.html",
+        "readings/p8-game/robustness.html"
+      ],
+      "fallback": "modules/self-play.html",
+      "reason": "Broad source spans several new purposes; present explicit choices rather than choosing a subsection."
+    },
+    {
+      "oldUrl": "phase-9-ppo-prerequisites/05-build-vs-buy.html#course-why-ppo-is-different-in-kind-not-just-longer-707fac",
+      "module": "policy-gradients",
+      "kind": "redirect",
+      "targets": [
+        "applications/policy-gradients/library-choice.html"
+      ],
+      "fallback": "modules/policy-gradients.html",
+      "reason": "Dedicated topic equivalent destination."
+    }
+  ]
+}

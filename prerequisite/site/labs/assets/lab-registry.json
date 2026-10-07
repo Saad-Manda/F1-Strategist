@@ -251,9 +251,10 @@
       ],
       "model": "chain",
       "references": [
-        "phase-1-rl-prerequisites/01-rl-fundamentals.html",
-        "phase-1-rl-prerequisites/04-gymnasium-api.html",
-        "phase-1-rl-prerequisites/05-building-the-environment.html"
+        "readings/p1-loop/agent-environment-loop.html",
+        "readings/p1-loop/one-step.html",
+        "readings/p1-loop/episode-endings.html",
+        "readings/p1-loop/spaces-and-contract.html"
       ],
       "planSections": [
         "Reset Method",
@@ -294,8 +295,10 @@
       ],
       "model": "switch",
       "references": [
-        "phase-1-rl-prerequisites/02-markov-decision-processes.html",
-        "phase-1-rl-prerequisites/06-this-project-as-mdp.html"
+        "readings/p1-state/state-observation.html",
+        "readings/p1-state/markov-property.html",
+        "readings/p1-state/mdp-model.html",
+        "readings/p1-state/missing-information.html"
       ],
       "planSections": [
         "Observation Builder"
@@ -330,8 +333,10 @@
       ],
       "model": "trajectory",
       "references": [
-        "phase-1-rl-prerequisites/02-markov-decision-processes.html",
-        "phase-1-rl-prerequisites/03-value-functions-bellman.html"
+        "readings/p1-return/reward-return.html",
+        "readings/p1-return/discounting.html",
+        "readings/p1-return/horizons.html",
+        "readings/p1-return/return-calculation.html"
       ],
       "planSections": [
         "Reward design",
@@ -369,8 +374,11 @@
       ],
       "model": "branch",
       "references": [
-        "phase-1-rl-prerequisites/03-value-functions-bellman.html",
-        "phase-1-rl-prerequisites/02-markov-decision-processes.html"
+        "readings/p1-values/policies-legal-actions.html",
+        "readings/p1-values/state-action-values.html",
+        "readings/p1-values/bellman-backup.html",
+        "readings/p1-values/expectation-maximization.html",
+        "readings/p1-values/evaluation-optimality.html"
       ],
       "planSections": [
         "Shared Action Mask",
@@ -409,9 +417,10 @@
       ],
       "model": "branch",
       "references": [
-        "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
-        "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
-        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html"
+        "readings/p35-backward/planning-learning.html",
+        "readings/p35-backward/finite-model.html",
+        "readings/p35-backward/backward-induction.html",
+        "readings/p35-backward/verify-solver.html"
       ],
       "planSections": [
         "Backward induction",
@@ -448,8 +457,10 @@
       ],
       "model": "lottery",
       "references": [
-        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
-        "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html"
+        "readings/p35-stochastic/expectation-refresher.html",
+        "readings/p35-stochastic/weighted-backups.html",
+        "readings/p35-stochastic/rare-outcomes.html",
+        "readings/p35-stochastic/stochastic-solver.html"
       ],
       "planSections": [
         "Expected immediate cost",
@@ -488,9 +499,10 @@
       ],
       "model": "weather",
       "references": [
-        "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
-        "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
-        "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html"
+        "readings/p35-markov/transition-matrix.html",
+        "readings/p35-markov/sampling-not-foresight.html",
+        "readings/p35-markov/rollout-variability.html",
+        "readings/p35-markov/empirical-checks.html"
       ],
       "planSections": [
         "Oracle A",
@@ -530,9 +542,10 @@
       ],
       "model": "td",
       "references": [
-        "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
-        "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
-        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+        "readings/p4-td/sampled-learning.html",
+        "readings/p4-td/td-error.html",
+        "readings/p4-td/q-learning.html",
+        "readings/p4-td/terminal-masked-targets.html"
       ],
       "planSections": [
         "Q-Learning Agent"
@@ -570,8 +583,10 @@
       ],
       "model": "bandit",
       "references": [
-        "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
-        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+        "readings/p4-explore/greedy-discovery.html",
+        "readings/p4-explore/epsilon-probabilities.html",
+        "readings/p4-explore/behavior-evaluation.html",
+        "readings/p4-explore/exploration-schedules.html"
       ],
       "planSections": [
         "Q-Learning Agent",
@@ -613,8 +628,10 @@
       ],
       "model": "shortcut",
       "references": [
-        "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
-        "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+        "readings/p4-sarsa/policy-targets.html",
+        "readings/p4-sarsa/sampled-sarsa.html",
+        "readings/p4-sarsa/expected-sarsa.html",
+        "readings/p4-sarsa/algorithm-comparison.html"
       ],
       "planSections": [
         "SARSA Agent",
@@ -656,8 +673,10 @@
       ],
       "model": "bins",
       "references": [
-        "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
-        "phase-4-q-learning-prerequisites/06-the-binning-bug.html"
+        "readings/p4-bins/table-representation.html",
+        "readings/p4-bins/interval-boundaries.html",
+        "readings/p4-bins/state-aliasing.html",
+        "readings/p4-bins/encoder-checks.html"
       ],
       "planSections": [
         "Design the State Binning",
@@ -696,8 +715,11 @@
       ],
       "model": "regression",
       "references": [
-        "phase-5-dqn-prerequisites/01-table-to-function.html",
-        "phase-5-dqn-prerequisites/02-neural-networks-primer.html"
+        "readings/p5-network/tables-functions.html",
+        "readings/p5-network/vectors-shapes.html",
+        "readings/p5-network/forward-loss.html",
+        "readings/p5-network/gradients.html",
+        "readings/p5-network/optimizer-update.html"
       ],
       "planSections": [
         "Dueling MLP Network"
@@ -740,8 +762,10 @@
       ],
       "model": "replay",
       "references": [
-        "phase-5-dqn-prerequisites/03-target-network.html",
-        "phase-5-dqn-prerequisites/04-experience-replay.html"
+        "readings/p5-stability/moving-targets.html",
+        "readings/p5-stability/target-detachment.html",
+        "readings/p5-stability/replay.html",
+        "readings/p5-stability/complete-dqn-update.html"
       ],
       "planSections": [
         "Dueling Double DQN Agent",
@@ -784,8 +808,11 @@
       ],
       "model": "double",
       "references": [
-        "phase-5-dqn-prerequisites/05-dueling-architecture.html",
-        "phase-5-dqn-prerequisites/06-double-dqn.html"
+        "readings/p5-double-dueling/maximization-bias.html",
+        "readings/p5-double-dueling/double-selection.html",
+        "readings/p5-double-dueling/dueling-values.html",
+        "readings/p5-double-dueling/dueling-centering.html",
+        "readings/p5-double-dueling/double-dueling-masks.html"
       ],
       "planSections": [
         "Dueling MLP Network",
@@ -827,8 +854,10 @@
       ],
       "model": "priorities",
       "references": [
-        "phase-5-dqn-prerequisites/04-experience-replay.html",
-        "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html"
+        "readings/p5-per/prioritize-errors.html",
+        "readings/p5-per/priority-probability.html",
+        "readings/p5-per/importance-weights.html",
+        "readings/p5-per/priority-updates.html"
       ],
       "planSections": [
         "Prioritized Experience Replay Buffer"
@@ -870,8 +899,10 @@
       ],
       "model": "team",
       "references": [
-        "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
-        "phase-6-multi-car-prerequisites/02-credit-assignment.html"
+        "readings/p6-credit/joint-actions.html",
+        "readings/p6-credit/team-contribution.html",
+        "readings/p6-credit/credit-examples.html",
+        "readings/p6-credit/credit-diagnostics.html"
       ],
       "planSections": [
         "Reward Design Comparison Protocol"
@@ -909,8 +940,10 @@
       ],
       "model": "shaping",
       "references": [
-        "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
-        "phase-6-multi-car-prerequisites/08-build-it-yourself.html"
+        "readings/p6-shaping/base-bonuses.html",
+        "readings/p6-shaping/potential-differences.html",
+        "readings/p6-shaping/telescoping.html",
+        "readings/p6-shaping/shaping-conditions.html"
       ],
       "planSections": [
         "Reward Design Comparison Protocol"
@@ -950,9 +983,10 @@
       ],
       "model": "congestion",
       "references": [
-        "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
-        "phase-6-multi-car-prerequisites/06-bug-ledger.html",
-        "phase-6-multi-car-prerequisites/07-non-stationarity.html"
+        "readings/p6-opponent/interaction-mechanics.html",
+        "readings/p6-opponent/opponent-transitions.html",
+        "readings/p6-opponent/missing-changing.html",
+        "readings/p6-opponent/opponent-evaluation.html"
       ],
       "planSections": [
         "Implement `src/env/overtaking.py`",
@@ -995,8 +1029,10 @@
       ],
       "model": "rps",
       "references": [
-        "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
-        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+        "readings/p8-game/best-response.html",
+        "readings/p8-game/payoff-matrices.html",
+        "readings/p8-game/mixed-equilibrium.html",
+        "readings/p8-game/robustness.html"
       ],
       "planSections": [
         "Background: Why Self-Play Needs Special Handling"
@@ -1032,9 +1068,10 @@
       ],
       "model": "rps",
       "references": [
-        "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
-        "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
-        "phase-8-self-play-prerequisites/05-first-opponent-problem.html"
+        "readings/p8-pool/forgetting.html",
+        "readings/p8-pool/independent-snapshots.html",
+        "readings/p8-pool/pool-sampling.html",
+        "readings/p8-pool/pool-coverage.html"
       ],
       "planSections": [
         "Checkpoint Pool"
@@ -1076,9 +1113,10 @@
       ],
       "model": "rps",
       "references": [
-        "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
-        "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
-        "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+        "readings/p8-audit/fair-pairings.html",
+        "readings/p8-audit/uncertainty.html",
+        "readings/p8-audit/agent-lifecycle.html",
+        "readings/p8-audit/comparison-protocol.html"
       ],
       "planSections": [
         "PettingZoo Environment",
@@ -1124,8 +1162,10 @@
       ],
       "model": "bandit",
       "references": [
-        "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
-        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+        "readings/p9-reinforce/gradient-intuition.html",
+        "readings/p9-reinforce/score-function.html",
+        "readings/p9-reinforce/reinforce-example.html",
+        "readings/p9-reinforce/sampled-update.html"
       ],
       "planSections": [
         "Implement `src/agents/ppo_agent.py`"
@@ -1166,8 +1206,10 @@
       ],
       "model": "bandit",
       "references": [
-        "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
-        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+        "readings/p9-advantage/value-baselines.html",
+        "readings/p9-advantage/baseline-proof.html",
+        "readings/p9-advantage/actor-critic.html",
+        "readings/p9-advantage/separate-gradients.html"
       ],
       "planSections": [
         "Implement `src/agents/ppo_agent.py`"
@@ -1210,7 +1252,10 @@
       ],
       "model": "gae",
       "references": [
-        "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html"
+        "readings/p9-gae/td-residuals.html",
+        "readings/p9-gae/lambda-sum.html",
+        "readings/p9-gae/reverse-recursion.html",
+        "readings/p9-gae/gae-boundaries.html"
       ],
       "planSections": [
         "PPO Hyperparameters"
@@ -1250,12 +1295,11 @@
       ],
       "model": "ppo",
       "references": [
-        "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
-        "phase-9-ppo-prerequisites/05-build-vs-buy.html",
-        "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
-        "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
-        "phase-9-ppo-prerequisites/08-unfair-comparison.html",
-        "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+        "readings/p9-ppo/old-current.html",
+        "readings/p9-ppo/likelihood-ratios.html",
+        "readings/p9-ppo/clipping-branches.html",
+        "readings/p9-ppo/surrogate-limits.html",
+        "readings/p9-ppo/ppo-minibatches.html"
       ],
       "planSections": [
         "SB3-Compatible Action Masking Wrapper",
