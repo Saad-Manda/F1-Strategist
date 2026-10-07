@@ -15,15 +15,16 @@ def test_isolated_copy_generates_checks_and_packages_without_parent_project(tmp_
     env = dict(os.environ)
     env.pop('PYTHONPATH', None)
     # Deliberately invoke from outside the project so cwd-based resolution fails.
-    def run(*args, timeout=90):
+    def run(*args, timeout=600):
         result = subprocess.run(args, cwd=tmp_path, env=env, capture_output=True, text=True, encoding='utf-8', timeout=timeout)
         assert result.returncode == 0, result.stdout + result.stderr
         return result
     assert not (target.parent / '.antigravity').exists()
     assert not (target.parent / 'src').exists()
+    # Complete generator/test/archive suites need more time than one check on Windows.
     run(sys.executable, str(target / 'scripts/check_project.py'))
     run(sys.executable, '-m', 'pytest', str(target / 'tests/test_curriculum.py'),
-        str(target / 'tests/test_course_inventory.py'), str(target / 'tests/test_p1_loop.py'),
+        str(target / 'tests/test_course_v2.py'), str(target / 'tests/test_p1_loop.py'),
         str(target / 'tests/test_course_pages.py'),
         str(target / 'tests/test_course_navigation.py'),
         '-p', 'no:cacheprovider', '-q')

@@ -7,18 +7,18 @@ import sys,threading,urllib.request,zipfile,json
 SCRIPTS=Path(__file__).resolve().parents[1]/'scripts'
 sys.path.insert(0,str(SCRIPTS))
 from build_catalog import SITE,load_registry
-from build_reading_links import mappings,outputs
+from course import load_course
+from build_readings import render_outputs
 from build_static_delivery import archive_bytes,validate_delivery
 
 def test_contextual_links_cover_every_mapped_reading_and_phase():
-    for path,labs in mappings().items():
-        source=path.read_text(encoding='utf-8')
-        if path.name == 'index.html' and '<!-- Course reference -->' in source:
-            assert 'href="../roadmap.html"' in source
-            assert 'href="../library.html"' in source
-            continue
-        for lab in labs:assert f'../labs/{lab["route"]}' in source
-    for path,source in outputs().items():assert path.read_text(encoding='utf-8')==source
+    course=load_course();readings={r['id']:r for r in course['readings']}
+    for lesson in course['lessons']:
+        if lesson['practice']:
+            source=(SITE/readings[lesson['required'][-1]]['route']).read_text(encoding='utf-8')
+            assert lesson['practice']['labId']+'.html?lesson='+lesson['id'] in source
+    outputs,pages=render_outputs()
+    for route,source in {**outputs,**pages}.items():assert (SITE/route).read_text(encoding='utf-8')==source
 
 def test_static_delivery_is_independent_and_archive_is_reproducible(tmp_path):
     payload=archive_bytes();assert payload==archive_bytes()
@@ -31,9 +31,9 @@ def test_static_delivery_is_independent_and_archive_is_reproducible(tmp_path):
     assert any('invalid static asset' in e for e in validate_delivery(tmp_path))
     registry=tmp_path/'assets'/'course-registry.json'
     course=json.loads(registry.read_text(encoding='utf-8'))
-    course['resources'][0]['route']='../private.html'
+    course['readings'][0]['route']='../private.html'
     registry.write_text(json.dumps(course),encoding='utf-8')
-    assert any('invalid reading route' in e for e in validate_delivery(tmp_path))
+    assert any('noncanonical route' in e for e in validate_delivery(tmp_path))
 
 def test_extracted_site_serves_root_and_subdirectory_without_rewrites(tmp_path):
     with zipfile.ZipFile(BytesIO(archive_bytes())) as z:z.extractall(tmp_path/'prerequisites')

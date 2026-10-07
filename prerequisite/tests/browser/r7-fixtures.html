@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Disposable R7 migration fixture</title></head><body>
+<h1>Disposable R7 migration fixture</h1><p>Use only on a fresh local review origin. Existing course or lab data is never overwritten.</p>
+<label>Fixture type<select id="fixture"><option value="combined">Legacy course and lab work</option><option value="lab-only">Legacy lab work only</option><option value="corrupt">Corrupt legacy course</option></select></label>
+<button id="seed">Create synthetic legacy progress</button><p id="status" role="status"></p><a href="../../site/index.html">Open active course</a>
+<script>
+const lab={version:1,labs:{'p1-loop':{attempts:3,prediction:'terminal',explanation:'Synthetic R7 review: final observations and ending flags checked.',status:'completed',hints:2,solution:true,verified:true}}};
+const course={version:1,readings:['phase-1-rl-prerequisites/04-gymnasium-api.html'],browser:['p1-loop'],checks:{},resume:{kind:'lesson',lesson:'p1-loop',step:'python'}};
+document.querySelector('#seed').onclick=()=>{
+ if(['rl-course:v1','rl-course:v2','rl-labs:v1','rl-course:transaction:v2','rl-course:migration-backup:v1'].some(key=>localStorage.getItem(key)!==null)){document.querySelector('#status').textContent='Existing data protected; use another fresh origin.';return;}
+ const type=document.querySelector('#fixture').value;
+ if(type!=='lab-only')localStorage.setItem('rl-course:v1',type==='corrupt'?'{invalid':JSON.stringify(course));
+ localStorage.setItem('rl-labs:v1',JSON.stringify(lab));
+ document.querySelector('#status').textContent='Synthetic fixture created: '+type+'.';
+};
+</script></body></html>

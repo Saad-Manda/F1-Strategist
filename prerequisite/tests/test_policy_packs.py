@@ -53,16 +53,19 @@ def test_alternative_forward_sum_gae(tmp_path):
     assert run.returncode==0,run.stdout+run.stderr
 
 def test_reading_toy_ppo_differentiates_both_advantage_signs():
-    import html,math,re
-    source=(LABS.parent/'phase-9-ppo-prerequisites'/'09-build-it-yourself.html').read_text(encoding='utf-8')
-    blocks=[html.unescape(x) for x in re.findall(r'<pre><code>(.*?)</code></pre>',source,re.S)]
-    scope={};exec(blocks[0],scope)
-    function=next(b for b in blocks if b.startswith('def clipped_update')).split('agent2, history2')[0]
-    exec(function,scope)
-    for ratio,adv,flat in ((1.3,1,True),(.7,1,False),(.7,-1,True),(1.3,-1,False)):
-        agent=scope['ToyChooser']();p=.5*ratio;agent.logits['R']=math.log(p/(1-p));old=dict(R=.5,P=.5)
-        before=dict(agent.logits);grad,_=agent.log_grad('R')
-        scope['clipped_update'](agent,'R',adv,0,old,n_epochs=1,step=.01)
-        for action in ('R','P'):
-            expected=before[action]+(0 if flat else .01*ratio*adv*grad[action])
-            assert math.isclose(agent.logits[action],expected,abs_tol=1e-12)
+    import html,re,torch
+    course=json.loads((ROOT/'content/course-registry.json').read_text(encoding='utf-8'))
+    scope={}
+    for reading in course['readings']:
+        if reading['module']!='policy-gradients':continue
+        source=(ROOT/reading['source']).read_text(encoding='utf-8')
+        for block in re.findall(r'<pre><code>(.*?)</code></pre>',source,re.S):
+            exec(html.unescape(block),scope)
+    old=torch.zeros(4,dtype=torch.float64,requires_grad=True)
+    new=torch.tensor([1.3,.7,.7,1.3],dtype=torch.float64).log().requires_grad_()
+    advantages=torch.tensor([1.,1.,-1.,-1.],dtype=torch.float64,requires_grad=True)
+    loss=scope['ppo_loss'](new,old,advantages)
+    loss.backward()
+    assert torch.allclose(loss,torch.tensor(.05,dtype=torch.float64))
+    assert torch.allclose(new.grad,torch.tensor([0.,-.175,0.,.325],dtype=torch.float64))
+    assert old.grad is None and advantages.grad is None
