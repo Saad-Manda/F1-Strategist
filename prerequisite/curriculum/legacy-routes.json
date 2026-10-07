@@ -1,0 +1,1029 @@
+[
+  {
+    "route": "index.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "d46e923c11af7b9f1f537c99fe5c856f56eaa156c1ebda14faaa79e0f90125bd"
+  },
+  {
+    "route": "labs/index.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "5f2acd5ebbee6079a4a90188948554c2ccfbc2ec4d23dff0b74a56d00362a264"
+  },
+  {
+    "route": "labs/phase-1/p1-loop.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "669294927168017c52199c6045192da356c1a09eab8d3b48c5bbfbb7ae89b9d2"
+  },
+  {
+    "route": "labs/phase-1/p1-return.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "c550a2f1b8df1e2ad94d1b04fb1c5bb9607d1558e29eb008fc21571c27feff88"
+  },
+  {
+    "route": "labs/phase-1/p1-state.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "27d6566cb703c4089866035d71d011ff0a93b7292eaac763f9a1ec59c0af74e7"
+  },
+  {
+    "route": "labs/phase-1/p1-values.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "bf1cf776dc51d86edb574a187d1e066a8aef58818c7e48015010f2073549591c"
+  },
+  {
+    "route": "labs/phase-3.5/p35-backward.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "fa2987b1fa064764655771e7a3d3c01b4e328f8e7932ee3fd800b841cecda6a3"
+  },
+  {
+    "route": "labs/phase-3.5/p35-markov.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "4e447f5bc6e05032b787375074eb5e3ee60ee7dfb307ddc6024234d79103ffac"
+  },
+  {
+    "route": "labs/phase-3.5/p35-stochastic.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "61b2f54e047872f510a838b14380a0f4d990e17b777c9d70f55181de8604b874"
+  },
+  {
+    "route": "labs/phase-4/p4-bins.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "3772da7aca8bf157e036ef01709d165b1f3c7c678d57be2dde94981ef0bac1be"
+  },
+  {
+    "route": "labs/phase-4/p4-explore.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "ec621c26eb5f6584e627f4457c18e721fcd1044cf7fa35675a08b8f3f88facb4"
+  },
+  {
+    "route": "labs/phase-4/p4-sarsa.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "f23a3e272c716f09e3ce99f4defa720f238bca6645bd81fa5dc61c64fd18f7cb"
+  },
+  {
+    "route": "labs/phase-4/p4-td.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "48a54b80cd725d32a5d3804167e5634553864cccdd213309bca5e3483761df7e"
+  },
+  {
+    "route": "labs/phase-5/p5-double-dueling.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "b44c2907a092e9235716f914eeb3a9db80384c1c4c2c34742fbd80efbbe2742f"
+  },
+  {
+    "route": "labs/phase-5/p5-network.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "3d1679231013e6f1b976881edac62595afc32dad29b00dd3ba9ceb81f0a767d2"
+  },
+  {
+    "route": "labs/phase-5/p5-per.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "311a7bb46e69e0bdd41c2509ad54f8590decaefcd67f17e1b9ab85a8fabc97e1"
+  },
+  {
+    "route": "labs/phase-5/p5-stability.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "5d6c1089eb99fe672ebcfaa4ce7361e2b7fc6747ed09f63b1725ea902b78171e"
+  },
+  {
+    "route": "labs/phase-6/p6-credit.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "af5ae15d2b4bdcf5be2829f43282405ce670f1b77b4fb73a7e405862f065abd2"
+  },
+  {
+    "route": "labs/phase-6/p6-opponent.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "87bbfa6b5fbde67dbacaa01bed830916a3c1ae7ab0ebdba4c0a56d6ff1d8f2e7"
+  },
+  {
+    "route": "labs/phase-6/p6-shaping.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "5ce0bdd292184ae6ba7d555ab21fb72b7dbed00dc300544b4dedba83ec45e9b7"
+  },
+  {
+    "route": "labs/phase-8/p8-audit.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "7d1580c22be1db76b9eff0c93668b6b21fd275adc466f1c6e371b64b4d61ad93"
+  },
+  {
+    "route": "labs/phase-8/p8-game.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "8debc84bf7c5fda07f14cb34b81b096d0ba54f970c89a6608f4a7f289433b986"
+  },
+  {
+    "route": "labs/phase-8/p8-pool.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "6501c50733be6e0e7bdbace41e0a26b44aeea221581f57968bfbc87cd8208409"
+  },
+  {
+    "route": "labs/phase-9/p9-advantage.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "d78de7ece66400f9fc29135257c3e0c5407c425343f329e3ca84abfb706ada9d"
+  },
+  {
+    "route": "labs/phase-9/p9-gae.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "d5a0291b191bf73f023e0869552aa2bc8c68fac09dcd9c92b2308ad0f0c45496"
+  },
+  {
+    "route": "labs/phase-9/p9-ppo.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "0178e73e4a57fb908617f877135fc48ff6ce68fce5c474f2dc9de1fa58fc62c1"
+  },
+  {
+    "route": "labs/phase-9/p9-reinforce.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "cac466c1ac0383f7f227a9355ef2dd802a8803272b67f59140a399d3acaf1160"
+  },
+  {
+    "route": "lessons/p1-loop.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "09f65670224b65a0f164d27bb59f76b6ebbfaf2b317649275d2dd2dd8ad82a86"
+  },
+  {
+    "route": "lessons/p1-return.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "a131dfe84a36b4271622335848c3074bbec28a3bd060e52bcf1163a38274e26c"
+  },
+  {
+    "route": "lessons/p1-state.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "f638607ee3c1aa184e025dbddd93bee3fc5c84dc4fdb899a90ba61ef14ace7a0"
+  },
+  {
+    "route": "lessons/p1-values.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "bf4bb82f183559633a1fe38394252e34c38a0be01eee2a07e1ec43dffdd6a6b0"
+  },
+  {
+    "route": "lessons/p35-backward.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "fd686c3593343d4914ed02bff31d06016954289d764ec6a72c87e1533a078251"
+  },
+  {
+    "route": "lessons/p35-markov.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "9e1db17d990e0678181e31898441d2816e96ee51a75b4ea97aa65a8fba2887f7"
+  },
+  {
+    "route": "lessons/p35-stochastic.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "dba83c3d00c0a87bc4df25f7e690b22781e273f986ecb06b95b400056bfa15a3"
+  },
+  {
+    "route": "lessons/p4-bins.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "d677b5903c20ba9555b3204686b5e70a5fb33a9bb914eb12dfcc916cc4df5fae"
+  },
+  {
+    "route": "lessons/p4-explore.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "728640c81c89406afd7ae03271375882ec7e2963358a995c17062948a3c8917f"
+  },
+  {
+    "route": "lessons/p4-sarsa.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "0ab1d36170bffc632df1ea0fc60d3baceedaa913bfb63c49f19c6269068f8bb0"
+  },
+  {
+    "route": "lessons/p4-td.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "f643545981ba5c0613bef32e89504f3fcd284802d5e4141c2207d2df82b19ac9"
+  },
+  {
+    "route": "lessons/p5-double-dueling.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "73d5c54065d1eae12c93bfe49ecfc0031ef6e0df20e6d76ae77f892fcca76905"
+  },
+  {
+    "route": "lessons/p5-network.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "501f51bd1ee599bd37262df22d1b577e91436700a096e360e46efb472181a568"
+  },
+  {
+    "route": "lessons/p5-per.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "eb1b06bf5af393e10c699a2988df07836c62939a6ab2da111c171fd15b4b8034"
+  },
+  {
+    "route": "lessons/p5-stability.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "7485f8939b407258830704f4518e2d5d6020358d94a2b5734abfdaa98d19c651"
+  },
+  {
+    "route": "lessons/p6-credit.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "eba71be8a499365d73f911f784d189ec047c445f7c521f10bb7e64c31595783b"
+  },
+  {
+    "route": "lessons/p6-opponent.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "33f2f6e8ddbfda0b752866cc7d67ecc0f7535d314efdd6cf7fa426541c57474c"
+  },
+  {
+    "route": "lessons/p6-shaping.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "6f9041170f2c6ac4f8ea5e43ce7411932664d266bac9dd6aeeec1e40a6eff15f"
+  },
+  {
+    "route": "lessons/p8-audit.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "2fd268e2269b7624f0cc72ae1fc2d931a0bad3e984903bb1f54d6d35a4ad8745"
+  },
+  {
+    "route": "lessons/p8-game.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "14562582027963bc1683b116165d03fbfd18f5a4542ef54be23019bf883d5abe"
+  },
+  {
+    "route": "lessons/p8-pool.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "48f0fb7b1e06bbb4aed5daf8bd0c24e507639b1e867e38a5cde65322e4710c09"
+  },
+  {
+    "route": "lessons/p9-advantage.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "fb3b287c8a7ab20ad0b05d9a647f0fc9a8efc532229f5714d8ec24644274e525"
+  },
+  {
+    "route": "lessons/p9-gae.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "7acdd16d875502b0a37a0525d7e06ddc1a58d4d9917cb815b54f5eed31b15e47"
+  },
+  {
+    "route": "lessons/p9-ppo.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "6e4b25f7922fb1a00d17b099b3c3b9cde0aa3def2f887b170c1024e44758f6c6"
+  },
+  {
+    "route": "lessons/p9-reinforce.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "e1729746876acb9a4df20bd18760988997cfb4ccd7a6fe245344d940f8b3a1eb"
+  },
+  {
+    "route": "library.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "1d121339beea21a3c4f27884e724506aa8db83594a62a2d9307ae2a9fa0b6edb"
+  },
+  {
+    "route": "modules/foundations.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "8a4b5050bda99da27c17bb252b48d963f805e4ad49445d692c76b5a3db5217a1"
+  },
+  {
+    "route": "modules/multiple-agents.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "53d712168eabc26761cbbefafb407e7ba768cdbdd6e76f4f5636226407b58058"
+  },
+  {
+    "route": "modules/neural-value-learning.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "9202dfe4fc7765651106e0f4ff80144634acf041ce731344b9cfa10c97dabdb7"
+  },
+  {
+    "route": "modules/planning.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "4f31390bf9de5a77ce8cf50a6f98c8c5355aa225411db3a247fcb154e42a0f2b"
+  },
+  {
+    "route": "modules/policy-gradients.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "a53b19ca0a2429a1e9f62ad233e63c60423251d97b0134a794e27700f864bf56"
+  },
+  {
+    "route": "modules/self-play.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "077e55e36b333cf74fffbd8dc273836e0d10ddf475f38cbaa409d210f02ab55f"
+  },
+  {
+    "route": "modules/tabular-learning.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "1d95c3597f5917e7b4e8c524d4bb452f31a07d9a78b8bb43b2d614930df56b20"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "phase-1-rl-prerequisites/01-rl-fundamentals.html#course-the-agent-environment-loop-b2d40b"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "50fee290a3f4b02819a5ef3c3166d27a35d06273439eb28f319b0d64406f0b5a"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-the-formal-tuple-8b485e",
+      "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-return-and-the-discount-factor-f88f33",
+      "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-policies-4fdf90",
+      "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-action-masking-0bc377"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "5c3176e687351c0972fb1fcfcbb7e042bac534c5fc5fa1eec45d5ac7a1b98a03"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "phase-1-rl-prerequisites/03-value-functions-bellman.html#course-state-value-function-v-023959"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "dd022710057201877d65a6c31407ae4dcb96b24611fa62b29836f135d18c2781"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "phase-1-rl-prerequisites/04-gymnasium-api.html#course-the-env-class-and-its-two-core-methods-a83361",
+      "phase-1-rl-prerequisites/04-gymnasium-api.html#course-check-env-validating-the-contract-51bcbe"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "c9c7473f2027f3820a95e8c35b7b81659f7c9e15953e9c5fa417f1765b3661cb"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/05-building-the-environment.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/05-building-the-environment.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "c8cd1ea36d68b15f2f70b4b258196722e05a156be4ffab79c632f1db66e8f21b"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/06-this-project-as-mdp.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "2a0ea4bd5d190e311e3a4ae8825e124f813a2f762350dedd266c377553e6d59d"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/07-code-walkthrough.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/07-code-walkthrough.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "96655bf9ac4d59b97a279d5073bbe5f2cc2158a11330aa7a7a8b077cacf0091f"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/08-glossary.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/08-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "5edf6bd308e44c2c40b2c968d45170fdc27508d50a75a172e44e56e0f15a5db6"
+  },
+  {
+    "route": "phase-1-rl-prerequisites/index.html",
+    "resourceIds": [
+      "phase-1-rl-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "01bb173434d28e53ff32505efc30bad360efd9b6a5dbd8d064407ce45e2b846a"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html#course-two-ways-to-solve-an-mdp-eb7092"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "a9c815872fb876d9857496fc648074e1879cf067633d77dcc51dd5c8cf9a5d8f"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html#course-starting-from-a-bellman-equation-you-already-have-87c244"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "078f1c95747164854a9a5f122b251626dcabe67a4fe7a84b9f0014e8a1619498"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+      "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "bcffff1244b5b6445a6e355e16e5d661bfcea145a907965583ffc71834cce985"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html#course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "e63991a2b3d826d6d8e9fd3c989d4ea67da418c447bd6ea97740fd805c10fcb4"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "cbd5491f6b6ab2bfd3a89979d8dbbd8b78ac228dbb9a1c434eccd361ba7332f2"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "e15ed84dd2ea586959204f5e38d4bc78b40286de3e6c21e7dd3d5505b4909969"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "efcd1f46fc560d5f1f8adfb31cb6be1811430e0b5f93ec41056b1f6c0f0055f7"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/08-glossary.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/08-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "b43df0eb3011eb3d9d522cc797404a27c7ecb10bfd2cfb5a92f8f15c295e975a"
+  },
+  {
+    "route": "phase-3.5-dp-oracle-prerequisites/index.html",
+    "resourceIds": [
+      "phase-3.5-dp-oracle-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "5c3990b40960aa9cef1db49fd74ebdd9d72784b236187fa94ea8b38bd0874c01"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html#course-the-equation-hasn-t-changed-1a52f0"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "aed4a2044a2eaa05f4c2d063b3a115a84f4574ac51e946182f523959985bde38"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "phase-4-q-learning-prerequisites/02-q-learning-derived.html#course-the-full-update-6cd72b"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "85c969551e7dbdf9ae6489790aad32d96261a70351a569566f0a79cd565eb61a"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-greedy-only-fails-34b48c",
+      "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "dfe2862053aee010a40842bcf1c89a77c01ca45bf119b240c7b312d4509e84c0"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html#course-sarsa-s-update-e79c82"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "23c5f9e66d702c451d285bcf73263f329c99db6bcc1af2ea98bdb405e9de96da"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html#course-why-tabular-methods-need-a-finite-table-bbf2e7"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "90088a18493bca3be6f664f637b5709bec7fc76db72b5efb198fb289772b1591"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/06-the-binning-bug.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/06-the-binning-bug.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "81bd5bd18ae43f2f81af98baa9f0d31b351a6af15ce83429e2c5030ef6b2a5c1"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/07-build-it-yourself.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "f70f7e92bd2089f978be8b4c30811b03155fb09775b6dab84d7cbf1687773935"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/08-this-project-formalized.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "4147a8d348a644311b5dbd8b2f8d3e9ad96d0f37b20b3e94287c42cd2b847bf0"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/09-code-walkthrough.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/09-code-walkthrough.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "9713bb5115ee15d3b4f06ab204ad9d36dc66c71e50d6e9e78681dde1608ba6ac"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/10-glossary.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/10-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "d34a2073a08dbb650204b4f1b42ac3ea502fd907d1c8c700fd84b17f50e52956"
+  },
+  {
+    "route": "phase-4-q-learning-prerequisites/index.html",
+    "resourceIds": [
+      "phase-4-q-learning-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "7d93252fe524843983c036227585fae4d4bde97c3dd0b556e3ae9bea26e37f70"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/01-table-to-function.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "phase-5-dqn-prerequisites/01-table-to-function.html#course-the-tabular-update-restated-as-what-it-actually-is-719161",
+      "phase-5-dqn-prerequisites/01-table-to-function.html#course-function-approximation-defined-generally-52500f"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "0f7476e099ad183713a519c86d56bc39f8586b177b8445d84322e4ca16cf2aeb"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/02-neural-networks-primer.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/02-neural-networks-primer.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "bfa6bef8c6b4af25ebb2b0fd3846600e592ee994952f5c737cad1b6b80ed6433"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/03-target-network.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/03-target-network.html",
+      "phase-5-dqn-prerequisites/03-target-network.html#course-the-naive-idea-c54e39",
+      "phase-5-dqn-prerequisites/03-target-network.html#course-snapshot-storage-and-detachment-are-separate-134cfd"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "fdc6227f807adb84786ce55be3e23964275948db7c7e45d04662f0ccbeb18381"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/04-experience-replay.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "phase-5-dqn-prerequisites/04-experience-replay.html#course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "89f3147bf4fe1a88f0143888898f5b11960f8f6b9644f806de2fbb74c2802abf"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "phase-5-dqn-prerequisites/05-dueling-architecture.html#course-the-motivating-observation-1dd682"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "40e53a0a486aa6a2b03f663ff44eb3b82570e88adc7967cea01caec27771e09b"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/06-double-dqn.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/06-double-dqn.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "9076c1c61c4059ab5a0e4b97c2f9d09658885eaab2f2e4f49ae5e0ca10762764"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "bfce8d94a581738bf5da8951107acba5706b3d89fa47f3f9ecb37853de93bcc5"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/08-reward-scale-trap.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/08-reward-scale-trap.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "f9446449fd4f92c66eee507dd53ae44a50fb64ebad325f4198f5a06c56716799"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/09-build-it-yourself.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "78c8fe3e0fca655b9080efe52c36323fafaff7f6c8cb9537128f4fd5738ccc30"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/10-this-project-formalized.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "973ed16d37d6f96dea31ab63c988202e19140bbf8b912e98e79981d81522e4b4"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/11-code-walkthrough.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/11-code-walkthrough.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "bf9ef81658a61a7ab426d3468a91a0a878e16f7ba3131127e9e81f6347e6bdc0"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/12-glossary.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/12-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "f2f7abc30ce8ffb0f0dae85fef0132220b3cf48829ee2022d14a2b6810defba2"
+  },
+  {
+    "route": "phase-5-dqn-prerequisites/index.html",
+    "resourceIds": [
+      "phase-5-dqn-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "5412162744e41dbe9bc631f50d10b21923024d1e821d0b9316af39a29774088d"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "phase-6-multi-car-prerequisites/01-multi-car-mdp.html#course-what-breaks-and-what-doesn-t-5aefbd"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "935257c649f8014a14964a46288f35b9a4487d1f001f84600dac4f028f3d2cc3"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "phase-6-multi-car-prerequisites/02-credit-assignment.html#course-the-reward-phase-1-through-5-had-31dfdb"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "871914dcf612aca5ec14be97f81e9a6d8fb9c54d3d51d52852139821bd689f5a"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/03-potential-based-shaping.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "0a98b07c29d05b9a26b760242f43d0d3ddb9c697142c31ac3585ffc393b8f438"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "300a4aca21a5aa0eef3b5a62d23cecc20633289028329cc6166adbd5154c6207"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/05-position-and-blocking.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "1cb64a326d8bf4b3d3b82d182c4a92b84969e1d96876e717cbce941433dbc352"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/06-bug-ledger.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "e1bee2928643ecde764b290ea329e5a70313ba58e92414475c0c31d416da0e5b"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/07-non-stationarity.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/07-non-stationarity.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "7d42dd12f94f15c7379634ef1a677f4ca056d7bb8ba932578503d158a07739f0"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/08-build-it-yourself.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "ebdde6feab29e4fd3d7b77972c99832b0bbfa6c3e6c142626e373cbad84affa2"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/09-this-project-formalized.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "7c8876560a8e7d099e6085258d1932dc98e86279514acef08d5a9e4a9a0ff993"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/10-reading-the-plan.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/10-reading-the-plan.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "52156f917d50f29273dd7b2f32312b39c2593f758ce2c2d4b38551b00d01cd44"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/11-glossary.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/11-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "283618c71455d1d2778f3ee5cc8a5301ef2701338e8ffda672d5bc6538279c51"
+  },
+  {
+    "route": "phase-6-multi-car-prerequisites/index.html",
+    "resourceIds": [
+      "phase-6-multi-car-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "79f57cded1293ee756ba0d112c9c216df26ed0911a0d912f1e675f4c96c4e12e"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html#course-a-quick-recap-of-the-shield-c568ce"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "bac118e0a2d610a14cf234da91bf60ec6f5cf2ff51c930f0c368723a59f67a34"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "abe5d869f6c724ccc2a10c72af0a657f12fa764c3b2712c7f9ed9d5eb8ca9f1e"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/03-checkpoint-pool.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "e67b6faa9b61f64548ccdac6f3a07449bdfc85f2bda0b0f03084cd512d47470a"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/04-pettingzoo-apis.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "b2b2d8b996578dce342b1da5887d9bb9d9d73e227eae87722dc89ef277479259"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/05-first-opponent-problem.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/05-first-opponent-problem.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "4ec184ab30007be20ab1ac37cb30269d843b0845e2206ff0cbc38d43f6ef68f4"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/06-blocking-model-dependency.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "6a0b4e16695f5f02a6374b4d5dc771e2db2b68d0fe0f186ac68ba30ba0ba7da9"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/07-is-it-bimodal.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "b9214122558f1e1706de51b95781c850e6e19233131964292fc427f2e806c55a"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/08-build-it-yourself.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "4fd8550f732612a56d22115b7f9f49334959f008191713c8b890118d8df7f717"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/09-this-project-formalized.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "8846b76161bc69f8c55837a07d649acc018683962c5946dc1bce077ca74f7376"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/10-reading-the-plan.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/10-reading-the-plan.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "6a34c35ce2c0d1aa1a260eaa15d6dc4d552414eceafea8aae7fab71f75140633"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/11-glossary.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/11-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "55caf7492e9607c275be237c10ca504b04dcbbd64b29bd850cd527fcf5fa5522"
+  },
+  {
+    "route": "phase-8-self-play-prerequisites/index.html",
+    "resourceIds": [
+      "phase-8-self-play-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "0d6110e542fe47ac70f08e3ea9362012b4e3998f1464d8c1db4d3a0496e77512"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "943741123022049d18f1120050ed4fc7cbad6bacc1cc6533b878ddfddcc22654"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/02-actor-critic-advantage.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "65d203aef5153bab2d24d48956b7dc3a11e029d2847dfee0f2d7a2141e01e3d0"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "a5329396c5616495d39094f66fd159f210f84babc4c82cfb3f4a6dde9974e134"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "88d228477b3257229b4c7a7d83f11aa95e23581dee7adfa5bf928dfdf67cb17a"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "phase-9-ppo-prerequisites/05-build-vs-buy.html#course-why-ppo-is-different-in-kind-not-just-longer-707fac"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "106bd98d5daea8c0c40804c135c81bf6b196ea72dc2ddedc745741403832196f"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/06-stable-baselines3-api.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "1d1fa4ae4d5af831ae23f891f92450531032a4ad70fcd6a7ccbc600842507f1e"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "6a5329285fb1371d43456a50686a44ebb6b55fa8b1de48bb9f711c3a2d820fb3"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/08-unfair-comparison.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "ca5332d2e319bcc7ab94e62b81d7c08c7811051d0af680b83a6d51d893050474"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/09-build-it-yourself.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "63ade71686a0ff86f2072a66ce40adb090ff1521457b2a92208771d9941038c7"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/10-this-project-formalized.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "7a76f6f5b715a3414551d884a5db7a4d54c983817e914ec4df8515a85d06c4b2"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/11-reading-the-plan.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/11-reading-the-plan.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "979ca025381cb633d089462517cf2bf33642cf6c88cb1aa546cafc2c54e0f579"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/12-glossary.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/12-glossary.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "c665c789e47ebd1e6da400a5da146237e0e8755ddeee2198207dec97cd4c313f"
+  },
+  {
+    "route": "phase-9-ppo-prerequisites/index.html",
+    "resourceIds": [
+      "phase-9-ppo-prerequisites/index.html"
+    ],
+    "disposition": "relocate-after-coverage-verification",
+    "sha256": "0c1e0697a01e553b11f997faa665114e646b60bd34bb4a02744c49fe9b1e8d29"
+  },
+  {
+    "route": "roadmap.html",
+    "resourceIds": [],
+    "disposition": "retain-or-rebuild-navigation",
+    "sha256": "2a967eba85dcb851eeb37cc7286a8f84d53c49472489046c0116f2babcd19566"
+  }
+]

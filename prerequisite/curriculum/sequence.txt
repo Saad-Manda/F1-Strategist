@@ -1,0 +1,178 @@
+# R0 authored outline. Format: lesson ID | title | prerequisite lesson IDs (space separated).
+# Reading: semantic slug | title | teaching goal and required worked example.
+# All ordinary readings are core. '+' marks further-depth. Applications use '@'.
+
+[foundations]
+p1-loop | Build the interaction loop |
+agent-environment-loop | Agents, environments and episodes | Trace a toy delivery agent through a complete episode; distinguish agent, environment and policy without notation.
+one-step | One step: actions, observations and rewards | Record a delivery transition and explain each field, including the next observation and reward units.
+episode-endings | Resetting and ending an episode | Trace success versus a time limit using reset and the five step outputs; distinguish termination, truncation and collector cutoff before targets appear.
+spaces-and-contract | Spaces and the environment contract | Construct a tiny GridWorld contract, validate shapes/dtypes and reset seeds, explain info and render_mode, and locate check_env.
+p1-state | Describe state and observations | p1-loop
+state-observation | State versus observation | Compare two identical observations with different hidden battery charge; distinguish simulator state from what the agent sees.
+markov-property | When the present is enough | Calculate different next-step outcomes for the hidden-charge example and explain why omitted information matters.
+mdp-model | A model of decisions and outcomes | Introduce the MDP tuple one symbol at a time using a delivery transition table; defer calculating expectations to the probability lesson.
+missing-information | Working with incomplete observations | Compare adding a sensor, using observation history and a belief-state idea; explain why an encoder cannot invent missing information.
+p1-return | Reason about rewards and returns | p1-loop
+reward-return | Reward versus accumulated return | Sum three delivery rewards; discuss the reward hypothesis as a modeling assumption and show a proxy objective that fails.
+discounting | Discounting step by step | Calculate a three-step discounted return and distinguish a discount factor from a learning rate.
+horizons | Finite and continuing horizons | Compare a finite undiscounted task with a continuing discounted task; state bounded-reward assumptions and time-in-state requirements.
+return-calculation | Computing returns and their units | Implement reverse return accumulation; distinguish realized return from expected return and trace reward centering on fixed versus variable horizons.
+p1-probability | Probability and expectation for decisions | p1-state p1-return
+probability-outcomes | Probabilities over possible outcomes | Normalize a two-outcome table and calculate joint probabilities under an explicit independence assumption.
+weighted-expectation | An average weighted by probability | Calculate expected reward and expected continuation separately; compare sample averages with exact model averages and rare outcomes.
+p1-values | Evaluate policies and actions | p1-probability
+policies-legal-actions | Policies and legal actions | Specify deterministic and stochastic policies; calculate legal-action probabilities and tie handling with an action mask.
+state-action-values | State values and action values | Compare two delivery actions using their expected returns; define V and Q only after the examples.
+bellman-backup | One Bellman backup | Derive the return decomposition and calculate a backup with reward and two successor values; explain terminal continuation and finite gamma=1.
+expectation-maximization | Expectation versus maximization | Compute policy evaluation and greedy improvement from the same table; separate expectation over outcomes from maximization over legal actions.
+evaluation-optimality | Evaluation and optimality | Compare a policy Bellman equation with an optimality equation; recap masking and time-dependent finite-horizon values.
++bellman-fixed-points | Why repeated backups can converge | Work a discounted contraction example and distinguish its assumptions from finite-horizon backward induction.
+@environment-contract | Building the F1 environment contract | Map the 16-feature observation, six actions, masks, seeding and ending flags to the toy contract; retain the complete step trace.
+@race-dynamics | Composing one race transition | Trace compound pace/life, capped wear cliff, fuel, weather, pit-lap ordering and fresh safety-car sampling through pure shared dynamics.
+@reward-units | Reward units and the race objective | Prove negative lap-time accumulation and fixed-horizon centering numerically; state variable-length caveats and avoid describing a plan as executed evidence.
+@environment-verification | Wrapping and verifying shared dynamics | Explain the stateful Gymnasium wrapper, pure dynamics, environment tests and readiness checkpoint; introduce dashboard and rule-based baseline handoffs.
+
+[planning]
+p35-backward | Plan with a known finite model | p1-values
+planning-learning | Planning versus learning | Compare access to a transition model with access to sampled transitions using the same tiny task.
+finite-model | A known finite model | Enumerate time-indexed states and legal actions, assign terminal values and count states before solving.
+backward-induction | Backward induction by hand | Preserve the worked pit-now versus stay-out example and show why greedy one-step decisions fail.
+verify-solver | Implement and independently verify a solver | Compare a tiny backward solver with brute-force action sequences; include terminal and no-legal-action cases.
++value-iteration | Backward induction and value iteration | Work a discounted iterative example and contrast stopping rules with an acyclic finite horizon.
+p35-stochastic | Plan over uncertain outcomes | p35-backward p1-probability
+expectation-refresher | Recap probability and expectation | Recompute a hazard/no-event weighted average and state conditional independence before combining hazards and weather.
+weighted-backups | Weighted outcome backups | Calculate a complete stochastic Bellman cell; keep successor-dependent costs inside the correct expectation.
+rare-outcomes | Rare outcomes and risk | Compare average cost with a rare costly outcome; distinguish risk-neutral optimization from a changed risk objective.
+stochastic-solver | A complete stochastic planning example | Extend the independently checked solver with safety-car hazard, legal masks and a second random process; validate probability sums.
+p35-markov | Model and sample changing conditions | p35-stochastic p1-state
+transition-matrix | Transition matrices and chains | Count and normalize the existing three-race 3-by-3 weather example; discuss unobserved rows rather than dividing by zero.
+sampling-not-foresight | Sampling is not knowing the future | Trace seeded sampling from a fitted chain and distinguish a sampled rollout from privileged future information.
+rollout-variability | Variation between rollouts | Compare multiple traces and distributions of returns; distinguish deterministic calculations from stochastic evaluation.
+empirical-checks | Checking transitions against the model | Compare empirical transition frequencies with the specified matrix using sample counts and uncertainty.
+@oracle-model | Modeling the F1 planning state | Preserve DP state-size arithmetic, hazard/weather assumptions, masks and the noise=0 expectation argument with its limitations.
+@oracle-bound | An achievable oracle and a foresight bound | Distinguish Oracle A and B, cost versus reward signs, a real-scale backward cell and the optimality-gap metric.
+@oracle-verification | Shared dynamics and independent oracle checks | Map solver/weather modules and rollout harness to brute force, probability and consistency checks; explain checkpoint evidence.
+
+[tabular-learning]
+p4-td | Learn action values from transitions | p1-values
+sampled-learning | Learning from transitions | Replace an exact expectation with a sampled transition; explain bootstrapping as estimating from an estimate.
+td-error | Target, error and update | Calculate target, TD error and learning-rate update separately on a three-state toy.
+q-learning | Q-learning step by step | Preserve four hand-run updates, distinguish learning rate and discount, and state finite-table convergence conditions without promising a practical guarantee.
+terminal-masked-targets | Terminal targets and legal actions | Contrast termination, time-limit bootstrap and cutoff; calculate a masked maximum and handle terminal rows with no legal successor.
+p4-explore | Discover actions through exploration | p4-td
+greedy-discovery | Why greedy discovery fails | Show a never-visited rewarding action under greedy-only selection.
+epsilon-probabilities | Epsilon-greedy probabilities | Derive probabilities including the exploratory share on greedy actions, ties and legal-action masks.
+behavior-evaluation | Behavior and evaluation policies | Compare exploratory training with greedy evaluation using separate random streams and recorded evidence.
+exploration-schedules | Ties, masks and exploration schedules | Calculate the existing linear-decay example; enforce masks inside random sampling and explain reproducibility limits.
+p4-sarsa | Compare on-policy and off-policy targets | p4-explore
+policy-targets | Which policy supplies the target? | Compare Q-learning's maximum with the action actually sampled by a behavior policy.
+sampled-sarsa | Sampled SARSA | Trace the risky-push versus safe-pit example and pre-commit the next action before changing Q.
+expected-sarsa | Expected targets | Calculate Expected SARSA with epsilon-greedy probabilities and distinguish it from sampled SARSA and Q-learning.
+algorithm-comparison | A fair small comparison | Align seeds, masks, reward units and evaluation policies; preserve the shared learner-shell exercise and detect target leakage.
+p4-bins | Encode observations in a table | p4-td p1-state
+table-representation | Representing observations in a table | Calculate the existing Cartesian state count and explain table growth versus generalization.
+interval-boundaries | Interval boundaries | Work boundary, overflow and underflow cases; state the convention for digitize/searchsorted explicitly.
+state-aliasing | Aliasing training cannot fix | Preserve the tyre-cliff bin collision and show two states sharing a code but requiring different actions.
+encoder-checks | Choosing and testing an encoder | Test feature order, edges and distinct strategically important states; distinguish quantization from missing physical state.
+@tabular-contract | Mapping observations and masks to the Q-table | Retain dimension-by-dimension discretization, reward-scale arithmetic, recorded bin/action-mask bugs and their tests.
+@tabular-training | Training, curriculum and evaluation | Explain curriculum switches, SARSA pre-commit mechanics, evaluation cadence and optimality gaps; map readiness to unchanged practice evidence.
+
+[neural-value-learning]
+p5-network | Replace a table with a differentiable function | p4-td p4-bins
+tables-functions | Tables versus functions | Preserve dimensionality arithmetic and show one shared function predicting values for nearby observations.
+vectors-shapes | Vectors and tensor shapes | Explain scalar/vector/matrix and batch dimensions with a two-observation, three-action example before matrix multiplication.
+forward-loss | Forward pass and loss | Preserve the tiny-network forward pass, selected-action gather, squared loss and batch reduction with explicit shapes.
+gradients | Derivatives and backpropagation | Calculate a scalar derivative and apply the chain rule to the same tiny network; distinguish gradient direction from loss value.
+optimizer-update | One optimizer update | Trace zero_grad, backward and step; introduce SGD and Adam's role, finite checks and the delivered tensor exercise.
++adam-moments | How Adam rescales a gradient | Calculate a first/second moment update and bias correction; explain that the core optimizer usage needs no hidden derivation.
+p5-stability | Stabilize neural temporal-difference learning | p5-network p4-explore
+moving-targets | Why neural TD targets move | Trace a bootstrap target changing as online weights change; explain correlated samples and feedback.
+target-detachment | Target networks and detachment | Distinguish independent snapshot storage, no-grad target calculation and hard/soft updates with the existing update-rate arithmetic.
+replay | Replay decorrelation and reuse | Build a minimal buffer; explain capacity, sampling, warm-up and reuse without implying samples become independent automatically.
+complete-dqn-update | A complete DQN update | Trace gather, masks, ending flags, detached targets, loss and optimizer shapes; separate training steps from target-sync timing.
+p5-double-dueling | Improve selection and value representation | p5-stability
+maximization-bias | Maximization bias | Compare noisy action estimates and demonstrate why selecting their maximum can exaggerate value.
+double-selection | Double DQN selection and evaluation | Preserve online [5,4,100], target [1,7,99], legal mask and 1.5 versus 4.5 targets; avoid a universal performance claim.
+dueling-values | Dueling value and advantage | Build two heads on a shared trunk and compare their roles using a small action-value vector.
+dueling-centering | Identifiability and centering | Derive constant-offset ambiguity and mean centering; preserve the delivered centering convention and distinguish it from policy advantages.
+double-dueling-masks | Legal-action handling | Trace illegal actions, ties and terminal empty masks through selection and evaluation; state where dueling centering and legal selection differ.
+p5-per | Prioritize replay samples correctly | p5-stability p1-probability
+prioritize-errors | Why prioritize samples? | Compare TD errors and explain stale priorities, epsilon and possible overuse of noisy transitions.
+priority-probability | Raw priority versus probability | Normalize powered raw priorities on a tiny buffer and verify the sum; distinguish priority from sampling probability.
+importance-weights | Importance weights | Calculate inverse-probability weights and beta/normalization, including the zero-priority safeguard.
+priority-updates | Updating and checking priorities | Trace sampling, weighted loss and detached error feedback; test empirical frequencies and preserve the pack's conventions.
+@dqn-reward-scale | Reward scale, loss and gradients | Preserve the numerical scale trap and centering assumptions; explain effects on targets, TD errors and priorities without promising invariance in neural optimization.
+@dqn-integration | Integrating a DQN learner | Map observation dimensions, architecture, replay, schedules and all extension flags to one complete update and unchanged packs.
+@dqn-evidence | Reading DQN checks and ablation evidence | Separate recorded PyTorch fixtures from live training; audit walkthrough and target/mask/shape checks before the project checkpoint.
+
+[multiple-agents]
+p6-credit | Understand joint rewards and credit | p1-state p4-td
+joint-actions | Joint actions and rewards | Trace a two-agent transition and identify shared state, observations, actions and individual or team reward.
+team-contribution | Team reward versus contribution | Compare equal team rewards with different individual actions; explain credit assignment without assuming causal attribution.
+credit-examples | Credit assignment examples | Preserve lap-time, position and dense-proxy comparisons; show a proxy rewarding behavior that hurts the objective.
+credit-diagnostics | Limits and useful diagnostics | Compare three reward designs with fixed scenarios and counterfactual diagnostics; distinguish attribution from correlation.
+p6-shaping | Shape rewards without changing the objective | p1-return p1-values p6-credit
+base-bonuses | Base objectives and reward bonuses | Work an ad-hoc position-bonus counterexample before introducing a principled alternative.
+potential-differences | Potential differences | Calculate gamma times next potential minus current potential and distinguish it from an arbitrary bonus.
+telescoping | Telescoping returns and terminal treatment | Expand a finite return term by term; account for terminal potential, gamma and variable horizons.
+shaping-conditions | Conditions and counterexamples | State policy-invariance assumptions; preserve a non-telescoping implementation failure and terminal-potential counterexample.
+p6-opponent | Model interaction and changing opponents | p6-credit p35-stochastic
+interaction-mechanics | Interaction mechanics | Use a generic blocking/overtaking toy to show when relative position actually affects future actions.
+opponent-transitions | Opponents as part of transitions | Compare a fixed scripted rival with an adaptive rival; distinguish joint model from a single-agent effective model.
+missing-changing | Missing state versus a changing policy | Contrast aliasing with nonstationarity using two identical observations and changed opponent behavior.
+opponent-evaluation | Nonstationarity and evaluation design | Evaluate against fixed, named opponents; separate mechanical model defects from inadequate training.
+@multi-car-dynamics | Position, overtaking and dirty air | Retain 19-dimensional observations, fixed rivals, undercut/blocking mechanism and probabilistic overtake ordering.
+@multi-car-bugs | Tracing interaction defects | Trace E1 double-counting, E2 overwritten overtakes, E3 dynamics/reward inconsistency, E5 shaping and E6 smaller findings with their consequences.
+@multi-car-checks | Reward comparisons and reachable objectives | Map the staged blocking toy, three reward configurations and tests to checkpoint checks; state what passing tests cannot establish.
+
+[self-play]
+p8-game | Choose strategies against opponents | p6-opponent p4-explore p1-probability
+best-response | Best response to whom? | Compare policies against two fixed opponents and explain why a single optimal response can be fragile.
+payoff-matrices | Payoff matrices | Preserve the complete rock-paper-scissors witness and calculate payoffs against an opponent mixture.
+mixed-equilibrium | Mixed strategies and equilibrium | Calculate a best response to a mixture and illustrate equilibrium without promising convergence of independent neural learners.
+robustness | Robustness beyond one opponent | Compare independent learning, centralized training and empirical fictitious play; distinguish snapshot mixtures from exact strategy averages.
+p8-pool | Retain historical opponents | p8-game p5-stability
+forgetting | Forgetting historical opponents | Trace a cyclic best-response sequence and why newest-only evaluation misses forgetting.
+independent-snapshots | Independent snapshots | Compare copying parameters with sharing mutable storage; define evaluation mode and fixed snapshots.
+pool-sampling | Sampling an opponent pool | Calculate normalized uniform/recency-biased probabilities and preserve the first-opponent degenerate-seed failure.
+pool-coverage | Coverage and evaluation over time | Evaluate historical opponents, pool size and replacement; separate coverage metrics from a convergence claim.
+p8-audit | Design a defensible comparison | p8-pool p35-markov
+fair-pairings | Fair pairings and baselines | Align starting conditions, roles and seeds; preserve the shuffled-pairing null baseline for apparent bimodality.
+uncertainty | Stochasticity and uncertainty | Compare sample counts, variability and uncertainty; distinguish an observed two-peak histogram from evidence of specialization.
+agent-lifecycle | Multi-agent lifecycle | Trace generic AEC and Parallel APIs, selected-agent cleanup, per-agent ending dictionaries and live/dead agent sets.
+comparison-protocol | A defensible comparison | Specify opponents, transitions, pairings, held-out scenarios and recorded-versus-live evidence before interpreting results.
+@self-play-mechanics | Blocking and opponent initialization | Preserve the Phase 6 blocking dependency, first-opponent problem and the staged toy intervention demonstrating consequences.
+@self-play-integration | The F1 multi-agent interface and pool | Map Parallel environment, independent learner loop and pool parameters to validated lifecycle/snapshot contracts.
+@self-play-evidence | Historical evaluation and evidence | Map bimodality null tests and readiness items to the plan; explain which claims the listed tests do and do not support.
+
+[policy-gradients]
+p9-probability | Prepare probability and gradient tools | p1-probability p5-network
+policy-probabilities | Policy probabilities and logs | Normalize logits with softmax, explain logarithms using likelihood products and calculate log probability of a sampled action.
+score-gradient | Gradients of log probabilities | Derive a small softmax score vector and show that probability-weighted scores sum to zero; introduce trajectory likelihood assumptions.
+p9-reinforce | Learn a policy from sampled returns | p9-probability p1-return
+gradient-intuition | Gradient intuition | Compare increasing a rewarded action's probability with directly differentiating the reward; explain ascent versus loss minimization.
+score-function | The score-function derivation | Derive the likelihood-ratio identity and episodic return-to-go under stated differentiability/support assumptions.
+reinforce-example | REINFORCE by hand | Preserve the worked softmax gradient and noisy-bandit update with probabilities, return and gradient signs.
+sampled-update | Implement and diagnose a sampled update | Trace log_prob times detached return, batch reduction and optimizer; show variance and destructive steps in the delivered exercise.
+p9-advantage | Reduce variance with a value baseline | p9-reinforce p4-td
+value-baselines | Value baselines | Compare raw returns with the worked value-baseline example and explain the baseline's prediction target.
+baseline-proof | Why action-independent baselines work | Sum baseline-weighted score gradients over actions and identify action independence and detached actor weights.
+actor-critic | Advantages and actor–critic | Calculate Q minus V and a one-step estimated advantage; distinguish exact advantages from sampled estimates.
+separate-gradients | Keeping actor and critic gradients separate | Trace actor loss and critic loss on one batch; detach advantage and explain shared-trunk versus accidental target gradients.
+p9-gae | Estimate advantages across a rollout | p9-advantage p1-loop
+td-residuals | TD residuals as advantage signals | Calculate two residuals using rewards, values and ending flags; distinguish critic error from an advantage estimator.
+lambda-sum | The lambda-weighted sum | Preserve the hand-worked GAE example, lambda extremes and bias/variance assumptions.
+reverse-recursion | Reverse recursion | Implement and manually verify the reverse recurrence on the same residuals and explicit batch/time shapes.
+gae-boundaries | Terminals, time limits and rollout cutoffs | Separate bootstrap eligibility from recursion continuation; bootstrap the final observation at truncation without leaking into a reset episode.
+p9-ppo | Limit incentives for policy changes | p9-gae
+old-current | Old versus current policy | Freeze rollout log probabilities and distinguish current-policy updates from resampling old likelihoods.
+likelihood-ratios | Likelihood ratios | Calculate exp(new_log_prob minus old_log_prob), masked distributions and support requirements.
+clipping-branches | Both clipping branches | Work positive and negative advantages inside and outside the clipping interval; calculate min and gradient incentive.
+surrogate-limits | What the surrogate limits | Show an out-of-range ratio and explain why clipping is no hard trust-region or universal stability guarantee.
+ppo-minibatches | Minibatches and implementation checks | Trace frozen old data across epochs, detached advantages, critic updates and diagnostics; align with the delivered PPO exercise.
+@library-choice | Building and using a PPO implementation | Preserve build-versus-buy reasoning and inventory library behavior that must be understood despite using a packaged learner.
+@vector-library | Vector environments and masked PPO | Explain SB3/MaskablePPO learn/predict, rollout arithmetic, logging, evaluation masks and train/eval mode contracts; verify APIs during authoring.
+@workers | Factories, serialization and worker contracts | Distinguish ordinary pickle from SB3 mechanisms; preserve the local spawn exercise, main guard, serializable factories and worker-local masks.
+@fair-budget | Fair algorithm comparison | Preserve both fixes to the unequal-transition budget, worker-count arithmetic and curriculum compounding; align experience and evaluation protocols.
+@ppo-integration | F1 PPO integration and verification | Map wrapper, agent, configuration, recorded integration evidence and test limitations to readiness without assuming self-play was studied.
