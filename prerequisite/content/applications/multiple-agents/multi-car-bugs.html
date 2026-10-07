@@ -1,0 +1,12 @@
+<section>
+<h2>Follow a number through the transition</h2>
+<p>E1: RivalState.advance_lap already adds its returned lap cost to total_time, then step adds the same value again. Starting at zero with cost 95 gives 190 instead of 95, flattering the learner’s relative finish. Choose one accounting owner; test consecutive increments, resets and pit costs.</p>
+<p>E2: a successful pass changes an integer position, but _update_positions recomputes every position from accumulated time two lines later. The event is overwritten. E4 is the broader missing traffic constraint: a pure sorting operation gives the pass nothing to release. Test outcomes with a forced success and forced failure under an actually binding constraint, not just that the pass helper returned True.</p>
+<p>E3: dirty_air is subtracted in reward but not added to physical lap cost. At own pace 95 and penalty .25, a reward-only implementation reports −95.25 while accumulating 95. Decide whether the physical time should be 95.25 and derive reward from it; do not subtract the same penalty twice after fixing dynamics.</p>
+<p>E5: the branch called potential_shaping adds 1/n_cars whenever not last, with no previous potential. At unchanged P2 in five cars and gamma one it pays .2 each lap, whereas Φ(s′)−Φ(s) is zero. Store/reset the prior potential and enforce the endpoint convention; the method’s name supplies no invariance theorem.</p>
+<h2>Smaller discrepancies compound</h2>
+<p>E6a compares this lap’s agent pace to the leader’s career average; use matching current-lap paces. E6b advances parent and rivals on inconsistent lap indices; freeze one index before stepping and increment once. E6c makes leading indistinguishable from a clipped large gap; introduce a documented leader indicator or another unambiguous representation. E6d bars scripted rivals from exploiting SC discount; update their policy and use the revised track_status/pit-loss functions.</p>
+<p>The plan’s suggested max pace cap needs explicit ordering and multi-car propagation; a one-line example is not a complete racing simulator. All findings concern proposed pseudocode. This reading neither patches nor certifies production environment behavior.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Would a valid permutation of positions catch E1 or E2?</summary><p>No. Incorrect time accounting and overwritten events can still produce unique positions 1 through N.</p></details>
+</section>

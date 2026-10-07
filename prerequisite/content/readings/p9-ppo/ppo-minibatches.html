@@ -1,0 +1,11 @@
+<section>
+<h2>Trace one full rollout-update cycle</h2>
+<p>Collect [T,N_envs] rewards, flags, old values and selected logs plus observations/actions/legal masks. Compute GAE per worker with final-observation bootstrap and separate trace boundaries. Freeze advantages and return targets, flatten to B=T×N_envs samples, shuffle aligned indices, then reevaluate current actor logs and critic predictions on minibatches across epochs.</p>
+<p>With T=256 and N_envs=4, B=1024. Batch size 64 gives 16 minibatches per epoch; ten epochs give 160 optimizer steps per rollout. Each example is revisited once per epoch, unless early stopping changes the schedule. This is current-rollout reuse, not an indefinitely retained DQN replay buffer.</p>
+<p>A minimal combined descent loss is L_actor+c_v mean((V_current−R_fixed)²)−c_H mean(H_current). Categorical entropy H=−Σ_legal π logπ favors spread when its coefficient is positive. Illegal zero-probability entries need a safe entropy computation rather than 0×−infinity. The value coefficient, entropy coefficient, advantage normalization, critic clipping and gradient cap are implementation choices beyond the clipped actor equation.</p>
+<h2>Verify each gradient path independently</h2>
+<p>The pack tests frozen independent logs, loss signs, branch gradients, overflow rejection and diagnostics; it is not a full PPO trainer. Current actor/critic outputs receive gradients, old logs/values, masks, advantages and targets do not. For a shared trunk deliberately combine losses; for separate models verify no cross-head leak. Reject malformed singleton axes and keep minibatch alignment.</p>
+<p>After optimization discard this rollout for the next on-policy collection. Do not update old likelihoods inside epochs. Check requested versus actual transitions, early stops and normalization scope when reading a library report. The next application covers the library-specific collector and worker contracts.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does a passing clipped-loss unit test establish a correct PPO collector?</summary><p>No. Ending semantics, masks, aligned frozen rollout data, sampling and counters need separate integration checks.</p></details>
+</section>

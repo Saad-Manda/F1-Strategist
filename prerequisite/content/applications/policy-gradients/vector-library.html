@@ -1,0 +1,13 @@
+<section>
+<h2>Translate between single and vector APIs</h2>
+<p>A Gymnasium environment reset returns (obs,info) and step returns five values with separate flags. SB3 VecEnv reset returns stacked obs only, with reset info stored separately; step returns obs,rewards,dones,infos. Done combines ending flags. An ended worker automatically resets, so its returned obs is the next episode’s start, while info[&quot;terminal_observation&quot;] retains the true final successor.</p>
+<p>DummyVecEnv steps environments sequentially in one process. SubprocVecEnv uses worker processes; speed depends on step cost, startup and communication overhead. Multiple workers do not imply independent scenario draws or faster execution. Use separate worker streams and measure the actual workload.</p>
+<p>At n_steps=256,n_envs=4, one rollout has 1024 individual transitions. Batch 64 and ten epochs produce 160 nominal optimizer steps. Divisibility avoids a small final minibatch; SB3’s documented PPO behavior warns for nondivisibility rather than making it universally forbidden. Report actual model.num_timesteps, since a completed rollout can exceed a requested total.</p>
+<h2>Use the masked model and evaluation path</h2>
+<p>MaskablePPO(&quot;MlpPolicy&quot;,env,...) provides learn(total_timesteps=...) for collection and updates, and predict(obs,action_masks=mask,deterministic=True) for deterministic masked action selection. True mask entries mean legal. For subprocess use action_masks() inside each worker environment; the documented path excludes ActionMasker there. Use maskable evaluation helpers/callbacks or explicitly supplied masks, not the unmasked evaluator.</p>
+<p>Collection stores action masks and old likelihoods for reevaluation. Library collection uses evaluation-mode network behavior without gradients, while optimization enables training mode. Predict’s deterministic choice is distinct from that layer mode. tensorboard_log configures logging; it does not make training rewards equal physical race time. Record library version and resolved defaults.</p>
+<h2>Recap and self-check</h2>
+<details><summary>When done is true, is VecEnv’s returned observation the final one?</summary><p>No. It is the reset observation; use terminal_observation and the ending metadata for continuation.</p></details>
+<p>Reference: <a href="https://stable-baselines3.readthedocs.io/en/master/guide/vec_envs.html">SB3 VecEnv contracts</a>.</p>
+<p>Reference: <a href="https://sb3-contrib.readthedocs.io/en/master/modules/ppo_mask.html">MaskablePPO API and worker masks</a>.</p>
+</section>

@@ -1,0 +1,18 @@
+<section>
+<h2>Build the selected-action loss</h2>
+<p>The pack’s reinforce_loss uses logits[B,A], long actions[B], returns[B] and optional boolean legal[B,A]. It validates shapes, finite values and legal sampled actions, applies the same mask before log_softmax, gathers one log probability per row and minimizes −mean(log_prob×detached_return). A [B,1] return against [B] logs would accidentally broadcast to [B,B].</p>
+<p>Call optimizer.zero_grad(), compute the loss, backward(), optionally clip finite gradients, then optimizer.step(). Only policy parameters belong in this optimizer. Frozen observations and sampled returns must not accumulate gradients. Batch mean rescales the summed estimator; variable episode lengths can change weighting, so define the sampling unit.</p>
+<p>A deliberate destructive witness uses uniform logits, an action-1 return 8 and learning rate 2. The first gradient makes logits [−8,8], so π_1≈.999999887. No clip objective evaluated only before that giant step can retrospectively constrain it. The later PPO lesson demonstrates why a flat incentive is not a hard parameter-step bound.</p>
+<h2>Follow the unchanged practice</h2>
+<p>Run the candidate checker and compare its exact gradient to the browser. The recorded optional bandit runs, if shown, describe earlier CPU training with their reported seed and budget; they do not certify your candidate or the F1 agent. A local compare CLI is future experimentation, not part of rebuilding these readings.</p>
+<pre><code>def reinforce_loss(logits, actions, returns, legal=None):
+    probabilities(logits,legal)
+    if actions.shape!=(len(logits),) or actions.dtype!=torch.long or returns.shape!=actions.shape or not torch.isfinite(returns).all():raise ValueError(&quot;invalid samples&quot;)
+    if ((actions&lt;0)|(actions&gt;=logits.shape[1])).any():raise ValueError(&quot;invalid action&quot;)
+    if legal is not None and not legal[torch.arange(len(logits)),actions].all():raise ValueError(&quot;illegal action&quot;)
+    masked=logits if legal is None else logits.masked_fill(~legal,-torch.inf)
+    logs=torch.log_softmax(masked,dim=1)[torch.arange(len(logits)),actions]
+    return -(logs*returns.detach()).mean()</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Should returns keep their autograd path in the actor loss?</summary><p>No. Treat them as fixed sampled weights; differentiating through them adds an unintended estimator term.</p></details>
+</section>

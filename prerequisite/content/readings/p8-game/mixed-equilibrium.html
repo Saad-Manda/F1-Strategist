@@ -1,0 +1,13 @@
+<section>
+<h2>No unilateral improvement at a Nash equilibrium</h2>
+<p>A pair (p*,q*) is Nash if neither player improves its own expected payoff by changing only its strategy while the other is fixed. In this zero-sum matrix game, uniform q makes every learner pure action score zero. Uniform p similarly leaves every opponent deviation at zero. Thus uniform/uniform is a mixed Nash equilibrium.</p>
+<p>A best-response calculation forms v=Mq and chooses every maximum-valued row. Against q=(.5,.25,.25), v=(0,.25,−.25) so PAPER is best. Against uniform q all three are best. The learner’s exploitability diagnostic in this zero-sum toy is the best opponent’s benefit: −min_j(pᵀM)_j; pure PAPER has 1 and uniform has 0.</p>
+<p>Equilibrium is a joint condition, not merely a high self-play score. A current checkpoint beating its previous version need not be closer to equilibrium. Nor does a finite training history prove absence of profitable deviations outside the tested opponent set.</p>
+<h2>Keep existence and convergence separate</h2>
+<p>The mixed equilibrium can be verified directly from finite payoffs. A simultaneous latest-pure best-response procedure can cycle instead of settling. Statements about fictitious-play convergence concern particular games and empirical mixtures under their update assumptions. A recency-biased finite neural checkpoint pool does not inherit those guarantees.</p>
+<pre><code>def best_response(opponent):
+    values = RPS @ policy_vector(opponent)
+    return [int(i) for i in np.flatnonzero(np.isclose(values,values.max(),rtol=0,atol=1e-12))]</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does playing uniform guarantee a positive win margin?</summary><p>No. In this toy it secures expected payoff zero; it does not guarantee every finite sampled match ties.</p></details>
+</section>

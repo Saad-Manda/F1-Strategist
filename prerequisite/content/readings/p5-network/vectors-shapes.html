@@ -1,0 +1,16 @@
+<section><h2>Read shape as a function contract</h2><p>A scalar is one number; a vector is an ordered list of numbers; a matrix is a rectangular array. A tensor is the array object used by PyTorch, with a shape and dtype. Shape (2,3) means two rows and three columns, not two possible values. A batch groups independent examples along its first axis. B counts examples, D input features, and A representable actions.</p><p>For a linear predictor, inputs X have shape [B,D], weights W [A,D], bias b [A], and output Q [B,A]. Each output entry is <code>Q[i,a]=Σ_d X[i,d] W[a,d]+b[a]</code>. This is a dot product: multiply corresponding features and weights, then add. With row-stored observations the whole operation is X Wᵀ+b, where the transpose swaps W's axes.</p>
+<pre><code>import torch
+
+def finite(tensor):
+    return bool(torch.isfinite(tensor).all())
+
+X = torch.tensor([[2.,1.],[0.,1.]], dtype=torch.float64)
+W = torch.tensor([[1.,-1.],[0.5,0.5],[-1.,2.]], dtype=torch.float64)
+b = torch.tensor([0.,1.,-1.], dtype=torch.float64)
+Q = X @ W.T + b
+assert Q.shape == (2,3)
+assert torch.equal(Q, torch.tensor([[1.,2.5,-1.],[-1.,1.5,1.]],
+                                  dtype=torch.float64))</code></pre>
+<p>For the first observation, action 1 gives 2×0.5+1×0.5+1=2.5. Bias broadcasts across batch rows: the same three biases are added to every observation. Broadcasting is convenient but can also silently make the wrong calculation legal.</p>
+<h2>Axes and types have different jobs</h2><p>Input features and learned values use floating point. Action indices use integer torch.long; masks and termination flags use torch.bool. The teaching packs use CPU float64 for precise hand checks; the production plan uses float32. Match model and input dtype/device deliberately. A tensor with one observation still needs [1,D], rather than [D], in these batch functions.</p><p>Reducing <code>Q.mean(dim=1)</code> averages actions within each example. Reducing dim=0 averages examples within each action. A loss often reduces all intended entries to a scalar, but selecting one action per transition comes first in DQN. For B=1, unrestricted squeeze() can remove the batch dimension; squeeze(1) removes only the intended singleton action axis.</p>
+<h2>Recap and self-check</h2><details><summary>Why can subtracting [B,1] from [B] accidentally produce [B,B]?</summary><p>Broadcasting aligns trailing axes: the vector behaves like [1,B]. Both dimensions expand. Make both selected predictions and targets [B] before subtraction and check the resulting shape.</p></details><p>Next, compute a small network and choose exactly which entries its loss supervises.</p></section>

@@ -1,0 +1,10 @@
+<section>
+<h2>Estimate how changing probabilities changes return</h2>
+<p>Value-based methods estimate Q then derive behavior from it. Policy gradients parameterize the action distribution directly and seek to maximize J(theta)=E_tau[G(tau)]. The sampled action and simulator need not be differentiable. We differentiate their likelihood under the policy, then weight that score by an observed outcome.</p>
+<p>A positive return multiplying the selected score supplies an ascent signal that increases that sampled action’s probability for a sufficiently small isolated logit step. A negative return reverses it. A low but positive reward still has a positive sample signal; “lower than expected” becomes a negative signal only after subtracting a baseline.</p>
+<p>At uniform logits [0,0], action 0 with return 2 has score [.5,−.5] and ascent direction [1,−1]. SGD descent on loss −2 log π_0 gives gradient [−1,1]. With learning rate .1, new logits [.1,−.1] give π_0=.549834. The sign convention matters: minimizing +log_prob×return would move the other way.</p>
+<h2>A sample is not the expected objective</h2>
+<p>The noisy bandit gives action R rewards with mean 1 and SD 2, and P mean 0 and SD .5. R has greater expected reward but can produce a negative sample; P can produce a large positive outlier. REINFORCE responds to samples. A single favorable update does not prove the action is best, and arbitrary large steps need not improve expected return.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does return +2 push an action down because another action returned +8?</summary><p>Not in a raw isolated REINFORCE sample. A baseline changes the relative sample signal; normalization prevents all action probabilities rising together.</p></details>
+</section>

@@ -1,0 +1,19 @@
+<section>
+<h2>Count all environment interaction</h2>
+<p>The planned DQN budget is 5000 races×about 52 decisions≈260,000 transitions. PPO’s 2,000,000 requested timesteps are about 7.692 times that and about 38,462 52-step races, not 5000. SB3 num_timesteps already counts across workers: eight environments×128 vector steps=1024 transitions. Do not multiply learn’s total_timesteps by n_envs again.</p>
+<p>With complete 1024-transition rollouts, a fresh uninterrupted 2,000,000 request can end at ceil(2,000,000/1024)×1024=2,000,896 actual transitions. Callback stops, resumed counters or changing settings alter this calculation, so record actual counts. Training, evaluation, warm-start/pretraining and tuning interaction budgets need separate accounting.</p>
+<p>Curriculum stages compound: two 260,000-transition stages plus 260,000 final-stage transitions total 780,000, not 260,000. A warm-start learner can enter the final environment with useful prior experience. Label both cumulative and stage-specific curves. PPO minibatch reuse and DQN replay reuse do not count as new environment transitions, but their optimizer compute should be reported.</p>
+<h2>Two honest comparison protocols</h2>
+<p>Either choose a matched transition budget before training both algorithms, with explicit handling of rollout granularity, or train each to its stated tuned budget and compare learning curves on a shared cumulative-transition axis. The latter answers sample-efficiency and budget-dependent performance questions; unequal final budgets do not isolate algorithm effects at fixed experience.</p>
+<p>Use the same held-out scenarios, task reward definition, masks, oracle information and physical metrics. Disable custom DQN/Q-learning exploration just as PPO deterministic evaluation is specified; verify evaluation does not mutate learner state. A 100-paired-seed protocol controls evaluation scenario variability, not unequal training data or tuning effort. Unequal-budget results remain descriptive, provided their limitations are stated.</p>
+<pre><code>def rollout_budget(requested, n_steps, n_envs, batch_size, epochs):
+    if any(type(x) is not int or x &lt; 1 for x in (requested,n_steps,n_envs,batch_size,epochs)):
+        raise ValueError(&#x27;positive integer counts required&#x27;)
+    batch = n_steps*n_envs
+    rollouts = (requested+batch-1)//batch
+    return dict(rollout_transitions=batch,actual_transitions=rollouts*batch,
+                minibatches_per_epoch=(batch+batch_size-1)//batch_size,
+                optimizer_steps_per_rollout=epochs*((batch+batch_size-1)//batch_size))</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Do four workers turn learn(2_000_000) into eight million transitions?</summary><p>No. SB3’s timestep counter sums worker transitions already. Vector-step calls are a separate count.</p></details>
+</section>

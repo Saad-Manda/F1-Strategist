@@ -1,0 +1,28 @@
+<section>
+<h2>AEC selection is not an information rule</h2>
+<p>An AEC driver resets, iterates env.agent_iter(), reads observation,reward,terminated,truncated,info from env.last(), and submits None for the selected agent if either flag is true. Otherwise choose that agent’s legal action. Cleanup depends on the selected agent’s flags, not all(env.terminations.values()). Later agents may still be live.</p>
+<p>AEC can encode simultaneous games by hiding pending commitments and resolving a full action cycle. The toy converted from Parallel hides A’s current choice from B; a different sequential game could intentionally reveal it. The API’s selection order alone does not grant a second player access to pending actions.</p>
+<p>Parallel reset returns observations and infos dictionaries. Capture live=list(env.agents), submit exactly those agents’ actions from pre-step observations, then receive five dictionaries: observations,rewards,terminations,truncations,infos. possible_agents lists potential identities; agents lists currently active ones. Use each returned participant’s ending flags and final transition data before removing it from the next action set.</p>
+<h2>One completed round</h2>
+<p>In the pack’s OneRound, A plays PAPER=1 and B ROCK=0. The joint step returns rewards +1/−1, both true terminations and false truncations, final observations, then agents=[]. Its converted AEC requires two commitments and dead-agent cleanup. A dictionary key for a just-ended transition need not imply that agent is still live for the next step. API conformance checks supplement, rather than replace, hidden-commitment and reward-ownership witnesses.</p>
+<pre><code>def aec_round(env, actions):
+    trace = []
+    for agent in env.agent_iter():
+        observation,reward,terminated,truncated,info = env.last()
+        chosen = None if terminated or truncated else actions[agent]
+        trace.append(dict(agent=agent,action=chosen,reward=float(reward),terminated=bool(terminated),truncated=bool(truncated)))
+        env.step(chosen)
+    return trace
+
+def parallel_round(env, actions):
+    live = list(env.agents)
+    if not live or set(actions) != set(live):
+        raise ValueError(&#x27;exact current live-agent actions required&#x27;)
+    obs,rewards,terminations,truncations,infos = env.step(dict(actions))
+    return dict(actions_consumed=len(live),joint_transitions=1,rewards=rewards,
+                terminations=terminations,truncations=truncations,agents=list(env.agents))</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Should a dead AEC agent get action 0 while another remains live?</summary><p>No. Submit None when the selected agent has terminated or truncated, using its own last() flags.</p></details>
+<p>Reference: <a href="https://pettingzoo.farama.org/api/aec/">Official AEC API</a>.</p>
+<p>Reference: <a href="https://pettingzoo.farama.org/api/parallel/">Official Parallel API</a>.</p>
+</section>

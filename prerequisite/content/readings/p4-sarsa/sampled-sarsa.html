@@ -1,0 +1,36 @@
+<section><h2>Exploration changes the continuation you experience</h2><p>At s1, PIT_NOW terminates for −12; PUSH gives −1 and reaches s2. At s2, PIT terminates for −8 and PUSH_MORE for −30. Greedy PUSH/PIT totals −9, better than −12. Under epsilon-greedy behavior, the bad continuation is possible.</p>
+<p>Retain the hand trace with alpha 0.5, gamma one and zero tables. Episode one explores PUSH_MORE; episode two chooses PIT; episode three again explores PUSH_MORE. Update the opening PUSH cell before updating the successor cell:</p>
+<div class="table-wrap"><table><thead><tr><th>Episode</th><th>Successor values before opening update</th><th>Q-learning PUSH after</th><th>SARSA PUSH after</th></tr></thead><tbody>
+<tr><td>1, PUSH_MORE</td><td>[0,0]</td><td>−0.5</td><td>−0.5</td></tr>
+<tr><td>2, PIT</td><td>[0,−15]</td><td>−0.75</td><td>−0.75</td></tr>
+<tr><td>3, PUSH_MORE</td><td>[−4,−15]</td><td>−2.875</td><td>−8.375</td></tr>
+</tbody></table></div>
+<p>The third greedy target is −1−4=−5; the sampled SARSA target is −1−15=−16. Both are then blended with the old −0.75. The terminal successor updates later: PIT to −4 after episode two, PUSH_MORE to −22.5 after episode three. These fixed draws expose the algorithmic difference without promising a specific learned route after finite training.</p>
+<h2>Sample once, then execute that action</h2><p>If learn() samples a next action, the next act() call must return it rather than resample from a changed table or a different epsilon. The unchanged pack stores (next_state, action) in a small memory dictionary. Reuse the epsilon-greedy selector; its legal-index and distribution validators were taught earlier.</p>
+<pre><code>def act(memory, state, values, legal, epsilon, rng):
+    pending = memory.pop("pending", None)
+    if pending is None:
+        return select_action(values,legal,epsilon,rng)
+    pending_state, action = pending
+    if pending_state != state or action not in legal_indices(values,legal):
+        raise ValueError("stale pending action")
+    return action
+
+def target(memory, reward, next_state, values, legal, gamma,
+           terminated, truncated, epsilon, rng):
+    import math
+    validate_distribution([gamma,1-gamma])
+    if not math.isfinite(reward):
+        raise ValueError("reward must be finite")
+    memory.pop("pending", None)
+    if terminated:
+        return reward
+    action = select_action(values,legal,epsilon,rng)
+    if not truncated:
+        memory["pending"] = (next_state,action)
+    return reward + gamma*values[action]
+
+def reset(memory):
+    memory.pop("pending", None)</code></pre>
+<p>Reset clears pending behavior, not learned Q. A truncation samples continuation from the final unfinished state but discards its pending action. It must not apply that action to the next episode's initial state.</p>
+<h2>Recap and self-check</h2><details><summary>Why can resampling after the opening update be wrong?</summary><p>The backed-up action may differ from the one executed, especially if the update changes the same aliased table row or epsilon changes. Sampled SARSA requires the action in its transition to be the committed one.</p></details><p>Next, average over the behavior distribution instead of using one action sample.</p></section>

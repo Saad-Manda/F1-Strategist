@@ -1,0 +1,42 @@
+<section><h2>Extend the known race, without losing its checks</h2><p>Start with the deterministic four-lap solver. Add an SC flag: next SC probability is hazard while green and continuation probability while active. Add <code>served</code>, which becomes true after any PIT; when mandatory service is enabled, the last lap forbids STAY until service is done. Finally add weather labels 0, 1, 2. A weather row lists probabilities of the next three labels; the next lesson explains how to fit those rows.</p>
+<p>Green lap cost is <code>10+3(age−1)</code> plus weather penalty [0,1.5,4]. SC lap cost is fixed 20. PIT adds 6 green or 2.4 under SC, on the current old-tyre lap. Weather and SC successor draws are conditionally independent here; this assumption permits multiplying their weights. The complete implementation below reuses Foundations' probability validator.</p>
+<pre><code>def uncertain_race(horizon, hazard=0.2, continuation=0.5,
+                   weather=((1,0,0),(0,1,0),(0,0,1)), require_pit=False):
+    if type(horizon) is not int or not 0 &lt;= horizon &lt;= 8:
+        raise ValueError("horizon must be an integer from 0 to 8")
+    if require_pit and horizon == 0:
+        raise ValueError("no time to fulfill mandatory service")
+    validate_distribution([hazard, 1-hazard])
+    validate_distribution([continuation, 1-continuation])
+    if len(weather) != 3 or any(len(row) != 3 for row in weather):
+        raise ValueError("three weather rows with three successors required")
+    for row in weather:
+        validate_distribution(row)
+    costs = {(horizon+1, age, served, sc, w): 0.0
+             for age in range(1, horizon+2) for served in (False, True)
+             for sc in (0,1) for w in range(3)}
+    policy = {}
+    for lap in range(horizon, 0, -1):
+        for age in range(1, lap+1):
+            for served in (False, True):
+                for sc in (0,1):
+                    for w in range(3):
+                        current = 20.0 if sc else 10+3*(age-1)+(0,1.5,4)[w]
+                        p_sc = continuation if sc else hazard
+                        legal = ("PIT",) if require_pit and lap == horizon and not served else ("STAY", "PIT")
+                        choices = {}
+                        for action in legal:
+                            pit = action == "PIT"
+                            next_age = 1 if pit else age+1
+                            next_served = served or pit
+                            future = sum(p1*p2*costs[lap+1, next_age, next_served, sc2, w2]
+                                         for sc2,p1 in ((0,1-p_sc),(1,p_sc))
+                                         for w2,p2 in enumerate(weather[w]))
+                            choices[action] = current + (6*(0.4 if sc else 1) if pit else 0) + future
+                        key = (lap, age, served, sc, w)
+                        policy[key] = min(choices, key=choices.get)
+                        costs[key] = choices[policy[key]]
+    return costs, policy</code></pre>
+<h2>Recover old answers before trusting new ones</h2><p>Set hazard and continuation to zero, weather to the default identity rows and start dry/green. The initial four-lap value must be 52 without mandatory service. With mandatory service, the final unserved policy must PIT. Removing legal options cannot lower minimum cost when dynamics and starting conditions are otherwise identical.</p>
+<p>A safety car does <em>not</em> universally increase optimal cost: a fixed SC lap can be cheaper than a very worn green lap, and discounted pit losses can help. Check the direction only when justified by the actual compared models. Likewise, wet-start monotonicity depends on transition laws and costs; a weather label's name is not a proof.</p>
+<h2>Recap and self-check</h2><p>Check terminal zero, probability sums, conditional independence, action masks, old-tyre timing and simulated policy cost. Compare small cases against independent enumeration of adaptive decisions; a fixed action sequence alone is not every stochastic policy.</p><details><summary>Why is a fixed-lap pit baseline not generally a stochastic optimum?</summary><p>A policy can choose differently after observing SC or weather. A fixed schedule has fewer choices. Compare it under the same random model before interpreting a gap.</p></details><p>Continue to the expectation browser lab and pack, then learn to estimate and sample weather transitions.</p></section>

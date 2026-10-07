@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Build your first RL environment and agent loop. Predict, step a three-state world, then implement and check the Gymnasium contract locally.">
+<title>Build the interaction loop — RL Lab 1</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/labs.css?v=m1">
+<script type="module" src="../assets/lab-shell.js?v=outline-20261004"></script>
+<script type="module" src="../assets/experiments/p1-loop.js"></script>
+</head>
+<body data-lab-id="p1-loop">
+<a class="skip-link" href="#main">Skip to lab</a>
+<div class="shell">
+  <nav class="sidebar" aria-label="Lab navigation">
+    <a class="brand" href="../index.html"><span class="kicker">RL Labs · Phase 1</span><span class="title">Build the interaction loop</span></a>
+    <ul class="nav-list">
+      <li><a href="../index.html">← Curriculum</a></li>
+      <li><a href="#challenge">1 · Predict</a></li>
+      <li><a href="#experiment">2 · Investigate</a></li>
+      <li><a href="#theory">3 · Understand</a></li>
+      <li><a href="#implement">4 · Implement</a></li>
+      <li><a href="#reflect">5 · Explain</a></li>
+    </ul>
+    <div class="sidebar-foot">About 30 minutes.<br>Python basics; no prior RL.</div>
+  </nav>
+  <main id="main"><div class="doc">
+    <p class="eyebrow">Lab 01 · Guided build</p>
+    <h1>Who does what in an RL loop?</h1>
+    <p class="dek">You’ll build a small environment, connect it to an agent, and investigate what happens when an episode stops before the task is finished.</p>
+    <div class="catalog-summary"><span>Browser experiment</span><span>Python on your machine</span><span id="lab-progress" role="status">Not started</span></div>
+    <noscript><div class="note generic"><p>JavaScript enables the experiment and saved progress. You can still read this lab and download the Python pack below.</p></div></noscript>
+
+    <section id="challenge" class="phase-section">
+      <h2>1. Make a prediction</h2>
+      <p>The world has three positions: <strong>0 → 1 → 2</strong>. You start at 0. LEFT moves one position left, bounded at 0; RIGHT moves one right. Arrival at 2 gives reward +5 and ends the task. Every other step gives -1.</p>
+      <p>Your agent chooses an action. The environment applies it and returns the next observation, reward, and episode boundary flags. Predict what happens after <strong>RIGHT, then RIGHT</strong>, with a six-step collection limit.</p>
+      <div id="learning-controls" hidden>
+        <form id="prediction-form" class="lab-panel">
+          <fieldset><legend>Which result do you expect?</legend>
+            <label class="choice"><input type="radio" name="prediction" value="terminal">Observation 2, last reward +5, total +4; the task has terminated.</label>
+            <label class="choice"><input type="radio" name="prediction" value="reward">Observation 2, last reward +4, total +4; the task has terminated.</label>
+            <label class="choice"><input type="radio" name="prediction" value="reset">Observation 0, last reward +5, total +4; arrival automatically starts another episode.</label>
+          </fieldset>
+          <button type="submit">Check my prediction</button>
+          <p id="prediction-feedback" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="experiment" class="phase-section">
+      <h2>2. Step through the evidence</h2>
+      <p class="experiment-label">Live browser calculation · deterministic transitions · no Python runs in this page</p>
+      <ol class="chain-track" aria-label="Positions in the world">
+        <li data-position="0" class="current" aria-current="step"><strong>0</strong><span>Start</span></li>
+        <li data-position="1"><strong>1</strong><span>Middle</span></li>
+        <li data-position="2"><strong>2</strong><span>Goal</span></li>
+      </ol>
+      <div class="readouts"><p>Observation <strong id="chain-observation">0</strong></p><p>Total reward <strong id="chain-total">0</strong></p><p><code id="chain-flags">terminated=false, truncated=false</code></p></div>
+      <div id="chain-controls" class="lab-panel" hidden>
+        <div class="button-row"><button type="button" data-action="0">Step LEFT</button><button type="button" data-action="1">Step RIGHT</button><button type="button" id="run-random">Run seeded random agent</button></div>
+        <div class="input-row"><label for="step-cap">Collection limit (steps)<input id="step-cap" type="number" min="1" max="20" step="1" value="6"></label><label for="random-seed">Random agent seed<input id="random-seed" type="number" min="0" max="4294967295" step="1" value="7"></label><button type="button" id="reset-chain">Reset experiment</button></div>
+        <p class="small">Changed limits and seeds apply on Reset. Reset clears the trace and keeps your learning progress.</p>
+      </div>
+      <p id="experiment-status" role="status" aria-live="polite">Reset observation is 0. Choose an action to begin.</p>
+      <div class="table-wrap"><table><caption>One row per environment transition</caption><thead><tr><th>Step</th><th>Before</th><th>Agent action</th><th>Next observation</th><th>Reward</th><th>Total</th><th>Terminated</th><th>Truncated</th></tr></thead><tbody id="trace-body"></tbody></table></div>
+      <p>Now set the collection limit to <strong>1</strong>, reset, and take RIGHT. Compare the final observation and both flags. Did the task finish, or did collection stop?</p>
+      <p>Optional: reset with a fixed seed and run the random agent twice. Does the action trace reproduce? A random policy is still an agent, even though it has learned nothing.</p>
+    </section>
+
+    <section id="theory" class="phase-section">
+      <h2>3. Connect the trace to the contract</h2>
+      <p>An <strong>agent</strong> maps an observation to an action. An <strong>environment</strong> owns the transition and reward rules. Your action changes the state through <code>env.step(action)</code>; the agent doesn’t edit the state directly.</p>
+      <pre><code>observation, info = env.reset()
+action = policy(observation)
+observation, reward, terminated, truncated, info = env.step(action)</code></pre>
+      <p><strong>Reward</strong> belongs to one transition. The sum in the trace is this episode’s undiscounted <strong>return</strong>. Arrival at the goal is a true task boundary: <code>terminated=True</code>. An external cap ends collection early: <code>truncated=True</code>. Stop the agent loop on either flag, then explicitly reset before a new episode.</p>
+      <p>The base chain has no time limit. Its collector can be wrapped with a cap. Later, value learners will still bootstrap at a nonterminal truncation; they won’t at true termination. An intrinsic finite-horizon task is different: reaching its horizon is termination, and remaining time belongs in its state.</p>
+      <p><code>info</code> is diagnostic data; here it records the number of executed steps. Your policy uses the observation. A fresh reset clears episode counters and gives an initial observation without taking an action or awarding a step reward.</p>
+      <p>Read alongside: <a href="../../phase-1-rl-prerequisites/01-rl-fundamentals.html">RL fundamentals</a> · <a href="../../phase-1-rl-prerequisites/04-gymnasium-api.html">Gymnasium API</a>. API and boundary details follow the <a href="https://gymnasium.farama.org/api/env/">Gymnasium Env contract</a> and <a href="https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/">time-limit guidance</a>.</p>
+    </section>
+
+    <section id="implement" class="phase-section">
+      <h2>4. Build it in Python</h2>
+      <p><a class="start-lab" href="../downloads/p1-loop.zip" download>Download the Python exercise pack</a></p>
+      <p>Extract it anywhere and open a terminal inside the <code>p1-loop</code> folder. The pack supplies the CLI, spaces, test harness, and independent expected traces. Complete three TODOs in <code>starter.py</code>: reset, transition, and collection. Python 3.10+; tested with Python 3.12.7 and Gymnasium 1.3.0.</p>
+      <pre><code>python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe starter.py --actions RIGHT,RIGHT --limit 6
+.\.venv\Scripts\python.exe checks.py --candidate starter.py</code></pre>
+      <p>The untouched starter deliberately reports “Exercise incomplete.” Compare your implemented trace with the browser. Then investigate the supplied runnable variant before reading a solution:</p>
+      <pre><code>.\.venv\Scripts\python.exe broken.py --actions RIGHT,RIGHT --limit 1
+.\.venv\Scripts\python.exe checks.py --candidate broken.py</code></pre>
+      <p>Its checker reports a failure. Identify the first trace row that should have stopped collection, then fix a copy yourself. The <a href="../downloads/p1-loop/README.md">pack README</a> explains the output format and commands.</p>
+      <div class="lab-panel" id="help-controls" hidden>
+        <h3>Help, when you want it</h3>
+        <button type="button" id="next-hint">Request hint 1 of 3</button>
+        <p data-hint hidden><strong>Hint 1:</strong> Compare what the reset call returns with what a step returns. What does each belong to: agent or environment?</p>
+        <p data-hint hidden><strong>Hint 2:</strong> The terminal observation belongs to the episode that just ended. Reset is a separate call. The wrapper can stop collection while the chain’s position is still 1.</p>
+        <p data-hint hidden><strong>Hint 3:</strong> Return <code>(position, reward, terminated, False, info)</code> from the base chain. The collector must break when <code>terminated or truncated</code> is true. Reset all episode counters.</p>
+        <button type="button" id="reveal-solution" aria-controls="solution" aria-expanded="false">Request explained solution</button>
+      </div>
+      <div id="solution" class="lab-panel" hidden>
+        <h3>Explained solution</h3>
+        <p>Reset initializes position 0 and clears counters. A step validates the action, computes the next position, then assigns its reward and true-terminal flag. The TimeLimit wrapper supplies truncation. The collector records the transition before checking both boundary flags:</p>
+        <pre><code>observation, info = env.reset(seed=seed)
+trace = []
+while True:
+    before = observation
+    action = policy(observation)
+    observation, reward, terminated, truncated, info = env.step(action)
+    trace.append(dict(before=before, action=action,
+                      observation=observation, reward=reward,
+                      terminated=terminated, truncated=truncated, info=info))
+    if terminated or truncated:
+        break</code></pre>
+        <p>RIGHT,RIGHT yields rewards -1 and +5, total +4, and terminal observation 2. A cap of 1 yields observation 1, reward -1, and truncation. The broken collector checks only termination and steps after the cap.</p>
+        <p><a href="../downloads/p1-loop/solution.py" download>Download the complete reference solution</a>. This is a three-state teaching environment; the checks compare behaviour, not its source text.</p>
+      </div>
+      <noscript><details><summary>Request the reference solution</summary><a href="../downloads/p1-loop/solution.py" download>Download solution.py</a></details></noscript>
+    </section>
+
+    <section id="reflect" class="phase-section">
+      <h2>5. Explain and transfer</h2>
+      <p>Explain who chooses actions, who owns transitions and rewards, and how termination differs from truncation. Connect it to your project: which reset/step and info contracts must <code>F1StrategyEnv</code> preserve so different agents can use it?</p>
+      <div id="reflection-controls" class="lab-panel" hidden>
+        <label for="explanation">Your explanation<textarea id="explanation" rows="5" maxlength="6000" placeholder="Use the evidence from your trace and Python checks."></textarea></label>
+        <label class="choice"><input type="checkbox" id="verified">My local implementation passes checks.py, and I compared terminal and capped traces.</label>
+        <button type="button" id="complete-lab">Mark lab complete</button>
+        <p id="completion-feedback" role="status" aria-live="polite"></p>
+      </div>
+      <p>Optional transfer: change the goal to 3 in your own variant. Update the observation space and calculate new expected traces before running it. The original checker still targets the original world.</p>
+    </section>
+
+    <section class="phase-section" id="progress-tools" hidden>
+      <h2>Your progress</h2>
+      <p id="saved-status" role="status" aria-live="polite"></p>
+      <div class="button-row"><button type="button" id="export-progress">Export progress</button><label class="file-input" for="import-progress">Import progress (replaces saved progress)<input type="file" id="import-progress" accept=".json,application/json"></label></div>
+      <details><summary>Reset this lab’s learning progress</summary><p>This clears your prediction, explanation, completion, and revealed help for this lab only. Export first if you want a copy. Experiment Reset does not clear this progress.</p><button type="button" id="reset-progress">Clear this lab’s progress</button></details>
+    </section>
+    <p class="catalog-footer"><a href="../index.html#phase-1">Back to the curriculum</a> · <a href="../../phase-1-rl-prerequisites/index.html">Phase 1 reading</a></p>
+  </div></main>
+</div>
+</body>
+</html>

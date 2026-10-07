@@ -1,0 +1,19 @@
+<section><h2>Equality at an edge needs a rule</h2><p>For normalized feature x in [0,1] and edges [0,0.25,0.5,1], define bins [0,0.25), [0.25,0.5) and [0.5,1]. Equality at an interior edge goes into the higher bin; the last bin includes 1. Thus 0 maps to 0, 0.25 to 1, 0.5 to 2 and 1 to 2.</p>
+<p>Without that convention, a Python encoder and browser illustration can disagree on a cliff boundary despite apparently identical bin counts. State explicitly whether an edge list contains full endpoints or only interior thresholds; that affects returned indices.</p>
+<pre><code>def bin_index(x, edges):
+    import bisect
+    import math
+    if not math.isfinite(x) or not 0 &lt;= x &lt;= 1:
+        raise ValueError("x must be in [0,1]")
+    if (len(edges) &lt; 2 or edges[0] != 0 or edges[-1] != 1
+        or any(not math.isfinite(e) or (i and e &lt;= edges[i-1])
+               for i,e in enumerate(edges))):
+        raise ValueError("edges must strictly increase from 0 to 1")
+    return min(bisect.bisect_right(edges,x)-1,len(edges)-2)
+
+assert [bin_index(x,[0,0.25,0.5,1]) for x in [0,0.25,0.5,1]] == [0,1,2,2]</code></pre>
+<h2>Translate library semantics rather than guessing</h2><p>For increasing full edges, NumPy <code>digitize(x,edges,right=False)</code> uses left-inclusive, right-exclusive intervals and returns an insertion-style index. Subtract one for a zero-based bin; handle the final endpoint explicitly. <code>searchsorted(edges,x,side="right")</code> has the same insertion convention. Setting right=True instead changes interior-edge equality.</p>
+<p>See <a href="https://numpy.org/doc/stable/reference/generated/numpy.digitize.html">NumPy's digitize documentation</a>. Out-of-range values can produce indices outside the intended bins in NumPy; the practice function deliberately rejects them first. Clamping an invalid observation silently would hide a contract bug, unlike deliberately closing the valid upper endpoint.</p>
+<h2>Floating-point representation is observable</h2><p>An input stored slightly below an edge belongs to the lower interval, even if its decimal label looks like the edge. Test the edge and nearby representable values, including the float32 dtype supplied by the environment. If you need integer tyre ages reconstructed from normalized input, define that rounding assumption and test it; an arbitrary tolerance applied to every feature changes the encoder's meaning.</p>
+<p>Nonuniform bins use the same rule. Edges [0,0.4,0.6,0.65,1] allocate a narrow interval near a sensitive boundary. Reject duplicate, descending, missing-endpoint or nonfinite edge lists.</p>
+<h2>Recap and self-check</h2><details><summary>What bin does x=0.5 use for edges [0,0.25,0.5,1]?</summary><p>Bin 2, the interval starting at 0.5. Calling it bin 1 would apply a different equality convention.</p></details><p>Next, construct two physical states that a coarse encoder cannot distinguish.</p></section>

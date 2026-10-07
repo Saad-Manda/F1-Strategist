@@ -1,0 +1,82 @@
+<section><h2>Share everything except the target being compared</h2><p>A useful comparison controls reward units, initialization, legal masks, alpha, gamma, environment transitions and training budget. Here is a complete small learner shell using the already taught selector and pending-action helpers. It stores a sparse table with two actions per state. It does not execute a training run on this page.</p>
+<pre><code>from collections import defaultdict
+
+class TDLearnerShell:
+    def __init__(self, alpha=0.5, gamma=1.0,
+                 start=1.0, end=0.05, decay_steps=2000):
+        validate_distribution([alpha,1-alpha])
+        validate_distribution([gamma,1-gamma])
+        if not 0 &lt;= end &lt;= start &lt;= 1 or decay_steps &lt;= 0:
+            raise ValueError("invalid exploration schedule")
+        self.alpha, self.gamma = alpha, gamma
+        self.start, self.end, self.decay_steps = start, end, decay_steps
+        self.steps, self.memory = 0, {}
+        self.table = defaultdict(lambda: [0.0,0.0])
+
+    def epsilon(self):
+        return epsilon_at(self.steps,self.start,self.end,self.decay_steps)
+
+    def reset(self):
+        reset(self.memory)
+
+    def pick(self, state, legal, rng, evaluation=False):
+        if evaluation:
+            return select_action(self.table.get(state,[0.0,0.0]),legal,0,rng)
+        return act(self.memory,state,self.table[state],legal,self.epsilon(),rng)
+
+    def learn(self, state, action, reward, successor, legal_next,
+              terminated, truncated, rng):
+        backed = self.backup(reward,successor,legal_next,terminated,truncated,rng)
+        old = self.table[state][action]
+        self.table[state][action] = old + self.alpha*(backed-old)
+        self.steps += 1
+
+class OffPolicyLearner(TDLearnerShell):
+    def backup(self,reward,state,legal,terminated,truncated,rng):
+        if terminated:
+            return reward
+        values = self.table[state]
+        return reward + self.gamma*max(values[i] for i in legal_indices(values,legal))
+
+class OnPolicyLearner(TDLearnerShell):
+    def backup(self,reward,state,legal,terminated,truncated,rng):
+        values = [] if terminated else self.table[state]
+        return target(self.memory,reward,state,values,legal,self.gamma,
+                      terminated,truncated,self.epsilon(),rng)
+
+class TinyStrategyWorld:
+    # Plain Python teaching world using reset/step return conventions.
+    def reset(self):
+        self.state = 0
+        return 0, {}
+
+    def step(self, action):
+        if self.state == 2 or type(action) is not int or action not in (0,1):
+            raise ValueError("reset or supply a legal action")
+        if self.state == 0:
+            successor,reward = (2,-12.0) if action == 0 else (1,-1.0)
+        else:
+            successor,reward = 2, (-8.0 if action == 0 else -30.0)
+        self.state = successor
+        return successor,reward,successor == 2,False,{}
+
+def one_episode(learner, world, rng, evaluation=False):
+    learner.reset()
+    state,_ = world.reset()
+    total = 0.0
+    while True:
+        action = learner.pick(state,[True,True],rng,evaluation)
+        successor,reward,terminated,truncated,_ = world.step(action)
+        if not evaluation:
+            learner.learn(state,action,reward,successor,
+                          [] if terminated else [True,True],terminated,truncated,rng)
+        total += reward
+        if terminated or truncated:
+            learner.reset()
+            return total
+        state = successor</code></pre>
+<h2>Check commitment before comparing scores</h2><p>Install successor values [6,−10] and use a supplied draw 0.95 at epsilon 0.2. The sampled target must be −10 and the next action must be SLIP, even if Q changes before execution. Another policy draw is not allowed to replace the committed action. Check that pending state and legality are validated, and reset clears only memory.</p>
+<p>A valid normal terminal loop consumes pending actions and clears them; it need not leak one automatically. Reproduce the bug with a collector interrupted after choosing a next action but before executing it, or a deliberately broken target that retains pending state at truncation. Reset the world without resetting the learner and observe the stale action/error; then restore boundary cleanup. The old claim that this correct terminal toy necessarily retains a pending action was too strong.</p>
+<h2>Keep evaluation distinct</h2><p>Freeze a table copy, reset memory and use evaluation=True; no value, counter or sparse entry should change. Equal seeds are reproducibility settings, not a guarantee that the two algorithms choose equal actions or consume equal draws. Compare multiple independent seeds under documented settings, pairing environment scenarios when appropriate.</p>
+<p>The unchanged comparison pack uses a separate positive-reward START/RISK/SAFE world: greedy RISK value 6 versus epsilon-0.2 behavior value 4.4. It is not the negative-cost pit toy. Both illustrate the target distinction; neither guarantees different final greedy routes or a specific finite sampled training mean.</p>
+<h2>Recap and self-check</h2><details><summary>Is a SARSA table with lower opening values necessarily a worse evaluated greedy policy?</summary><p>No. Its values include the behavior continuation. Freeze and evaluate the intended policy, then compare outcomes under matched conditions.</p></details><p>Continue to the committed-action browser/Python practice, then examine the state encoder shared by all those updates.</p></section>

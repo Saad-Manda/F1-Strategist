@@ -1,0 +1,19 @@
+<section>
+<h2>Make the opponent affect an outcome</h2>
+<p>The lane pack has CROSS and WAIT. With blocking, CROSS pays +1 if clear and −1 if occupied; WAIT pays zero. If occupancy probability is p=.8, E[CROSS]=.2(1)+.8(−1)=−.6, so WAIT is better. At p=.2 CROSS scores .6. Without blocking CROSS always pays 1 regardless of p: opponent behavior is disconnected from this decision.</p>
+<p>This toy separates a changing opponent from a missing mechanism. Training longer cannot learn a benefit that the chosen transition/reward definition does not contain. Conversely, a histogram can change even when this particular mechanism is disconnected, due to marginal action preferences or shared conditions.</p>
+<h2>A minimal traffic constraint</h2>
+<p>A faster follower with own pace 4.5, leader pace 5, gap .5 and no successful pass can be held to max(4.5,5+dirty_air(.5)). With the illustrative dirty-air line this is 5⅓. It gains no time on the leader during that step. Successful release permits its own physical pace, subject to the declared dirty-air convention. Use start-of-step order, simultaneous paces and exact-once accumulation.</p>
+<p>A sorted-by-time model can still show pit-timing effects from tyres, weather or a pit loss. What it cannot represent without a binding interaction is the specific benefit of escaping blocked traffic. The legacy “no undercut can ever exist” claim was too broad. The proposed one-line cap also is not a complete collision/order model: a follower just outside its threshold might cross the leader unless crossing resolution is defined.</p>
+<pre><code>def lane_reward(action, occupied, blocking=True):
+    if action not in (&#x27;CROSS&#x27;,&#x27;WAIT&#x27;) or type(occupied) is not bool or type(blocking) is not bool:
+        raise ValueError(&#x27;invalid action/flags&#x27;)
+    return 0 if action == &#x27;WAIT&#x27; else (-1 if blocking and occupied else 1)
+
+def expected_lane(p, blocking=True):
+    if not math.isfinite(p) or not 0 &lt;= p &lt;= 1 or type(blocking) is not bool:
+        raise ValueError(&#x27;invalid occupancy probability/flag&#x27;)
+    return {&#x27;CROSS&#x27;: 1-2*p if blocking else 1, &#x27;WAIT&#x27;: 0}</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Why compare blocking enabled and disabled with identical scripts?</summary><p>It tests whether the proposed interaction actually changes the reachable outcomes, independently of learning.</p></details>
+</section>

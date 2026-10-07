@@ -1,0 +1,647 @@
+[
+  {
+    "module": "foundations",
+    "term": "Action",
+    "definition": "A choice available to the agent at a given step. Here, one of six: stay out, or pit for SOFT/MEDIUM/HARD/INTERMEDIATE/WET."
+  },
+  {
+    "module": "foundations",
+    "term": "Action masking",
+    "definition": "Restricting which actions are legal in a given state, provided as a boolean array alongside the observation, so the agent never has to learn illegal-action avoidance purely from trial and error."
+  },
+  {
+    "module": "foundations",
+    "term": "Agent",
+    "definition": "The decision-maker in the RL loop; the thing being trained. Not implemented in Phase 1 — Phase 1 builds the world the agent will act in."
+  },
+  {
+    "module": "foundations",
+    "term": "Bellman equation",
+    "definition": "The recursive relationship expressing a state's (or state-action pair's) value in terms of immediate reward plus the discounted value of what follows; derived from the return's own definition in the module readings."
+  },
+  {
+    "module": "foundations",
+    "term": "Curriculum learning",
+    "definition": "Training on an easier version of a task first, then increasing difficulty once the easier version is solved. This project's dry_no_sc curriculum hook is an instance of this."
+  },
+  {
+    "module": "foundations",
+    "term": "Discount factor (γ)",
+    "definition": "A number in [0, 1] controlling how much future reward counts relative to immediate reward. This project uses γ = 1.0 —"
+  },
+  {
+    "module": "foundations",
+    "term": "Environment",
+    "definition": "The world the agent interacts with; here, F1StrategyEnv, implementing the Gymnasium Env contract."
+  },
+  {
+    "module": "foundations",
+    "term": "Episode",
+    "definition": "One complete run of the agent–environment loop from start to a natural end; here, one full race."
+  },
+  {
+    "module": "foundations",
+    "term": "Exploration vs. exploitation",
+    "definition": "The trade-off between trying new actions to learn more (exploration) and using the best-known action so far (exploitation). Named in the module readings; resolving it is an agent's job in a later phase, not Phase 1's."
+  },
+  {
+    "module": "foundations",
+    "term": "Gymnasium",
+    "definition": "The standard Python API for RL environments (reset, step, spaces), successor to OpenAI Gym."
+  },
+  {
+    "module": "foundations",
+    "term": "Markov property",
+    "definition": "The requirement that the next state depends only on the current state and action, not on any earlier history."
+  },
+  {
+    "module": "foundations",
+    "term": "MDP",
+    "definition": "Markov Decision Process — the formal tuple (S, A, P, R, γ) defining a sequential decision problem."
+  },
+  {
+    "module": "foundations",
+    "term": "Observation",
+    "definition": "What the agent actually sees each step. Here, the 16-dimensional normalized vector."
+  },
+  {
+    "module": "foundations",
+    "term": "Policy (π)",
+    "definition": "A mapping from states to actions (or to a distribution over actions); the agent's strategy. Not implemented in Phase 1."
+  },
+  {
+    "module": "foundations",
+    "term": "Q-learning",
+    "definition": "A sampled action-value update toward immediate reward plus a discounted legal successor maximum; true terminals have no continuation."
+  },
+  {
+    "module": "foundations",
+    "term": "Q-value / action-value function (Q)",
+    "definition": "The expected return from taking a specific action in a specific state, then following a policy thereafter."
+  },
+  {
+    "module": "foundations",
+    "term": "Return (G)",
+    "definition": "The (possibly discounted) sum of future rewards from a given point onward; what the agent is actually trying to maximize."
+  },
+  {
+    "module": "foundations",
+    "term": "Reward",
+    "definition": "The scalar feedback signal received after each step. Here, -lap_time."
+  },
+  {
+    "module": "foundations",
+    "term": "Reward hacking",
+    "definition": "An agent finding a way to score well by exploiting an accident of the environment's construction rather than solving the intended problem. This project's fresh-sampled safety cars exist specifically to prevent one instance of this."
+  },
+  {
+    "module": "foundations",
+    "term": "Reward hypothesis",
+    "definition": "A modeling proposal to express a task objective through expected cumulative scalar reward. Choosing a scalar proxy does not establish that it matches the intended task."
+  },
+  {
+    "module": "foundations",
+    "term": "State",
+    "definition": "The underlying situation the environment is in. In this project the full state is observable, so state and observation coincide."
+  },
+  {
+    "module": "foundations",
+    "term": "Transition function (P)",
+    "definition": "The (possibly stochastic) rule for how the environment moves from one state to the next given an action. Here, compute_lap_time plus the episode bookkeeping in step()."
+  },
+  {
+    "module": "foundations",
+    "term": "Value function (V)",
+    "definition": "The expected return from a given state onward, following a given policy."
+  },
+  {
+    "module": "planning",
+    "term": "Action mask",
+    "definition": "The boolean array of which actions are legal in a given state, computed once by dynamics.compute_action_mask and shared verbatim between the environment and the DP oracle."
+  },
+  {
+    "module": "planning",
+    "term": "Backward induction",
+    "definition": "The algorithm this phase implements: starting from a known terminal value (zero, after the last lap) and working one lap at a time toward lap 1, computing each lap's exact optimal value from the lap after it. The finite-horizon special case of dynamic programming."
+  },
+  {
+    "module": "planning",
+    "term": "Dynamic programming (DP)",
+    "definition": "Solving a problem by breaking it into overlapping subproblems, solving each exactly once, and reusing the results — as opposed to recomputing shared work repeatedly. Backward induction is this project's instance of it."
+  },
+  {
+    "module": "planning",
+    "term": "Expectation (over a random next state)",
+    "definition": "A probability-weighted average over every possible outcome, used wherever the recursion references \"the next value\" but the actual next state is uncertain — the safety car, and (for Oracle B) the weather regime."
+  },
+  {
+    "module": "planning",
+    "term": "Hazard rate",
+    "definition": "The per-lap probability that a safety car starts on any given green lap, fit per circuit from historical data. Paired with a continuation probability (1 − 1/mean_duration) for laps already under a safety car."
+  },
+  {
+    "module": "planning",
+    "term": "Markov chain",
+    "definition": "A model of a sequence of states where the next state depends only on the current one — the Markov property, applied to a process with no actions or rewards. Oracle B's weather model is one."
+  },
+  {
+    "module": "planning",
+    "term": "Maximum-likelihood estimate (of a transition matrix)",
+    "definition": "The standard way to fit a Markov chain from data: count every observed i → j transition, divide by how often i occurred as a starting point. No iteration required."
+  },
+  {
+    "module": "planning",
+    "term": "Oracle A (per-template DP)",
+    "definition": "The DP solved with one specific historical weather trace fixed and known in advance — an upper bound the agent provably cannot reach, since the agent never sees the future."
+  },
+  {
+    "module": "planning",
+    "term": "Oracle B (Markov-weather DP)",
+    "definition": "The DP solved with weather tracked as part of the state and transitioning according to a fitted Markov chain — exactly the MDP the agent actually faces, and therefore an achievable target."
+  },
+  {
+    "module": "planning",
+    "term": "Optimality gap",
+    "definition": "mean_race_time(agent) − mean_race_time(oracle_B), in seconds, reported with a paired bootstrap confidence interval. The headline evaluation metric from Phase 4 onward."
+  },
+  {
+    "module": "planning",
+    "term": "Overlapping subproblems",
+    "definition": "The property that many different paths through a race arrive at the same state, so its value only needs to be computed once and then reused — the reason a value table (not repeated recomputation) makes backward induction tractable."
+  },
+  {
+    "module": "planning",
+    "term": "Planning",
+    "definition": "Computing an optimal policy directly from a fully known model of the environment's dynamics and reward, with no trial and error. Contrasted with learning (Phases 4, 5, 9), which estimates a policy from sampled experience because the model isn't known."
+  },
+  {
+    "module": "planning",
+    "term": "Reachability pruning",
+    "definition": "Marking, in a forward pass before solving, which of the enumerated states can actually occur (e.g. tyre age can never exceed the current lap number) — cutting the states backward induction has to visit by roughly 5–10×."
+  },
+  {
+    "module": "planning",
+    "term": "Row-stochastic (matrix)",
+    "definition": "A matrix whose rows each sum to 1 — the defining property of a valid transition matrix, since the chain has to go somewhere at every step."
+  },
+  {
+    "module": "planning",
+    "term": "Stationary distribution",
+    "definition": "The long-run fraction of time a Markov chain spends in each state, independent of where it started. Mentioned in the module readingsfor completeness; not used by this project."
+  },
+  {
+    "module": "planning",
+    "term": "Terminal condition",
+    "definition": "V_(T+1)(s) = 0 for every state — the anchor that makes backward induction a single, non-circular pass rather than requiring iteration to convergence."
+  },
+  {
+    "module": "planning",
+    "term": "Transition matrix",
+    "definition": "The n × n table of probabilities P[i,j] = P(next = j | current = i) that fully describes a Markov chain."
+  },
+  {
+    "module": "planning",
+    "term": "Value of perfect foresight",
+    "definition": "Oracle A − Oracle B: how much a strategist would gain from genuinely knowing the future weather, versus only being able to reason about it probabilistically. An interesting F1 quantity in its own right, not a measure of RL underperformance."
+  },
+  {
+    "module": "planning",
+    "term": "Zero-noise expectation shortcut",
+    "definition": "Calling dynamics.compute_lap_time(..., rng=None) to get the exact expected lap time rather than a sampled one — valid because the environment's noise term is additive and zero-mean, so dropping it doesn't approximate the expectation, it equals it exactly."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Bootstrapping",
+    "definition": "Updating a value estimate using another value estimate (rather than a known true value or a fully-played-out return), the way every TD target in this set uses Q(s', a') — itself still being learned — instead of the true value of s'."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Curriculum learning",
+    "definition": "Training on an easier restricted version of the task first (here: dry weather, no safety cars) before introducing the full scenario library, so early episodes concentrate limited experience on fewer distinct table cells. Cross-reference: Phase 1's own entry."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Epsilon decay",
+    "definition": "Linearly shrinking ε from a high starting value toward a small floor over a fixed number of steps, so exploration is heaviest early in training and rarest (but never zero) later."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "ε-greedy",
+    "definition": "An action-selection rule: with probability ε act uniformly at random among legal actions, otherwise act greedily on the current Q-table. The standard way to balance exploration against exploitation in tabular TD control."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Learning rate (α)",
+    "definition": "The step size controlling how far a single sampled transition can move a Q-value estimate. Too high: unstable, chases noise. Too low: converges too slowly to be useful in a realistic training budget."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Off-policy",
+    "definition": "A learning method whose update target is computed for a different policy (Q-learning's: the greedy policy) than the one actually generating the training data (the ε-greedy behaviour policy)."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "On-policy",
+    "definition": "A learning method whose update target is computed using the same policy that's actually generating the behaviour — SARSA's target uses the ε-greedy policy's own next action, exploration and all."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Optimality gap",
+    "definition": "mean_race_time(agent) − mean_race_time(Oracle B), in seconds, reported with a paired bootstrap confidence interval — the headline evaluation metric for this phase and every phase after it. Cross-reference: Phase 3.5's own entry."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Optimistic initialization",
+    "definition": "Starting Q-values above what's realistic (e.g. a +10 bonus on pit actions) to bias early exploration toward under-tried actions. Only meaningful relative to the true value scale — see the reward-centring entry below for why a +10 bonus can be negligible or decisive depending on that scale."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Reward centring",
+    "definition": "Learning on reward − constant instead of raw reward (here, reward_offset=\"base_pace\") to bring the true value scale down to a range a fixed learning rate can traverse in a realistic number of visits, without changing which policy is optimal. Cross-reference:'s proof that subtracting a constant over a fixed horizon can't change the argmax."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "State discretization / binning",
+    "definition": "Converting a continuous observation into a finite, hashable key by bucketing each dimension into a small number of discrete ranges — required because a tabular Q-function is a dictionary, and dictionaries need finite keys."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Curse of dimensionality",
+    "definition": "The exponential growth of a discretized state space as more dimensions or finer bins are added — named here as the general reason tabular methods stop scaling, deferred to the Phase 5 prerequisites, which cover function approximation as the actual resolution."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "TD error (δ)",
+    "definition": "The gap between a fresh target estimate and the table's current value for the state-action pair just visited: δ = target − Q(s,a). Every update in this set is Q(s,a) ← Q(s,a) + α·δ."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "TD target",
+    "definition": "The fresher estimate an update nudges the table toward — r + γ·max_a' Q(s',a') for Q-learning, r + γ·Q(s',a') for SARSA (or just r if the episode terminated)."
+  },
+  {
+    "module": "tabular-learning",
+    "term": "Temporal difference (TD) learning",
+    "definition": "Estimating a value function from single sampled transitions, bootstrapping off the current estimate of what comes next, rather than solving for the exact expectation (dynamic programming) or waiting for a full episode to finish (Monte Carlo)."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Forward pass",
+    "definition": "Compute outputs from inputs and parameters."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Scalar loss",
+    "definition": "One objective differentiated by autograd."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Replay",
+    "definition": "Resample retained transitions; FIFO controls retention, not sampling order."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Target snapshot",
+    "definition": "Independent parameter storage with a specified refresh schedule."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Detachment",
+    "definition": "Prevent a computation from contributing gradients."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Double DQN",
+    "definition": "Online selects the successor action; target evaluates it."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Dueling",
+    "definition": "Value plus row-centered advantages represent action values."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Raw priority",
+    "definition": "Positive error-derived quantity before exponentiation."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Importance weight",
+    "definition": "Correction for changed sampling probabilities, fixed during differentiation."
+  },
+  {
+    "module": "neural-value-learning",
+    "term": "Ablation",
+    "definition": "Remove a mechanism under stated budgets and conditions; not a correctness proof."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Multi-car state extension",
+    "definition": "The three features added to Phase 1's 16-dimensional observation for Phase 6: gap_to_car_ahead, gap_to_car_behind, position_normalized."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Race position",
+    "definition": "A car's rank among all cars in the race, computed by sorting cumulative total_time ascending.explains why this computation alone isn't enough to make position matter strategically."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Credit-assignment problem",
+    "definition": "Determining which decisions or agents contributed to an outcome. A shared team reward alone does not identify causal contributions."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Sparse reward",
+    "definition": "A reward that's zero (or absent) on most steps and non-zero only rarely, such as final position, known only on the terminal step. Contrasted with Phase 1–5's fully dense -lap_time."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Reward shaping",
+    "definition": "Adding a term to a base reward. Arbitrary bonuses can change the objective; potential shaping preserves policy ordering only under its stated discount and boundary assumptions."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Reward hacking / proxy optimization",
+    "definition": "Improving a measured reward proxy while harming the intended objective. Diagnose actual rewards, mechanics and episode boundaries; a consistent undiscounted gap difference can telescope."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Potential-based shaping",
+    "definition": "Adding gamma times the next-state potential minus the current-state potential. A finite return retains an endpoint term; policy-invariance claims need matching discounts and justified boundaries."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Potential function Φ(s)",
+    "definition": "The state-only function a potential-based shaping term is built from — the real plan's choice is Φ(s) = -position_normalized.and 9."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Ng-Harada-Russell theorem",
+    "definition": "Conditions for reward transformations that preserve optimal policies, including potential differences. The finite-horizon endpoint term and terminal treatment matter."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Dirty air",
+    "definition": "The real aerodynamic effect where a trailing car loses downforce, and pace, running close behind another. Modeled as a linear penalty from 0.5s at zero gap to 0s at a 1.5s gap."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Following gap / DRS-style attempt gap",
+    "definition": "The distance threshold (1.0s in the real plan) within which an overtake attempt becomes possible at all."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Probabilistic overtaking model",
+    "definition": "The sigmoid function converting a car's pace advantage over the car ahead into a probability that an attempted pass succeeds, plus a small bonus for consecutive laps spent following."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Track position as a resource",
+    "definition": "Being ahead can affect future choices through traffic and passing mechanics. Rank derived from cumulative time alone does not implement those interactions."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Blocking constraint",
+    "definition": "A connected transition rule that limits a nearby follower when a pass fails. A pace cap alone does not implement every crossing-order interaction."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Undercut",
+    "definition": "Pitting before a rival to gain through fresh-tyre pace and subsequent relative position. Tyre and weather costs can produce timing effects even without a blocking model."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Overcut",
+    "definition": "Staying out longer than a rival when the benefits of the extra stint outweigh degradation and later pit costs. Evaluate it under the actual shared race mechanics."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Non-stationarity",
+    "definition": "The breakdown of the fixed-environment assumption underlying standard RL convergence results, once more than one agent in the environment is learning and changing its behavior over time.; full treatment deferred to the eventual Phase 8 prerequisites."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Stationary opponent / fixed-script rival",
+    "definition": "A fixed opponent policy. It can react to observations while remaining fixed; missing state can still invalidate a Markov model of the learner observation."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Double-counting bug (E1, as a general pattern)",
+    "definition": "Two separate pieces of code both updating the same piece of state, each unaware the other already did."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Dead-code overwrite (E2, as a general pattern)",
+    "definition": "A stateful, partial update to a quantity immediately followed by a from-scratch recomputation of that same quantity, where the recomputation silently wins."
+  },
+  {
+    "module": "multiple-agents",
+    "term": "Reward/dynamics disagreement (E3, as a general pattern)",
+    "definition": "A reward that penalizes or rewards something the actual state transitions don't reflect — a reward-hacking surface, not a cosmetic inconsistency."
+  },
+  {
+    "module": "self-play",
+    "term": "Non-stationarity (multi-agent case)",
+    "definition": "The breakdown of the fixed-environment assumption once more than one agent in the world is learning and changing its own behavior, so that transitions describing an earlier version of the game no longer describe the current one."
+  },
+  {
+    "module": "self-play",
+    "term": "Independent learners",
+    "definition": "Each agent has its own separate value function and learns only from its own experience, with no shared network or communication between agents. The paradigm the real plan uses."
+  },
+  {
+    "module": "self-play",
+    "term": "Parameter sharing",
+    "definition": "Using common policy parameters across compatible agent roles. Benefits depend on task symmetry, observations and optimization; faster learning is not guaranteed."
+  },
+  {
+    "module": "self-play",
+    "term": "Centralized-training, decentralized-execution (CTDE)",
+    "definition": "Training can use joint information, often through a centralized critic, while execution policies act on their permitted local observations. It is a design choice with information and complexity tradeoffs."
+  },
+  {
+    "module": "self-play",
+    "term": "Nash equilibrium",
+    "definition": "A pair of strategies where neither player can improve their own return by unilaterally switching, holding the other player's strategy fixed — the natural notion of \"solved\" for a two-player game."
+  },
+  {
+    "module": "self-play",
+    "term": "Best response",
+    "definition": "The strategy that maximizes a player's own return given a fixed assumption about what the other player is doing."
+  },
+  {
+    "module": "self-play",
+    "term": "Fictitious self-play",
+    "definition": "Responding to a historical opponent-strategy mixture. Convergence results require specific game and update assumptions; neural checkpoint-pool training does not inherit a general guarantee."
+  },
+  {
+    "module": "self-play",
+    "term": "Population-based training",
+    "definition": "Training against a diverse population of policies rather than one running average — AlphaStar's large-scale descendant of fictitious self-play, and the direct motivation for keeping a 50-checkpoint pool."
+  },
+  {
+    "module": "self-play",
+    "term": "Checkpoint pool",
+    "definition": "Independent frozen historical policies sampled during training or evaluation. Mixing episode policies differs from averaging network weights or mixing each action independently."
+  },
+  {
+    "module": "self-play",
+    "term": "Recency-biased sampling",
+    "definition": "The project splits mass .7 across the newest fifth and .3 across older snapshots. With 50 entries the per-entry ratio is 28/3; a one-entry pool needs explicit handling."
+  },
+  {
+    "module": "self-play",
+    "term": "Self-play evaluation trap",
+    "definition": "The fact that a rising self-play training reward curve only proves progress relative to one's own recent history, not skill against a genuinely different opponent — the reason the real plan's Definition of Done checks the learner outside the self-play loop."
+  },
+  {
+    "module": "self-play",
+    "term": "PettingZoo",
+    "definition": "The library providing standard multi-agent environment APIs (AEC and Parallel) that F1PettingZooEnv is built on."
+  },
+  {
+    "module": "self-play",
+    "term": "AEC (Agent Environment Cycle) API",
+    "definition": "An API that selects one agent at a time. It can represent turn-based or committed simultaneous games; selected terminated or truncated agents require dead-agent cleanup with None."
+  },
+  {
+    "module": "self-play",
+    "term": "Parallel API",
+    "definition": "An API receiving a dictionary of live-agent actions and returning per-agent observations, rewards, ending flags and info. Information-safe simultaneous commitment remains the environment implementation’s responsibility."
+  },
+  {
+    "module": "self-play",
+    "term": "possible_agents / per-agent dict convention",
+    "definition": "possible_agents describes the supported identity set; agents describes current live participants. Final-transition reward and flag dictionaries can contain agents no longer live."
+  },
+  {
+    "module": "self-play",
+    "term": "Degenerate deterministic policy (as a general pattern)",
+    "definition": "A greedy policy over randomly initialized parameters is deterministic conditional on inputs and parameters. It is neither automatically uniform nor necessarily constant across observations."
+  },
+  {
+    "module": "self-play",
+    "term": "Blocking constraint / track position as a resource",
+    "definition": "Traffic mechanics through which relative position affects future transitions. Independent single-car environments do not acquire shared blocking simply by being grouped in a multi-agent wrapper."
+  },
+  {
+    "module": "self-play",
+    "term": "Undercut",
+    "definition": "Pitting before a rival to gain through fresh-tyre pace and subsequent relative position. Tyre and weather costs can produce timing effects even without a blocking model."
+  },
+  {
+    "module": "self-play",
+    "term": "Overcut",
+    "definition": "Staying out longer than a rival when the benefits of the extra stint outweigh degradation and later pit costs. Evaluate it under the actual shared race mechanics."
+  },
+  {
+    "module": "self-play",
+    "term": "Permutation test / null baseline",
+    "definition": "Comparing an observed statistic against the same statistic recomputed on data with the tested-for relationship deliberately destroyed (here, by shuffling the pairing between an agent's pit laps and a rival's), to check whether an observed pattern could plausibly have arisen by chance."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Policy gradient",
+    "definition": "Directly parameterizing a policy π_θ(a|s) and adjusting θ to maximize expected return, rather than learning a value function and acting greedily with respect to it."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Policy gradient theorem",
+    "definition": "An expected score-gradient expression for a stated policy objective. The discounted start-state derivation uses gamma^t return-to-go weighting; practical transition-weighting conventions are stated separately."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "REINFORCE",
+    "definition": "A sampled policy-gradient method weighting log-probability gradients with detached returns or return-to-go, using the chosen objective’s discount convention."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Log-derivative trick",
+    "definition": "The identity ∇_θP = P·∇_θ log P, used to rewrite a gradient of an expectation as an expectation of a gradient — the step that makes policy gradients estimable by sampling."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Baseline",
+    "definition": "An action-independent predictor subtracted from a sampled actor weight. Under the stated score-function assumptions it preserves expected gradient; a poor predictor can increase variance."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Actor-critic",
+    "definition": "Training a policy (the actor) using a separately-learned value function (the critic) as a variance-reducing baseline, rather than the raw episode return."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Advantage function A(s,a)",
+    "definition": "Q(s,a) − V(s) — how much better an action was than a state's own average outcome; the natural choice of \"return minus baseline.\""
+  },
+  {
+    "module": "policy-gradients",
+    "term": "TD residual δ_t",
+    "definition": "r_t + γ(1−terminated)V(final next observation) − V(s_t). The endpoint value must describe the final transition observation, not an auto-reset state."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Generalized Advantage Estimation (GAE-λ)",
+    "definition": "A masked backward sum of TD residuals. λ=0 uses one residual; λ=1 telescopes to return minus current value with any continuing endpoint bootstrap retained. Cut traces at resets and stored rollout ends."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Bias-variance tradeoff (in advantage estimation)",
+    "definition": "Changing λ changes reliance on sampled future rewards versus learned continuation values. Strict bias and variance orderings are not universal, and a continuing partial rollout retains endpoint bootstrapping at λ=1."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Probability ratio r_t(θ)",
+    "definition": "π_θ(a_t|s_t) / π_θ_old(a_t|s_t) — how much more or less likely the current policy makes an action the batch-collecting policy actually took."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Clipped surrogate objective",
+    "definition": "min(r_t(θ)·A_t, clip(r_t(θ), 1−ε, 1+ε)·A_t). Certain sample-level incentives become flat; actual ratios and policy drift remain unbounded by clipping alone. Negate the mean for an actor loss minimized by descent."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "On-policy vs. off-policy",
+    "definition": "On-policy estimation uses the collection policy’s distribution; off-policy methods use other behavior distributions with the required corrections or targets. PPO uses a frozen recent rollout for a finite update cycle; its ratio remains definable even when drift makes reuse unreliable."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Entropy bonus",
+    "definition": "An objective term encouraging a less concentrated policy distribution over legal actions. Its coefficient is an engineering choice; the F1 lap-time reward is dense even when pit actions are rare."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Build-vs-buy (as an engineering heuristic)",
+    "definition": "Choose a library or a custom implementation based on verification effort, supported interfaces and required control. Both DQN and PPO can fail quietly; inspect mathematical and collector contracts either way."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "VecEnv / DummyVecEnv / SubprocVecEnv",
+    "definition": "SB3's vectorized-environment abstraction for running several environment copies at once; DummyVecEnv steps them sequentially in one process, SubprocVecEnv steps them in parallel worker processes."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "ActionMasker / MaskablePPO",
+    "definition": "MaskablePPO uses legal-action masks in collection and evaluation. Worker environments in SubprocVecEnv expose action_masks directly; an outer ActionMasker wrapper is not the supported worker contract."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Rollout buffer",
+    "definition": "The store of observations, actions, rewards, log-probabilities, and value estimates collected during a rollout phase, used to compute GAE and run the clipped-objective update."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "n_steps / batch_size / n_epochs",
+    "definition": "How many transitions per environment are collected before an update (n_steps), how they're split into minibatches (batch_size), and how many gradient passes each minibatch gets (n_epochs) before the next rollout."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Pickling / process-start method (fork vs. spawn)",
+    "definition": "Serializing an object to cross a process boundary; ordinary pickle generally rejects lambdas, while SB3 cloudpickle supports many closures. Captured resources can still fail; test the installed library under spawn."
+  },
+  {
+    "module": "policy-gradients",
+    "term": "Paired training-budget comparison",
+    "definition": "Compare algorithms at stated common cumulative environment-interaction counts or matched-budget curve points, with disclosed tuning/compute and matched physical evaluation. Unequal descriptive runs do not identify a fixed-budget algorithm effect."
+  }
+]

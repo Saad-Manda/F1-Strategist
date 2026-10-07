@@ -1,0 +1,31 @@
+<section>
+<h2>Freeze a complete evaluation specification</h2>
+<p>List candidate/checkpoint IDs, action and observation schemas, opponent distribution, scenario IDs, role swaps, legal masks, physical outcome definitions and independent seeds. The schedule pack forms the Cartesian product of scenarios and named opponents with stable SHA-256-derived scenario/opponent seeds and exploration zero. It owns streams instead of reseeding a global generator inside action selection.</p>
+<p>Two scenarios times two opponents produce four schedule rows. With eight vector environments, 128 vector steps represent 1024 individual transitions. In a two-agent Parallel round distinguish one joint world transition from two agent transitions; count the learner’s updates and opponent actions separately. The budget unit must be explicit before comparing methods.</p>
+<p>Evaluation freezes parameters, replay and optimizer state, exploration schedules, target synchronization and normalization statistics. Deterministic policy mode does not imply deterministic world outcomes. Training and evaluation streams, environments and metrics stay separate.</p>
+<h2>Read the delivered evidence honestly</h2>
+<p>The audit browser computes schedules, ID-aligned differences and counts live. The pack’s compare CLI exercises actual PettingZoo Parallel/AEC and official API checks locally when invoked. Recorded reports have version/source metadata; they are earlier local checks, not this browser running Python or proof of your candidate’s behavior. Run the unchanged candidate checker before confirming local practice.</p>
+<h2>Plan the inferential question</h2>
+<p>Define per-opponent return, worst covered matchup, paired physical-cost differences and uncertainty on whole races. Keep descriptive timing histograms beside their stratified null/intervention analyses. A weak random baseline is a sanity floor, not a test of equilibrium, historical coverage or reactive undercut behavior.</p>
+<pre><code>import hashlib
+
+def stable_seed(master,label):
+    return int.from_bytes(hashlib.sha256(f&#x27;{master}:{label}&#x27;.encode()).digest()[:4],&#x27;big&#x27;)
+
+def schedule(scenarios, opponents, master_seed):
+    for xs in (scenarios,opponents):
+        if not xs or any(not isinstance(x,str) or not x for x in xs) or len(set(xs)) != len(xs):
+            raise ValueError(&#x27;distinct nonempty IDs required&#x27;)
+    if type(master_seed) is not int or master_seed &lt; 0:
+        raise ValueError(&#x27;nonnegative integer master seed required&#x27;)
+    return [dict(scenario_id=s,opponent_id=o,scenario_seed=stable_seed(master_seed,&#x27;scenario:&#x27;+s),
+                 opponent_seed=stable_seed(master_seed,&#x27;opponent:&#x27;+o),exploration=0)
+            for s in scenarios for o in opponents]
+
+def experience(vector_envs, vector_steps):
+    if type(vector_envs) is not int or vector_envs &lt; 1 or type(vector_steps) is not int or vector_steps &lt; 0:
+        raise ValueError(&#x27;positive environment count and nonnegative steps required&#x27;)
+    return vector_envs*vector_steps</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does a valid schedule certify a strong learner?</summary><p>No. It establishes the comparison conditions; measured behavior under those conditions is separate evidence.</p></details>
+</section>

@@ -1,0 +1,23 @@
+<section>
+<h2>Extend the contract deliberately</h2>
+<p>The Phase 6 plan proposes F1MultiCarEnv, RivalState and overtaking helpers. Its 19-wide observation appends gap_ahead/60 and gap_behind/60 clipped to [0,1], plus position/n_cars, to the 16-feature single-car vector. At five cars P2 maps to .4. This is a proposed interface, not a claim that those production files exist or that the observation is Markov sufficient.</p>
+<p>A 16-input checkpoint cannot load unchanged into a 19-input first layer. With hidden width 128 that layer grows from 2176 to 2560 parameters, adding 384. An explicit transfer scheme could copy compatible columns and initialize new ones, but must be validated; a fresh 19-input network is the plan’s straightforward option. Adding leader flags would require another declared schema change.</p>
+<p>Five planned rival scripts are medium→hard at half distance; soft→medium→hard at laps 15 and H−15; hard→medium at H−20; soft→hard at 20; medium→soft→hard at H/3 and 2H/3. Validate legality and ordering for shortened races instead of assuming the 52-lap constants always apply. Give every car the same track_status and compute_pit_loss contract, with defined safety-car reactions.</p>
+<h2>Resolve physical consequences before rewards</h2>
+<p>Use the same pre-lap snapshot to collect actions and compute current-lap paces. Determine traffic/pass outcomes, apply physical costs once, accumulate time once and derive gaps, positions, observations and reward from those resolved values. Dirty air is .5 at gap 0, .25 at .75, zero at 1.5. These are illustrative plan constants, not measured universal F1 laws.</p>
+<p>The plan’s base pass sigmoid is 1/(1+exp(5(pace_delta+.5))). At pace advantages .5,1,1.5 it gives .5,.924142,.993307, not the comment’s .5,.8,.95. Add min(.1×laps_following,.2), then cap total at .95. Require gap&lt;1 and negative pace_delta. Use this lap’s leader pace; document crossing, ties, SC freezes and successful-release semantics.</p>
+<pre><code>def dirty_air(gap):
+    if not math.isfinite(gap) or gap &lt; 0:
+        raise ValueError(&#x27;nonnegative finite gap required&#x27;)
+    return .5*max(0.,1-gap/1.5)
+
+def pass_probability(pace_delta, gap, laps_following):
+    if not all(math.isfinite(x) for x in (pace_delta,gap)) or gap &lt; 0 or type(laps_following) is not int or laps_following &lt; 0:
+        raise ValueError(&#x27;invalid pass inputs&#x27;)
+    if gap &gt;= 1 or pace_delta &gt;= 0:
+        return 0.
+    base = 1/(1+math.exp(5*(pace_delta+.5)))
+    return min(base+min(.1*laps_following,.2),.95)</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Where must dirty air appear to slow the car?</summary><p>In the resolved lap cost and accumulated physical time. A reward-only subtraction cannot slow it.</p></details>
+</section>

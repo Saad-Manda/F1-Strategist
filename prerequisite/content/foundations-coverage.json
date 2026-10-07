@@ -1,0 +1,1072 @@
+{
+  "milestone": "R3",
+  "snapshot": "curriculum/coverage-map.json",
+  "sections": [
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-1",
+      "heading": "RL Fundamentals",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation"
+      ],
+      "laterMilestoneDestinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ]
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-2",
+      "heading": "The agent–environment loop",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "foundations/environment-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "foundations/environment-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-3",
+      "heading": "The reward hypothesis",
+      "destinations": [
+        "p1-return/reward-return",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-correct",
+      "rationale": "State a modeling hypothesis and scalar-objective limitations rather than an established equivalence for every possible goal.",
+      "authoredDestinations": [
+        "p1-return/reward-return",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-4",
+      "heading": "Episodes, and episodic vs. continuing tasks",
+      "destinations": [
+        "p1-loop/episode-endings",
+        "p1-return/horizons"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/episode-endings",
+        "p1-return/horizons"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-5",
+      "heading": "Exploration vs. exploitation",
+      "destinations": [
+        "p4-explore/greedy-discovery",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "p4-explore/greedy-discovery",
+        "tabular-learning/tabular-training"
+      ]
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-6",
+      "heading": "Why stochasticity is sampled fresh, not replayed",
+      "destinations": [
+        "p35-markov/sampling-not-foresight",
+        "foundations/race-dynamics"
+      ],
+      "disposition": "retain-and-correct",
+      "rationale": "Retain fresh-sampling and memorization warnings; distinguish environment overfitting from reward hacking.",
+      "authoredDestinations": [
+        "foundations/race-dynamics"
+      ],
+      "laterMilestoneDestinations": [
+        "p35-markov/sampling-not-foresight"
+      ]
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation"
+      ],
+      "laterMilestoneDestinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ]
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-1",
+      "heading": "Markov Decision Processes",
+      "destinations": [
+        "p1-state/state-observation",
+        "p1-state/markov-property",
+        "p1-state/mdp-model",
+        "p1-state/missing-information",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-state/state-observation",
+        "p1-state/markov-property",
+        "p1-state/mdp-model",
+        "p1-state/missing-information",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-2",
+      "heading": "The formal tuple",
+      "destinations": [
+        "p1-state/mdp-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-state/mdp-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-3",
+      "heading": "The Markov property",
+      "destinations": [
+        "p1-state/markov-property"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-state/markov-property"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-4",
+      "heading": "Policies",
+      "destinations": [
+        "p1-values/policies-legal-actions"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/policies-legal-actions"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-5",
+      "heading": "Return and the discount factor",
+      "destinations": [
+        "p1-return/discounting"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-return/discounting"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-6",
+      "heading": "Action masking",
+      "destinations": [
+        "p1-values/policies-legal-actions",
+        "foundations/environment-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/policies-legal-actions",
+        "foundations/environment-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-7",
+      "heading": "Worked example: one lap, two possible actions",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": [],
+      "reviewedDestination": "foundations/environment-contract",
+      "reviewNote": "Current-tyre arithmetic and full pit trace consolidated here; remaining-lap convention stated explicitly."
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/02-markov-decision-processes.html::section-8",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p1-state/state-observation",
+        "p1-state/markov-property",
+        "p1-state/mdp-model",
+        "p1-state/missing-information",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-state/state-observation",
+        "p1-state/markov-property",
+        "p1-state/mdp-model",
+        "p1-state/missing-information",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-1",
+      "heading": "Value Functions and the Bellman Equations",
+      "destinations": [
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-2",
+      "heading": "State-value function, V",
+      "destinations": [
+        "p1-values/state-action-values"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/state-action-values"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-3",
+      "heading": "Action-value function, Q",
+      "destinations": [
+        "p1-values/state-action-values"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/state-action-values"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-4",
+      "heading": "The Bellman equations",
+      "destinations": [
+        "p1-values/bellman-backup",
+        "p1-values/evaluation-optimality"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/bellman-backup",
+        "p1-values/evaluation-optimality"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-5",
+      "heading": "Why γ = 1 doesn't break the Bellman equation here",
+      "destinations": [
+        "p1-return/horizons",
+        "p1-values/bellman-backup"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-return/horizons",
+        "p1-values/bellman-backup"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-6",
+      "heading": "Why this matters for reward scale",
+      "destinations": [
+        "foundations/reward-units",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": [
+        "neural-value-learning/dqn-reward-scale"
+      ]
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality",
+        "p1-values/bellman-fixed-points",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-1",
+      "heading": "The Gymnasium API",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-2",
+      "heading": "The Env class and its two core methods",
+      "destinations": [
+        "p1-loop/one-step",
+        "p1-loop/episode-endings"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/one-step",
+        "p1-loop/episode-endings"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-3",
+      "heading": "Spaces: describing what observations and actions look like",
+      "destinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-4",
+      "heading": "A standard example: GridWorld, built piece by piece",
+      "destinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": [],
+      "reviewedDestination": "foundations/environment-verification",
+      "reviewNote": "GridWorld coordinate/boundary and goal/cap witnesses retained; repeated class boilerplate consolidated into chain and checked race toy."
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-5",
+      "heading": "check_env: validating the contract",
+      "destinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-6",
+      "heading": "Action masking in Gymnasium",
+      "destinations": [
+        "foundations/environment-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-7",
+      "heading": "render_mode and rendering",
+      "destinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/04-gymnasium-api.html::section-8",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-1",
+      "heading": "Building the Environment, Step by Step",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-2",
+      "heading": "Stage 1 — one compound, the GridWorld way",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-3",
+      "heading": "Stage 2 — more than one tyre: pace vs. life",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-4",
+      "heading": "Stage 3 — a wear cliff, capped",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": [],
+      "reviewedDestination": "foundations/race-dynamics",
+      "reviewNote": "Correct cap claim: only cliff contribution plateaus; linear wear continues."
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-5",
+      "heading": "Stage 4 — fuel burning off",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-6",
+      "heading": "Stage 5 — weather, and the wrong tyre for it",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-7",
+      "heading": "Stage 6 — the pit-lap ordering rule",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-8",
+      "heading": "Stage 7 — a safety car that isn't scripted",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-9",
+      "heading": "Stage 8 — action masking",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-10",
+      "heading": "Stage 9 — centring the reward",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-11",
+      "heading": "Stage 10 — what you've built",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/05-building-the-environment.html::section-12",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/race-dynamics",
+        "foundations/environment-contract",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-1",
+      "heading": "This Project, Formalized as an MDP",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-2",
+      "heading": "The state space, S",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": [],
+      "reviewedDestination": "foundations/environment-contract",
+      "reviewNote": "Observation interface retained, automatic full-state claim corrected for hidden processes and capped ages."
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-3",
+      "heading": "The action space, A",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-4",
+      "heading": "The transition function, P",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-5",
+      "heading": "The reward function, R",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": [],
+      "reviewedDestination": "foundations/reward-units",
+      "reviewNote": "Positive centering sign, legality and common-horizon assumptions stated; raw physical seconds remain diagnostics."
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-6",
+      "heading": "The discount factor, γ",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-7",
+      "heading": "The action mask",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-8",
+      "heading": "Worked example: a complete step() call",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-9",
+      "heading": "Why one shared implementation matters more here than usual",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/06-this-project-as-mdp.html::section-10",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/07-code-walkthrough.html::section-1",
+      "heading": "Annotated Code Walkthrough",
+      "destinations": [
+        "foundations/environment-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/07-code-walkthrough.html::section-2",
+      "heading": "dynamics.py — pure functions only, and why",
+      "destinations": [
+        "foundations/environment-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/07-code-walkthrough.html::section-3",
+      "heading": "f1_strategy_env.py — the stateful Gymnasium wrapper",
+      "destinations": [
+        "foundations/environment-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/07-code-walkthrough.html::section-4",
+      "heading": "What \"≥10 tests\" in test_env.py are actually checking",
+      "destinations": [
+        "foundations/environment-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/environment-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/08-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:foundations"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/index.html::section-1",
+      "heading": "Phase 1 RL Prerequisites",
+      "destinations": [
+        "module:foundations"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/index.html::section-2",
+      "heading": "Why this project is an RL problem at all",
+      "destinations": [
+        "module:foundations"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/index.html::section-3",
+      "heading": "How this folder teaches the implementation half",
+      "destinations": [
+        "module:foundations"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/index.html::section-4",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:foundations"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/index.html::section-5",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:foundations"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": []
+    }
+  ]
+}

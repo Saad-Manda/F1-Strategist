@@ -1,0 +1,12 @@
+<section>
+<h2>Inspect retained and missing styles</h2>
+<p>The pack computes coverage pᵀM against pure ROCK/PAPER/SCISSORS. With p=(.5,.5,0), coverage is [.5,−.5,0]. Its uniform-opponent mean is zero, yet the absent SCISSORS action leaves a weakness against PAPER. At uniform p coverage is all zero. Report per-style values and worst covered matchup in addition to averages.</p>
+<p>Adding ROCK, PAPER, SCISSORS snapshots to capacity two retains PAPER and SCISSORS, not ROCK. A sampler can be correct while the retained set omits an important style. Zero selection weight removes support even if a checkpoint is physically saved; very small positive probability can still yield few episodes in a finite run.</p>
+<p>The proposed project pool caps at 50 and adds every 1000 episodes. Archive evaluation checkpoints independently of the training eviction policy. Freeze the audit distribution, sample enough whole races per opponent and track masks, roles and scenarios.</p>
+<h2>Practice and evidence</h2>
+<p>Read the pack README, implement snapshot/add/normalization/sampling/coverage, run checks on your candidate and compare the browser’s exact table. If you later use compare.py, record its opponent weights, seed and budget. A sampled count or improved tiny-game score does not establish F1 robustness or a Nash equilibrium.</p>
+<pre><code>def coverage(policy):
+    return (policy_vector(policy) @ RPS).tolist()</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does FIFO correctness imply opponent coverage?</summary><p>No. FIFO can correctly evict the only checkpoint representing a style you still need to evaluate.</p></details>
+</section>

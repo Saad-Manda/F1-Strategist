@@ -1,0 +1,20 @@
+<section>
+<h2>Make a categorical policy from logits</h2>
+<p>A policy π_theta(a|s) is a normalized distribution over actions. Its network emits logits z; softmax gives π_i=exp(z_i)/Σ_j exp(z_j). Subtract max(z) before exponentiating without changing the distribution. For logits [1,0], probabilities are [.73105858,.26894142], with natural logs [−.31326169,−1.31326169]. Logits need not be positive or sum to one.</p>
+<p>A trajectory action-likelihood product .5×.25=.125 becomes a sum of logs ln(.5)+ln(.25)=ln(.125)≈−2.07944. Logs prevent underflow from long products and make derivatives additive. Log probability is not probability: −.313 is a valid log while .731 is its probability.</p>
+<p>For batched discrete actions use logits[B,A], actions long[B], and selected log probabilities[B]. A legal mask bool[B,A] removes invalid logits before normalization. With [0,0,100] and mask [true,true,false], probabilities are [.5,.5,0], not almost-certain illegal action 2. Reject an all-false active row; there is no distribution to sample.</p>
+<h2>Use stable log probabilities</h2>
+<p>For a chosen action use log_softmax on masked logits and gather the selected entry, or a correctly configured Categorical distribution. Taking log of a rounded or underflowed probability loses information. Terminal states need no new action distribution; do not create an all-illegal row just to satisfy a sampler.</p>
+<pre><code>import math
+import numpy as np
+import torch
+
+def probabilities(logits, legal=None):
+    if logits.ndim!=2 or not logits.numel() or not torch.isfinite(logits).all():raise ValueError(&quot;finite logits[B,A] required&quot;)
+    if legal is not None:
+        if legal.shape!=logits.shape or legal.dtype!=torch.bool or not legal.any(1).all():raise ValueError(&quot;valid boolean legal mask required&quot;)
+        logits=logits.masked_fill(~legal,-torch.inf)
+    return torch.softmax(logits,dim=1)</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>May an illegal logit dominate softmax before being masked afterward?</summary><p>No. Normalize only legal support; post-hoc removal without renormalization is a different distribution.</p></details>
+</section>

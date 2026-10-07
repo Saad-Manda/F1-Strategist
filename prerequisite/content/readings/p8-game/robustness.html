@@ -1,0 +1,10 @@
+<section>
+<h2>Choose the learning organization explicitly</h2>
+<p>Independent learners each maintain their own policy/value and experience, treating others as part of their effective environment. Parameter sharing pools experience through one network, with role or identity inputs when needed; symmetry alone does not guarantee faster learning. Centralized training with decentralized execution lets a training critic see joint information while actors use only allowed local observations at deployment.</p>
+<p>The Phase 8 plan actually updates agent_0 against frozen historical opponents sampled per episode. This is a single changing learner versus a pool, rather than every car optimizing concurrently. It uses local observations and no centralized critic. Record that distinction when describing nonstationarity and comparing methods.</p>
+<p>Fictitious play responds to an empirical distribution of opponent strategies. Sampling a snapshot at episode start produces a mixture over whole policies. Averaging weight tensors generally produces another function, not that same mixture. Even averaging each state’s action probabilities need not reproduce the episode-level correlations of selecting one coherent strategy for a whole race.</p>
+<h2>Robustness needs coverage</h2>
+<p>Compare uniform, recent-only and history-weighted training distributions on a fixed held-out opponent set. The matrix toy’s uniform policy has [0,0,0] coverage; a pure best response has a win, tie and loss. A population can improve coverage yet retain exploitable gaps. No pool variant is required to win every seed; mechanism checks and empirical performance are separate.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Are averaged network weights an empirical strategy mixture?</summary><p>No. Sample a named policy or explicitly define action-level mixing; those procedures also have different trajectory correlations.</p></details>
+</section>

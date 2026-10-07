@@ -1,0 +1,10 @@
+<section>
+<h2>Write the objective before choosing a dense signal</h2>
+<p>If reward is exactly negative lap cost at every step and gamma is one, total reward is negative total cost. Penalties and reward offsets must be included explicitly; the project’s actual returned reward is not always just minus the displayed lap time. Finishing position is a different objective: a faster physical time can still have a worse rank against a stronger field.</p>
+<p>A terminal-only position reward is sparse across a 52-decision race. Sparse feedback creates long temporal credit paths, but it is not absent information. Dense lap costs plus a terminal position bonus form a new combined objective. With five cars and bonus 20(5−position), P1 adds 80 and P3 adds 40. A P1 route taking 530 seconds scores −450; a P3 route taking 480 scores −440. The combined reward prefers P3, despite position alone preferring P1.</p>
+<p>The staged toy has RISKY true return −10 and SAFE −4; a proxy gives +6 and +1 respectively. Maximizing the proxy selects RISKY and loses 6 true-return units. Replacing the objective with a correlated signal is different from adding a policy-preserving potential difference.</p>
+<h2>Check claims about gap rewards algebraically</h2>
+<p>A consistently measured undiscounted gap-change reward −(g_(t+1)−g_t) telescopes to g_0−g_T. Intermediate gap closure alone does not improve its full return if the gap is given back later. Myopic learning, discounting, inconsistent leader identities, safety-car skipped rewards or early endings can change this conclusion. Do not assert inevitable tyre-pushing from the word dense; measure the exact implemented objective and physical consequences.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does a terminal position bonus merely help learn the original time objective?</summary><p>No. It changes the tradeoff unless its contribution is action-independent under the task’s boundary conditions.</p></details>
+</section>

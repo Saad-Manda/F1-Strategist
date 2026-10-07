@@ -1,0 +1,22 @@
+<section><h2>Average the gradient and its squared magnitude</h2><p>Adam tracks m, a moving average of gradients, and v, a moving average of squared gradients. For scalar gradient g at optimizer step t, <code>m_t=β₁m_(t−1)+(1−β₁)g</code> and <code>v_t=β₂v_(t−1)+(1−β₂)g²</code>. These betas belong to Adam, not PER's correction exponent or the environment's discount.</p><p>Starting both averages at zero makes early values smaller than their long-run scale. Bias correction uses <code>m̂=m_t/(1−β₁^t)</code> and <code>v̂=v_t/(1−β₂^t)</code>. The basic no-weight-decay update subtracts <code>lr×m̂/(sqrt(v̂)+ε)</code>. Epsilon is a positive numerical safeguard in the denominator.</p>
+<pre><code>import math
+
+def adam_scalar(theta, gradient, m, v, step, lr=0.001,
+                beta1=0.9, beta2=0.999, epsilon=1e-8):
+    if (type(step) is not int or step &lt; 1 or not 0 &lt;= beta1 &lt; 1
+        or not 0 &lt;= beta2 &lt; 1 or lr &lt;= 0 or epsilon &lt;= 0 or v &lt; 0
+        or not all(math.isfinite(x) for x in
+                   (theta,gradient,m,v,lr,beta1,beta2,epsilon))):
+        raise ValueError("invalid Adam scalar state")
+    m = beta1*m + (1-beta1)*gradient
+    v = beta2*v + (1-beta2)*gradient**2
+    corrected_m = m/(1-beta1**step)
+    corrected_v = v/(1-beta2**step)
+    theta -= lr*corrected_m/(math.sqrt(corrected_v)+epsilon)
+    return theta,m,v
+
+theta,m,v = adam_scalar(2.,2.,0.,0.,1)
+assert abs(m-0.2) &lt; 1e-12 and abs(v-0.004) &lt; 1e-12
+assert abs(theta-1.999000000005) &lt; 1e-12</code></pre>
+<p>At the first step g=2, m=0.2, v=0.004; correction gives m̂=2, v̂=4. The change is approximately 0.001, whereas SGD with the same lr changes by 0.002. That example is not proof of better learning. This scalar helper omits weight decay and other implementation options; saved optimizer state contains these histories and the step counter.</p>
+<h2>Recap and self-check</h2><details><summary>Why does restarting Adam with the saved weights but empty optimizer state change a resumed run?</summary><p>The next update depends on gradient history and step-dependent correction as well as weights. Restore them for a faithful resume, or label the operation as a new optimizer run.</p></details><p>Return to the lesson or its practice. This derivation does not gate learning or preparation.</p></section>

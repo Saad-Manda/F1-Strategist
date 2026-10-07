@@ -1,0 +1,22 @@
+<section><h2>A row describes tomorrow given today</h2><p>A Markov chain is a changing state with no controlled action: the current sufficient state determines the next-state distribution. Weather is a toy example. In the practice pack, labels 0 and 1 mean dry and wet, and the matrix is <code>[[0.8,0.2],[0.3,0.7]]</code>. Row 0 says dry tomorrow has probability 0.8 given dry today. Row 1 says dry tomorrow has probability 0.3 given wet today. Each row must sum to one; columns need not.</p>
+<p>A distribution μ over current states is different from one current state. Starting certainly dry gives μ=[1,0]. One step gives [0.8,0.2]; a second gives [0.8×0.8+0.2×0.3, 0.8×0.2+0.2×0.7]=[0.7,0.3]. With row-vector notation, this is μ_next=μP. Transposing the matrix changes the calculation.</p>
+<h2>Fit rows by counting consecutive pairs</h2><p>For three weather labels DRY=0, DAMP=1, WET=2, retain the original three invented six-lap logs:</p><pre><code>weather_logs = [[0,0,0,1,1,0], [0,0,1,2,2,1], [0,1,1,0,0,0]]
+
+def fit_weather(traces, n_states=3):
+    counts = [[0]*n_states for _ in range(n_states)]
+    for trace in traces:
+        if any(type(s) is not int or not 0 &lt;= s &lt; n_states for s in trace):
+            raise ValueError("invalid weather label")
+        for before, after in zip(trace, trace[1:]):
+            counts[before][after] += 1
+    if any(sum(row) == 0 for row in counts):
+        raise ValueError("an unobserved row needs an explicit model assumption")
+    matrix = [[count/sum(row) for count in row] for row in counts]
+    return counts, matrix
+
+counts, fitted_weather = fit_weather(weather_logs)
+assert counts == [[5,3,0],[2,2,1],[0,1,1]]</code></pre>
+<p>The row totals are 8, 5 and 2, giving rows [0.625,0.375,0], [0.4,0.4,0.2] and [0,0.5,0.5]. Count within each race only: the last weather of one race is not followed by the first weather of another race. Such invented boundary pairs would bias the transition law.</p>
+<h2>A fit is not knowledge of nature</h2><p>No observed WET→DRY transition gives a fitted zero, not proof that the event is impossible. Two WET-origin samples provide little information. An unobserved row cannot be normalized; options include collecting data, declaring a justified fallback or a documented prior/smoothing model. Adding pseudocounts changes the estimate and should be reported.</p>
+<p>This first-order, time-homogeneous chain assumes the current regime summarizes relevant weather information and one matrix applies across the modeled period. Check whether circuit, season, temperature, forecasts or time within the race require conditioning or a different model.</p>
+<h2>Recap and self-check</h2><details><summary>Should you normalize each column to make every destination equally likely?</summary><p>No. Rows are conditional distributions given an origin. Column normalization changes those probabilities into a different object.</p></details><p>Next, draw actual traces from the matrix without giving a policy advance knowledge.</p></section>

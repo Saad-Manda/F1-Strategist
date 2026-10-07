@@ -1,0 +1,14 @@
+<section><h2>Count environment steps, not vaguely “training time”</h2><p>The project example decays epsilon from 1.0 to 0.05 over 500,000 environment decisions. The per-step decrement is <code>0.95/500000 = 1.9×10^−6</code>. At step 250,000 epsilon is 0.525; at step 500,000 and thereafter it is 0.05.</p>
+<pre><code>def epsilon_at(step, start=1.0, end=0.05, decay_steps=500000):
+    if type(step) is not int or step &lt; 0 or decay_steps &lt;= 0:
+        raise ValueError("nonnegative step and positive decay length required")
+    return max(end, start-step*(start-end)/decay_steps)
+
+assert abs(epsilon_at(250000)-0.525) &lt; 1e-12
+assert abs(epsilon_at(500000)-0.05) &lt; 1e-12</code></pre>
+<p>At 90 decisions per race, the floor arrives after approximately 5556 races; at 52, approximately 9615. Circuit horizons vary, so a statement like “half of a 10,000-episode run explores” needs the actual step counts. Check whether the loop increments this counter once per transition, once per action request or once per episode.</p>
+<h2>A floor preserves randomness, not a theorem</h2><p>Too-rapid decay can make poorly sampled values dominate. A floor maintains some exploratory choices, but not necessarily enough visits to every relevant state. Long paths, rare scenarios and huge sparse tables still create coverage problems. No single schedule guarantees practical convergence for every environment.</p>
+<p>Random selection must apply the current legal mask. With six representable actions and only two legal ones, exploration is uniform over those two, not all six followed by rejection or a penalty. Rejection sampling may define a different behavior if implemented inconsistently, and it can loop forever on an empty mask.</p>
+<h2>Ties and seeds remain part of the policy</h2><p>For the unchanged pack, exact greedy ties split uniformly. At epsilon zero with tied legal values, that still means random choice. If evaluation requires a deterministic trajectory, define deterministic ties explicitly or reproduce a seeded tie stream; do not confuse zero epsilon with unconditional determinism.</p>
+<p>Test supplied draw boundaries, epsilon zero/one, tied maxima, an illegal high entry and no legal actions. Confirm that saving and reloading a learner restores its counter and settings when resuming training, while starting a fresh run initializes them deliberately.</p>
+<h2>Recap and self-check</h2><details><summary>Can an evaluation race safely use the trained epsilon floor because 0.05 is “almost greedy”?</summary><p>Only if you intend to evaluate that exploratory policy. On 52 opportunities it enters the random branch an expected 2.6 times; some choices may cause expensive pits. Greedy-policy evaluation must explicitly disable exploration.</p></details><p>Continue to the exploration browser/Python practice, then compare targets that value this behavior differently.</p></section>

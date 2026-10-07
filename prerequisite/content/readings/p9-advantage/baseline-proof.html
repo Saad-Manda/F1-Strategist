@@ -1,0 +1,10 @@
+<section>
+<h2>Sum over actions at a fixed state</h2>
+<p>E_a[ b(s)∇log π(a|s) ]=b(s)Σ_a π(a|s)∇log π(a|s)=b(s)Σ_a∇π(a|s)=b(s)∇1=0. Therefore subtracting a fixed action-independent b changes the sample signal without changing this expected score gradient. The proof works with the fixed legal support and requires the same policy used to sample actions.</p>
+<p>At uniform two-action policy the scores are [.5,−.5] and [−.5,.5]. If b=5 for either action, their weighted expectation cancels. If b(A)=1 and b(B)=0, the baseline-score expectation is [.25,−.25], so subtracting it changes the estimator. An action-dependent baseline can be legitimate only with additional correction; the simple cancellation does not apply.</p>
+<p>The identity weights a score by a fixed numerical baseline. If b is differentiable and actor loss is −log π(G−b), autograd also adds +log π∇b unless the actor weight is detached. That extra path is not covered by the cancellation proof.</p>
+<h2>Shared parameters do not remove the boundary</h2>
+<p>An actor and critic may share a trunk intentionally. The critic’s own regression loss then updates that trunk. Still detach the advantage in the actor score loss and the regression target in the critic loss. Deliberate sharing is different from differentiating through a sampled advantage target.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Why detach an accurate critic’s baseline?</summary><p>Accuracy does not remove the unintended ∇b term. Detachment enforces the score-estimator contract.</p></details>
+</section>

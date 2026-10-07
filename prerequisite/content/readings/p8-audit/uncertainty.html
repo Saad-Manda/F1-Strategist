@@ -1,0 +1,10 @@
+<section>
+<h2>Count independent units</h2>
+<p>For whole-race paired differences d=[1,2,3,4], mean=2.5, sample variance=5/3, sample SD≈1.291 and estimated standard error sqrt((5/3)/4)≈.6455. For n independent paired races the usual mean standard error is s_d/sqrt(n). Correlated laps within a race are not n independent races; repeated deterministic starts do not supply new uncertainty information.</p>
+<p>Report the number of independent training seeds separately from evaluation scenarios. Many races against a single trained checkpoint estimate its scenario variability, not the variability across training runs. A confidence interval for one checkpoint does not automatically answer whether an algorithm reliably trains better.</p>
+<p>Bootstrap whole paired units or justified clusters if using resampling. A normal approximation needs enough suitable units and does not fix selection or dependence. Tiny examples here establish arithmetic; no confidence claim follows from two rows or four identical starts.</p>
+<h2>A two-peak histogram is descriptive</h2>
+<p>Two independent agents with two favored stint lengths can create positive and negative timing-difference peaks. Shared weather can create apparent pairing even without strategic reaction. Choose a statistic before inspecting results, specify exchangeable permutation units/strata, use many valid permutations and account for repeated exploratory tests. Similar real/null histograms weaken that particular relationship claim; a difference alone is not proof of causal response or no confounding.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Do 52 laps in each of ten races give 520 independent race outcomes?</summary><p>No. The race is the natural unit for whole-race metrics; dependence and shared scenarios must be considered.</p></details>
+</section>

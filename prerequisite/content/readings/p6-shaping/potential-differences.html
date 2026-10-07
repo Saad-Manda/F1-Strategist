@@ -1,0 +1,17 @@
+<section>
+<h2>Compute a difference across each transition</h2>
+<p>Choose a state potential Φ and define F(s,a,s′)=gamma Φ(s′)−Φ(s). Add F to the base reward; use the same gamma as the return. The potential is a function of the relevant state, not the chosen action. Store the old state’s potential before stepping and the successor’s after the complete transition.</p>
+<p>For the route pack Φ(start)=2, Φ(via)=1 and both successful terminal potentials zero. At gamma one, DIRECT has shaping −2 and shaped return 1. VIA+FINISH has shaping −1 then −1, giving shaped rewards −1,3 and total 2. VIA+WAIT with zero failure potential gives −1,−1 and total −2. Every route shifts by −2, preserving VIA+FINISH.</p>
+<p>For the negative-cost chain Φ(A)=5, Φ(B)=2, Φ(C)=0, shaping is −3,−2 via B and −5 direct. Base totals −4/−10 become −9/−15; the gap stays 6. A potential need not supply a positive immediate bonus to be valid.</p>
+<h2>Discount the next potential</h2>
+<p>At gamma .5 the route-pack base totals become 3,2,0; correct shaped totals 1,0,−2. Using F=Φ(s′)−Φ(s) with an otherwise discounted return breaks cancellation. Recompute from the formula instead of carrying gamma-one conclusions into another task.</p>
+<pre><code>import math
+
+def shaped_return(rewards, potentials, gamma, shaping_gamma=None):
+    sg=gamma if shaping_gamma is None else shaping_gamma
+    if len(potentials)!=len(rewards)+1 or any(not math.isfinite(v) for v in [*rewards,*potentials,gamma,sg]) or not 0&lt;=gamma&lt;=1 or not 0&lt;=sg&lt;=1:raise ValueError(&quot;finite rewards/potentials and valid discounts required&quot;)
+    return sum(gamma**i*(r+sg*potentials[i+1]-potentials[i]) for i,r in enumerate(rewards))</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Is a flat bonus whenever position is better than last a potential difference?</summary><p>No. It does not subtract the previous state’s potential or apply the task discount to its successor.</p></details>
+<p>Reference: <a href="https://ai.stanford.edu/~ang/papers/shaping-icml99.pdf">Potential-based shaping paper</a>.</p>
+</section>

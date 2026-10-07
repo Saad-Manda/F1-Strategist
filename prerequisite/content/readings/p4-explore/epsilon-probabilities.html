@@ -1,0 +1,25 @@
+<section><h2>A random choice can also be greedy</h2><p>Epsilon-greedy uses exploitation with probability 1−ε and uniform random selection among legal actions with probability ε. For legal values [3,5] and epsilon 0.2, action 5 receives 0.8 exploitation plus 0.1 exploration, totaling 0.9. Action 3 receives 0.1. Epsilon is the chance of entering the random branch, not the probability of a nongreedy action.</p>
+<p>With three legal actions and one unique maximum, probabilities are [ε/3, (1−ε)+ε/3, ε/3] when the middle action wins. With two tied maxima, split exploitation between them. If all legal values tie, the resulting distribution is uniform regardless of epsilon.</p>
+<h2>Derive and validate the row</h2><p>Let L be the legal index set and G its greedy tie set. The probability for action i is <code>ε/|L| + (1−ε)/|G|</code> if i is in G, just ε/|L| for other legal actions, and zero for illegal ones. Vertical bars here count elements, not probabilities.</p>
+<pre><code>def probabilities(values, legal, epsilon):
+    validate_distribution([epsilon,1-epsilon])
+    indices = legal_indices(values,legal)
+    maximum = max(values[i] for i in indices)
+    ties = [i for i in indices if values[i] == maximum]
+    return [epsilon/len(indices) + (1-epsilon)/len(ties)*(i in ties)
+            if legal[i] else 0 for i in range(len(values))]
+
+def select_action(values, legal, epsilon, rng):
+    row = probabilities(values,legal,epsilon)
+    draw = rng.random()
+    if not 0 &lt;= draw &lt; 1:
+        raise ValueError("draw must be in [0,1)")
+    cumulative = 0.0
+    for action,p in enumerate(row):
+        cumulative += p
+        if draw &lt; cumulative:
+            return action
+    return max(i for i,p in enumerate(row) if p &gt; 0)</code></pre>
+<p>Reuse the validators from the TD and probability readings. This matches the practice pack's finite values, exact ties, legal set and random-draw contract. For values [3,5,99], mask [True,True,False] and epsilon 0.2, probabilities are approximately [0.1,0.9,0]. Draw 0.1 enters the second half-open interval; draw 0 selects the first.</p>
+<h2>Check edge cases deliberately</h2><p>At epsilon zero, choose only greedy ties. At epsilon one, all legal actions are uniform. An illegal high value never changes the legal maximum. Floating near-ties need a separately stated tolerance if you depart from the pack's exact equality convention. An empty mask cannot produce a normalized action distribution.</p>
+<h2>Recap and self-check</h2><details><summary>For two legal actions and epsilon 0.2, is the nongreedy probability 0.2?</summary><p>No. The random branch chooses it only half the time, so its probability is 0.1. The greedy action also receives a random share.</p></details><p>Next, separate this training behavior from frozen-policy evaluation.</p></section>

@@ -1,0 +1,10 @@
+<section>
+<h2>Preserve the two-logit update by hand</h2>
+<p>At logits [1,0], π=[.73105858,.26894142]. If R is sampled and G=4, score=[.26894142,−.26894142]; ascent direction is [1.07576569,−1.07576569]. Learning rate .1 yields [1.10757657,−.10757657]. Recomputing softmax gives R probability about .771209. Both logits change because probabilities share a denominator.</p>
+<p>At the pack’s uniform logits, sampled action 0 with return 2 gives descent gradient [−1,1] and the .549834 next probability after SGD .1. The pack example isolates the likelihood loss. It does not run the legacy bandit’s 500-episode training loop in the browser.</p>
+<p>In the noisy R/P bandit, expected objective is π_R×1+π_P×0=π_R, so its analytic gradient in logits is [π_R(1−π_R),−π_Rπ_P]. At uniform logits this is [.25,−.25]. Taking expectation of score times reward gives that same vector; an individual action-0 sample with reward 2 gives [1,−1], four times as large.</p>
+<h2>Distinguish uncertainty sources</h2>
+<p>Action sampling, reward noise and later trajectory events all vary the sampled gradient. Averaging independent on-policy samples estimates the expectation; reusing samples after changing the policy requires a different estimator. Show multiple seeds when later comparing raw-return and baseline curves, and do not promise that every seed favors R quickly.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Should every sampled gradient equal [.25,−.25] in the uniform bandit?</summary><p>No. That is the expectation. The sample can have a different magnitude or even direction.</p></details>
+</section>

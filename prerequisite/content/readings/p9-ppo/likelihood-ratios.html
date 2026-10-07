@@ -1,0 +1,19 @@
+<section>
+<h2>Work in log space</h2>
+<p>The selected-action ratio rho=π_current(a|s)/π_old(a|s)=exp(logπ_current−logπ_old). Old .5 and new .65 give 1.3; old .5 and new .35 give .7. This is a likelihood ratio for a stored action at its stored state, not the ratio of two entire trajectories or two value predictions.</p>
+<p>The sampled action needs positive old probability. Use the identical collection-time legal mask when reevaluating it. For logits [0,0,100] with last action illegal, old probabilities [.5,.5,0] are supported only on the first two actions. Including the illegal logit in the current softmax would make a legal selected ratio nearly zero and falsely describe policy drift.</p>
+<p>Finite logs can still produce exp overflow for a huge difference. The pack explicitly rejects nonfinite ratios. Underflow to zero is also a numerical warning for diagnostics; a stable production path should inspect log-ratio magnitudes and precision rather than hiding large drift with arbitrary clamps.</p>
+<h2>Support is necessary, not sufficient</h2>
+<p>A defined one-step importance ratio alone does not correct all state-distribution changes from a distant policy. PPO’s frozen-advantage surrogate is a local optimization approximation using recent rollout data. Its statistical and optimization limits remain even when every ratio is finite and every action legal.</p>
+<pre><code>def clip_value(epsilon):
+    if not math.isfinite(epsilon) or not 0 &lt;= epsilon &lt; 1:
+        raise ValueError(&#x27;epsilon in [0,1) required&#x27;)
+
+def ratio_data(new_log_probs, old_log_probs, advantage, epsilon):
+    vectors(new_log_probs,old_log_probs,advantage);clip_value(epsilon)
+    lr=new_log_probs-old_log_probs.detach();ratio=lr.exp()
+    if not torch.isfinite(ratio).all():raise ValueError(&quot;ratio overflow&quot;)
+    return ratio,lr,advantage.detach()</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Should the denominator be the current model’s old-looking output?</summary><p>No. It must be the stored likelihood from the actual collection policy.</p></details>
+</section>

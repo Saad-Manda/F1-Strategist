@@ -1,0 +1,17 @@
+<section>
+<h2>Equal outcomes can hide unequal effects</h2>
+<p>For the pack’s additive team reward, the four joint choices (0,0),(1,0),(0,1),(1,1) score 0,2,1,3. At (1,1), both receive 3, but changing A to its reference action 0 leaves reward 1; changing B to 0 leaves 2. The difference rewards are D_A=3−1=2 and D_B=3−2=1.</p>
+<p>The computation holds the other participant’s action fixed and replaces one action with a named baseline. It is a controlled comparison within a specified model. Changing the reference action changes the result. In this additive example contributions sum to 3; that is not a general conservation law. For reward a_A a_B, (1,1) scores 1 and each difference against action 0 is 1, summing to 2.</p>
+<p>Temporal credit asks which past decisions led to a later outcome; multi-agent credit asks which participant’s choices mattered. A delayed team outcome can create both problems simultaneously. Bootstrapping propagates a signal through time but does not automatically resolve who caused it.</p>
+<h2>Counterfactuals need a model</h2>
+<p>A logged team outcome alone does not reveal what would have happened with another action. A simulator can rerun a frozen state with matched random inputs, but its answer is conditional on that simulator, baseline and intervention. Random-stream consumption can differ between actions, so merely resetting an integer seed does not always give the same exogenous event realization.</p>
+<pre><code>def contributions(actions):
+    team_actions(actions)
+    total=joint_step(actions)[&#x27;rewards&#x27;][&#x27;A&#x27;];result={}
+    for agent in (&#x27;A&#x27;,&#x27;B&#x27;):
+        counterfactual=dict(actions);counterfactual[agent]=0
+        result[agent]=total-joint_step(counterfactual)[&#x27;rewards&#x27;][&#x27;A&#x27;]
+    return result</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Must difference rewards sum to team reward?</summary><p>Only for special reward forms and baselines. The interaction example gives two contributions of 1 to a team reward of 1.</p></details>
+</section>

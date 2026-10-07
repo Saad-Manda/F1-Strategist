@@ -1,0 +1,10 @@
+<section>
+<h2>Exact advantages and estimates have different claims</h2>
+<p>A^π(s,a)=Q^π(s,a)−V^π(s). At uniform policy and exact action values [8,2], V=5 and advantages [3,−3], whose policy-weighted mean is zero. A learned critic and one sampled return need not satisfy this identity exactly. Call G−V_hat an estimate, not the exact action advantage.</p>
+<p>A one-step estimate is delta=r+gamma(1−terminated)V_hat(s′)−V_hat(s). At r=2, gamma=.9, V_hat(s)=5, V_hat(s′)=4, ongoing delta=.6; true terminal delta=−3. At an external time limit bootstrap the actual final observation’s value while ending the collector episode. If both flags are true, true termination removes continuation.</p>
+<p>With the true policy value and correct transition sampling, the conditional mean residual estimates advantage for the chosen state/action. Critic error, partial observability, changed opponents or off-policy action sampling can alter that statement. Bootstrapping uses less sampled future data and more value assumptions; it is not automatically unbiased or always lower variance.</p>
+<h2>Separate optimization roles</h2>
+<p>The actor improves a distribution using detached estimated advantages. The critic regresses predictions toward detached return targets. For sampled target 8 and prediction 5, squared error is 9; its derivative with respect to prediction is −6 before batch reduction. Critic loss trains prediction accuracy; it does not directly select actions by argmax.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Is dueling’s V necessarily the actor-critic baseline?</summary><p>No. Dueling mean-centers action outputs; actor-critic V aims at the policy-weighted state return.</p></details>
+</section>

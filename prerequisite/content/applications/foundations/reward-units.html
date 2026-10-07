@@ -1,0 +1,32 @@
+<section>
+<h2>Keep seconds attached to the objective</h2>
+<p>For an ordinary completed race, reward on every lap is negative physical lap time, including pit losses and safety-car laps. With γ = 1, the return is exactly negative total race time. A faster legal strategy therefore has a larger return. If a compound-rule violation adds a −500 terminal backstop, the full return is <code>−sum(lap_times) − 500×violation</code>, where violation is 1 or 0. That is a penalized objective; the direct race-time identity applies to legal races without the penalty.</p>
+<p>Use physical units in plots and tests. A mean reward near −95 is seconds lost per lap, not a probability or a “bad accuracy.” Compute final race time from <code>info["lap_time"]</code>. Compare strategies under the same scenarios, initial conditions and legality rules.</p>
+<h2>A finite race permits γ = 1; discounting changes its meaning</h2>
+<p>On a fixed finite horizon the sum is finite without discounting. Consider two remaining laps: A takes [93, 97] seconds, B [97, 92]. At γ = 1 their returns are −190 and −189, so B wins by one second. At γ = 0.5 their returns are −141.5 and −143, so A wins. Discounting has favored early speed enough to reverse the physical-time ranking. It also makes a delayed violation penalty smaller in magnitude.</p>
+<p>The earlier continuing-task convergence argument is not needed to make a 52-lap sum finite. Use a discount below one only when you intend that different objective, rather than treating it as an automatic numerical fix.</p>
+<h2>Centering adds a fixed baseline back to every reward</h2>
+<p>Suppose normal laps average about 92 seconds. Define centered reward <code>r′ = r + 92</code>: a 93-second lap gives −1 and a 97-second lap gives −5. The plus sign matters; subtracting 92 from an already negative reward moves it farther from zero.</p>
+<p>For every normal 52-step race with γ = 1, <code>G′ = G + 92×52 = G + 4784</code>. Constant 93-second laps total −4836 raw and −52 centered. Constant 97-second laps total −5044 raw and −260 centered. Their difference remains 208. More generally, a fixed offset b adds <code>b×T</code> for a common T-step horizon, or <code>b×(1−γ^T)/(1−γ)</code> for γ &lt; 1. That common addition preserves the ranking of the chosen discounted objective.</p>
+<p>The common-horizon condition is essential. At γ = 1, compare a one-step trajectory with raw return −10 and a two-step trajectory with raw return −11. Adding 2 each step gives −8 and −7, reversing their ranking. Early aborts, action-dependent termination and unequal rollout cutoffs invalidate the fixed-length centering argument. A terminal penalty also must be judged against the full feasible continuation; its name or magnitude alone does not prove that early invalid exits are unattractive.</p>
+<h2>A transparent teaching wrapper</h2>
+<p>A wrapper adapts an environment's outputs while delegating its dynamics. This example adds a constant and copies the information dictionary so the wrapped environment's object is not modified. <code>raw_reward</code> is this teaching wrapper's diagnostic key, not an assertion about the existing project's public keys.</p>
+<pre><code>import gymnasium as gym
+
+class CenteredReward(gym.Wrapper):
+    def __init__(self, env, offset=92.0):
+        super().__init__(env)
+        self.offset = float(offset)
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        info = dict(info)
+        info["raw_reward"] = reward
+        return obs, reward + self.offset, terminated, truncated, info</code></pre>
+<p>Neither flag nor <code>lap_time</code> changes. A training report that sums centered reward cannot call that number negative total race time; reconstruct the raw return or sum physical lap times. Gymnasium's <a href="https://gymnasium.farama.org/api/wrappers/">wrapper documentation</a> explains the delegation pattern. Keep the offset fixed and documented; a state- or action-dependent bonus is a separate reward design that needs its own analysis.</p>
+<h2>Protect constraints and compare the same task</h2>
+<p>Masking keeps the policy from choosing ineligible actions. A backstop catches bypasses and bugs. Neither makes an unconstrained reward comparison magically valid: decide whether an illegal action raises an error, is penalized within the normal horizon, or ends an episode, and test that exact behavior. Keep evaluation in physical units, with constraint violations reported separately. Do not tune centering on evaluation outcomes or compare centered returns from different offsets.</p>
+<h2>Recap and self-check</h2><p>Raw legal race return has units of negative seconds. Discounting and penalties alter the objective; constant centering preserves ranking only under its stated horizon assumptions.</p>
+<details><summary>If a 52-lap race is externally truncated at lap 10, does adding 92 still shift its measured sum by 4784?</summary><p>No. That recorded ten-step sum shifts by 920. It is an unfinished trajectory, not a complete race-time comparison. Keep truncation and the physical evaluation horizon explicit.</p></details>
+<p>Next, assemble the contract and verify it before using any learning algorithm.</p>
+</section>

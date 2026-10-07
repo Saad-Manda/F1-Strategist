@@ -1,0 +1,18 @@
+<section>
+<h2>A best response has a named opponent</h2>
+<p>A policy’s return in a game depends on both players’ strategies. In full rock-paper-scissors, PAPER beats pure ROCK, SCISSORS beats pure PAPER, and ROCK beats pure SCISSORS. PAPER is excellent against ROCK and loses against SCISSORS; calling it the optimal policy omits the distribution it is optimal against.</p>
+<p>A frozen opponent induces a single-agent effective problem. A mixed opponent induces an expectation across its strategies. If the opponent mix is q=(.5,.25,.25) in ROCK/PAPER/SCISSORS order, the three pure learner expectations are 0,.25,−.25. PAPER is the unique best response. If the test distribution changes to pure SCISSORS, ROCK becomes best.</p>
+<p>An evaluation matrix has learner checkpoints as rows and opponent checkpoints as columns. Keep row means, per-column outcomes and the weighting distribution. A win rate against only the newest checkpoint can improve while old columns deteriorate.</p>
+<h2>The pack’s value update is local</h2>
+<p>For values [0,0,0], PAPER sampled against ROCK gets reward 1. With alpha .1 its value becomes .1 while the other two remain zero. This is a one-state bandit update Q(a)←Q(a)+alpha(r−Q(a)); there is no successor bootstrap in a terminal one-round game. It is not an equilibrium solver.</p>
+<pre><code>import math
+
+def action_update(values, action, reward, alpha):
+    if type(action) is not int or action not in range(3) or len(values) != 3 or not all(math.isfinite(v) for v in [*values,reward,alpha]) or not 0 &lt;= alpha &lt;= 1:
+        raise ValueError(&#x27;invalid bandit update&#x27;)
+    result = list(values)
+    result[action] += alpha*(reward-result[action])
+    return result</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Can a best response lose to a different opponent?</summary><p>Yes. PAPER is best against ROCK but loses to SCISSORS. The opponent distribution is part of the claim.</p></details>
+</section>

@@ -1,0 +1,1176 @@
+{
+  "version": 1,
+  "fromCourseVersion": 1,
+  "toCourseVersion": 2,
+  "reviewedOn": "2026-10-05",
+  "readings": [
+    {
+      "oldId": "phase-1-rl-prerequisites/01-rl-fundamentals.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/02-markov-decision-processes.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/03-value-functions-bellman.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/04-gymnasium-api.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/05-building-the-environment.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/06-this-project-as-mdp.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/07-code-walkthrough.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/08-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/08-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/02-q-learning-derived.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/06-the-binning-bug.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/07-build-it-yourself.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/08-this-project-formalized.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/09-code-walkthrough.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/10-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/01-table-to-function.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/02-neural-networks-primer.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/03-target-network.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/04-experience-replay.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/05-dueling-architecture.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/06-double-dqn.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/08-reward-scale-trap.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/09-build-it-yourself.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/10-this-project-formalized.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/11-code-walkthrough.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/12-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/02-credit-assignment.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/05-position-and-blocking.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/06-bug-ledger.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/07-non-stationarity.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/08-build-it-yourself.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/09-this-project-formalized.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/10-reading-the-plan.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/11-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/03-checkpoint-pool.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/05-first-opponent-problem.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/07-is-it-bimodal.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/08-build-it-yourself.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/09-this-project-formalized.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/10-reading-the-plan.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/11-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/05-build-vs-buy.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/08-unfair-comparison.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/09-build-it-yourself.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/10-this-project-formalized.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/11-reading-the-plan.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/12-glossary.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/index.html",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/01-rl-fundamentals.html#course-the-agent-environment-loop-b2d40b",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-the-env-class-and-its-two-core-methods-a83361",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/04-gymnasium-api.html#course-check-env-validating-the-contract-51bcbe",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-the-formal-tuple-8b485e",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-return-and-the-discount-factor-f88f33",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/03-value-functions-bellman.html#course-state-value-function-v-023959",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-policies-4fdf90",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-1-rl-prerequisites/02-markov-decision-processes.html#course-action-masking-0bc377",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html#course-two-ways-to-solve-an-mdp-eb7092",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html#course-starting-from-a-bellman-equation-you-already-have-87c244",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-what-changes-when-the-next-state-isn-t-certain-7a2f75",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html#course-worked-example-how-much-does-the-risk-of-a-safety-car-change-toda-15e1b8",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html#course-the-same-idea-page-2-of-the-phase-1-prerequisites-already-taught--932aa7",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html#course-the-equation-hasn-t-changed-1a52f0",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/02-q-learning-derived.html#course-the-full-update-6cd72b",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-greedy-only-fails-34b48c",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html#course-why-masking-has-to-apply-inside-exploration-not-just-at-evaluatio-da0de6",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html#course-sarsa-s-update-e79c82",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html#course-why-tabular-methods-need-a-finite-table-bbf2e7",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/01-table-to-function.html#course-the-tabular-update-restated-as-what-it-actually-is-719161",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/01-table-to-function.html#course-function-approximation-defined-generally-52500f",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/03-target-network.html#course-the-naive-idea-c54e39",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/03-target-network.html#course-snapshot-storage-and-detachment-are-separate-134cfd",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/04-experience-replay.html#course-why-in-order-training-data-is-a-problem-even-with-a-stable-target-60ada3",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-5-dqn-prerequisites/05-dueling-architecture.html#course-the-motivating-observation-1dd682",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html#course-what-breaks-and-what-doesn-t-5aefbd",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-6-multi-car-prerequisites/02-credit-assignment.html#course-the-reward-phase-1-through-5-had-31dfdb",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html#course-a-quick-recap-of-the-shield-c568ce",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    },
+    {
+      "oldId": "phase-9-ppo-prerequisites/05-build-vs-buy.html#course-why-ppo-is-different-in-kind-not-just-longer-707fac",
+      "newIds": [],
+      "decision": "unread",
+      "reason": "Substantive rewrite/new dedicated boundaries; coverage is not completion equivalence."
+    }
+  ],
+  "practice": [
+    {
+      "oldLesson": "p1-loop",
+      "labId": "p1-loop",
+      "newLesson": "p1-loop",
+      "decision": "retain",
+      "meaningSha256": "ffbe88fb6207792caf0fc523bf7ec8ff109431ea534ecd531f2c093270840300",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p1-state",
+      "labId": "p1-state",
+      "newLesson": "p1-state",
+      "decision": "retain",
+      "meaningSha256": "34d03e8bd06c2f8691b33089d154041e28a5192eeed0420186d8249571c38be6",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p1-return",
+      "labId": "p1-return",
+      "newLesson": "p1-return",
+      "decision": "retain",
+      "meaningSha256": "21c195c67e90e602d1ca82ee858dd1818cde68561aa9f59e377d012b13030270",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p1-values",
+      "labId": "p1-values",
+      "newLesson": "p1-values",
+      "decision": "retain",
+      "meaningSha256": "253d6785808aa77dc7cce5f8f8bc34b1c4985fe181db7acbe46567f0bd4d01b3",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p35-backward",
+      "labId": "p35-backward",
+      "newLesson": "p35-backward",
+      "decision": "retain",
+      "meaningSha256": "eb3a92b823cc0c7ee4af21c98f6473ba7a798a0327b84fb3f96d06e03a11c44c",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p35-stochastic",
+      "labId": "p35-stochastic",
+      "newLesson": "p35-stochastic",
+      "decision": "retain",
+      "meaningSha256": "fbc06cd91810791447226ee5d4f83d512bd683953051f1fbd42ad5b10dfbe39e",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p35-markov",
+      "labId": "p35-markov",
+      "newLesson": "p35-markov",
+      "decision": "retain",
+      "meaningSha256": "8f1571c0cbe0bb40699df278a3ea6ec90aeba954ee90e930b6b9ceeb203e90cf",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p4-td",
+      "labId": "p4-td",
+      "newLesson": "p4-td",
+      "decision": "retain",
+      "meaningSha256": "8b14813fb53e5d1d579a71b89b34f220576c481d2a5d25ab5efa2dba561b6765",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p4-explore",
+      "labId": "p4-explore",
+      "newLesson": "p4-explore",
+      "decision": "retain",
+      "meaningSha256": "ad311364d0ca061e0424db2538cf42316bd7dcae81b388c03e4b084f5d0b9dcb",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p4-sarsa",
+      "labId": "p4-sarsa",
+      "newLesson": "p4-sarsa",
+      "decision": "retain",
+      "meaningSha256": "a5dbb36fc4d60aa4a4d7a94ac22bc9b4b3d911bbad122ad5047ac48411f64b5c",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p4-bins",
+      "labId": "p4-bins",
+      "newLesson": "p4-bins",
+      "decision": "retain",
+      "meaningSha256": "6610dd007413aed4e786a01af6c5626e5d811ab69af092a2e9b0fe4581910f66",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p5-network",
+      "labId": "p5-network",
+      "newLesson": "p5-network",
+      "decision": "retain",
+      "meaningSha256": "50c629b846ea92ef8d0032cf3baed7d6c85950863571a21912cad39ad8aec3b1",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p5-stability",
+      "labId": "p5-stability",
+      "newLesson": "p5-stability",
+      "decision": "retain",
+      "meaningSha256": "0d43394cc299250612542970f01b1bfc42ec64415da7a8402668744ec40dcad2",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p5-double-dueling",
+      "labId": "p5-double-dueling",
+      "newLesson": "p5-double-dueling",
+      "decision": "retain",
+      "meaningSha256": "c50de128bae012513990704375327f20a4a29be2f2becd89e6ae1b027f8d8490",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p5-per",
+      "labId": "p5-per",
+      "newLesson": "p5-per",
+      "decision": "retain",
+      "meaningSha256": "d5fed4e58b9ec19fc1953e914de0144d94d595a96e2614b8f0d61047f757c35f",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p6-credit",
+      "labId": "p6-credit",
+      "newLesson": "p6-credit",
+      "decision": "retain",
+      "meaningSha256": "3ae04556899173f48818057eb144bd213211a1dc05fb5ac40c07ad4a375db5f6",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p6-shaping",
+      "labId": "p6-shaping",
+      "newLesson": "p6-shaping",
+      "decision": "retain",
+      "meaningSha256": "2b7aa3acc77ed072d70f108b20459710d030271e1b77fd5645d185f54fcaacd6",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p6-opponent",
+      "labId": "p6-opponent",
+      "newLesson": "p6-opponent",
+      "decision": "retain",
+      "meaningSha256": "943eea9d16a4e76ed89bd6692c85df32029e6899d9c1d81cf63128c40bcdd7a3",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p8-game",
+      "labId": "p8-game",
+      "newLesson": "p8-game",
+      "decision": "retain",
+      "meaningSha256": "e5b018a053697625108a9732db2105d10229e2a92fb816e59e733cb7ba259624",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p8-pool",
+      "labId": "p8-pool",
+      "newLesson": "p8-pool",
+      "decision": "retain",
+      "meaningSha256": "71e232d4c34a16d5e0099e0b9ab1fd46ea542bb0f0fe2f24bdea79e9ec329954",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p8-audit",
+      "labId": "p8-audit",
+      "newLesson": "p8-audit",
+      "decision": "retain",
+      "meaningSha256": "7977e60bd34a61823c360dc6e4f95bf6739e975b60c9fdf202c6c3c407a832f0",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p9-reinforce",
+      "labId": "p9-reinforce",
+      "newLesson": "p9-reinforce",
+      "decision": "retain",
+      "meaningSha256": "bc108ed6d28d0a53d16e19d5680b08ba994b3c1e57c7875425cfa8cffc52cac4",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p9-advantage",
+      "labId": "p9-advantage",
+      "newLesson": "p9-advantage",
+      "decision": "retain",
+      "meaningSha256": "07199a7a5bbccb1831d14c88a2edb56099c0590d998f41861e2fd1ed8edf4b20",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p9-gae",
+      "labId": "p9-gae",
+      "newLesson": "p9-gae",
+      "decision": "retain",
+      "meaningSha256": "dd4a38f0fdf4d9d6ff37498a5a9221b884d453691a6034b5684078e307f6458e",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    },
+    {
+      "oldLesson": "p9-ppo",
+      "labId": "p9-ppo",
+      "newLesson": "p9-ppo",
+      "decision": "retain",
+      "meaningSha256": "3b0703b1c02ff32aae57b912553ec64c604c4733ab0a7f6de39ae39b08344590",
+      "reason": "Browser calculation, Python contracts and evidence meaning are unchanged."
+    }
+  ],
+  "checklists": [
+    {
+      "oldModule": "foundations",
+      "oldCheck": "understand-concepts",
+      "newModule": "foundations",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain state/action/reward and termination versus truncation.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "foundations",
+      "oldCheck": "map-project-contracts",
+      "newModule": "foundations",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map the toy reset/step contract to the project environment.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "foundations",
+      "oldCheck": "review-integration",
+      "newModule": "foundations",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review action masking, reward units, and the project environment implementation plan.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "planning",
+      "oldCheck": "understand-concepts",
+      "newModule": "planning",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain time-indexed backward induction and expectation over outcomes.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "planning",
+      "oldCheck": "map-project-contracts",
+      "newModule": "planning",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map legal actions and terminal values to the project DP oracle.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "planning",
+      "oldCheck": "review-integration",
+      "newModule": "planning",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review the toy solver and independent optimality checks.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "tabular-learning",
+      "oldCheck": "understand-concepts",
+      "newModule": "tabular-learning",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain TD targets, exploration, SARSA, and bin conventions.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "tabular-learning",
+      "oldCheck": "map-project-contracts",
+      "newModule": "tabular-learning",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map legal masks and observation bins to the project Q-table.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "tabular-learning",
+      "oldCheck": "review-integration",
+      "newModule": "tabular-learning",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review training/evaluation separation and the tabular implementation plan.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "neural-value-learning",
+      "oldCheck": "understand-concepts",
+      "newModule": "neural-value-learning",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain target snapshots, replay, Double/dueling mechanisms, and priorities.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "neural-value-learning",
+      "oldCheck": "map-project-contracts",
+      "newModule": "neural-value-learning",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map tensor shapes, reward units, and optimizer/update schedules to the project.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "neural-value-learning",
+      "oldCheck": "review-integration",
+      "newModule": "neural-value-learning",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review DQN integration contracts and the local training walkthrough.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "multiple-agents",
+      "oldCheck": "understand-concepts",
+      "newModule": "multiple-agents",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain team credit, shaping boundaries, and changing opponents.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "multiple-agents",
+      "oldCheck": "map-project-contracts",
+      "newModule": "multiple-agents",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map action validity, simultaneous transitions, and reward ownership to the environment.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "multiple-agents",
+      "oldCheck": "review-integration",
+      "newModule": "multiple-agents",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review the multi-car build walkthrough and mechanics bug ledger.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "self-play",
+      "oldCheck": "understand-concepts",
+      "newModule": "self-play",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain opponent pools, frozen snapshots, and historical evaluation.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "self-play",
+      "oldCheck": "map-project-contracts",
+      "newModule": "self-play",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map agent IDs, action masks, and environment lifecycle to the project API.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "self-play",
+      "oldCheck": "review-integration",
+      "newModule": "self-play",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review evaluation budgets and the self-play implementation plan.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "policy-gradients",
+      "oldCheck": "understand-concepts",
+      "newModule": "policy-gradients",
+      "newCheck": "understand-concepts",
+      "decision": "retain",
+      "text": "Explain frozen rollout data, actor/critic gradients, GAE masks, and PPO clipping.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "policy-gradients",
+      "oldCheck": "map-project-contracts",
+      "newModule": "policy-gradients",
+      "newCheck": "map-project-contracts",
+      "decision": "retain",
+      "text": "Map final observations, legal masks, and transition budgets to the collector.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    },
+    {
+      "oldModule": "policy-gradients",
+      "oldCheck": "review-integration",
+      "newModule": "policy-gradients",
+      "newCheck": "review-integration",
+      "decision": "retain",
+      "text": "Review library integration and Windows spawn guidance before implementation.",
+      "reason": "Same project-preparation statement; does not complete replacement application readings."
+    }
+  ],
+  "resume": [
+    {
+      "oldLesson": "p1-loop",
+      "newLesson": "p1-loop",
+      "module": "foundations"
+    },
+    {
+      "oldLesson": "p1-state",
+      "newLesson": "p1-state",
+      "module": "foundations"
+    },
+    {
+      "oldLesson": "p1-return",
+      "newLesson": "p1-return",
+      "module": "foundations"
+    },
+    {
+      "oldLesson": "p1-values",
+      "newLesson": "p1-values",
+      "module": "foundations"
+    },
+    {
+      "oldLesson": "p35-backward",
+      "newLesson": "p35-backward",
+      "module": "planning"
+    },
+    {
+      "oldLesson": "p35-stochastic",
+      "newLesson": "p35-stochastic",
+      "module": "planning"
+    },
+    {
+      "oldLesson": "p35-markov",
+      "newLesson": "p35-markov",
+      "module": "planning"
+    },
+    {
+      "oldLesson": "p4-td",
+      "newLesson": "p4-td",
+      "module": "tabular-learning"
+    },
+    {
+      "oldLesson": "p4-explore",
+      "newLesson": "p4-explore",
+      "module": "tabular-learning"
+    },
+    {
+      "oldLesson": "p4-sarsa",
+      "newLesson": "p4-sarsa",
+      "module": "tabular-learning"
+    },
+    {
+      "oldLesson": "p4-bins",
+      "newLesson": "p4-bins",
+      "module": "tabular-learning"
+    },
+    {
+      "oldLesson": "p5-network",
+      "newLesson": "p5-network",
+      "module": "neural-value-learning"
+    },
+    {
+      "oldLesson": "p5-stability",
+      "newLesson": "p5-stability",
+      "module": "neural-value-learning"
+    },
+    {
+      "oldLesson": "p5-double-dueling",
+      "newLesson": "p5-double-dueling",
+      "module": "neural-value-learning"
+    },
+    {
+      "oldLesson": "p5-per",
+      "newLesson": "p5-per",
+      "module": "neural-value-learning"
+    },
+    {
+      "oldLesson": "p6-credit",
+      "newLesson": "p6-credit",
+      "module": "multiple-agents"
+    },
+    {
+      "oldLesson": "p6-shaping",
+      "newLesson": "p6-shaping",
+      "module": "multiple-agents"
+    },
+    {
+      "oldLesson": "p6-opponent",
+      "newLesson": "p6-opponent",
+      "module": "multiple-agents"
+    },
+    {
+      "oldLesson": "p8-game",
+      "newLesson": "p8-game",
+      "module": "self-play"
+    },
+    {
+      "oldLesson": "p8-pool",
+      "newLesson": "p8-pool",
+      "module": "self-play"
+    },
+    {
+      "oldLesson": "p8-audit",
+      "newLesson": "p8-audit",
+      "module": "self-play"
+    },
+    {
+      "oldLesson": "p9-reinforce",
+      "newLesson": "p9-reinforce",
+      "module": "policy-gradients"
+    },
+    {
+      "oldLesson": "p9-advantage",
+      "newLesson": "p9-advantage",
+      "module": "policy-gradients"
+    },
+    {
+      "oldLesson": "p9-gae",
+      "newLesson": "p9-gae",
+      "module": "policy-gradients"
+    },
+    {
+      "oldLesson": "p9-ppo",
+      "newLesson": "p9-ppo",
+      "module": "policy-gradients"
+    }
+  ]
+}

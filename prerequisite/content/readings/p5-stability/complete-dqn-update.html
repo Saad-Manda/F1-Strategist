@@ -1,0 +1,69 @@
+<section><h2>First align with the unchanged stability exercise</h2><p>The chain pack has two always-legal actions. Its targets function validates rewards [B], boolean termination [B], next states with B rows and gamma; computes max Qtarget along the action axis under no_grad; and removes continuation only at termination. Truncation is retained by the collector but does not replace termination in this function.</p>
+<pre><code>def targets(target, next_states, rewards, terminated, gamma):
+    if not math.isfinite(gamma) or not 0 &lt;= gamma &lt;= 1:
+        raise ValueError("gamma in [0,1] required")
+    if (rewards.ndim != 1 or terminated.shape != rewards.shape
+        or next_states.shape[0] != len(rewards) or terminated.dtype != torch.bool):
+        raise ValueError("invalid batch shapes or flags")
+    if not all(finite(t) for t in (next_states,rewards)):
+        raise ValueError("finite batch required")
+    with torch.no_grad():
+        values = target(next_states).max(dim=1).values
+        return rewards + gamma*torch.where(terminated,torch.zeros_like(values),values)</code></pre>
+<h2>A complete masked update</h2><p>Real race actions are not always legal. This teaching update supports masked vanilla targets now; the next lesson explains its double=True extension. Shapes are states/next_states [B,D], actions/rewards/terminated [B], and legal_next [B,A]. Use a separate target from make_target and an optimizer containing only online parameters. Inputs and both models must share floating dtype/device. Stored actions must have been legal at collection; validate that against the stored current mask in the collector.</p>
+<pre><code>def dqn_step(online, target, optimizer, states, actions, rewards,
+             next_states, terminated, legal_next, gamma=0.9,
+             double=False, weights=None, huber=False, max_norm=10.):
+    if (states.ndim != 2 or next_states.shape != states.shape
+        or len(states) == 0 or rewards.shape != (len(states),)
+        or actions.shape != rewards.shape or actions.dtype != torch.long
+        or terminated.shape != rewards.shape or terminated.dtype != torch.bool
+        or legal_next.ndim != 2 or legal_next.shape[0] != len(states)
+        or legal_next.dtype != torch.bool or not math.isfinite(gamma)
+        or not 0 &lt;= gamma &lt;= 1 or not math.isfinite(max_norm) or max_norm &lt;= 0
+        or not all(finite(t) for t in (states,next_states,rewards))):
+        raise ValueError("invalid DQN batch or settings")
+    predicted_all = online(states)
+    if (predicted_all.shape != legal_next.shape or predicted_all.shape[1] == 0
+        or not finite(predicted_all)
+        or bool(((actions &lt; 0) | (actions &gt;= predicted_all.shape[1])).any())):
+        raise ValueError("invalid output or action indices")
+    predicted = predicted_all.gather(1,actions[:,None]).squeeze(1)
+    active = ~terminated
+    if bool((~legal_next[active].any(dim=1)).any()):
+        raise ValueError("no legal nonterminal successor")
+    with torch.no_grad():
+        labels = rewards.clone()
+        if bool(active.any()):
+            evaluated = target(next_states[active])
+            if evaluated.shape != legal_next[active].shape or not finite(evaluated):
+                raise ValueError("invalid target output")
+            if double:
+                selected_values = online(next_states[active])
+                if selected_values.shape != evaluated.shape or not finite(selected_values):
+                    raise ValueError("invalid online successor output")
+                selected = selected_values.masked_fill(~legal_next[active],-torch.inf).argmax(1)
+                continuation = evaluated.gather(1,selected[:,None]).squeeze(1)
+            else:
+                continuation = evaluated.masked_fill(~legal_next[active],-torch.inf).max(1).values
+            labels[active] += gamma*continuation
+    td_error = (labels-predicted).detach()
+    per_item = (torch.nn.functional.smooth_l1_loss(predicted,labels,reduction="none")
+                if huber else (predicted-labels).square())
+    if weights is None:
+        weights = torch.ones_like(rewards)
+    if (weights.shape != rewards.shape or not finite(weights)
+        or bool(((weights &lt; 0) | (weights &gt; 1)).any())):
+        raise ValueError("weights must be finite [B] in [0,1]")
+    loss = (weights.detach()*per_item).mean()
+    if not finite(loss):
+        raise ValueError("nonfinite loss")
+    optimizer.zero_grad()
+    loss.backward()
+    norm = torch.nn.utils.clip_grad_norm_(online.parameters(),max_norm,
+                                         error_if_nonfinite=True)
+    optimizer.step()
+    return dict(loss=float(loss.detach()),targets=labels.detach(),
+                td_error=td_error,gradient_norm=float(norm))</code></pre>
+<p>Weights default to one; their purpose arrives in PER. Squared loss is the pack convention. The huber option is explained in the F1 application. No training loop executes here. Returned errors use pre-update predictions, so they are suitable for a documented priority update. Gradient clipping caps the joint parameter-gradient norm before the optimizer step; it does not clip rewards or TD errors.</p><p>Terminal rows skip successor selection entirely, allowing an empty legal set without −infinity arithmetic. Multiplying a masked −infinity maximum by zero can produce NaN; a placeholder argmax on an all-invalid row is not a real action. Gamma zero still does not excuse invalid nonterminal masks under this contract. Targets are detached even when the supplied source has trainable parameters.</p>
+<h2>Recap and self-check</h2><details><summary>When should the target synchronize?</summary><p>After a successful update according to its separately counted schedule. dqn_step performs one optimizer update; its caller counts updates and invokes hard or soft synchronization. It does not silently count environment steps or reset episodes.</p></details><p>Continue to the stability browser and Python pack. Then distinguish which network selects a successor action and which evaluates it.</p></section>

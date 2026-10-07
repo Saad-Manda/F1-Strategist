@@ -1,0 +1,24 @@
+<section>
+<h2>Build the toy in stages with fresh state</h2>
+<p>Start with two fresh cars for each run. Over 30 ticks SLOW at pace 5 totals 150; FAST at 4.5 with one 20-unit pit totals 155, regardless of moving that single constant penalty from tick 5 to 25. Reusing the same mutable SLOW across runs, as in the legacy illustration, would contaminate the comparison. This timing invariance is specific to fixed additive schedules, not all tyre models.</p>
+<p>Next impose a binding traffic cap, force pass failure, and verify the follower gains no time while constrained. Then force success and verify release changes the outcome. Merely relocating a constant pit penalty does not guarantee a difference even with a cap; enumerate the actual schedules and starting gaps. The complete traffic_step below resolves two simultaneous paces from copied cumulative times and makes the causal intervention explicit.</p>
+<p>Finally compare RISKY/SAFE true, proxy and zero-terminal potential returns by exact enumeration. This checks the reward transformation independently of training. Plant E1, E2, E3 and E5 separately and verify the mechanism-specific witness fails.</p>
+<h2>Map checks to the proposed project</h2>
+<p>Position uniqueness checks output shape; dirty-air helper boundaries check a formula; scripted pit-age resets check a lifecycle detail. None alone checks that dirty air reaches time, an overtake changes outcomes or each lap is counted once. Add those invariants, synchronized conditions and masks, true terminal/truncation boundaries, SC parity and trajectory-level shaping identity.</p>
+<p>The proposed three 3000-episode reward runs and top-half finish threshold are future experiments with fixed rivals. Record physical outcomes and actual transitions rather than calling the plan’s checklist production evidence. Preparedness acknowledges understanding; it does not certify the environment or guarantee emergent strategies.</p>
+<pre><code>def traffic_step(times, paces, pass_success=False, blocking=True):
+    # Two-car illustrative intervention, with equal times broken by index.
+    if len(times) != 2 or len(paces) != 2 or not all(math.isfinite(x) for x in [*times,*paces]) or any(x &lt;= 0 for x in paces):
+        raise ValueError(&#x27;two finite times and positive paces required&#x27;)
+    if type(pass_success) is not bool or type(blocking) is not bool:
+        raise ValueError(&#x27;boolean intervention flags required&#x27;)
+    order = sorted(range(2),key=lambda i:(times[i],i))
+    leader,follower = order
+    resolved = list(paces)
+    gap = times[follower]-times[leader]
+    if blocking and gap &lt; 1 and not pass_success:
+        resolved[follower] = max(resolved[follower],resolved[leader]+dirty_air(gap))
+    return [times[i]+resolved[i] for i in range(2)]</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does enabling blocking guarantee undercut/overcut peaks?</summary><p>No. It makes a particular interaction representable. Outcomes still depend on schedules, tyre dynamics, opponents, learning and the chosen statistic.</p></details>
+</section>

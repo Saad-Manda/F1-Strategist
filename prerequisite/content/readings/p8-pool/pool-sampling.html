@@ -1,0 +1,28 @@
+<section>
+<h2>Normalize the sampling law you actually use</h2>
+<p>The teaching pack uses explicit positive weights [1,2,3], giving probabilities [1/6,1/3,1/2]. This is independent sampling with replacement. Scale weights by their maximum before summing to avoid overflow from large finite values. A seed fixes a stream, not exact finite counts.</p>
+<p>The project plan instead splits a pool of 50 into 40 older and 10 recent entries. Recent mass .7 gives each recent entry .07; old mass .3 gives each old entry .0075. The per-entry ratio is 28/3≈9.333. These are proposed slice hyperparameters, not the pack’s [1,2,3] weights.</p>
+<p>With one pool entry, the plan’s cutoff max(1,int(.8n)) is 1; its recent slice [1:] is empty and the .7 branch can fail. Handle n=1 explicitly before splitting; for larger n both slices must be nonempty. Reject an empty pool, define ordering and use an owned RNG.</p>
+<h2>Random initialization is not a random policy</h2>
+<p>At zero exploration a randomly initialized network chooses deterministically conditional on an observation and tie convention. It need not choose the same action at every observation, but it is not uniform random behavior. Legal masks can also prevent repeated pits; “52 pits” is a possible defect story, not a universal outcome. Seed with an explicitly stochastic legal policy or documented rule-based styles and preserve that policy type when sampling. Setting every sampled epsilon to zero would erase an intended random bootstrap.</p>
+<pre><code>def pool_probabilities(weights):
+    w=np.asarray(weights,dtype=float)
+    if w.ndim!=1 or not len(w) or not np.isfinite(w).all() or (w&lt;=0).any():raise ValueError(&quot;positive finite weights required&quot;)
+    scaled=w/w.max()
+    return scaled/scaled.sum()
+
+def sample_indices(weights, count, seed):
+    if type(count) is not int or count&lt;1:raise ValueError(&quot;positive sample count required&quot;)
+    p=pool_probabilities(weights)
+    return np.random.default_rng(seed).choice(len(p),size=count,p=p)
+
+def recency_probabilities(n, bias=.7):
+    if type(n) is not int or n &lt; 1 or not math.isfinite(bias) or not 0 &lt;= bias &lt;= 1:
+        raise ValueError(&#x27;nonempty pool and valid bias required&#x27;)
+    if n == 1:
+        return np.ones(1)
+    cutoff = min(n-1,max(1,int(.8*n)))
+    return np.array([(1-bias)/cutoff]*cutoff+[bias/(n-cutoff)]*(n-cutoff))</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>What should a one-entry pool return?</summary><p>Its only entry with probability one, without trying to sample an empty recent slice.</p></details>
+</section>

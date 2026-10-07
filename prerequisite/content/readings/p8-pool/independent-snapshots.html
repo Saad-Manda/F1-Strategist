@@ -1,0 +1,19 @@
+<section>
+<h2>Freeze values and storage</h2>
+<p>A pool entry must remain the policy that was evaluated and named when saved. A reference to a learner array or a shallow copy of nested tensor storage is not a snapshot. The pack copies a three-probability NumPy vector and marks it read-only. Mutating the original [1,0,0] into [0,1,0] leaves the snapshot [1,0,0].</p>
+<p>For a PyTorch policy, copy each state_dict tensor or deepcopy the model; do not retain aliased state_dict values while the live model updates. Freeze optimizer access, use eval mode for dropout/batch normalization and no_grad for forward calls. Eval mode does not itself stop gradients or make storage independent, and zero epsilon specifies an action-selection convention rather than a storage property.</p>
+<p>Store architecture, feature/action order, normalization and reward metadata with checkpoint identity. Cache immutable loaded opponent models when useful, but ensure one caller cannot change their parameters, epsilon or normalization statistics for another.</p>
+<h2>Copying is not evaluation</h2>
+<p>The copied policy can still be inappropriate or deterministic. Independence checks establish snapshot integrity; matchup checks establish behavior. Pack snapshots describe probability vectors, not full F1 networks. A bounded FIFO pool copies the new entry and retains the last capacity entries, with associated weights/IDs kept aligned.</p>
+<pre><code>def snapshot(policy):
+    result = np.array(policy_vector(policy),dtype=float,copy=True)
+    result.setflags(write=False)
+    return result
+
+def add_snapshot(pool, policy, capacity):
+    if type(capacity) is not int or capacity &lt; 1:
+        raise ValueError(&#x27;positive integer capacity required&#x27;)
+    return [*pool,snapshot(policy)][-capacity:]</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does calling eval() turn an alias into a snapshot?</summary><p>No. It changes layer behavior; independent storage requires a copy.</p></details>
+</section>

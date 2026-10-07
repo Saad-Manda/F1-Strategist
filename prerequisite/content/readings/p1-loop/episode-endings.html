@@ -1,0 +1,55 @@
+<section aria-labelledby="why-endings"><h2 id="why-endings">Why this matters</h2>
+<p>A correct step method is not enough if the loop keeps stepping after an episode has ended. The previous reading recorded two flags. Now we will use them to stop collection correctly, while keeping the reason for stopping in the trace.</p>
+<p>Our chain still begins at 0 and finishes at 2. There are two distinct ways to stop collecting it: reach the task's destination, or impose an external limit on how many moves to collect.</p></section>
+
+<section aria-labelledby="termination"><h2 id="termination">The task ends: termination</h2>
+<p><strong>Termination</strong> means the task's own ending condition has been reached. The chain terminates on arrival at location 2. Other tasks might terminate on failure instead of success. A positive reward is not what defines termination: the ending rule does.</p>
+<p>For RIGHT, RIGHT, the second step returns observation 2, reward +5, <code>terminated=True</code> and <code>truncated=False</code>. Record this final transition, then stop. Calling reset afterward begins a new episode at 0 with a new step count of 0.</p>
+<p>The base chain exercise rejects stepping before the first reset or after true termination. That is its explicit contract. Do not depend on every environment raising the same exception; your collector should stop when either ending flag is true.</p></section>
+
+<section aria-labelledby="truncation"><h2 id="truncation">Collection stops early: truncation</h2>
+<p><strong>Truncation</strong> means a condition outside the task's ending rule has stopped the run. Suppose you have time to collect just one move. RIGHT moves the robot from 0 to 1: it has not reached the destination. The task is unfinished even though this collected episode is over.</p>
+<pre><code>import gymnasium as gym
+
+# ChainEnv is the environment supplied in your exercise.
+env = gym.wrappers.TimeLimit(ChainEnv(), max_episode_steps=1)
+observation, info = env.reset(seed=7)
+observation, reward, terminated, truncated, info = env.step(1)
+# (1, -1.0, False, True, {"steps": 1})</code></pre>
+<p>A <strong>wrapper</strong> is an object that surrounds an environment and modifies how it is used. Here <code>TimeLimit</code> counts calls and adds the external stopping flag. It does not change location 1 into the goal, replace the reward with +5, or reset the chain for you. The base chain has no time limit; the wrapper supplies it.</p>
+<div class="table-wrap"><table><caption>Two runs with different reasons for stopping.</caption><thead><tr><th>Run</th><th>Final observation</th><th>Total reward</th><th>Terminated</th><th>Truncated</th></tr></thead><tbody>
+<tr><td>RIGHT, RIGHT; cap 6</td><td>2</td><td>+4</td><td>True</td><td>False</td></tr>
+<tr><td>RIGHT; cap 1</td><td>1</td><td>−1</td><td>False</td><td>True</td></tr>
+</tbody></table></div>
+<p>The flags are not guaranteed to be mutually exclusive. A goal may be reached on the same step as an external limit. Stop on either flag and retain both values rather than inventing one combined reason.</p></section>
+
+<section aria-labelledby="collector"><h2 id="collector">A collector that handles both endings</h2>
+<p>A <strong>collector</strong> is the code that asks the policy for actions and stores the results. <code>policy</code> below is the function from the first reading; the environment may be the base chain or the wrapped chain. This code does not learn or update the policy.</p>
+<pre><code>def collect_episode(env, policy, *, seed=None):
+    observation, info = env.reset(seed=seed)
+    trace = []
+    while True:
+        before = observation
+        action = policy(observation)
+        observation, reward, terminated, truncated, info = env.step(action)
+        trace.append(dict(
+            before=before, action=action, observation=observation,
+            reward=float(reward), terminated=bool(terminated),
+            truncated=bool(truncated), info=info,
+        ))
+        if terminated or truncated:
+            break
+    return trace</code></pre>
+<p>Append the transition before breaking, so the trace keeps its final reward, final observation and ending reason. Python's <code>or</code> is true when at least one flag is true. A collector that checks only termination incorrectly continues past the one-step cap.</p>
+<p>This loop expects that an ending will occur. For random practice in a task that may continue indefinitely, use an external collection limit. A safety guard that simply abandons a loop without recording a boundary must not pretend the task terminated.</p></section>
+
+<section aria-labelledby="other-boundaries"><h2 id="other-boundaries">A task horizon and a batch boundary are different</h2>
+<p>If the task itself is “deliver within three moves,” running out of those moves is a task ending, not an outside interruption. The moves remaining can affect which action is best, so that information belongs in the decision-making state. This differs from our chain with an external collection cap.</p>
+<p>A <strong>rollout cutoff</strong> is another boundary: a collector may pause after filling a batch while an episode is still live. Without a wrapper ending the episode, both environment flags can remain false. Keep that batch boundary separately; it is not a reason to reset the world or relabel the transition as terminated.</p>
+<p>For this exercise, both termination and truncation stop collection. Later, when estimating future rewards, a true task ending and an interrupted task require different calculations. You do not need those calculations yet, but preserving the separate flags now makes them possible.</p></section>
+
+<section aria-labelledby="endings-recap"><h2 id="endings-recap">Recap and a self-check</h2>
+<div class="reading-callout"><p><strong>Common mistake:</strong> resetting inside step and returning the next episode's initial observation as the ending observation. Return the actual final observation first. Reset is a separate call.</p></div>
+<details class="self-check"><summary>Self-check: a cap of one stops RIGHT at location 1. Should you award the goal reward, keep collecting, or stop and retain the unfinished position?</summary><p><strong>Explanation:</strong> stop and retain observation 1, reward −1, terminated False and truncated True. Collection ended; the destination was not reached. A new episode requires an explicit reset.</p></details>
+<p>You can now collect a complete and correctly bounded trace. Next, we will describe the permitted action and observation formats and check the environment contract.</p>
+<p class="reading-source">API references: <a href="https://gymnasium.farama.org/api/env/">the step/reset contract</a> and <a href="https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/">Gymnasium's time-limit guidance</a>.</p></section>

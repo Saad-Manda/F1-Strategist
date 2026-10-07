@@ -1,0 +1,14 @@
+<section><h2>Power once, normalize once</h2><p>Define sampling mass m_i=p_i^α and probability P(i)=m_i/Σ_j m_j over N retained entries. Alpha here controls priority strength; it is not the earlier TD learning rate. With priorities [1,4,9] and alpha 0.5, masses are [1,2,3] and probabilities [1/6,1/3,1/2]. Their sum is one. Alpha zero gives equal mass one and uniform probability 1/N.</p><p>Storing p^α and then applying alpha again during sampling produces p^(α²), a different law. A sum tree may legitimately store powered masses for efficient retrieval; its API must distinguish those leaves from raw priorities. The standalone pack's distribution takes raw priorities and powers them internally.</p>
+<pre><code>def distribution(raw_priorities, alpha, beta):
+    p = np.asarray(raw_priorities,dtype=float)
+    if (p.ndim != 1 or not len(p) or not np.isfinite(p).all() or (p &lt;= 0).any()
+        or not math.isfinite(alpha) or not 0 &lt;= alpha &lt;= 1
+        or not math.isfinite(beta) or not 0 &lt;= beta &lt;= 1):
+        raise ValueError("positive finite priorities, alpha/beta in [0,1] required")
+    masses = p**alpha
+    probabilities = masses/masses.sum()
+    weights = (len(p)*probabilities)**(-beta)
+    return probabilities,weights/weights.max()</code></pre>
+<p>Beta and the returned weights are explained next; use beta zero to isolate the probability calculation. The function matches the unchanged pack. Production implementations need safeguards for extreme finite priorities whose total can overflow or whose ratios underflow, such as scaling masses by their largest value before summing. “Every input is finite” alone is not proof that every arithmetic result is finite.</p>
+<h2>Trace a supplied draw</h2><p>For the witness row, cumulative endpoints are 1/6,1/2,1. A uniform draw u in [0,1) selects item 0 below 1/6, item 1 from 1/6 up to but excluding 1/2, and item 2 at or above 1/2. This is the same inverse-CDF idea used for weather and epsilon-greedy sampling. With replacement, repeating draws can select the same buffer entry several times.</p><p>Empirical counts approximate these probabilities over many draws; three samples need not contain one of each. Use supplied boundaries to test indexing, seeded reproducibility to test stream use, and counts with tolerance to test the intended distribution. Reject empty buffers and nonpositive raw priorities rather than silently inventing a model.</p>
+<h2>Recap and self-check</h2><details><summary>Is raw priority 9 a 90% sampling probability?</summary><p>No. Under alpha 0.5 its mass is 3; divided by total mass 6 it receives probability 0.5. All retained priorities and the exponent determine the law.</p></details><p>Next, account for the changed replay distribution in the loss.</p></section>

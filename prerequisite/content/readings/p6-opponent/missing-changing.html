@@ -1,0 +1,10 @@
+<section>
+<h2>The same observation can hide two different worlds</h2>
+<p>Suppose the visible gap is .5 and position P2 in two states, but the leader has fresh tyres in one and worn tyres in the other. Their next-lap pace and likely pit decision differ. If those hidden variables matter, the observation aliases distinct states even when the opponent policy is fixed. Adding another gap feature does not prove Markov sufficiency.</p>
+<p>Now hold the full world state fixed and change the opponent’s checkpoint from a conservative occupancy law .2 to .8. CROSS changes from .6 to −.6 without hidden-state variation. That is policy nonstationarity. Both problems can coexist, and a learner may observe only their mixed effect.</p>
+<p>Clipping gaps by 60 seconds merges many distances; a leader sentinel 99 clips to the same 1 as a car 60 seconds behind. An explicit leader flag repairs that particular collision while increasing observation width; it does not solve all missing opponent state. Define feature semantics and retrain or deliberately adapt incompatible network inputs.</p>
+<h2>Diagnose by controlled separation</h2>
+<p>Freeze opponent parameters and vary hidden state to test observation aliasing. Freeze state and vary opponent policy to test opponent effects. Repeat with fixed exogenous event tapes. Recurrent observations or added features are design options requiring their own validation, not automatic proofs of a Markov state.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Can more training repair two states encoded identically?</summary><p>A memoryless policy cannot choose differently for identical inputs. It may learn an average response, not the hidden-state-specific optimum.</p></details>
+</section>

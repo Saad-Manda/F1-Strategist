@@ -1,0 +1,10 @@
+<section>
+<h2>Name the opponent distribution you are evaluating</h2>
+<p>Freeze learner weights, exploration and opponent policy versions. Compare against occupancy .2 and .8 separately: always CROSS scores .6 and −.6, always WAIT scores 0 and 0. With equal opponent weights their average CROSS return is zero, hiding the severe difference between columns. Report both aggregate and per-opponent outcomes.</p>
+<p>The lane sampler draws independent occupancy events using a seeded stream and computes the sample mean. Finite samples need not equal .6 or −.6 exactly. Check exact expectation and seeded reproducibility separately from empirical tolerance. No lane count establishes competence in the real F1 environment.</p>
+<p>For the project, keep scenario IDs, scripts or checkpoint IDs, role assignment, masks, physical cost and both ending flags. Avoid decaying epsilon, inserting replay or syncing target weights during evaluation. An evaluation change must not alter subsequent training state.</p>
+<h2>Separate mechanical and learning failures</h2>
+<p>A high score with twice-counted rivals is an accounting failure; an overtake discarded by sorting is a model failure; weak performance with correct reachable dynamics may be a learning failure. Test the first two independently. Competent fixed rivals are baselines, not proofs of equilibrium or broad robustness.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Why retain per-opponent columns when the overall mean improves?</summary><p>A mean can conceal forgetting or failure against one style. Coverage and aggregate performance answer different questions.</p></details>
+</section>

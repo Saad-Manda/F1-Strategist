@@ -1,0 +1,1975 @@
+{
+  "milestone": "R4",
+  "snapshot": "curriculum/coverage-map.json",
+  "sections": [
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-1",
+      "heading": "RL Fundamentals",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-5",
+      "heading": "Exploration vs. exploitation",
+      "destinations": [
+        "p4-explore/greedy-discovery",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/greedy-discovery",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-6",
+      "heading": "Why stochasticity is sampled fresh, not replayed",
+      "destinations": [
+        "p35-markov/sampling-not-foresight",
+        "foundations/race-dynamics"
+      ],
+      "disposition": "retain-and-correct",
+      "rationale": "Retain fresh-sampling and memorization warnings; distinguish environment overfitting from reward hacking.",
+      "authoredDestinations": [
+        "p35-markov/sampling-not-foresight",
+        "foundations/race-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-1-rl-prerequisites/01-rl-fundamentals.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract",
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation",
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules",
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html::section-1",
+      "heading": "Planning vs. Learning",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html::section-2",
+      "heading": "Two ways to solve an MDP",
+      "destinations": [
+        "p35-backward/planning-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html::section-3",
+      "heading": "Why \"exact\" is possible here at all",
+      "destinations": [
+        "p35-backward/finite-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/finite-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html::section-4",
+      "heading": "What planning buys that learning can't",
+      "destinations": [
+        "p35-backward/verify-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/verify-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-1",
+      "heading": "Backward Induction",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-2",
+      "heading": "Starting from a Bellman equation you already have",
+      "destinations": [
+        "p35-backward/backward-induction"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/backward-induction"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-3",
+      "heading": "The horizon breaks the circularity",
+      "destinations": [
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-4",
+      "heading": "Worked example: when does pitting actually pay off?",
+      "destinations": [
+        "p35-backward/backward-induction"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/backward-induction"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-5",
+      "heading": "Why a one-step-ahead (\"greedy\") policy would have missed this",
+      "destinations": [
+        "p35-backward/backward-induction"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/backward-induction"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/02-backward-induction.html::section-6",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-1",
+      "heading": "Expectations Over Randomness",
+      "destinations": [
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver",
+        "planning/oracle-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver",
+        "planning/oracle-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-2",
+      "heading": "What changes when the next state isn't certain",
+      "destinations": [
+        "p35-stochastic/weighted-backups"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/weighted-backups"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-3",
+      "heading": "Where the probabilities come from: a hazard-rate model",
+      "destinations": [
+        "p35-stochastic/weighted-backups",
+        "planning/oracle-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/weighted-backups",
+        "planning/oracle-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-4",
+      "heading": "Worked example: how much does the risk of a safety car change today's decision?",
+      "destinations": [
+        "p35-stochastic/rare-outcomes"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/rare-outcomes"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-5",
+      "heading": "The pit-under-safety-car discount, and why it belongs in the transition, not the reward",
+      "destinations": [
+        "p35-stochastic/weighted-backups",
+        "planning/oracle-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/weighted-backups",
+        "planning/oracle-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-6",
+      "heading": "Why compute_lap_time(noise=0) is exact, not approximate",
+      "destinations": [
+        "planning/oracle-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver",
+        "planning/oracle-model"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver",
+        "planning/oracle-model"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-1",
+      "heading": "Markov Chains",
+      "destinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-2",
+      "heading": "The same idea page 2 of the Phase 1 prerequisites already taught you",
+      "destinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-3",
+      "heading": "The transition matrix",
+      "destinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-4",
+      "heading": "Fitting a chain from data: count, then normalize",
+      "destinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-5",
+      "heading": "Worked example: fitting a 3\u00d73 matrix from three toy races",
+      "destinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-6",
+      "heading": "Sampling a trace from a fitted chain",
+      "destinations": [
+        "p35-markov/sampling-not-foresight"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/sampling-not-foresight"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-7",
+      "heading": "Why this is what makes Oracle B \"achievable\" and Oracle A only a \"bound\"",
+      "destinations": [
+        "planning/oracle-bound"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-bound"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/04-markov-chains.html::section-8",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks",
+        "planning/oracle-bound"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-1",
+      "heading": "Build a Toy DP Solver, Step by Step",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-2",
+      "heading": "Stage 1 \u2014 deterministic backward induction, verified against brute force",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-3",
+      "heading": "Stage 2 \u2014 a risk the agent can't control: the safety-car hazard",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-4",
+      "heading": "Stage 3 \u2014 an action that isn't always legal",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-5",
+      "heading": "Stage 4 \u2014 a second, independently-random process",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-6",
+      "heading": "Stage 5 \u2014 the sanity check, before you ever trust a DP answer again",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver",
+        "p35-backward/value-iteration",
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-1",
+      "heading": "This Project, Formalized as a DP",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-2",
+      "heading": "The DP state",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-3",
+      "heading": "The state-space size, arithmetic in full",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-4",
+      "heading": "Sign convention: the DP minimises cost, the agent maximises reward",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-5",
+      "heading": "Oracle A vs. Oracle B, precisely",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-6",
+      "heading": "Worked example: one backward-induction cell, at the real state's scale",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-7",
+      "heading": "The rollout harness and the optimality-gap metric",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-8",
+      "heading": "Why one shared implementation matters more here than in Phase 1",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html::section-9",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html::section-1",
+      "heading": "Annotated Code Walkthrough",
+      "destinations": [
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html::section-2",
+      "heading": "src/evaluation/dp_oracle.py",
+      "destinations": [
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html::section-3",
+      "heading": "src/env/weather_markov.py",
+      "destinations": [
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html::section-4",
+      "heading": "scripts/run_dp_oracle.py",
+      "destinations": [
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html::section-5",
+      "heading": "What the test suite is actually checking",
+      "destinations": [
+        "planning/oracle-verification"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "planning/oracle-verification"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/08-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:planning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/index.html::section-1",
+      "heading": "Phase 3.5 DP Oracle Prerequisites",
+      "destinations": [
+        "module:planning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/index.html::section-2",
+      "heading": "Why this phase exists, and why it isn't \"more RL\"",
+      "destinations": [
+        "module:planning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/index.html::section-3",
+      "heading": "How this folder teaches the implementation half",
+      "destinations": [
+        "module:planning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/index.html::section-4",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:planning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-3.5-dp-oracle-prerequisites/index.html::section-5",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:planning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:planning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-1",
+      "heading": "From an Equation to an Update Rule",
+      "destinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-2",
+      "heading": "The equation hasn't changed",
+      "destinations": [
+        "p4-td/sampled-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-3",
+      "heading": "The temporal-difference idea",
+      "destinations": [
+        "p4-td/td-error"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/td-error"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-4",
+      "heading": "TD error, defined once, used by every algorithm in this set",
+      "destinations": [
+        "p4-td/td-error"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/td-error"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-5",
+      "heading": "Bootstrapping: learning from a guess about a guess",
+      "destinations": [
+        "p4-td/sampled-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-6",
+      "heading": "What's still ahead",
+      "destinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-1",
+      "heading": "Q-Learning: The Update Rule, Derived and Hand-Run",
+      "destinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-2",
+      "heading": "The full update",
+      "destinations": [
+        "p4-td/q-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/q-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-3",
+      "heading": "Why max_a': this is what \"off-policy\" means",
+      "destinations": [
+        "p4-td/q-learning",
+        "p4-sarsa/policy-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/q-learning",
+        "p4-sarsa/policy-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-4",
+      "heading": "Learning rate and discount, in their learning-specific role",
+      "destinations": [
+        "p4-td/q-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/q-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-5",
+      "heading": "Worked example: a 3-state toy, hand-run for four steps",
+      "destinations": [
+        "p4-td/q-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/q-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/02-q-learning-derived.html::section-6",
+      "heading": "Convergence, stated but not proven",
+      "destinations": [
+        "p4-td/q-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-td/q-learning"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-1",
+      "heading": "Exploration: \u03b5-Greedy",
+      "destinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-2",
+      "heading": "Why greedy-only fails",
+      "destinations": [
+        "p4-explore/greedy-discovery"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/greedy-discovery"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-3",
+      "heading": "\u03b5-greedy, defined",
+      "destinations": [
+        "p4-explore/epsilon-probabilities"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/epsilon-probabilities"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-4",
+      "heading": "Linear decay, worked with the real plan's numbers",
+      "destinations": [
+        "p4-explore/exploration-schedules"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/exploration-schedules"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-5",
+      "heading": "Why masking has to apply inside exploration, not just at evaluation time",
+      "destinations": [
+        "p4-explore/exploration-schedules"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/exploration-schedules"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html::section-6",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html::section-1",
+      "heading": "On-Policy vs. Off-Policy: SARSA",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html::section-2",
+      "heading": "SARSA's update",
+      "destinations": [
+        "p4-sarsa/sampled-sarsa"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/sampled-sarsa"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html::section-3",
+      "heading": "On-policy, defined precisely",
+      "destinations": [
+        "p4-sarsa/policy-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html::section-4",
+      "heading": "Worked example: a risky push vs. a safe pit, hand-run side by side",
+      "destinations": [
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/04-sarsa-on-policy.html::section-5",
+      "heading": "Tying back to the real plan",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html::section-1",
+      "heading": "State Discretization: The General Tradeoff",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html::section-2",
+      "heading": "Why tabular methods need a finite table",
+      "destinations": [
+        "p4-bins/table-representation"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html::section-3",
+      "heading": "The tradeoff, stated generally",
+      "destinations": [
+        "p4-bins/state-aliasing"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/state-aliasing"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html::section-4",
+      "heading": "Worked arithmetic: how many states does a binning scheme actually produce?",
+      "destinations": [
+        "p4-bins/table-representation"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/06-the-binning-bug.html::section-1",
+      "heading": "The Binning Bug: When Coarseness Erases the Decision",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/06-the-binning-bug.html::section-2",
+      "heading": "The concrete numbers",
+      "destinations": [
+        "p4-bins/state-aliasing",
+        "tabular-learning/tabular-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/state-aliasing",
+        "tabular-learning/tabular-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/06-the-binning-bug.html::section-3",
+      "heading": "Why that's fatal, connected directly to Phase 3.5's own numbers",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/06-the-binning-bug.html::section-4",
+      "heading": "The fix the real plan adopts",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/06-the-binning-bug.html::section-5",
+      "heading": "The general lesson",
+      "destinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks",
+        "tabular-learning/tabular-contract"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-1",
+      "heading": "Build It Yourself: A Toy Q-Learning and SARSA, Side by Side",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-2",
+      "heading": "Stage 1 \u2014 a tiny world with a genuine risky-shortcut-vs-safe-route contrast",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-3",
+      "heading": "Stage 2 \u2014 a shared TD-learner shell",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-4",
+      "heading": "Stage 3 \u2014 OffPolicyLearner: page 2's target",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-5",
+      "heading": "Stage 4 \u2014 OnPolicyLearner: page 4's target, with the pre-commit mechanic",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-6",
+      "heading": "Stage 5 \u2014 run both, identical seeds, watch them diverge for real",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-7",
+      "heading": "Stage 6 \u2014 catch the leak",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/07-build-it-yourself.html::section-8",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-1",
+      "heading": "This Project, Formalized",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-2",
+      "heading": "The real discretize_obs, dimension by dimension",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-3",
+      "heading": "The reward-scale problem, argued numerically",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-4",
+      "heading": "Curriculum learning, concretely",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-5",
+      "heading": "Two bugs recorded against the real plan",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/08-this-project-formalized.html::section-6",
+      "heading": "The optimality-gap metric, with real numbers to reference",
+      "destinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-1",
+      "heading": "Code Walkthrough",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-2",
+      "heading": "Reading order, and why it's this order",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-3",
+      "heading": "What to look for in QLearningAgent",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-4",
+      "heading": "What to look for in SARSAAgent.select_action's pre-commit mechanic",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-5",
+      "heading": "The training loop's curriculum switch and evaluation cadence",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/09-code-walkthrough.html::section-6",
+      "heading": "What each new test actually catches",
+      "destinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "tabular-learning/tabular-training"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/10-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:tabular-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:tabular-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/index.html::section-1",
+      "heading": "Phase 4 Q-Learning Prerequisites",
+      "destinations": [
+        "module:tabular-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:tabular-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/index.html::section-2",
+      "heading": "Why this phase is different from the one before it",
+      "destinations": [
+        "module:tabular-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:tabular-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/index.html::section-3",
+      "heading": "How this folder teaches the implementation half",
+      "destinations": [
+        "module:tabular-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:tabular-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/index.html::section-4",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:tabular-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:tabular-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-4-q-learning-prerequisites/index.html::section-5",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:tabular-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:tabular-learning"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<section><h2>Store first, learn from retained experience</h2><p>Store each transition's observation, executed action, reward, next observation, terminated, truncated and successor legal mask. An intrinsic task ending removes continuation; an external cutoff stops collection but retains continuation from its unfinished final observation. Never substitute a new episode's reset observation for that successor.</p><p>A fixed-capacity buffer evicts the oldest entry when full. Uniform replay samples each retained entry with probability 1/N. The unchanged pack samples with replacement: duplicates are allowed, and batch size can exceed the number of retained entries. Sampling without replacement is a different contract.</p>
+<pre><code>def push(buffer, item, capacity):
+    if type(capacity) is not int or capacity &lt; 1:
+        raise ValueError("positive integer capacity required")
+    buffer.append(item)
+    del buffer[:-capacity]
+
+def sample(buffer, batch_size, rng):
+    if not buffer or type(batch_size) is not int or batch_size &lt; 1:
+        raise ValueError("nonempty buffer and positive batch size required")
+    return [rng.choice(buffer) for _ in range(batch_size)]
+
+buffer = []
+for item in range(6):
+    push(buffer,item,4)
+assert buffer == [2,3,4,5]</code></pre>
+<p>Each retained item above has probability 0.25 on each draw. In a four-draw batch, the chance one particular item appears at least once is 1−(3/4)^4≈0.684, not certainty. Returned objects are references: snapshot mutable observations and masks on insertion, and do not mutate stored tensors during learning. Otherwise an environment reusing its observation array can overwrite historical experience.</p>
+<h2>Decorrelate order, not the laws of the task</h2><p>Random replay reduces dependence on collection order and reuses data. It does not magically turn correlated race observations into independent samples, make changing opponents stationary, or repair an unrepresentative buffer. Capacity trades diversity against stale data. A four-item teaching buffer is intentionally small; it is not a recommended project capacity.</p><p>Warm-up collects enough useful experience before optimization. Separately count collected transitions, optimizer updates and replay draws. At batch 64 and one update per four transitions, steady-state learning draws 16 transition appearances per collected transition on average; this includes duplicates and does not imply each item is reused exactly 16 times.</p><p>Use separate generators for action exploration and replay selection. Changing batch size must not silently change future environment weather through a shared random stream. A rare retained pit transition has positive probability under uniform sampling, but may be absent from a particular batch. Prioritization changes allocation; it is not a requirement for that transition to be sampled at all.</p>
+<h2>Recap and self-check</h2><details><summary>Does a batch of four from four retained entries contain each exactly once?</summary><p>No. With replacement each draw is uniform, but the realized batch can repeat entries and omit others.</p></details><p>Next, assemble one update with every axis, mask and ending rule visible.</p></section>

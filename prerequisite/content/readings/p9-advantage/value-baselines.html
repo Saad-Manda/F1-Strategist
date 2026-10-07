@@ -1,0 +1,10 @@
+<section>
+<h2>Measure an outcome relative to its state</h2>
+<p>For two observed returns 8 and 2 at the same state, a value baseline 5 gives weights +3 and −3. Raw return supplies positive sampled signals for both; the baseline instead compares them to that state’s predicted outcome. These are sampled advantages G−V, not proof that Q(s,a) equals the observed return.</p>
+<p>The policy value is V^π(s)=Σ_a π(a|s)Q^π(s,a). It describes the current policy’s expected outcome at a state, unlike dueling’s arithmetic mean over represented Q outputs. An actor-critic learns the policy and a separate state-value prediction; its critic can use Monte Carlo or bootstrapped targets with the proper ending rules.</p>
+<p>A baseline should be independent of the current sampled action conditional on state/history. A past-trained critic satisfies that structural condition even if inaccurate. Updating a baseline on the current sample before using it can introduce dependence. Same-batch fitted baselines and mean subtraction can also alter finite-sample estimators; the fixed-baseline proof is not a blanket guarantee for every preprocessing rule.</p>
+<h2>Variance reduction is conditional</h2>
+<p>At uniform actions with deterministic returns [8,2], raw component-0 gradient samples are 4 and −1, mean 1.5 and population variance 6.25. Baseline 5 makes both samples 1.5, variance zero. Baseline 20 gives samples −6 and 9, variance 56.25. A poor baseline can increase variance; V is useful but is not always the variance-minimizing baseline for every parameter component.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does any baseline improve variance?</summary><p>No. Action independence preserves the expected score term; its value determines the estimator’s variance.</p></details>
+</section>

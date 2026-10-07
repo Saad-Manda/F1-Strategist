@@ -1,0 +1,22 @@
+<section>
+<h2>Pair records by identity</h2>
+<p>Candidate A reports s0=2,s1=8 and B reports s1=7,s0=1. Correct ID pairing gives differences [1,1]. Pairing list positions gives [−5,7], creating spurious spread while keeping the same mean. Reject duplicate or missing IDs before calculating differences. For multi-opponent or swapped-role experiments the key must include scenario, opponent and role, not just scenario_id.</p>
+<p>Use the same scenario realization for each compared policy, with separate owned action/opponent streams. An equal integer seed is not necessarily an equal weather path if algorithms consume RNG differently. A prerecorded scenario or keyed exogenous events can make the intended pairing explicit. Report held-out IDs and prevent tuning against them.</p>
+<p>For apparent pit-timing bimodality, define delta=learner pit lap−opponent pit lap. A negative delta means learner pits earlier. Re-pair opponent pit laps across valid scenario strata to ask whether the observed joint relationship exceeds what the marginal pit distributions already produce. With learner [10,30] and rival [12,28], matched deltas [−2,2] become [−18,18] under a swap. The two-row calculation illustrates pairing; it is not a significance test.</p>
+<h2>Role assignment is another condition</h2>
+<p>Swap start positions or roles when the game is asymmetric, and preserve those fields in the key. A sequential toy revealing the first action gives a second-player advantage; a simultaneous hidden-commitment game does not. Comparing these as though only the policy changed confounds rules with skill.</p>
+<pre><code>def paired_scores(rows_a, rows_b):
+    def indexed(rows):
+        if not rows or any(not isinstance(r[&#x27;scenario_id&#x27;],str) or not r[&#x27;scenario_id&#x27;] or not math.isfinite(r[&#x27;score&#x27;]) for r in rows):
+            raise ValueError(&#x27;nonempty IDs and finite scores required&#x27;)
+        result = {r[&#x27;scenario_id&#x27;]:r[&#x27;score&#x27;] for r in rows}
+        if len(result) != len(rows):
+            raise ValueError(&#x27;duplicate scenario ID&#x27;)
+        return result
+    a,b = indexed(rows_a),indexed(rows_b)
+    if a.keys() != b.keys():
+        raise ValueError(&#x27;scenario coverage differs&#x27;)
+    return [dict(scenario_id=s,difference=a[s]-b[s]) for s in sorted(a)]</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Can a positional zip be correct just because row counts match?</summary><p>No. IDs, opponents and roles must match the intended paired design.</p></details>
+</section>

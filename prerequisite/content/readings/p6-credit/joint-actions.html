@@ -1,0 +1,18 @@
+<section>
+<h2>One transition consumes a joint choice</h2>
+<p>A multi-agent state includes shared world variables and the private state of each participant. Agent i receives an observation o_i, chooses a_i, and the environment resolves the joint action a=(a_A,a_B). The transition law is P(s′|s,a_A,a_B); rewards may be separate r_A,r_B or a common team reward. Observations need not expose the full state or the other agent’s pending choice.</p>
+<p>The one-round pack has two agents A and B, each choosing integer 0 or 1. Its team reward is 2a_A+a_B, copied to both agents. Choices (1,1) produce reward 3 for each, both true terminations, both truncations false, and an empty live-agent list. Two action submissions have caused one joint world transition; adding the two identical rewards would double the team objective.</p>
+<p>Resolve commitments from the same pre-step state. A loop that updates A before choosing B can accidentally reveal A’s action or change B’s input. That models a different information structure even when the outer API uses dictionaries. Validate exact live-agent keys and legal values before mutating world state.</p>
+<h2>Ending and ownership are separate</h2>
+<p>At a joint boundary an agent can terminate while another remains active. Record each participant’s reward and flags against its own transition. Do not use one car’s ending flag for every replay buffer. An empty agents list is lifecycle state, not evidence that every last transition was a true task terminal.</p>
+<pre><code>def team_actions(actions):
+    if set(actions) != {&#x27;A&#x27;,&#x27;B&#x27;} or any(type(v) is not int or v not in (0,1) for v in actions.values()):
+        raise ValueError(&#x27;exact A/B integer actions 0 or 1 required&#x27;)
+
+def joint_step(actions):
+    team_actions(actions)
+    reward=2*actions[&#x27;A&#x27;]+actions[&#x27;B&#x27;]
+    return dict(rewards={&#x27;A&#x27;:reward,&#x27;B&#x27;:reward},terminations={&#x27;A&#x27;:True,&#x27;B&#x27;:True},truncations={&#x27;A&#x27;:False,&#x27;B&#x27;:False},agents=[])</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does a common reward 3 mean each agent contributed 3?</summary><p>No. Shared reward states the objective, not causal attribution. The next reading computes a particular counterfactual contribution.</p></details>
+</section>

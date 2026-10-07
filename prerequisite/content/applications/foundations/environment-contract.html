@@ -1,0 +1,46 @@
+<section>
+<h2>Transfer the loop to one racing decision</h2>
+<p>The chain had two actions and one position. The Phase 1 project specification has six actions and a 16-feature observation. The same separation still applies: a policy chooses an action from information it can see; the environment computes the cost and next observation. These readings prepare you to implement the project plan, <code>phase-1-gym-environment.md</code>. The examples are teaching models, not evidence that production code already satisfies the specification.</p>
+<p>One decision completes one lap. At reset, select a scenario and starting compound, initialize counters and seed the environment's random generator. Return an observation and diagnostic information. At step, time the current lap, charge any pit loss, update the tyres and counters, then return the next observation, reward, termination, truncation and information.</p>
+<h2>The observation is an interface, not a proof of full state</h2>
+<div class="table-wrap"><table><thead><tr><th>Index</th><th>Feature and encoding</th></tr></thead><tbody>
+<tr><td>0</td><td>Laps remaining / race length</td></tr>
+<tr><td>1–5</td><td>Compound one-hot: SOFT, MEDIUM, HARD, INTERMEDIATE, WET</td></tr>
+<tr><td>6</td><td>Tyre age / 50, capped at 1</td></tr>
+<tr><td>7–9</td><td>Weather one-hot: DRY, DAMP, WET</td></tr>
+<tr><td>10</td><td>Track temperature: (temperature − 15) / 50, bounded to [0, 1]</td></tr>
+<tr><td>11</td><td>Safety car active, 0 or 1</td></tr>
+<tr><td>12–14</td><td>Bits recording whether SOFT, MEDIUM and HARD have been used</td></tr>
+<tr><td>15</td><td>Mandatory pit still needed, derived from usage and the rule's applicability</td></tr>
+</tbody></table></div>
+<pre><code>import numpy as np
+from gymnasium import spaces
+observation_space = spaces.Box(0.0, 1.0, shape=(16,), dtype=np.float32)
+action_space = spaces.Discrete(6)</code></pre>
+<p>A one-hot encoding has one 1 and the remaining entries 0. Unlike an integer compound label, it does not imply HARD is twice MEDIUM. Space membership checks shape, type and bounds; it does not check one-hot sums or meaningful combinations. Add semantic tests too.</p>
+<p>This vector is an <em>observation</em>. If a hidden historical weather scenario or an unobserved safety-car duration influences the next lap, identical vectors can have different future distributions. A complete simulator state can include that hidden process; it must not be leaked to the policy as future knowledge. Either justify sufficiency for your chosen transition model or acknowledge partial observability. Clamping ages also merges distinct ages above 50: it cannot establish the Markov property when their costs still differ.</p>
+<h2>Six actions, with a shared legal mask</h2>
+<p>Use integer labels 0 for STAY_OUT, 1 for PIT_SOFT, 2 for PIT_MEDIUM, 3 for PIT_HARD, 4 for PIT_INTERMEDIATE and 5 for PIT_WET. <code>Discrete(6)</code> accepts all six; legality changes with state. The project's proposed <code>action_masks()</code> adapter returns six booleans and delegates to one shared <code>compute_action_mask</code> function used by both environment and future planner. Gymnasium does not automatically enforce that adapter.</p>
+<ol><li>Slicks are eligible in DRY or DAMP.</li><li>INTERMEDIATE is eligible in DAMP or WET.</li><li>WET is eligible in WET.</li><li>Pitting for the currently fitted compound is masked.</li><li>With only two laps left and the two-dry-compound requirement unsatisfied, mask STAY_OUT; the project's declared-wet exception disables this requirement.</li></ol>
+<p>These are the project's simplified simulation rules. Confirm its chosen rule version when implementing. In a dry MEDIUM state with two laps remaining and only MEDIUM used, the mask is <code>[False, True, False, True, False, False]</code>. Earlier in the race its STAY_OUT entry is True. Check that every reachable nonterminal state retains a legal action and that allowed actions actually satisfy the obligation; merely masking STAY_OUT is not a general proof for every possible bookkeeping convention. A −500 terminal backstop for violating the compound requirement remains independently tested. A penalty is not a substitute for filtering illegal actions.</p>
+<p>Gymnasium's <a href="https://gymnasium.farama.org/tutorials/training_agents/action_masking_taxi/">Taxi masking tutorial</a> illustrates masks in <code>info</code>; a project-specific method is another interface choice. A consumer must deliberately read and apply whichever contract you choose.</p>
+<h2>A complete pit trace, with the clock convention explicit</h2>
+<p>Consider a 52-lap race with <strong>22 laps remaining before this decision</strong>, MEDIUM age 14, dry conditions, 42°C, no safety car, and only MEDIUM used. Count remaining laps inclusively, so the next observation has 21 left. This avoids mixing a “lap 30” label with a different fuel/count convention.</p>
+<p>Using illustrative calibrated-scale constants, current lap time is <code>92 + 0 + 14×0.03 + 22×1.6×0.033 = 93.5816 seconds</code>. The terms are base pace, compound offset, wear and fuel. Age 14 is below the MEDIUM cliff at 18; there is no warmup or weather mismatch. PIT_HARD adds 22 seconds: <code>115.5816</code>, giving reward <code>−115.5816</code> before any centering.</p>
+<p>Time the lap on MEDIUM <em>before</em> switching. Next fit HARD at age 1: its out-lap warmup belongs to the next step. Update usage to MEDIUM and HARD, clear the obligation, advance the counter, and build a fresh array:</p>
+<pre><code>before = np.array([22/52, 0,1,0,0,0, 14/50,
+                   1,0,0, (42-15)/50, 0, 0,1,0, 1], dtype=np.float32)
+after = np.array([21/52, 0,0,1,0,0, 1/50,
+                  1,0,0, (42-15)/50, 0, 0,1,1, 0], dtype=np.float32)
+assert observation_space.contains(before)
+assert observation_space.contains(after)
+lap_time = 92 + 14*0.03 + 22*1.6*0.033 + 22
+assert abs(lap_time - 115.5816) &lt; 1e-10</code></pre>
+<p>The result has <code>terminated=False</code> and <code>truncated=False</code>. Natural completion after the last lap is termination; an external TimeLimit can truncate an unfinished race. Preserve the distinction even if both flags can be true on one boundary.</p>
+<h2>Diagnostics and reproducibility are public contracts</h2>
+<p>Keep <code>info["lap_time"]</code> in physical, uncentered seconds. Specify whether <code>lap</code> means the completed lap or the next lap; the original project interface uses the next lap. Preserve exact spellings such as <code>tire_age</code>, <code>compound</code>, <code>compounds_used</code> and <code>two_compound_rule_met</code>. Consumers should not silently treat a missing field as zero. Return fresh dictionaries/lists so an old transition record cannot change when the next lap runs.</p>
+<p>Call <code>super().reset(seed=seed)</code> and use <code>self.np_random</code> for scenario and hazard draws. Equal seeds plus equal actions reproduce a trajectory under the same model. Different seeds may coincidentally produce equal trajectories. Starting-compound options and later curriculum sampling belong to a documented reset contract, rather than hidden policy-dependent resets.</p>
+<h2>Recap and self-check</h2><p>Observations describe available information; masks describe eligible actions; the returned reward describes the lap just completed. The new compound describes the coming lap.</p>
+<details><summary>Would fitting HARD before computing the pit lap be equivalent?</summary><p>No. It would replace MEDIUM's current wear and pace, and could move or erase warmup. The trace would grant advantages that the specified transition does not permit.</p></details>
+<p>Next, build the timing model in small, independently testable pieces.</p>
+</section>

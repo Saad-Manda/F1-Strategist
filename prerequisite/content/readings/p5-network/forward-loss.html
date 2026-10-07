@@ -1,0 +1,17 @@
+<section><h2>Follow a nonlinear network by hand</h2><p>A linear layer computes Wx+b. Several affine layers without nonlinearities collapse into one affine map. ReLU, max(0,z) applied to each entry, prevents that collapse. With input x=[2,1], no biases, first weights [[1,−1],[0.5,0.5]], the hidden pre-activations are [1,1.5]. Both survive ReLU. Output weights [2,−1] produce 2×1−1×1.5=0.5. Negative pre-activations would become zero.</p><p>For a fixed label zero, squared error is (0.5−0)²=0.25. A mean squared error, MSE, averages squared errors over the specified entries. Averaging versus summing changes the gradient scale with batch size; state which reduction you use.</p>
+<h2>Implement the unchanged tensor contract</h2><pre><code>def predict(x, weight, bias):
+    if (x.ndim != 2 or weight.ndim != 2 or bias.ndim != 1
+        or x.shape[1] != weight.shape[1] or weight.shape[0] != len(bias)):
+        raise ValueError("expected x[B,D], weight[A,D], bias[A]")
+    if not all(finite(t) for t in (x,weight,bias)):
+        raise ValueError("finite inputs required")
+    return x @ weight.T + bias
+
+def mse(prediction, labels):
+    if (prediction.shape != labels.shape or not prediction.numel()
+        or not all(finite(t) for t in (prediction,labels))):
+        raise ValueError("matching nonempty finite tensors required")
+    return ((prediction-labels)**2).mean()</code></pre>
+<p>This supervised warm-up's loss averages every entry in [B,A]. Its supplied x=0.25, labels=[0.25,0.75], zero weight and bias give predictions [0,0], errors [−0.25,−0.75], and loss (0.0625+0.5625)/2=0.3125. Reuse the previous reading's finite helper. The pack accepts matching finite tensor shapes for mse; the learner must additionally enforce its intended [B,A] or [B] contract.</p>
+<h2>One transition supervises one chosen action</h2><p>DQN observes the result of the executed action, not labels for every alternative. For predictions [[3,5,99],[2,−1,7]] and actions [1,0], gather selects [5,2]. PyTorch gather along axis 1 uses integer indices [B,1], producing [B,1]; squeeze(1) produces [B]. With targets [4,3], selected-action MSE is 1. Unselected action 99 contributes no direct label loss, though shared parameters may still change its prediction.</p><p>See <a href="https://docs.pytorch.org/docs/stable/generated/torch.gather.html">the gather contract</a>. Assigning one observed reward as a label for every action would train outcomes that were never observed.</p>
+<h2>Recap and self-check</h2><details><summary>Why is the warm-up not reinforcement learning?</summary><p>Its labels are supplied and fixed. There is no policy collecting transitions or estimated successor value inside a target. Those mechanisms arrive in lesson 4.2.</p></details><p>Next, calculate how changing a weight changes this scalar loss.</p></section>

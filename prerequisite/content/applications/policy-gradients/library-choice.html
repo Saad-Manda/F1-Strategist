@@ -1,0 +1,10 @@
+<section>
+<h2>Choose a library without outsourcing understanding</h2>
+<p>The project proposes sb3-contrib MaskablePPO as a library comparison to its custom DQN. Using a maintained implementation reduces the amount of collector/optimizer code you own, but does not validate the environment, objective or comparison protocol. A stronger PPO result alone cannot certify the DQN implementation.</p>
+<p>Inspect GAE boundaries, stored likelihood reuse, advantage normalization, initialization, entropy/value coefficients and gradient clipping. These details can change optimization without a crash. DQN also has quiet failures: aliased targets, invalid masks, stale replay fields and doubled reward accounting can produce plausible curves. The legacy loud-DQN/quiet-PPO distinction was too categorical.</p>
+<p>A from-scratch toy is useful for deriving score gradients and clipping branches. A full production library comparison needs pinned versions, configuration, observation/action schemas, worker/reset contracts and reproducible physical evaluation. Neither omitting advantage normalization nor orthogonal initialization necessarily harms every task; report choices rather than asserting universal improvement.</p>
+<h2>Explain what each evidence layer buys</h2>
+<p>The unchanged packs supply independent function checks. Their recorded optional integration witnesses establish specified tiny CPU/API behavior at recorded versions. A future F1 training run establishes empirical performance under its budget, seeds, reward transform and scenarios. These layers support different claims and should remain labeled separately in the build-versus-library write-up.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does MaskablePPO replace understanding final observations and masks?</summary><p>No. The wrapper and collector must expose correct task semantics for the library to learn the intended problem.</p></details>
+</section>

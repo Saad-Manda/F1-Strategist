@@ -1,0 +1,15 @@
+<section><h2>Average the next choice instead of sampling it</h2><p>Expected SARSA uses <code>y = r + γ Σ_(legal a′) π(a′|s′) Q(s′,a′)</code>. The sum averages behavior-policy action choices at the sampled successor state. It does not automatically average the environment's random transition: that successor and reward still came from one observed transition.</p>
+<p>For RISK values [6,−10], epsilon 0.2 gives probabilities [0.9,0.1]. With reward zero and gamma one the expected target is 4.4, sampled SARSA can give 6 or −10, and Q-learning gives 6. Conditional on the fixed successor values and behavior policy, sampled SARSA's action-average equals Expected SARSA's target.</p>
+<pre><code>def expected_sarsa_target(reward, values, legal, gamma, epsilon, terminated):
+    validate_distribution([gamma,1-gamma])
+    if terminated:
+        return reward
+    row = probabilities(values,legal,epsilon)
+    return reward + gamma*sum(p*q for p,q in zip(row,values))
+
+assert abs(expected_sarsa_target(0,[6,-10],[True,True],1,0.2,False)-4.4) &lt; 1e-10</code></pre>
+<p>This teaching helper assumes a finite reward; production validation should enforce it. Terminal transitions do not need a successor action distribution. The function's policy probabilities must use the same masks, epsilon and tie convention as the behavior you intend to evaluate.</p>
+<h2>The risky-push threshold is a calculation</h2><p>For s2 PIT=−8 and PUSH_MORE=−30, the behavior continuation is <code>(1−ε/2)(−8)+(ε/2)(−30)=−8−11ε</code>. PUSH at s1 therefore has value −9−11ε. PIT_NOW is −12. PUSH remains preferable when ε&lt;3/11≈0.273; at epsilon 0.05 it is −9.55, still better than −12.</p>
+<p>Thus lower SARSA values do not guarantee a different greedy route or a cautious route at every epsilon. At fixed epsilon and appropriate learning assumptions, the behavior continuation matters; during decay the target policy itself changes. Constant-step finite runs can fluctuate around estimates.</p>
+<h2>Variance and policy assumptions</h2><p>Averaging next actions removes that action-sampling noise conditional on the same state and values. Reward/transition randomness remains. This does not prove universal sample-efficiency superiority, and computing the whole action distribution has a cost. If the target distribution is another policy, label the method's policy relationship explicitly rather than assuming every expectation is on-policy.</p>
+<h2>Recap and self-check</h2><details><summary>At epsilon zero, with legal values [6,−10], do Expected SARSA and Q-learning have the same one-step target?</summary><p>Yes. All probability goes to the legal maximum. Their equality here follows the policy choice, not the word “expected.”</p></details><p>Next, put the two sampled target rules in a shared, independently checkable learner shell.</p></section>

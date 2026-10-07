@@ -1,0 +1,12 @@
+<section><h2>A different order for a continuing task</h2><p>This optional page compares backward induction with value iteration. A finite deadline gives a known zero boundary and dependencies on h−1. A continuing task may loop back to the same state, so its Bellman equation contains an unknown value on both sides. Repeated backups are one way to approach a fixed point.</p>
+<p>Consider one state and two actions returning to it. Action LOW gives reward 1 and HIGH gives 2. With gamma 0.5, optimality says <code>V* = max(1+0.5V*, 2+0.5V*)</code>. HIGH wins, giving V*=4. Start V=0 and repeatedly back up:</p>
+<pre><code>value = 0.0
+trace = []
+for _ in range(4):
+    value = max(1 + 0.5*value, 2 + 0.5*value)
+    trace.append(value)
+assert trace == [2.0, 3.0, 3.5, 3.75]</code></pre>
+<h2>Stopping is an error decision</h2><p>For a finite discounted MDP with bounded rewards, the optimality operator contracts maximum value differences by gamma. If a table's maximum Bellman residual is e, its maximum error from the fixed point is at most <code>e/(1−gamma)</code>. At gamma 0.5 a residual 0.01 bounds error by 0.02; at 0.99 the same residual allows error 1. A small update is not an identical absolute-accuracy statement across discounts.</p>
+<p>For synchronous value iteration, calculate a new table from the previous complete table. Updating some entries in place changes the ordering into an asynchronous method; that can also be valid under appropriate conditions, but it is a different procedure. Record your update convention and stopping rule.</p>
+<h2>Why a finite race does not need this argument</h2><p>At gamma one in the continuing example, no finite solution exists because rewards accumulate forever. The finite four-lap race is still valid at gamma one: its backward graph is acyclic in time. Do not infer that every gamma-one problem is invalid, or that a discounted contraction proof guarantees practical convergence of an arbitrary approximate neural learner.</p>
+<h2>Recap and self-check</h2><details><summary>Should the four-lap solver iterate until successive tables look similar?</summary><p>No. Starting at the exact terminal boundary, it needs one properly ordered backward pass. Value iteration answers a different dependency structure.</p></details><p>Return to the lesson or its practice. This optional comparison does not gate required learning.</p></section>

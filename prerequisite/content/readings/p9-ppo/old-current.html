@@ -1,0 +1,13 @@
+<section>
+<h2>Keep the collection policy’s likelihood fixed</h2>
+<p>PPO collects a rollout with one policy version, storing actions, old selected log probabilities, old values, masks, rewards and boundaries. Compute advantages/return targets from that frozen rollout. Across optimization epochs, reevaluate current likelihoods on the same stored observations/actions/masks; do not resample actions or replace old logs after each update.</p>
+<p>Old logs require detach and independent storage. detach() alone removes the gradient path but shares storage with the original; clone() alone copies while retaining a gradient path. The pack’s frozen returns detach().clone(). Mutating the source afterward cannot change the denominator and backward cannot reach the collection graph.</p>
+<p>Suppose old action probability .5 becomes .65. The ratio is 1.3 throughout comparisons to that collecting policy. Replacing the denominator by .65 would reset it to 1 and erase the observed drift. New collection starts a new old-policy version; unlimited reuse of one old batch is not justified by clipping.</p>
+<h2>Values and masks are rollout data too</h2>
+<p>Recomputing critic advantages after every actor update changes the surrogate weights. Recomputing legal masks from a mutated environment instead of stored states changes support. Freeze those inputs and document normalization conventions. Current critic predictions remain trainable against the frozen targets.</p>
+<pre><code>def frozen(log_probs):
+    vectors(log_probs)
+    return log_probs.detach().clone()</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does detach alone protect old logs from in-place source updates?</summary><p>No. It shares storage; use detach().clone() for a fixed independent snapshot.</p></details>
+</section>

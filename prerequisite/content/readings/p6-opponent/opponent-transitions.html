@@ -1,0 +1,10 @@
+<section>
+<h2>Integrate a fixed opponent into the effective model</h2>
+<p>The joint law P(s′|s,a_i,a_−i) can be averaged over a fixed opponent policy μ(a_−i|s): P_μ(s′|s,a_i)=Σ_a−i μ(a_−i|s)P(s′|s,a_i,a_−i). Its effective reward must be averaged consistently too. For lane occupancy .2, the fixed effective CROSS expectation is .6; changing the opponent to .8 changes it to −.6.</p>
+<p>A scripted rival may react to observed weather or safety cars and still be stationary: the same complete state yields the same action law. A script indexed by race lap requires lap in that state. A frozen checkpoint that samples actions also can be stationary despite being stochastic. Deterministic and stationary are different properties.</p>
+<p>A learning rival whose parameters change between visits changes μ and therefore the effective law. Historical replay may now mix opponent regimes. A pool deliberately defines a mixture of named frozen policies; changing its weights changes that mixture. Record opponent identity/version with episodes when diagnosing stale data.</p>
+<h2>Do not inherit guarantees by vocabulary</h2>
+<p>Fixed opponents remove one source of nonstationarity. They do not make a 19-feature observation sufficient, guarantee exploration or restore tabular convergence to a DQN. Weather schedules, hidden opponent tyre state, reset rules and approximation remain relevant.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Is a fixed stochastic opponent nonstationary?</summary><p>No. Its random draws can vary while its conditional action distribution stays fixed.</p></details>
+</section>

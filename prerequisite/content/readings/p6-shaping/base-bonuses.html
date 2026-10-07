@@ -1,0 +1,10 @@
+<section>
+<h2>An attractive bonus can change the winner</h2>
+<p>Use the unchanged route lab: DIRECT has rewards [3], VIA+FINISH [0,4], VIA+WAIT [0,0]. At gamma one the base returns are 3,4,0, so VIA+FINISH wins. The ad-hoc bonus witness substitutes [3],[0,4],[0,5], making VIA+WAIT score 5 and win. Calling that third signal “progress” does not make it optimize finishing.</p>
+<p>In the legacy negative-cost chain, A→B→C costs 3+1 while A→C costs 10. A flat pit bonus larger than the relevant cost gap could make an unnecessary stop attractive. The signs of costs and rewards matter: maximize rewards and minimize physical time; do not compare a positive bonus to a negative cost without writing the resulting total.</p>
+<p>Dense reward is useful when it faithfully decomposes the desired objective, or when its effect on that objective is deliberate. Otherwise it creates a new task. The next reading introduces a shaping form whose return shift can be derived.</p>
+<h2>Distinguish three operations</h2>
+<p>Replacing the base reward with a proxy, adding an arbitrary bonus to the base, and adding a potential difference are three different definitions. Log their separate terms. A flag named potential_shaping is not sufficient evidence that the third was implemented.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Why does VIA+WAIT’s bonus win?</summary><p>Because the supplied ad-hoc total is 5, greater than the base-optimal route’s 4. The optimizer follows the specified reward.</p></details>
+</section>

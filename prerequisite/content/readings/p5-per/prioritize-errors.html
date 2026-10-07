@@ -1,0 +1,17 @@
+<section><h2>Allocate more replay to surprising predictions</h2><p>A transition's TD error is target minus its current selected-action prediction. A large absolute error can indicate useful learning work. Proportional prioritized experience replay, PER, assigns raw priority <code>p_i=|δ_i|+ε</code>, with positive epsilon so even zero-error items retain support. Stored raw priority is not yet a sampling probability.</p><p>At errors [0,−3,+8] with epsilon 1, priorities are [1,4,9]. Error sign affects the update direction; priority uses magnitude. A noisy reward or a poorly represented state can repeatedly produce large error. Prioritizing it may overuse noise rather than improve control, so inspect visitation and errors rather than assuming every pit or rare event deserves the highest priority.</p>
+<pre><code>import numpy as np
+
+def update_priority(td_error, epsilon=1e-6):
+    if (not math.isfinite(td_error) or not math.isfinite(epsilon)
+        or epsilon &lt;= 0):
+        raise ValueError("finite error and positive epsilon required")
+    return abs(td_error)+epsilon
+
+def new_priority(raw_priorities):
+    p = np.asarray(raw_priorities,dtype=float)
+    if p.ndim != 1 or not np.isfinite(p).all() or (p &lt;= 0).any():
+        raise ValueError("invalid raw priorities")
+    return float(p.max()) if len(p) else 1.</code></pre>
+<p>The pack inserts new experience at the largest retained raw priority, or 1 into an empty buffer. This makes it immediately eligible for relatively frequent sampling, not guaranteed to appear in the next batch. Later updates replace this provisional priority with current measured error.</p>
+<h2>Priorities become stale</h2><p>Parameter updates change predictions for transitions that were not sampled. Target synchronization changes their labels too. Therefore a stored priority is a previous error estimate. Refresh sampled entries and record the convention; reevaluating every retained entry on every step has a different computational cost.</p><p>In a race with 1.5 pits across 52 decisions, the illustrative pit fraction is about 2.9%; the nonpit-to-pit ratio is about 33.7. These are assumed planning averages, not measured project results. Uniform replay gives each retained item positive probability. PER favors large error, not the semantic label PIT, so a rare strategically important item with small error need not become frequent.</p>
+<h2>Recap and self-check</h2><details><summary>Should a zero-error transition have exactly zero sampling probability?</summary><p>Not under this contract. Positive epsilon preserves support, which matters for revisiting changed estimates and for importance correction.</p></details><p>Reference: <a href="https://arxiv.org/abs/1511.05952">the PER paper</a>. Next, convert raw priorities into a normalized distribution.</p></section>

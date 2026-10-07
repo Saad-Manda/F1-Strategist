@@ -1,0 +1,792 @@
+{
+  "milestone": "R5",
+  "snapshot": "curriculum/coverage-map.json",
+  "sections": [
+    {
+      "legacySection": "phase-1-rl-prerequisites/03-value-functions-bellman.html::section-6",
+      "heading": "Why this matters for reward scale",
+      "destinations": [
+        "foundations/reward-units",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "foundations/reward-units",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-1",
+      "heading": "From a Table Cell to a Function",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-2",
+      "heading": "The tabular update, restated as what it actually is",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-3",
+      "heading": "The curse of dimensionality, with this project's own numbers",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-4",
+      "heading": "Function approximation, defined generally",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-5",
+      "heading": "What carries over unchanged",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/01-table-to-function.html::section-6",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-1",
+      "heading": "Neural Networks in Four Steps: Forward Pass, Loss, Backward Pass, Update",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-2",
+      "heading": "A layer as a function",
+      "destinations": [
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-3",
+      "heading": "Worked forward pass on a tiny network",
+      "destinations": [
+        "p5-network/forward-loss"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/forward-loss"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-4",
+      "heading": "Loss: how wrong is the prediction, as one number",
+      "destinations": [
+        "p5-network/forward-loss",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/forward-loss",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-5",
+      "heading": "Backpropagation, at the level this project needs",
+      "destinations": [
+        "p5-network/gradients"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/gradients"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-6",
+      "heading": "Gradient descent: the same nudge, computed automatically",
+      "destinations": [
+        "p5-network/optimizer-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/optimizer-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-7",
+      "heading": "Adam, named but not derived",
+      "destinations": [
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/02-neural-networks-primer.html::section-8",
+      "heading": "Tensor bridge: implement one update",
+      "destinations": [
+        "p5-network/vectors-shapes",
+        "p5-network/optimizer-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/vectors-shapes",
+        "p5-network/optimizer-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-1",
+      "heading": "The Target Network",
+      "destinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-2",
+      "heading": "The naive idea",
+      "destinations": [
+        "p5-stability/moving-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-3",
+      "heading": "Why that's unstable",
+      "destinations": [
+        "p5-stability/moving-targets"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-4",
+      "heading": "The fix: a second, frozen-ish copy",
+      "destinations": [
+        "p5-stability/target-detachment"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/target-detachment"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-5",
+      "heading": "Keeping \u03b8\u207b from going stale forever",
+      "destinations": [
+        "p5-stability/target-detachment"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/target-detachment"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-6",
+      "heading": "Worked arithmetic: how slow is \"slowly\"?",
+      "destinations": [
+        "p5-stability/target-detachment"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/target-detachment"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/03-target-network.html::section-7",
+      "heading": "Snapshot storage and detachment are separate",
+      "destinations": [
+        "p5-stability/target-detachment"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/target-detachment"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/04-experience-replay.html::section-1",
+      "heading": "Experience Replay",
+      "destinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/04-experience-replay.html::section-2",
+      "heading": "Why in-order training data is a problem, even with a stable target",
+      "destinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/04-experience-replay.html::section-3",
+      "heading": "The fix: store, then sample",
+      "destinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/04-experience-replay.html::section-4",
+      "heading": "A minimal replay buffer",
+      "destinations": [
+        "p5-stability/replay"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/replay"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/04-experience-replay.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-1",
+      "heading": "The Dueling Architecture: Separating \"How Good Is This Spot\" from \"Which Move Helps\"",
+      "destinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-2",
+      "heading": "The motivating observation",
+      "destinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-3",
+      "heading": "Value/advantage decomposition",
+      "destinations": [
+        "p5-double-dueling/dueling-values"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/dueling-values"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-4",
+      "heading": "The identifiability problem",
+      "destinations": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-5",
+      "heading": "The fix: pin the advantage stream's mean to zero",
+      "destinations": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "disposition": "retain-and-correct",
+      "rationale": "Retain the numbers and identifiability proof but replace the mid-example correction with one coherent mean-centered calculation.",
+      "authoredDestinations": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-6",
+      "heading": "Architecture: two heads on a shared trunk",
+      "destinations": [
+        "p5-double-dueling/dueling-values",
+        "neural-value-learning/dqn-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/dueling-values",
+        "neural-value-learning/dqn-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/05-dueling-architecture.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/06-double-dqn.html::section-1",
+      "heading": "Double DQN",
+      "destinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/07-prioritized-experience-replay.html::section-1",
+      "heading": "Prioritized experience replay",
+      "destinations": [
+        "p5-per/prioritize-errors",
+        "p5-per/priority-probability",
+        "p5-per/importance-weights",
+        "p5-per/priority-updates"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-per/prioritize-errors",
+        "p5-per/priority-probability",
+        "p5-per/importance-weights",
+        "p5-per/priority-updates"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/08-reward-scale-trap.html::section-1",
+      "heading": "The reward-scale trap",
+      "destinations": [
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/09-build-it-yourself.html::section-1",
+      "heading": "Build it yourself",
+      "destinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments",
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update",
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks",
+        "p5-per/prioritize-errors",
+        "p5-per/priority-probability",
+        "p5-per/importance-weights",
+        "p5-per/priority-updates"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update",
+        "p5-network/adam-moments",
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update",
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks",
+        "p5-per/prioritize-errors",
+        "p5-per/priority-probability",
+        "p5-per/importance-weights",
+        "p5-per/priority-updates"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/10-this-project-formalized.html::section-1",
+      "heading": "This project, formalized",
+      "destinations": [
+        "neural-value-learning/dqn-integration",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "neural-value-learning/dqn-integration",
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/11-code-walkthrough.html::section-1",
+      "heading": "Code walkthrough",
+      "destinations": [
+        "neural-value-learning/dqn-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "neural-value-learning/dqn-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/12-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:neural-value-learning"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:neural-value-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/index.html::section-1",
+      "heading": "Phase 5 Dueling Double DQN Prerequisites",
+      "destinations": [
+        "module:neural-value-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:neural-value-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/index.html::section-2",
+      "heading": "Why this phase is different from the one before it",
+      "destinations": [
+        "module:neural-value-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:neural-value-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/index.html::section-3",
+      "heading": "Learn by implementing",
+      "destinations": [
+        "module:neural-value-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:neural-value-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/index.html::section-4",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:neural-value-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:neural-value-learning"
+      ]
+    },
+    {
+      "legacySection": "phase-5-dqn-prerequisites/index.html::section-5",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:neural-value-learning"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:neural-value-learning"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+<section><h2>Make the calculation executable</h2><p>The backward pass below implements the four-lap timing example. It initializes the complete terminal slice, including age horizon+1 reached after the last STAY. During lap t, only ages 1 through t are reachable from a fresh start. The comparison uses STAY on a tie.</p>
+<pre><code>def race_dp(horizon):
+    if type(horizon) is not int or not 0 &lt;= horizon &lt;= 10:
+        raise ValueError("horizon must be an integer from 0 to 10")
+    costs = {(horizon+1, age): 0.0 for age in range(1, horizon+2)}
+    policy = {}
+    for lap in range(horizon, 0, -1):
+        for age in range(1, lap+1):
+            current = 10 + 3*(age-1)
+            stay = current + costs[lap+1, age+1]
+            pit = current + 6 + costs[lap+1, 1]
+            action = "STAY" if stay &lt;= pit else "PIT"
+            costs[lap, age] = min(stay, pit)
+            policy[lap, age] = action
+    return costs, policy
+
+def brute_race(horizon):
+    from itertools import product
+    best = float("inf")
+    for actions in product(("STAY", "PIT"), repeat=horizon):
+        age, total = 1, 0.0
+        for action in actions:
+            total += 10 + 3*(age-1) + (6 if action == "PIT" else 0)
+            age = 1 if action == "PIT" else age+1
+        best = min(best, total)
+    return best
+
+costs, policy = race_dp(4)
+assert costs[1,1] == brute_race(4) == 52
+assert policy[2,2] == "PIT"</code></pre>
+<p>Brute force explicitly simulates all 2^h action sequences; it does not call the backward recurrence. That makes disagreement informative. It is feasible here but scales exponentially. Testing both solvers only at the initial state can miss incorrect unreachable rows or tie handling, so inspect selected cells and simulate the policy too.</p>
+<h2>Align with the unchanged A/B practice pack</h2><p>The browser lab and Python pack use the smaller A/B model from the start of this lesson. Its <code>solve(horizon, gamma)</code> returns rows indexed by decisions remaining, including the zero boundary. Reuse Foundations' probability validator for gamma in [0,1]. Every B slice with at least one decision has value 4; T stays zero.</p>
+<pre><code>def solve(horizon, gamma):
+    if type(horizon) is not int or not 0 &lt;= horizon &lt;= 10:
+        raise ValueError("horizon must be an integer from 0 to 10")
+    validate_distribution([gamma, 1-gamma])
+    rows = [dict(A=0.0, B=0.0, T=0.0, action=None)]
+    for h in range(1, horizon+1):
+        previous = rows[-1]
+        values = {s: {a: r + gamma*previous[next_state]
+                      for a, (next_state, r) in actions.items()}
+                  for s, actions in MODEL.items()}
+        action = max(values["A"], key=values["A"].get)
+        rows.append(dict(A=values["A"][action], B=max(values["B"].values()),
+                         T=0.0, action=action))
+    return rows</code></pre>
+<p>At gamma one, A's rows are 0, 3, 5. At gamma 0.5, DIRECT and VIA tie at h=2: the model's insertion order chooses DIRECT. Horizons zero and one, invalid horizons and changing gamma are valuable witnesses. For a generic solver, reject empty legal sets at nonterminal states instead of treating them like the explicit terminal T.</p>
+<h2>Recap and self-check</h2><details><summary>Do two implementations that call the same recurrence provide independent verification?</summary><p>No. Both can share the same mistake. Use hand cells, direct simulation, independent enumeration and boundary tests with different failure modes.</p></details><p>Continue to the backward-induction lab and Python pack. The value-iteration comparison is optional depth.</p></section>

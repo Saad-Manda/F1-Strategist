@@ -1,0 +1,13 @@
+<section>
+<h2>A flat incentive is not a feasibility constraint</h2>
+<p>A positive-advantage sample at rho=1.8 still has actual ratio 1.8; its objective is capped at 1.2. The algorithm did not project the policy probability back into the interval. One large step can cross it, other samples and shared parameters can move it further, and critic or entropy gradients can influence a shared trunk.</p>
+<p>A simple analytic witness starts at logits [0,0] with old selected probability .5 and positive weight 8 for action 1. At ratio one PPO has the ordinary score gradient; SGD learning rate 2 can produce [−8,8]. The next ratio is almost 2, outside 1.2. Subsequent updates of that sample may be flat, but the first destructive step already happened.</p>
+<p>Monitor loss components, gradient norms, selected ratios, fraction outside thresholds and an approximate KL estimate. The pack computes mean(exp(log_ratio)−1−log_ratio), which is nonnegative per entry for finite arithmetic and estimates an old-to-current KL quantity under the relevant old-policy samples/support assumptions. It is a sampled diagnostic, not the exact full-policy KL from one arbitrary four-row list.</p>
+<h2>Use diagnostics without overstating guarantees</h2>
+<p>KL-based early stopping can reduce further updates after drift is detected. It does not rewind an already taken step or impose a hard per-action bound. Smaller learning rates, fewer epochs, reward/advantage scale choices and clipping may help; none universally prevents collapse. PPO is not inherently always more stable or sample efficient than DQN.</p>
+<pre><code>def diagnostics(new_log_probs, old_log_probs, advantage, epsilon=.2):
+    r,lr,a=ratio_data(new_log_probs,old_log_probs,advantage,epsilon)
+    return dict(ratios=r.detach(),clip_fraction=float(((r-1).abs()&gt;epsilon).double().mean()),approx_kl=float((r-1-lr).detach().mean()))</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does clip_range=.2 ensure all probabilities change by at most 20%?</summary><p>No. It caps a branch of a sampled surrogate, not the realized ratios or all policy probabilities.</p></details>
+</section>

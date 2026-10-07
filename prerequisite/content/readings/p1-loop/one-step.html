@@ -1,0 +1,56 @@
+<section aria-labelledby="why-record"><h2 id="why-record">Why this matters</h2>
+<p>In the previous reading, the agent chose an action and the environment responded. To debug that exchange, you must know which observation came before the action and which came after it. A clear transition record will later also provide the data that learning algorithms use.</p>
+<p>Continue with our delivery chain: start at 0, move LEFT or RIGHT, and finish at 2. A move into 2 gives +5; every other move gives −1. We will trace the first RIGHT move before writing a loop.</p></section>
+
+<section aria-labelledby="one-call"><h2 id="one-call">One action, one response</h2>
+<p>Gymnasium is a Python library that gives environments a common interface. An <strong>interface</strong> is an agreed set of calls and returned values, so the same agent loop can work with different environments.</p>
+<pre><code>observation, info = env.reset()
+# observation is 0 in our chain
+
+action = policy(observation)
+# policy returns RIGHT, encoded as 1
+
+next_observation, reward, terminated, truncated, info = env.step(action)
+# first RIGHT move: (1, -1.0, False, False, {"steps": 1})</code></pre>
+<p><code>env</code> is the environment object. Calling its <code>step</code> method asks it to apply one action. Python unpacks the returned tuple into five named variables, in exactly this order. Reset gives two values; step gives five. Reset initializes a run and supplies the first observation without taking an action or awarding a step reward.</p>
+<div class="table-wrap"><table><caption>The five results of the first RIGHT move.</caption><thead><tr><th>Field</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>next_observation</code></td><td>1</td><td>The location after this action</td></tr>
+<tr><td><code>reward</code></td><td>−1.0</td><td>The score for this move only</td></tr>
+<tr><td><code>terminated</code></td><td>False</td><td>The task has not ended</td></tr>
+<tr><td><code>truncated</code></td><td>False</td><td>No external limit stopped this run</td></tr>
+<tr><td><code>info</code></td><td><code>{"steps": 1}</code></td><td>A dictionary of diagnostic information</td></tr>
+</tbody></table></div>
+<p>We will examine both ending flags in the next reading. For now, notice that they describe what happened after this action. They are not instructions for choosing the action.</p></section>
+
+<section aria-labelledby="before-after"><h2 id="before-after">Keep both sides of the transition</h2>
+<p>A <strong>transition</strong> is the change caused by one action, together with its returned results. Do not overwrite the old observation before saving it. The following record uses the same field names as the Python exercise:</p>
+<pre><code>before = observation
+action = policy(before)
+observation, reward, terminated, truncated, info = env.step(action)
+
+record = dict(
+    before=before,
+    action=action,
+    observation=observation,
+    reward=float(reward),
+    terminated=bool(terminated),
+    truncated=bool(truncated),
+    info=info,
+)</code></pre>
+<p>The record's <code>observation</code> field is the returned, next observation. <code>before</code> preserves the observation used to choose the action. The conversions make the reward a Python floating-point number and the flags Python booleans; they do not change the event being recorded. A list of these dictionaries is a <strong>trace</strong>: a record of the episode's moves in order.</p>
+<div class="table-wrap"><table><caption>RIGHT, RIGHT as two transition records.</caption><thead><tr><th>Before</th><th>Action</th><th>Observation after</th><th>Reward</th><th>Terminated</th><th>Truncated</th></tr></thead><tbody>
+<tr><td>0</td><td>RIGHT (1)</td><td>1</td><td>−1</td><td>False</td><td>False</td></tr>
+<tr><td>1</td><td>RIGHT (1)</td><td>2</td><td>+5</td><td>True</td><td>False</td></tr>
+</tbody></table></div>
+<p>The second record starts where the first record ended. This continuity is a useful debugging check. After the second record, you stop the episode; its final observation is 2, not the 0 that a future reset will return.</p></section>
+
+<section aria-labelledby="diagnostics"><h2 id="diagnostics">Diagnostics are useful, but separate from the policy input</h2>
+<p>The chain returns a fresh <code>info</code> dictionary on each call, with the number of moves executed in the current episode. Reset returns <code>{"steps": 0}</code>. A later call must not mutate a dictionary already saved in the trace. Mutable observations, such as arrays, need the same care.</p>
+<p>Our policy reads the observation, not <code>info</code>. Other environments may put hidden simulator details in diagnostic information. Giving those details to a policy would change what information the agent is allowed to use. The next lesson will distinguish the underlying state from its observation more carefully.</p>
+<div class="reading-callout"><p><strong>Common mistake:</strong> storing the running score as each record's reward. For RIGHT, RIGHT, the records must contain −1 and +5. A separate running total can be −1 after the first move and +4 after the second.</p></div></section>
+
+<section aria-labelledby="record-recap"><h2 id="record-recap">Recap and a self-check</h2>
+<p>Step consumes one action and returns the next observation, one reward, two ending flags and diagnostics. Store the old observation before stepping. A trace keeps transitions separate from accumulated scores and from the next episode's reset.</p>
+<details class="self-check"><summary>Self-check: LEFT from location 0 returns observation 0. What belongs in the record's before and observation fields?</summary><p><strong>Explanation:</strong> both are 0. The action is still LEFT, the reward is −1, and the step counter increases. Equal observations are a valid result; they do not justify dropping the record.</p></details>
+<p>Next, we will decide when the collector stops, including a run that stops before the destination.</p>
+<p class="reading-source">API reference: <a href="https://gymnasium.farama.org/api/env/">Gymnasium's environment contract</a>. The chain calculations above follow the supplied exercise.</p></section>

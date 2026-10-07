@@ -1,0 +1,3200 @@
+{
+  "milestone": "R6",
+  "snapshot": "curriculum/coverage-map.json",
+  "sections": [
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html::section-1",
+      "heading": "From One Car to N",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html::section-2",
+      "heading": "What breaks, and what doesn't",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html::section-3",
+      "heading": "Three new state features",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html::section-4",
+      "heading": "Rivals as fixed scripts, not learners",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/01-multi-car-mdp.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-1",
+      "heading": "What \"Doing Well\" Even Means Now",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-2",
+      "heading": "The reward Phase 1 through 5 had",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-3",
+      "heading": "What the equivalent reward for \"race well\" would be",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-4",
+      "heading": "The credit-assignment problem",
+      "destinations": [
+        "p6-credit/credit-examples"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/credit-examples"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-5",
+      "heading": "Dense proxies, and their own failure mode",
+      "destinations": [
+        "p6-credit/credit-examples"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/credit-examples"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-6",
+      "heading": "Why the real plan trains three designs instead of choosing one",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/02-credit-assignment.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html::section-1",
+      "heading": "Potential-Based Shaping: The Principled Version",
+      "destinations": [
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html::section-2",
+      "heading": "Ad-hoc shaping can change the answer",
+      "destinations": [
+        "p6-shaping/base-bonuses"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-shaping/base-bonuses"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html::section-3",
+      "heading": "The theorem",
+      "destinations": [
+        "p6-shaping/shaping-conditions"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-shaping/shaping-conditions"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html::section-4",
+      "heading": "Why, without the full proof",
+      "destinations": [
+        "p6-shaping/telescoping"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-shaping/telescoping"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/03-potential-based-shaping.html::section-5",
+      "heading": "One hand-worked example",
+      "destinations": [
+        "p6-shaping/potential-differences"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-shaping/potential-differences"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html::section-1",
+      "heading": "Overtaking and Dirty Air: Modeling What Cumulative Time Alone Can't",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html::section-2",
+      "heading": "Dirty air, the real effect",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html::section-3",
+      "heading": "Probabilistic overtaking",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-1",
+      "heading": "Why \"Position = Sorted by Time\" Kills the Undercut",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-2",
+      "heading": "The undercut, as real F1 strategy",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-3",
+      "heading": "What the plan's pseudocode actually computes",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-4",
+      "heading": "The fix: one line that turns position into a resource",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-5",
+      "heading": "Traced forward: why this blocks Phase 8, not just Phase 6",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/05-position-and-blocking.html::section-6",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-1",
+      "heading": "Six Ways the Plan's Own Pseudocode Breaks Its Own Physics",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-2",
+      "heading": "E1 — Rival lap times are double-counted",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-3",
+      "heading": "E2 — The overtake result gets silently overwritten",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-4",
+      "heading": "E3 — Dirty air is charged to the reward but not the dynamics",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-5",
+      "heading": "E5 — A principled label on an unprincipled implementation",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-6",
+      "heading": "E6 — Four smaller items, same discipline of asking \"why\"",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/06-bug-ledger.html::section-7",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/07-non-stationarity.html::section-1",
+      "heading": "Non-Stationarity: Why Fixed Rivals Are the Right First Step",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/07-non-stationarity.html::section-2",
+      "heading": "The assumption everything through Phase 5 relies on",
+      "destinations": [
+        "p6-opponent/opponent-transitions"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/opponent-transitions"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/07-non-stationarity.html::section-3",
+      "heading": "How multiple learning agents break it",
+      "destinations": [
+        "p6-opponent/missing-changing"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/missing-changing"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/07-non-stationarity.html::section-4",
+      "heading": "Why Phase 6's fixed-script rivals sidestep this cleanly",
+      "destinations": [
+        "p6-opponent/opponent-evaluation"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/opponent-evaluation"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/07-non-stationarity.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-1",
+      "heading": "Build It Yourself: A Toy Blocking Race With Shaped Rewards",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-2",
+      "heading": "Stage 0 — a toy race, deliberately built without any blocking rule",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-3",
+      "heading": "Stage 1 — reproduce page 5's diagnosis: timing stops mattering without blocking",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-4",
+      "heading": "Stage 2 — add the blocking constraint and rerun the identical scripts",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-5",
+      "heading": "Stage 3 — a toy overtake model as the only way out of blocking",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-6",
+      "heading": "Stage 4 — reward-shaping comparison on a scenario built to make ad-hoc shaping fail",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/08-build-it-yourself.html::section-7",
+      "heading": "Stage 5 — catch the leak: plant E5's bug on purpose",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/09-this-project-formalized.html::section-1",
+      "heading": "This Project, Formalized",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/09-this-project-formalized.html::section-2",
+      "heading": "The real 19-dimensional observation",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/09-this-project-formalized.html::section-3",
+      "heading": "The three reward_type configs",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/09-this-project-formalized.html::section-4",
+      "heading": "Five fixed rival strategies",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/09-this-project-formalized.html::section-5",
+      "heading": "Definition-of-Done items that exist because of pages 05–06",
+      "destinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/10-reading-the-plan.html::section-1",
+      "heading": "Reading the Implementation Plan's Code",
+      "destinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/10-reading-the-plan.html::section-2",
+      "heading": "Reading order",
+      "destinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/10-reading-the-plan.html::section-3",
+      "heading": "What the plan's own listed tests would — and wouldn't — catch",
+      "destinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/10-reading-the-plan.html::section-4",
+      "heading": "The gap between \"the plan's tests pass\" and \"the phase's goal is reachable\"",
+      "destinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/11-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:multiple-agents"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:multiple-agents"
+      ]
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/index.html::section-1",
+      "heading": "Phase 6 Multi-Car Prerequisites",
+      "destinations": [
+        "module:multiple-agents"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:multiple-agents"
+      ]
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/index.html::section-2",
+      "heading": "Why this phase is different from everything before it",
+      "destinations": [
+        "module:multiple-agents"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:multiple-agents"
+      ]
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/index.html::section-3",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:multiple-agents"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:multiple-agents"
+      ]
+    },
+    {
+      "legacySection": "phase-6-multi-car-prerequisites/index.html::section-4",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:multiple-agents"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:multiple-agents"
+      ]
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html::section-1",
+      "heading": "When the Opponent Learns Too: Non-Stationarity, Revisited",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html::section-2",
+      "heading": "A quick recap of the shield",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html::section-3",
+      "heading": "What breaks once the opponent is also learning",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html::section-4",
+      "heading": "Three ways to structure multi-agent training",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/01-non-stationarity-revisited.html::section-5",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation",
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html::section-1",
+      "heading": "The Game Underneath: Nash Equilibria and Fictitious Self-Play",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html::section-2",
+      "heading": "Why \"optimal policy\" stops being the right target",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html::section-3",
+      "heading": "Nash equilibrium",
+      "destinations": [
+        "p8-game/mixed-equilibrium"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/mixed-equilibrium"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html::section-4",
+      "heading": "Best responses and empirical opponent mixtures",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html::section-5",
+      "heading": "The full rock-paper-scissors witness",
+      "destinations": [
+        "p8-game/payoff-matrices"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/payoff-matrices"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/03-checkpoint-pool.html::section-1",
+      "heading": "The Checkpoint Pool as Approximate Fictitious Self-Play",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/03-checkpoint-pool.html::section-2",
+      "heading": "Why \"average the strategies\" needs a stand-in for a DQN",
+      "destinations": [
+        "p8-pool/independent-snapshots",
+        "p8-game/robustness"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/independent-snapshots",
+        "p8-game/robustness"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/03-checkpoint-pool.html::section-3",
+      "heading": "The real plan's sampling rule",
+      "destinations": [
+        "p8-pool/pool-sampling"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/pool-sampling"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-1",
+      "heading": "Two Ways to Formalize \"Everyone Acts\": AEC and Parallel",
+      "destinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-2",
+      "heading": "AEC — Agent Environment Cycle",
+      "destinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-3",
+      "heading": "Parallel",
+      "destinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-4",
+      "heading": "Why Parallel is convenient for joint decisions",
+      "destinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-5",
+      "heading": "The shared API surface both build on",
+      "destinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/04-pettingzoo-apis.html::section-6",
+      "heading": "Selected-agent cleanup",
+      "destinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-1",
+      "heading": "Why the Pool's First Member Matters",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-2",
+      "heading": "What the real plan does",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-3",
+      "heading": "The general lesson, before the specific bug",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-4",
+      "heading": "Why this is easy to miss",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-5",
+      "heading": "The fix",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/05-first-opponent-problem.html::section-6",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html::section-1",
+      "heading": "The Blocking Rule Everything Here Depends On",
+      "destinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html::section-2",
+      "heading": "The one-paragraph restatement",
+      "destinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html::section-3",
+      "heading": "The mechanical consequence for self-play, spelled out",
+      "destinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html::section-4",
+      "heading": "A misdiagnosis worth naming directly",
+      "destinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/06-blocking-model-dependency.html::section-5",
+      "heading": "The fix, restated",
+      "destinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/07-is-it-bimodal.html::section-1",
+      "heading": "Is It Really Bimodal? A Null Baseline for the Headline Result",
+      "destinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/07-is-it-bimodal.html::section-2",
+      "heading": "The real plan's analysis, restated",
+      "destinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/07-is-it-bimodal.html::section-3",
+      "heading": "Why \"looks bimodal\" is a weaker claim than it sounds",
+      "destinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/07-is-it-bimodal.html::section-4",
+      "heading": "A concrete null baseline: shuffle the pairing",
+      "destinations": [
+        "p8-audit/fair-pairings"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/07-is-it-bimodal.html::section-5",
+      "heading": "An addition to the Definition of Done, not a replacement",
+      "destinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-1",
+      "heading": "Build It Yourself: A Toy Self-Play Loop",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-2",
+      "heading": "Stage 0 — the toy game and a tabular learner",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-3",
+      "heading": "Stage 1 — naive self-play: train against only the latest snapshot",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-4",
+      "heading": "Stage 2 — add a checkpoint pool with recency-biased sampling",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-5",
+      "heading": "Stage 3 — catch the leak: plant the degenerate-seed bug on purpose",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-6",
+      "heading": "Stage 4 — a toy blocking mechanic, and where timing starts to matter",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/08-build-it-yourself.html::section-7",
+      "heading": "Stage 5 — apply page 07's null baseline to your own toy result",
+      "destinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness",
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage",
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol",
+        "self-play/self-play-mechanics"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/09-this-project-formalized.html::section-1",
+      "heading": "This Project, Formalized",
+      "destinations": [
+        "self-play/self-play-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/09-this-project-formalized.html::section-2",
+      "heading": "F1PettingZooEnv as a direct instantiation of the Parallel API",
+      "destinations": [
+        "self-play/self-play-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/09-this-project-formalized.html::section-3",
+      "heading": "The independent-learner training loop, against page 01's paradigm choice",
+      "destinations": [
+        "self-play/self-play-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/09-this-project-formalized.html::section-4",
+      "heading": "CheckpointPool's parameters, mapped to page 03's math",
+      "destinations": [
+        "self-play/self-play-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/09-this-project-formalized.html::section-5",
+      "heading": "Definition-of-Done items that exist because of pages 03–07",
+      "destinations": [
+        "self-play/self-play-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/10-reading-the-plan.html::section-1",
+      "heading": "Reading the Implementation Plan's Code",
+      "destinations": [
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/10-reading-the-plan.html::section-2",
+      "heading": "Reading order",
+      "destinations": [
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/10-reading-the-plan.html::section-3",
+      "heading": "What the plan's own Definition-of-Done items would — and wouldn't — catch",
+      "destinations": [
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/10-reading-the-plan.html::section-4",
+      "heading": "The payoff of this whole page",
+      "destinations": [
+        "self-play/self-play-evidence"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "self-play/self-play-evidence"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/11-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:self-play"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:self-play"
+      ]
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/index.html::section-1",
+      "heading": "Phase 8 Self-Play Prerequisites",
+      "destinations": [
+        "module:self-play"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:self-play"
+      ]
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/index.html::section-2",
+      "heading": "Why this phase is different from everything before it",
+      "destinations": [
+        "module:self-play"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:self-play"
+      ]
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/index.html::section-3",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:self-play"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:self-play"
+      ]
+    },
+    {
+      "legacySection": "phase-8-self-play-prerequisites/index.html::section-4",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:self-play"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:self-play"
+      ]
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html::section-1",
+      "heading": "Policy Gradients From Scratch: The REINFORCE Idea",
+      "destinations": [
+        "p9-probability/policy-probabilities",
+        "p9-probability/score-gradient",
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-probability/policy-probabilities",
+        "p9-probability/score-gradient",
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html::section-2",
+      "heading": "A different objective",
+      "destinations": [
+        "p9-reinforce/gradient-intuition"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html::section-3",
+      "heading": "The policy gradient theorem",
+      "destinations": [
+        "p9-reinforce/score-function"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/score-function"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html::section-4",
+      "heading": "REINFORCE",
+      "destinations": [
+        "p9-reinforce/sampled-update"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/sampled-update"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html::section-5",
+      "heading": "A hand-worked example: the softmax gradient",
+      "destinations": [
+        "p9-probability/score-gradient",
+        "p9-reinforce/reinforce-example"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-probability/score-gradient",
+        "p9-reinforce/reinforce-example"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html::section-1",
+      "heading": "Actor-Critic and the Advantage Function",
+      "destinations": [
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html::section-2",
+      "heading": "Action-independent baselines preserve the expected score gradient",
+      "destinations": [
+        "p9-advantage/baseline-proof"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-advantage/baseline-proof"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html::section-3",
+      "heading": "The natural baseline: the state-value function",
+      "destinations": [
+        "p9-advantage/value-baselines"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-advantage/value-baselines"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html::section-4",
+      "heading": "The advantage function",
+      "destinations": [
+        "p9-advantage/actor-critic"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-advantage/actor-critic"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/02-actor-critic-advantage.html::section-5",
+      "heading": "A hand-worked comparison: advantage vs. raw return",
+      "destinations": [
+        "p9-advantage/value-baselines"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-advantage/value-baselines"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html::section-1",
+      "heading": "Generalized Advantage Estimation (GAE-λ)",
+      "destinations": [
+        "p9-gae/td-residuals",
+        "p9-gae/lambda-sum",
+        "p9-gae/reverse-recursion",
+        "p9-gae/gae-boundaries"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-gae/td-residuals",
+        "p9-gae/lambda-sum",
+        "p9-gae/reverse-recursion",
+        "p9-gae/gae-boundaries"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html::section-2",
+      "heading": "Two extremes, already familiar",
+      "destinations": [
+        "p9-gae/td-residuals"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-gae/td-residuals"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html::section-3",
+      "heading": "GAE-λ: the interpolation",
+      "destinations": [
+        "p9-gae/lambda-sum"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-gae/lambda-sum"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html::section-4",
+      "heading": "A hand-worked example",
+      "destinations": [
+        "p9-gae/td-residuals",
+        "p9-gae/lambda-sum",
+        "p9-gae/reverse-recursion",
+        "p9-gae/gae-boundaries"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-gae/td-residuals",
+        "p9-gae/lambda-sum",
+        "p9-gae/reverse-recursion",
+        "p9-gae/gae-boundaries"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-1",
+      "heading": "PPO's Clipped Surrogate Objective",
+      "destinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-2",
+      "heading": "The problem: a small step in parameters can be a huge step in behavior",
+      "destinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-3",
+      "heading": "The probability ratio",
+      "destinations": [
+        "p9-ppo/likelihood-ratios"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/likelihood-ratios"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-4",
+      "heading": "The surrogate objective, and why it's dangerous unclipped",
+      "destinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/clipping-branches"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/old-current",
+        "p9-ppo/clipping-branches"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-5",
+      "heading": "The clip",
+      "destinations": [
+        "p9-ppo/clipping-branches"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/clipping-branches"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/04-ppo-clipped-objective.html::section-6",
+      "heading": "Clipping limits an incentive, not the actual probability ratio",
+      "destinations": [
+        "p9-ppo/surrogate-limits"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-ppo/surrogate-limits"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/05-build-vs-buy.html::section-1",
+      "heading": "Why Build vs. Buy: PPO's Hidden Implementation Subtleties",
+      "destinations": [
+        "policy-gradients/library-choice"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/library-choice"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/05-build-vs-buy.html::section-2",
+      "heading": "The contrast with what came before",
+      "destinations": [
+        "policy-gradients/library-choice"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/library-choice"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/05-build-vs-buy.html::section-3",
+      "heading": "Why PPO is different in kind, not just longer",
+      "destinations": [
+        "policy-gradients/library-choice"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/library-choice"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/05-build-vs-buy.html::section-4",
+      "heading": "The general principle",
+      "destinations": [
+        "policy-gradients/library-choice"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/library-choice"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-1",
+      "heading": "Stable-Baselines3 and sb3-contrib's API Surface",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-2",
+      "heading": "VecEnv: why PPO trains against several environments at once",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-3",
+      "heading": "The rollout-buffer arithmetic",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-4",
+      "heading": "The .learn() / .predict() shape",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-5",
+      "heading": "Action masking via sb3-contrib's MaskablePPO",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/06-stable-baselines3-api.html::section-6",
+      "heading": "Logging",
+      "destinations": [
+        "policy-gradients/vector-library"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/vector-library"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html::section-1",
+      "heading": "Factories, Serialization, and Windows Spawn",
+      "destinations": [
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html::section-2",
+      "heading": "Ordinary pickle and SB3 use different mechanisms",
+      "destinations": [
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html::section-3",
+      "heading": "The actual local exercise",
+      "destinations": [
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html::section-4",
+      "heading": "Worker and masking contracts",
+      "destinations": [
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-1",
+      "heading": "\"Same Timesteps\" Isn't \"Same Experience\"",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-2",
+      "heading": "Count transitions across workers",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-3",
+      "heading": "The stated protocol",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-4",
+      "heading": "The arithmetic that contradicts it",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-5",
+      "heading": "A compounding error, worth naming precisely",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-6",
+      "heading": "Why this specifically undermines the phase's headline claim",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/08-unfair-comparison.html::section-7",
+      "heading": "Two genuine fixes",
+      "destinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/fair-budget"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-1",
+      "heading": "Build It Yourself: Toy REINFORCE, Then Toy PPO",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-2",
+      "heading": "Stage 0 — a tiny noisy bandit and a softmax policy",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-3",
+      "heading": "Stage 1 — plain REINFORCE: update directly on the raw sampled reward",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-4",
+      "heading": "Stage 2 — add a critic (an exponential moving average) and use the advantage",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-5",
+      "heading": "Stage 3 — catch the collapse: a deliberate destructive update",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-6",
+      "heading": "Stage 4 — add PPO's clip on top of the exact same update",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-7",
+      "heading": "Stage 5 — reproduce the pickling bug from scratch",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/09-build-it-yourself.html::section-8",
+      "heading": "Try it in a lab",
+      "destinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients",
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/10-this-project-formalized.html::section-1",
+      "heading": "This Project, Formalized",
+      "destinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/10-this-project-formalized.html::section-2",
+      "heading": "sb3_wrapper.py as a direct instantiation of page 06 and page 07's fix, applied",
+      "destinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/10-this-project-formalized.html::section-3",
+      "heading": "ppo_agent.py's eval-mode asymmetry, and Finding D",
+      "destinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/10-this-project-formalized.html::section-4",
+      "heading": "configs/ppo.yaml's parameters mapped onto the derivation",
+      "destinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/10-this-project-formalized.html::section-5",
+      "heading": "Definition-of-Done items that exist because of pages 05–08",
+      "destinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/11-reading-the-plan.html::section-1",
+      "heading": "Reading the Implementation Plan's Code",
+      "destinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/11-reading-the-plan.html::section-2",
+      "heading": "Reading order",
+      "destinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/11-reading-the-plan.html::section-3",
+      "heading": "Where each fix belongs — so you don't go looking in the wrong file",
+      "destinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/11-reading-the-plan.html::section-4",
+      "heading": "What the Definition-of-Done checklist would and wouldn't catch",
+      "destinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Retain examples, equations, code and cautions in the named teaching purposes; separate general theory from project details.",
+      "authoredDestinations": [
+        "policy-gradients/ppo-integration"
+      ],
+      "laterMilestoneDestinations": []
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/12-glossary.html::section-1",
+      "heading": "Glossary",
+      "destinations": [
+        "glossary:policy-gradients"
+      ],
+      "disposition": "retain-and-rewrite",
+      "rationale": "Consolidate glossary definitions into the new glossary and recap links.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "glossary:policy-gradients"
+      ]
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/index.html::section-1",
+      "heading": "Phase 9 PPO Prerequisites",
+      "destinations": [
+        "module:policy-gradients"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:policy-gradients"
+      ]
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/index.html::section-2",
+      "heading": "Why this phase is different from everything before it",
+      "destinations": [
+        "module:policy-gradients"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:policy-gradients"
+      ]
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/index.html::section-3",
+      "heading": "Topic contents",
+      "destinations": [
+        "module:policy-gradients"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:policy-gradients"
+      ]
+    },
+    {
+      "legacySection": "phase-9-ppo-prerequisites/index.html::section-4",
+      "heading": "Use this as a reference",
+      "destinations": [
+        "module:policy-gradients"
+      ],
+      "disposition": "replace-index",
+      "rationale": "Replace source-order navigation with a module overview; retain its motivation and project handoff.",
+      "authoredDestinations": [],
+      "laterMilestoneDestinations": [
+        "module:policy-gradients"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+<section>
+<h2>Know which serializer is being tested</h2>
+<p>Ordinary pickle usually serializes functions by importable module/name, so a lambda fails. SB3 wraps environment factories in CloudpickleWrapper using cloudpickle, which supports many lambdas and closures. A lambda alone is not evidence of a Windows-fatal SubprocVecEnv defect. A captured threading.Lock can fail even with that wrapper; a named factory is not a cure for every unpicklable resource.</p>
+<p>The unchanged PPO CLI’s integration option tests ordinary-pickle lambda failure, actual SB3 lambda factories under spawn and captured-lock serialization failure. Its recorded report says which versions/platform passed. The successful workers expose action_masks directly. Run that optional integration only when doing local library verification; this rebuild does not run its training segment.</p>
+<p>Put process creation under if __name__==&quot;__main__&quot;. Pass serializable configuration and construct file handles, locks and environments inside the worker that owns them. Use separate seeds and worker-local masks. Close workers in finally, propagate errors and avoid hanging on queue reads after a failed child. A process can start successfully while its environment later fails.</p>
+<h2>A complete ordinary-spawn exercise</h2>
+<p>Save the example below as an importable .py script and run it, not an interactive notebook cell. It forces spawn across platforms, creates resources in the worker, sends a result and bounds waits. Replacing the top-level factory with a local lambda tests ordinary serialization; it does not reproduce SB3’s cloudpickle route. The main guard is required even when a factory can be serialized.</p>
+<pre><code>import multiprocessing as mp
+from queue import Empty
+
+def make_toy():
+    return {&#x27;tag&#x27;: 0}
+
+def spawn_worker(factory, queue):
+    try:
+        queue.put((&#x27;ok&#x27;,factory()[&#x27;tag&#x27;]))
+    except Exception as error:
+        queue.put((&#x27;error&#x27;,repr(error)))
+
+def ordinary_spawn_example():
+    ctx = mp.get_context(&#x27;spawn&#x27;)
+    queue = ctx.Queue()
+    worker = ctx.Process(target=spawn_worker,args=(make_toy,queue))
+    started = False
+    try:
+        worker.start(); started = True
+        status,value = queue.get(timeout=20)
+        worker.join(timeout=20)
+        if worker.is_alive() or worker.exitcode != 0 or status != &#x27;ok&#x27;:
+            raise RuntimeError(f&#x27;worker failed: {status} {value}&#x27;)
+        return value
+    except Empty as error:
+        raise RuntimeError(&#x27;worker did not return&#x27;) from error
+    finally:
+        if started and worker.is_alive():
+            worker.terminate(); worker.join(timeout=5)
+        queue.close(); queue.join_thread()
+
+if __name__ == &#x27;__main__&#x27;:
+    print(ordinary_spawn_example())</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Does a simple lambda’s pickle failure prove SB3 cannot use it?</summary><p>No. Test the library’s actual factory wrapper and captured resources.</p></details>
+<p>Reference: <a href="https://docs.python.org/3/library/multiprocessing.html">Python multiprocessing guidance</a>.</p>
+<p>Reference: <a href="https://stable-baselines3.readthedocs.io/en/master/_modules/stable_baselines3/common/vec_env/base_vec_env.html">SB3 factory serialization</a>.</p>
+</section>

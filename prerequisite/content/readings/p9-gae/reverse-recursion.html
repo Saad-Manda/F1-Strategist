@@ -1,0 +1,21 @@
+<section>
+<h2>Compute backward within each stream</h2>
+<p>Let c_t say whether the next stored residual belongs to the same uninterrupted trace. Initialize tail=0 at the stored segment end and iterate backward: tail=delta_t+gamma lambda c_t tail; A_t=tail. The regression return target is A_t+V_t using the frozen collection value. A forward recurrence would use the wrong future dependence.</p>
+<p>For terminal two-step residuals [1.4,1], gamma .9 and lambda one, A_1=1 and A_0=1.4+.9×1=2.3. Continuing endpoint value 3 gives residuals [1.4,3.7], advantages [4.73,3.7]. Lambda .5 instead gives A_0=1.4+.45×3.7=3.065. Trace_continue=[true,false] keeps the stored end separate from bootstrap eligibility.</p>
+<p>The complete unchanged pack implementation below is one temporal vector. For [T,N_envs], maintain a tail vector[N_envs] and recurse over t only; apply c elementwise. Do not normalize, flatten or shuffle advantages until boundary-aware targets have been computed.</p>
+<h2>Validate boundary data</h2>
+<p>Rewards, current values and successor values must be matching nonempty finite arrays. Terminated and trace_continue must be boolean and a true terminal cannot continue the trace. The caller must also stop the trace at truncations/resets; those cannot be inferred from a terminated vector alone. Outputs are numerical frozen data, not an autograd path through rollout values.</p>
+<pre><code>def gae(rewards, values, next_values, terminated, trace_continue, gamma=.9, lam=1):
+    xs=[np.asarray(x) for x in (rewards,values,next_values,terminated,trace_continue)]
+    r,v,n,t,c=xs
+    if any(x.ndim!=1 or not x.size or x.shape!=r.shape for x in xs):raise ValueError(&quot;matching nonempty vectors required&quot;)
+    if t.dtype!=bool or c.dtype!=bool or np.any(t &amp; c):raise ValueError(&quot;invalid boundary flags&quot;)
+    if not all(np.isfinite(x).all() for x in (r,v,n)) or not all(math.isfinite(x) and 0&lt;=x&lt;=1 for x in (gamma,lam)):raise ValueError(&quot;finite data and discounts in [0,1] required&quot;)
+    delta=r+gamma*np.where(t,0,n)-v
+    a=np.zeros(len(r),dtype=float);tail=0.
+    for i in range(len(r)-1,-1,-1):
+        tail=delta[i]+gamma*lam*c[i]*tail;a[i]=tail
+    return a,a+v</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Why return A+V rather than just A as a critic target?</summary><p>The critic predicts return. Advantage is return relative to the frozen current value, so adding it back forms the lambda-return target.</p></details>
+</section>

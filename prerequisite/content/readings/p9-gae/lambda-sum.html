@@ -1,0 +1,11 @@
+<section>
+<h2>Weight successive residuals</h2>
+<p>Within a valid trace, GAE is A_t=delta_t+gamma lambda delta_(t+1)+(gamma lambda)² delta_(t+2)+…. Lambda zero gives the one-step residual. Lambda one telescopes over the stored segment to discounted sampled rewards plus an endpoint bootstrap minus the current value; it is full Monte Carlo advantage only when the endpoint term vanishes.</p>
+<p>Preserve the legacy four-step terminal example: rewards [−3,−2,−3,−2], current values [−10,−6,−5,−1] and final value zero, gamma one. Residuals are [1,−1,1,−1]. At lambda .95, reverse advantages are [.095125,−.9525,.05,−1]. The first is 1−.95+.9025−.857375=.095125, not just a rounded .095.</p>
+<p>Lambda zero gives [1,−1,1,−1]. Lambda one gives [0,−1,0,−1]; A_0=0 agrees with return −10 minus V_0=−10. That agreement does not imply the critic was correct at every state: at state 1 the remaining sampled return is −7 while its value prediction is −6.</p>
+<h2>Bias and variance require assumptions</h2>
+<p>Shorter traces rely more on the critic; longer traces rely more on sampled future outcomes. Inexact values and finite rollout endpoints can introduce bias, but strict variance ordering is not universal. Lambda .95 in the project proposal comes from an omitted config value accepting the library default, not an empirically justified choice or part of the theorem.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does lambda one always remove bootstrap bias at a rollout cutoff?</summary><p>No. A nonterminal finite segment still has an endpoint value. Full task-terminal Monte Carlo is a special case.</p></details>
+<p>Reference: <a href="https://arxiv.org/abs/1506.02438">GAE paper</a>.</p>
+</section>

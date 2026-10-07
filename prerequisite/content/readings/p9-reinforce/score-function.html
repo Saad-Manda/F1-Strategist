@@ -1,0 +1,10 @@
+<section>
+<h2>Derive the likelihood-ratio estimator</h2>
+<p>For a finite episodic objective J=Σ_tau P_theta(tau)G(tau), exchange sum and derivative under the required regularity. The identity ∇P=P∇log P gives ∇J=E[G∇log P]. Factor P as rho(s_0)Π_t π_theta(a_t|s_t)P(s_(t+1)|s_t,a_t). With theta-independent dynamics and initial distribution, ∇log P=Σ_t∇log π_theta(a_t|s_t). Unknown transition derivatives disappear, but the environment’s effects still determine sampled returns.</p>
+<p>With discounted start objective G=Σ_k gamma^k r_k and return-to-go G_t=Σ_(k=t) gamma^(k−t)r_k, causality removes rewards before action t. Conditional on the history, that score has zero mean, so past rewards contribute zero in expectation. The exact episodic estimator is Σ_t gamma^t G_t∇log π_t. At gamma one the factor is one.</p>
+<p>Some practical implementations average unweighted transition losses with discounted advantages. They use a related visitation/objective convention; do not silently identify that with the exact start-discounted episodic gradient above. State episode weighting, time weighting and batch reduction. Reward-to-go reduces irrelevant noise but does not guarantee a variance ordering for every finite estimator.</p>
+<h2>Finite support and stopping assumptions matter</h2>
+<p>Treat returns as sampled weights, detached from the policy graph. This derivation assumes allowed support and task dynamics are not changed by theta. Variable horizons and parameter-dependent stopping rules need careful formulation. A terminal episode’s full Monte Carlo return differs from bootstrapping at an external rollout cutoff.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Why does no model derivative not mean no model influence?</summary><p>Dynamics shape trajectory probabilities and returns. Their theta-derivatives vanish under the assumption, while their sampled consequences remain in the estimator.</p></details>
+</section>

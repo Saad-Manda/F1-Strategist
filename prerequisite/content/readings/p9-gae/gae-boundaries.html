@@ -1,0 +1,11 @@
+<section>
+<h2>Use two different masks</h2>
+<p>Bootstrap mask b_t=not terminated_t decides whether N_t belongs in delta. Trace mask c_t decides whether the following stored residual belongs to the same episode and rollout stream. At true terminal b=false,c=false. At external truncation b=true,c=false. At the last stored continuing transition b=true,c=false because the buffer has no next residual. Within a continuing segment both are true.</p>
+<p>For an external truncation with reward 2, current value 1 and final next value 3 at gamma .9, delta=3.7. If a reset episode’s next residual happens to be 100, incorrectly allowing c=true changes its GAE to 93.7 at lambda one. Correct c=false preserves 3.7. Zeroing bootstrap instead gives 1, a different error.</p>
+<p>At both termination and truncation flags true, true termination wins for bootstrap. A fixed-horizon race that genuinely ends after 52 laps is a task terminal; a collector’s arbitrary eight-step cap on a continuing toy is a truncation. Document which is modeled, rather than deciding from the name time limit alone.</p>
+<h2>Match library boundary conventions</h2>
+<p>A Gymnasium environment returns separate flags and the transition’s successor. SB3 VecEnv merges flags into done, automatically resets, and places the true final observation in info[&quot;terminal_observation&quot;]. Its TimeLimit.truncated field excludes true terminations. SB3’s on-policy collector adds gamma V(final) to timeout reward before buffer recursion; a custom collector must not add that correction and also bootstrap the same final value again.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Can one done bit serve both bootstrap and trace masks?</summary><p>Not without recovering the ending semantics. A timeout ends the trace while retaining final-observation continuation.</p></details>
+<p>Reference: <a href="https://stable-baselines3.readthedocs.io/en/master/_modules/stable_baselines3/common/on_policy_algorithm.html">SB3 timeout collector</a>.</p>
+</section>

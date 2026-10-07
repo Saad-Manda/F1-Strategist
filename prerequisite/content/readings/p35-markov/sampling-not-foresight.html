@@ -1,0 +1,32 @@
+<section><h2>A probability distribution is not a scheduled future</h2><p>From dry today, the practice matrix predicts 0.8 dry and 0.2 wet tomorrow. A draw u in [0,1) selects dry when u&lt;0.8 and wet otherwise. A sampled tomorrow is one label; the probability distribution remains two numbers. These objects answer different questions.</p>
+<p>For a three-state row, intervals have cumulative endpoints. For [0.625,0.375,0], draw 0.624 selects DRY; exactly 0.625 selects DAMP. A zero-probability destination must not be selected. The final fallback below exists only for floating-point roundoff after a validated row.</p>
+<pre><code>def validate_matrix(matrix):
+    if not matrix or any(len(row) != len(matrix) for row in matrix):
+        raise ValueError("matrix must be nonempty and square")
+    for row in matrix:
+        validate_distribution(row)
+
+def sample_next(state, rng, matrix):
+    validate_matrix(matrix)
+    if type(state) is not int or not 0 &lt;= state &lt; len(matrix):
+        raise ValueError("invalid state")
+    draw = rng.random()
+    if not 0 &lt;= draw &lt; 1:
+        raise ValueError("draw must be in [0,1)")
+    cumulative = 0.0
+    for successor, probability in enumerate(matrix[state]):
+        cumulative += probability
+        if draw &lt; cumulative:
+            return successor
+    return len(matrix)-1
+
+import random
+rng = random.Random(7)
+state, sampled_trace = 0, [0]
+for _ in range(10):
+    state = sample_next(state, rng, [[0.8,0.2],[0.3,0.7]])
+    sampled_trace.append(state)</code></pre>
+<h2>Respect the information boundary</h2><p>Suppose you must choose NONE or UMBRELLA before tomorrow's weather. A correct prediction scores 1, an incorrect one 0. From dry, NONE has expected reward 0.8 and UMBRELLA 0.2, so the best available expected reward is 0.8. A controller allowed to inspect sampled tomorrow before choosing always scores 1. That is perfect foresight, not a better algorithm for the same information-limited task.</p>
+<p>A simulator may generate a whole trace at reset for convenience. Keep future entries out of observation and policy-facing info. An evaluator can retain them privately to verify results; the controller must still act before seeing them. Knowing the matrix is allowed here; knowing the next random draw is not.</p>
+<h2>Reproducibility has a defined scope</h2><p>Equal seeds and the same sequence of generator calls reproduce draws under the same implementation. Python and browser generators may differ despite equal seed numbers. Consuming an extra policy draw from the weather stream changes future weather. Use independent streams for environment and policy, and shared explicit draw witnesses when testing cross-language interval boundaries.</p>
+<h2>Recap and self-check</h2><details><summary>Does pre-sampling weather make the simulator deterministic from the policy's perspective?</summary><p>No. The hidden schedule is fixed internally for that run, but a policy that only sees today's weather still faces uncertainty about the next observation.</p></details><p>Next, compare distributions and samples over several rollouts.</p></section>

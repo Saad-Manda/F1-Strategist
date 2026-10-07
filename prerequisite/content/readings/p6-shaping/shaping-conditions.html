@@ -1,0 +1,10 @@
+<section>
+<h2>Build counterexamples before trusting a label</h2>
+<p>Give VIA+WAIT terminal potential 10 in the route pack. At gamma one it receives shaped rewards −1,9, total 8; DIRECT and VIA+FINISH remain 1 and 2. Its base return is still zero. The endpoint term +10 makes waiting win, exactly as the telescoping identity predicts.</p>
+<p>At return gamma .5 but shaping gamma 1, DIRECT shifts −2 while VIA+FINISH shifts −1.5. Its shaped total is .5 instead of the correctly matched 0. The shifts differ, so the general invariance guarantee has been lost even if this particular toy’s winner happens not to flip. Testing only one optimum can miss a defective transformation.</p>
+<p>For an ad-hoc 0.5 bonus, choose true returns RISKY=−4 and SAFE=−4.2 and award the bonus to SAFE. SAFE becomes −3.7 and flips the winner. A proper zero-terminal potential shifts both equally and keeps RISKY. Make the numerical gap small enough to demonstrate the alleged failure; the legacy −10/−4 gap would not be flipped by only 0.5.</p>
+<h2>Audit the conditions explicitly</h2>
+<p>Verify matching discounts, old/new state alignment, state-only potential, consistent terminal treatment and unchanged base objective. Log each F and confirm the full trajectory shift, not just the final greedy action. In a partially observed or changing-opponent task, do not silently import a fully observed stationary-MDP theorem. Applying the return identity pathwise still requires a consistent potential sequence.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does one shaped/unshaped agreement prove every implementation correct?</summary><p>No. Check the shift identity, discount mismatch and boundary counterexamples; a winner can agree accidentally.</p></details>
+</section>

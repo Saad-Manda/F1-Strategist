@@ -1,0 +1,17 @@
+<section>
+<h2>Differentiate a selected log probability</h2>
+<p>Write log π_a=z_a−log Σ_j exp(z_j). Its derivative with respect to z_k is 1[k=a]−π_k: the one-hot selected action minus the probability vector. For logits [1,0] and action 0 this is [.26894142,−.26894142]. The two components sum to zero because adding a common logit offset leaves the policy unchanged.</p>
+<p>For each action form its score vector e_a−π. Averaging under π gives Σ_a π_a(e_a−π)=π−πΣ_a π_a=0. This zero-mean identity is central to removing past rewards and action-independent baselines later. It is an expectation under the same policy, not the claim that an individual sampled score is zero.</p>
+<p>Logit gradients become parameter gradients through the chain rule: ∇_theta log π_a=Σ_k(1[k=a]−π_k)∇_theta z_k. Masked finite legal logits follow the same identity over the fixed legal support. Illegal logits have no score contribution.</p>
+<h2>State the assumptions before using the identity</h2>
+<p>Policy probabilities must be differentiable on allowed support, normalized, and positive for sampled actions. The environment and initial-state distribution must not have unaccounted dependence on policy parameters. If a learned mask or changing support depends on theta, an ordinary fixed-mask derivation needs reconsideration. F1 legal masks are task rules computed from state, not trainable action preferences.</p>
+<pre><code>def score_vector(logits, action):
+    z = np.asarray(logits,dtype=float)
+    if z.ndim != 1 or not len(z) or not np.isfinite(z).all() or type(action) is not int or action not in range(len(z)):
+        raise ValueError(&#x27;finite logits and valid integer action required&#x27;)
+    p = np.exp(z-z.max()); p /= p.sum()
+    score = -p.copy(); score[action] += 1
+    return p,score</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Is a softmax score an action-value gradient?</summary><p>No. It differentiates the policy’s likelihood. Return or advantage will weight it when estimating the objective gradient.</p></details>
+</section>

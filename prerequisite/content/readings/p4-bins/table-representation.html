@@ -1,0 +1,17 @@
+<section><h2>A continuous observation cannot index a finite table directly</h2><p>A table associates a discrete key with an action-value row. A 16-feature float observation can vary over many values, so tabular learning needs an encoder. Categorical features can keep their categories; continuous features can be assigned intervals, called bins. Different observations in one bin then share estimates.</p>
+<p>The original project scheme uses eight key dimensions: remaining laps 12, compound 5, age 10, weather 3, temperature 3, SC 2, used-compound mask 8 and mandatory-pit flag 2. The Cartesian state count is <code>12×5×10×3×3×2×8×2=172800</code>. Six actions give 1,036,800 entries; float64 needs 8,294,400 bytes, approximately 7.91 MiB.</p>
+<pre><code>def table_size(bin_counts, actions=2):
+    import math
+    if not bin_counts or any(type(n) is not int or n &lt; 1
+                             for n in list(bin_counts)+[actions]):
+        raise ValueError("positive integer counts required")
+    states = math.prod(bin_counts)
+    entries = states*actions
+    return dict(states=states,entries=entries,bytes=entries*8)
+
+assert table_size([12,5,10,3,3,2,8,2],6)["states"] == 172800</code></pre>
+<h2>A capacity count is not a visitation count</h2><p>The old plan quoted 518,400 for those same factors. That would require an extra factor of three. Resolve the intended dimensions before allocating or reporting memory; do not repeat an inconsistent total because it appears in a plan.</p>
+<p>Some combinations are impossible or redundant. A dense table pays for all rectangular cells, while a dictionary stores only visited keys but has substantial Python object overhead. “Sparse” does not mean eight bytes per value including keys and containers. A ten-thousand-episode run may still visit strategically important keys too rarely.</p>
+<h2>Coarseness buys sharing and loses distinctions</h2><p>A coarser bin merges more observations, increasing visits per cell and reducing capacity. It can also merge situations whose best actions differ. A finer bin preserves more distinctions but needs more data and memory. There is no universally correct bin count.</p>
+<p>Unlike a neural approximation, a plain table does not automatically interpolate across nearby keys. Nearby bins can have unrelated estimates. Shared bins average their training evidence but do not reconstruct the physical details discarded by the encoder.</p>
+<h2>Recap and self-check</h2><details><summary>Does a 172,800-state table mean the training run has observed 172,800 physical situations?</summary><p>No. It is a representational capacity. Count visited keys and state/action visits separately, and examine coverage under the actual scenario distribution.</p></details><p>Next, define interval boundaries precisely enough that Python and browser code agree.</p></section>

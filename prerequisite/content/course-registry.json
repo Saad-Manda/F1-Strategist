@@ -1,0 +1,3403 @@
+{
+  "schemaVersion": 2,
+  "modules": [
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "phase": "1",
+      "lessons": [
+        "p1-loop",
+        "p1-state",
+        "p1-return",
+        "p1-probability",
+        "p1-values"
+      ],
+      "applications": [
+        "foundations/environment-contract",
+        "foundations/race-dynamics",
+        "foundations/reward-units",
+        "foundations/environment-verification"
+      ],
+      "route": "modules/foundations.html",
+      "objective": "Build the interaction loop, describe state, and reason about returns and values.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 1",
+        "plan": "phase-1-gym-environment.md",
+        "required": [
+          "foundations/environment-contract",
+          "foundations/race-dynamics",
+          "foundations/reward-units",
+          "foundations/environment-verification"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain state/action/reward and termination versus truncation."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map the toy reset/step contract to the project environment."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review action masking, reward units, and the project environment implementation plan."
+          }
+        ],
+        "route": "modules/foundations.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 1",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "planning",
+      "title": "Planning and uncertainty",
+      "phase": "3.5",
+      "lessons": [
+        "p35-backward",
+        "p35-stochastic",
+        "p35-markov"
+      ],
+      "applications": [
+        "planning/oracle-model",
+        "planning/oracle-bound",
+        "planning/oracle-verification"
+      ],
+      "route": "modules/planning.html",
+      "objective": "Compute exact answers before learning from samples.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 3.5",
+        "plan": "phase-3.5-dp-oracle.md",
+        "required": [
+          "planning/oracle-model",
+          "planning/oracle-bound",
+          "planning/oracle-verification"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain time-indexed backward induction and expectation over outcomes."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map legal actions and terminal values to the project DP oracle."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review the toy solver and independent optimality checks."
+          }
+        ],
+        "route": "modules/planning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 3.5",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "tabular-learning",
+      "title": "Learning from samples",
+      "phase": "4",
+      "lessons": [
+        "p4-td",
+        "p4-explore",
+        "p4-sarsa",
+        "p4-bins"
+      ],
+      "applications": [
+        "tabular-learning/tabular-contract",
+        "tabular-learning/tabular-training"
+      ],
+      "route": "modules/tabular-learning.html",
+      "objective": "Implement tabular learning and diagnose exploration and representation failures.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 4",
+        "plan": "phase-4-q-learning-sarsa.md",
+        "required": [
+          "tabular-learning/tabular-contract",
+          "tabular-learning/tabular-training"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain TD targets, exploration, SARSA, and bin conventions."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map legal masks and observation bins to the project Q-table."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review training/evaluation separation and the tabular implementation plan."
+          }
+        ],
+        "route": "modules/tabular-learning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 4",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "neural-value-learning",
+      "title": "Neural value learning",
+      "phase": "5",
+      "lessons": [
+        "p5-network",
+        "p5-stability",
+        "p5-double-dueling",
+        "p5-per"
+      ],
+      "applications": [
+        "neural-value-learning/dqn-reward-scale",
+        "neural-value-learning/dqn-integration",
+        "neural-value-learning/dqn-evidence"
+      ],
+      "route": "modules/neural-value-learning.html",
+      "objective": "Understand each component of a neural value learner.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 5",
+        "plan": "phase-5-dueling-double-dqn.md",
+        "required": [
+          "neural-value-learning/dqn-reward-scale",
+          "neural-value-learning/dqn-integration",
+          "neural-value-learning/dqn-evidence"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain target snapshots, replay, Double/dueling mechanisms, and priorities."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map tensor shapes, reward units, and optimizer/update schedules to the project."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review DQN integration contracts and the local training walkthrough."
+          }
+        ],
+        "route": "modules/neural-value-learning.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 5",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "multiple-agents",
+      "title": "Multiple agents and rewards",
+      "phase": "6",
+      "lessons": [
+        "p6-credit",
+        "p6-shaping",
+        "p6-opponent"
+      ],
+      "applications": [
+        "multiple-agents/multi-car-dynamics",
+        "multiple-agents/multi-car-bugs",
+        "multiple-agents/multi-car-checks"
+      ],
+      "route": "modules/multiple-agents.html",
+      "objective": "Separate interaction mechanics, credit assignment, and reward design.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 6",
+        "plan": "phase-6-multi-car-rivals.md",
+        "required": [
+          "multiple-agents/multi-car-dynamics",
+          "multiple-agents/multi-car-bugs",
+          "multiple-agents/multi-car-checks"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain team credit, shaping boundaries, and changing opponents."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map action validity, simultaneous transitions, and reward ownership to the environment."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review the multi-car build walkthrough and mechanics bug ledger."
+          }
+        ],
+        "route": "modules/multiple-agents.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 6",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "self-play",
+      "title": "Self-play and evaluation",
+      "phase": "8",
+      "lessons": [
+        "p8-game",
+        "p8-pool",
+        "p8-audit"
+      ],
+      "applications": [
+        "self-play/self-play-mechanics",
+        "self-play/self-play-integration",
+        "self-play/self-play-evidence"
+      ],
+      "route": "modules/self-play.html",
+      "objective": "Evaluate learning against changing and historical opponents.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 8",
+        "plan": "phase-8-self-play.md",
+        "required": [
+          "self-play/self-play-mechanics",
+          "self-play/self-play-integration",
+          "self-play/self-play-evidence"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain opponent pools, frozen snapshots, and historical evaluation."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map agent IDs, action masks, and environment lifecycle to the project API."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review evaluation budgets and the self-play implementation plan."
+          }
+        ],
+        "route": "modules/self-play.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 8",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    },
+    {
+      "id": "policy-gradients",
+      "title": "Policy gradients and PPO",
+      "phase": "9",
+      "lessons": [
+        "p9-probability",
+        "p9-reinforce",
+        "p9-advantage",
+        "p9-gae",
+        "p9-ppo"
+      ],
+      "applications": [
+        "policy-gradients/library-choice",
+        "policy-gradients/vector-library",
+        "policy-gradients/workers",
+        "policy-gradients/fair-budget",
+        "policy-gradients/ppo-integration"
+      ],
+      "route": "modules/policy-gradients.html",
+      "objective": "Learn policies directly and inspect their update rules.",
+      "projectCheckpoint": {
+        "title": "Ready to implement Phase 9",
+        "plan": "phase-9-ppo-sb3.md",
+        "required": [
+          "policy-gradients/library-choice",
+          "policy-gradients/vector-library",
+          "policy-gradients/workers",
+          "policy-gradients/fair-budget",
+          "policy-gradients/ppo-integration"
+        ],
+        "checks": [
+          {
+            "id": "understand-concepts",
+            "text": "Explain frozen rollout data, actor/critic gradients, GAE masks, and PPO clipping."
+          },
+          {
+            "id": "map-project-contracts",
+            "text": "Map final observations, legal masks, and transition budgets to the collector."
+          },
+          {
+            "id": "review-integration",
+            "text": "Review library integration and Windows spawn guidance before implementation."
+          }
+        ],
+        "route": "modules/policy-gradients.html#project-checkpoint",
+        "preparationLabel": "Prepare to implement Phase 9",
+        "readinessMeaning": "Prerequisite learning and transfer are acknowledged; this does not certify production implementation."
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "p1-loop",
+      "title": "Build the interaction loop",
+      "module": "foundations",
+      "prerequisites": [],
+      "practice": {
+        "labId": "p1-loop",
+        "route": "labs/phase-1/p1-loop.html"
+      },
+      "route": "lessons/p1-loop.html",
+      "required": [
+        "p1-loop/agent-environment-loop",
+        "p1-loop/one-step",
+        "p1-loop/episode-endings",
+        "p1-loop/spaces-and-contract"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p1-state",
+      "title": "Describe state and observations",
+      "module": "foundations",
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "practice": {
+        "labId": "p1-state",
+        "route": "labs/phase-1/p1-state.html"
+      },
+      "route": "lessons/p1-state.html",
+      "required": [
+        "p1-state/state-observation",
+        "p1-state/markov-property",
+        "p1-state/mdp-model",
+        "p1-state/missing-information"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p1-return",
+      "title": "Reason about rewards and returns",
+      "module": "foundations",
+      "prerequisites": [
+        "p1-loop"
+      ],
+      "practice": {
+        "labId": "p1-return",
+        "route": "labs/phase-1/p1-return.html"
+      },
+      "route": "lessons/p1-return.html",
+      "required": [
+        "p1-return/reward-return",
+        "p1-return/discounting",
+        "p1-return/horizons",
+        "p1-return/return-calculation"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p1-probability",
+      "title": "Probability and expectation for decisions",
+      "module": "foundations",
+      "prerequisites": [
+        "p1-state",
+        "p1-return"
+      ],
+      "practice": null,
+      "route": "lessons/p1-probability.html",
+      "required": [
+        "p1-probability/probability-outcomes",
+        "p1-probability/weighted-expectation"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p1-values",
+      "title": "Evaluate policies and actions",
+      "module": "foundations",
+      "prerequisites": [
+        "p1-probability"
+      ],
+      "practice": {
+        "labId": "p1-values",
+        "route": "labs/phase-1/p1-values.html"
+      },
+      "route": "lessons/p1-values.html",
+      "required": [
+        "p1-values/policies-legal-actions",
+        "p1-values/state-action-values",
+        "p1-values/bellman-backup",
+        "p1-values/expectation-maximization",
+        "p1-values/evaluation-optimality"
+      ],
+      "optional": [
+        "p1-values/bellman-fixed-points"
+      ]
+    },
+    {
+      "id": "p35-backward",
+      "title": "Plan with a known finite model",
+      "module": "planning",
+      "prerequisites": [
+        "p1-values"
+      ],
+      "practice": {
+        "labId": "p35-backward",
+        "route": "labs/phase-3.5/p35-backward.html"
+      },
+      "route": "lessons/p35-backward.html",
+      "required": [
+        "p35-backward/planning-learning",
+        "p35-backward/finite-model",
+        "p35-backward/backward-induction",
+        "p35-backward/verify-solver"
+      ],
+      "optional": [
+        "p35-backward/value-iteration"
+      ]
+    },
+    {
+      "id": "p35-stochastic",
+      "title": "Plan over uncertain outcomes",
+      "module": "planning",
+      "prerequisites": [
+        "p35-backward",
+        "p1-probability"
+      ],
+      "practice": {
+        "labId": "p35-stochastic",
+        "route": "labs/phase-3.5/p35-stochastic.html"
+      },
+      "route": "lessons/p35-stochastic.html",
+      "required": [
+        "p35-stochastic/expectation-refresher",
+        "p35-stochastic/weighted-backups",
+        "p35-stochastic/rare-outcomes",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p35-markov",
+      "title": "Model and sample changing conditions",
+      "module": "planning",
+      "prerequisites": [
+        "p35-stochastic",
+        "p1-state"
+      ],
+      "practice": {
+        "labId": "p35-markov",
+        "route": "labs/phase-3.5/p35-markov.html"
+      },
+      "route": "lessons/p35-markov.html",
+      "required": [
+        "p35-markov/transition-matrix",
+        "p35-markov/sampling-not-foresight",
+        "p35-markov/rollout-variability",
+        "p35-markov/empirical-checks"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p4-td",
+      "title": "Learn action values from transitions",
+      "module": "tabular-learning",
+      "prerequisites": [
+        "p1-values"
+      ],
+      "practice": {
+        "labId": "p4-td",
+        "route": "labs/phase-4/p4-td.html"
+      },
+      "route": "lessons/p4-td.html",
+      "required": [
+        "p4-td/sampled-learning",
+        "p4-td/td-error",
+        "p4-td/q-learning",
+        "p4-td/terminal-masked-targets"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p4-explore",
+      "title": "Discover actions through exploration",
+      "module": "tabular-learning",
+      "prerequisites": [
+        "p4-td"
+      ],
+      "practice": {
+        "labId": "p4-explore",
+        "route": "labs/phase-4/p4-explore.html"
+      },
+      "route": "lessons/p4-explore.html",
+      "required": [
+        "p4-explore/greedy-discovery",
+        "p4-explore/epsilon-probabilities",
+        "p4-explore/behavior-evaluation",
+        "p4-explore/exploration-schedules"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p4-sarsa",
+      "title": "Compare on-policy and off-policy targets",
+      "module": "tabular-learning",
+      "prerequisites": [
+        "p4-explore"
+      ],
+      "practice": {
+        "labId": "p4-sarsa",
+        "route": "labs/phase-4/p4-sarsa.html"
+      },
+      "route": "lessons/p4-sarsa.html",
+      "required": [
+        "p4-sarsa/policy-targets",
+        "p4-sarsa/sampled-sarsa",
+        "p4-sarsa/expected-sarsa",
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p4-bins",
+      "title": "Encode observations in a table",
+      "module": "tabular-learning",
+      "prerequisites": [
+        "p4-td",
+        "p1-state"
+      ],
+      "practice": {
+        "labId": "p4-bins",
+        "route": "labs/phase-4/p4-bins.html"
+      },
+      "route": "lessons/p4-bins.html",
+      "required": [
+        "p4-bins/table-representation",
+        "p4-bins/interval-boundaries",
+        "p4-bins/state-aliasing",
+        "p4-bins/encoder-checks"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p5-network",
+      "title": "Replace a table with a differentiable function",
+      "module": "neural-value-learning",
+      "prerequisites": [
+        "p4-td",
+        "p4-bins"
+      ],
+      "practice": {
+        "labId": "p5-network",
+        "route": "labs/phase-5/p5-network.html"
+      },
+      "route": "lessons/p5-network.html",
+      "required": [
+        "p5-network/tables-functions",
+        "p5-network/vectors-shapes",
+        "p5-network/forward-loss",
+        "p5-network/gradients",
+        "p5-network/optimizer-update"
+      ],
+      "optional": [
+        "p5-network/adam-moments"
+      ]
+    },
+    {
+      "id": "p5-stability",
+      "title": "Stabilize neural temporal-difference learning",
+      "module": "neural-value-learning",
+      "prerequisites": [
+        "p5-network",
+        "p4-explore"
+      ],
+      "practice": {
+        "labId": "p5-stability",
+        "route": "labs/phase-5/p5-stability.html"
+      },
+      "route": "lessons/p5-stability.html",
+      "required": [
+        "p5-stability/moving-targets",
+        "p5-stability/target-detachment",
+        "p5-stability/replay",
+        "p5-stability/complete-dqn-update"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p5-double-dueling",
+      "title": "Improve selection and value representation",
+      "module": "neural-value-learning",
+      "prerequisites": [
+        "p5-stability"
+      ],
+      "practice": {
+        "labId": "p5-double-dueling",
+        "route": "labs/phase-5/p5-double-dueling.html"
+      },
+      "route": "lessons/p5-double-dueling.html",
+      "required": [
+        "p5-double-dueling/maximization-bias",
+        "p5-double-dueling/double-selection",
+        "p5-double-dueling/dueling-values",
+        "p5-double-dueling/dueling-centering",
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p5-per",
+      "title": "Prioritize replay samples correctly",
+      "module": "neural-value-learning",
+      "prerequisites": [
+        "p5-stability",
+        "p1-probability"
+      ],
+      "practice": {
+        "labId": "p5-per",
+        "route": "labs/phase-5/p5-per.html"
+      },
+      "route": "lessons/p5-per.html",
+      "required": [
+        "p5-per/prioritize-errors",
+        "p5-per/priority-probability",
+        "p5-per/importance-weights",
+        "p5-per/priority-updates"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p6-credit",
+      "title": "Understand joint rewards and credit",
+      "module": "multiple-agents",
+      "prerequisites": [
+        "p1-state",
+        "p4-td"
+      ],
+      "practice": {
+        "labId": "p6-credit",
+        "route": "labs/phase-6/p6-credit.html"
+      },
+      "route": "lessons/p6-credit.html",
+      "required": [
+        "p6-credit/joint-actions",
+        "p6-credit/team-contribution",
+        "p6-credit/credit-examples",
+        "p6-credit/credit-diagnostics"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p6-shaping",
+      "title": "Shape rewards without changing the objective",
+      "module": "multiple-agents",
+      "prerequisites": [
+        "p1-return",
+        "p1-values",
+        "p6-credit"
+      ],
+      "practice": {
+        "labId": "p6-shaping",
+        "route": "labs/phase-6/p6-shaping.html"
+      },
+      "route": "lessons/p6-shaping.html",
+      "required": [
+        "p6-shaping/base-bonuses",
+        "p6-shaping/potential-differences",
+        "p6-shaping/telescoping",
+        "p6-shaping/shaping-conditions"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p6-opponent",
+      "title": "Model interaction and changing opponents",
+      "module": "multiple-agents",
+      "prerequisites": [
+        "p6-credit",
+        "p35-stochastic"
+      ],
+      "practice": {
+        "labId": "p6-opponent",
+        "route": "labs/phase-6/p6-opponent.html"
+      },
+      "route": "lessons/p6-opponent.html",
+      "required": [
+        "p6-opponent/interaction-mechanics",
+        "p6-opponent/opponent-transitions",
+        "p6-opponent/missing-changing",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p8-game",
+      "title": "Choose strategies against opponents",
+      "module": "self-play",
+      "prerequisites": [
+        "p6-opponent",
+        "p4-explore",
+        "p1-probability"
+      ],
+      "practice": {
+        "labId": "p8-game",
+        "route": "labs/phase-8/p8-game.html"
+      },
+      "route": "lessons/p8-game.html",
+      "required": [
+        "p8-game/best-response",
+        "p8-game/payoff-matrices",
+        "p8-game/mixed-equilibrium",
+        "p8-game/robustness"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p8-pool",
+      "title": "Retain historical opponents",
+      "module": "self-play",
+      "prerequisites": [
+        "p8-game",
+        "p5-stability"
+      ],
+      "practice": {
+        "labId": "p8-pool",
+        "route": "labs/phase-8/p8-pool.html"
+      },
+      "route": "lessons/p8-pool.html",
+      "required": [
+        "p8-pool/forgetting",
+        "p8-pool/independent-snapshots",
+        "p8-pool/pool-sampling",
+        "p8-pool/pool-coverage"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p8-audit",
+      "title": "Design a defensible comparison",
+      "module": "self-play",
+      "prerequisites": [
+        "p8-pool",
+        "p35-markov"
+      ],
+      "practice": {
+        "labId": "p8-audit",
+        "route": "labs/phase-8/p8-audit.html"
+      },
+      "route": "lessons/p8-audit.html",
+      "required": [
+        "p8-audit/fair-pairings",
+        "p8-audit/uncertainty",
+        "p8-audit/agent-lifecycle",
+        "p8-audit/comparison-protocol"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p9-probability",
+      "title": "Prepare probability and gradient tools",
+      "module": "policy-gradients",
+      "prerequisites": [
+        "p1-probability",
+        "p5-network"
+      ],
+      "practice": null,
+      "route": "lessons/p9-probability.html",
+      "required": [
+        "p9-probability/policy-probabilities",
+        "p9-probability/score-gradient"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p9-reinforce",
+      "title": "Learn a policy from sampled returns",
+      "module": "policy-gradients",
+      "prerequisites": [
+        "p9-probability",
+        "p1-return"
+      ],
+      "practice": {
+        "labId": "p9-reinforce",
+        "route": "labs/phase-9/p9-reinforce.html"
+      },
+      "route": "lessons/p9-reinforce.html",
+      "required": [
+        "p9-reinforce/gradient-intuition",
+        "p9-reinforce/score-function",
+        "p9-reinforce/reinforce-example",
+        "p9-reinforce/sampled-update"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p9-advantage",
+      "title": "Reduce variance with a value baseline",
+      "module": "policy-gradients",
+      "prerequisites": [
+        "p9-reinforce",
+        "p4-td"
+      ],
+      "practice": {
+        "labId": "p9-advantage",
+        "route": "labs/phase-9/p9-advantage.html"
+      },
+      "route": "lessons/p9-advantage.html",
+      "required": [
+        "p9-advantage/value-baselines",
+        "p9-advantage/baseline-proof",
+        "p9-advantage/actor-critic",
+        "p9-advantage/separate-gradients"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p9-gae",
+      "title": "Estimate advantages across a rollout",
+      "module": "policy-gradients",
+      "prerequisites": [
+        "p9-advantage",
+        "p1-loop"
+      ],
+      "practice": {
+        "labId": "p9-gae",
+        "route": "labs/phase-9/p9-gae.html"
+      },
+      "route": "lessons/p9-gae.html",
+      "required": [
+        "p9-gae/td-residuals",
+        "p9-gae/lambda-sum",
+        "p9-gae/reverse-recursion",
+        "p9-gae/gae-boundaries"
+      ],
+      "optional": []
+    },
+    {
+      "id": "p9-ppo",
+      "title": "Limit incentives for policy changes",
+      "module": "policy-gradients",
+      "prerequisites": [
+        "p9-gae"
+      ],
+      "practice": {
+        "labId": "p9-ppo",
+        "route": "labs/phase-9/p9-ppo.html"
+      },
+      "route": "lessons/p9-ppo.html",
+      "required": [
+        "p9-ppo/old-current",
+        "p9-ppo/likelihood-ratios",
+        "p9-ppo/clipping-branches",
+        "p9-ppo/surrogate-limits",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "optional": []
+    }
+  ],
+  "readings": [
+    {
+      "id": "p1-loop/agent-environment-loop",
+      "title": "Agents, environments and episodes",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-loop",
+      "route": "readings/p1-loop/agent-environment-loop.html",
+      "goal": "Trace a toy delivery agent through a complete episode; distinguish agent, environment and policy without notation.",
+      "minutes": 6,
+      "source": "content/readings/p1-loop/agent-environment-loop.html",
+      "requires": [],
+      "teaches": [
+        "p1-loop/agent-environment-loop"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-loop/one-step",
+      "title": "One step: actions, observations and rewards",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-loop",
+      "route": "readings/p1-loop/one-step.html",
+      "goal": "Record a delivery transition and explain each field, including the next observation and reward units.",
+      "minutes": 6,
+      "source": "content/readings/p1-loop/one-step.html",
+      "requires": [
+        "p1-loop/agent-environment-loop"
+      ],
+      "teaches": [
+        "p1-loop/one-step"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-loop/episode-endings",
+      "title": "Resetting and ending an episode",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-loop",
+      "route": "readings/p1-loop/episode-endings.html",
+      "goal": "Trace success versus a time limit using reset and the five step outputs; distinguish termination, truncation and collector cutoff before targets appear.",
+      "minutes": 6,
+      "source": "content/readings/p1-loop/episode-endings.html",
+      "requires": [
+        "p1-loop/one-step"
+      ],
+      "teaches": [
+        "p1-loop/episode-endings"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-loop/spaces-and-contract",
+      "title": "Spaces and the environment contract",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-loop",
+      "route": "readings/p1-loop/spaces-and-contract.html",
+      "goal": "Describe valid chain actions and observations, check array formats and seeds, and verify the environment interface.",
+      "minutes": 6,
+      "source": "content/readings/p1-loop/spaces-and-contract.html",
+      "requires": [
+        "p1-loop/episode-endings"
+      ],
+      "teaches": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-state/state-observation",
+      "title": "State versus observation",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-state",
+      "route": "readings/p1-state/state-observation.html",
+      "goal": "Compare two identical observations with different hidden battery charge; distinguish simulator state from what the agent sees.",
+      "minutes": 6,
+      "source": "content/readings/p1-state/state-observation.html",
+      "requires": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "teaches": [
+        "p1-state/state-observation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-state/markov-property",
+      "title": "When the present is enough",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-state",
+      "route": "readings/p1-state/markov-property.html",
+      "goal": "Calculate different next-step outcomes for the hidden-charge example and explain why omitted information matters.",
+      "minutes": 6,
+      "source": "content/readings/p1-state/markov-property.html",
+      "requires": [
+        "p1-state/state-observation"
+      ],
+      "teaches": [
+        "p1-state/markov-property"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-state/mdp-model",
+      "title": "A model of decisions and outcomes",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-state",
+      "route": "readings/p1-state/mdp-model.html",
+      "goal": "Introduce the MDP tuple one symbol at a time using a delivery transition table; defer calculating expectations to the probability lesson.",
+      "minutes": 6,
+      "source": "content/readings/p1-state/mdp-model.html",
+      "requires": [
+        "p1-state/markov-property"
+      ],
+      "teaches": [
+        "p1-state/mdp-model"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-state/missing-information",
+      "title": "Working with incomplete observations",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-state",
+      "route": "readings/p1-state/missing-information.html",
+      "goal": "Compare adding a sensor, using observation history and a belief-state idea; explain why an encoder cannot invent missing information.",
+      "minutes": 6,
+      "source": "content/readings/p1-state/missing-information.html",
+      "requires": [
+        "p1-state/mdp-model"
+      ],
+      "teaches": [
+        "p1-state/missing-information"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-return/reward-return",
+      "title": "Reward versus accumulated return",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-return",
+      "route": "readings/p1-return/reward-return.html",
+      "goal": "Sum three delivery rewards; discuss the reward hypothesis as a modeling assumption and show a proxy objective that fails.",
+      "minutes": 6,
+      "source": "content/readings/p1-return/reward-return.html",
+      "requires": [
+        "p1-loop/spaces-and-contract"
+      ],
+      "teaches": [
+        "p1-return/reward-return"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-return/discounting",
+      "title": "Discounting step by step",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-return",
+      "route": "readings/p1-return/discounting.html",
+      "goal": "Calculate a three-step discounted return and distinguish a discount factor from a learning rate.",
+      "minutes": 6,
+      "source": "content/readings/p1-return/discounting.html",
+      "requires": [
+        "p1-return/reward-return"
+      ],
+      "teaches": [
+        "p1-return/discounting"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-return/horizons",
+      "title": "Finite and continuing horizons",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-return",
+      "route": "readings/p1-return/horizons.html",
+      "goal": "Compare a finite undiscounted task with a continuing discounted task; state bounded-reward assumptions and time-in-state requirements.",
+      "minutes": 6,
+      "source": "content/readings/p1-return/horizons.html",
+      "requires": [
+        "p1-return/discounting"
+      ],
+      "teaches": [
+        "p1-return/horizons"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-return/return-calculation",
+      "title": "Computing returns and their units",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-return",
+      "route": "readings/p1-return/return-calculation.html",
+      "goal": "Implement reverse return accumulation; distinguish realized return from expected return and trace reward centering on fixed versus variable horizons.",
+      "minutes": 6,
+      "source": "content/readings/p1-return/return-calculation.html",
+      "requires": [
+        "p1-return/horizons"
+      ],
+      "teaches": [
+        "p1-return/return-calculation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-probability/probability-outcomes",
+      "title": "Probabilities over possible outcomes",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-probability",
+      "route": "readings/p1-probability/probability-outcomes.html",
+      "goal": "Normalize a two-outcome table and calculate joint probabilities under an explicit independence assumption.",
+      "minutes": 6,
+      "source": "content/readings/p1-probability/probability-outcomes.html",
+      "requires": [
+        "p1-state/missing-information",
+        "p1-return/return-calculation"
+      ],
+      "teaches": [
+        "p1-probability/probability-outcomes"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-probability/weighted-expectation",
+      "title": "An average weighted by probability",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-probability",
+      "route": "readings/p1-probability/weighted-expectation.html",
+      "goal": "Calculate expected reward and expected continuation separately; compare sample averages with exact model averages and rare outcomes.",
+      "minutes": 6,
+      "source": "content/readings/p1-probability/weighted-expectation.html",
+      "requires": [
+        "p1-probability/probability-outcomes"
+      ],
+      "teaches": [
+        "p1-probability/weighted-expectation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/policies-legal-actions",
+      "title": "Policies and legal actions",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/policies-legal-actions.html",
+      "goal": "Specify deterministic and stochastic policies; calculate legal-action probabilities and tie handling with an action mask.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/policies-legal-actions.html",
+      "requires": [
+        "p1-probability/weighted-expectation"
+      ],
+      "teaches": [
+        "p1-values/policies-legal-actions"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/state-action-values",
+      "title": "State values and action values",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/state-action-values.html",
+      "goal": "Compare two delivery actions using their expected returns; define V and Q only after the examples.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/state-action-values.html",
+      "requires": [
+        "p1-values/policies-legal-actions"
+      ],
+      "teaches": [
+        "p1-values/state-action-values"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/bellman-backup",
+      "title": "One Bellman backup",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/bellman-backup.html",
+      "goal": "Derive the return decomposition and calculate a backup with reward and two successor values; explain terminal continuation and finite gamma=1.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/bellman-backup.html",
+      "requires": [
+        "p1-values/state-action-values"
+      ],
+      "teaches": [
+        "p1-values/bellman-backup"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/expectation-maximization",
+      "title": "Expectation versus maximization",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/expectation-maximization.html",
+      "goal": "Compute policy evaluation and greedy improvement from the same table; separate expectation over outcomes from maximization over legal actions.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/expectation-maximization.html",
+      "requires": [
+        "p1-values/bellman-backup"
+      ],
+      "teaches": [
+        "p1-values/expectation-maximization"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/evaluation-optimality",
+      "title": "Evaluation and optimality",
+      "role": "core",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/evaluation-optimality.html",
+      "goal": "Compare a policy Bellman equation with an optimality equation; recap masking and time-dependent finite-horizon values.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/evaluation-optimality.html",
+      "requires": [
+        "p1-values/expectation-maximization"
+      ],
+      "teaches": [
+        "p1-values/evaluation-optimality"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p1-values/bellman-fixed-points",
+      "title": "Why repeated backups can converge",
+      "role": "further-depth",
+      "module": "foundations",
+      "lesson": "p1-values",
+      "route": "readings/p1-values/bellman-fixed-points.html",
+      "goal": "Work a discounted contraction example and distinguish its assumptions from finite-horizon backward induction.",
+      "minutes": 6,
+      "source": "content/readings/p1-values/bellman-fixed-points.html",
+      "requires": [
+        "p1-values/evaluation-optimality"
+      ],
+      "teaches": [
+        "p1-values/bellman-fixed-points"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "foundations/environment-contract",
+      "title": "Building the F1 environment contract",
+      "role": "application",
+      "module": "foundations",
+      "lesson": null,
+      "route": "applications/foundations/environment-contract.html",
+      "goal": "Map the 16-feature observation, six actions, masks, seeding and ending flags to the toy contract; retain the complete step trace.",
+      "minutes": 8,
+      "source": "content/applications/foundations/environment-contract.html",
+      "requires": [
+        "p1-loop/spaces-and-contract",
+        "p1-state/missing-information",
+        "p1-return/return-calculation",
+        "p1-probability/weighted-expectation",
+        "p1-values/evaluation-optimality"
+      ],
+      "teaches": [
+        "foundations/environment-contract"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "foundations/race-dynamics",
+      "title": "Composing one race transition",
+      "role": "application",
+      "module": "foundations",
+      "lesson": null,
+      "route": "applications/foundations/race-dynamics.html",
+      "goal": "Trace compound pace/life, capped wear cliff, fuel, weather, pit-lap ordering and fresh safety-car sampling through pure shared dynamics.",
+      "minutes": 8,
+      "source": "content/applications/foundations/race-dynamics.html",
+      "requires": [
+        "foundations/environment-contract"
+      ],
+      "teaches": [
+        "foundations/race-dynamics"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "foundations/reward-units",
+      "title": "Reward units and the race objective",
+      "role": "application",
+      "module": "foundations",
+      "lesson": null,
+      "route": "applications/foundations/reward-units.html",
+      "goal": "Prove negative lap-time accumulation and fixed-horizon centering numerically; state variable-length caveats and avoid describing a plan as executed evidence.",
+      "minutes": 8,
+      "source": "content/applications/foundations/reward-units.html",
+      "requires": [
+        "foundations/race-dynamics"
+      ],
+      "teaches": [
+        "foundations/reward-units"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "foundations/environment-verification",
+      "title": "Wrapping and verifying shared dynamics",
+      "role": "application",
+      "module": "foundations",
+      "lesson": null,
+      "route": "applications/foundations/environment-verification.html",
+      "goal": "Explain the stateful Gymnasium wrapper, pure dynamics, environment tests and readiness checkpoint; introduce dashboard and rule-based baseline handoffs.",
+      "minutes": 8,
+      "source": "content/applications/foundations/environment-verification.html",
+      "requires": [
+        "foundations/reward-units"
+      ],
+      "teaches": [
+        "foundations/environment-verification"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-backward/planning-learning",
+      "title": "Planning versus learning",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-backward",
+      "route": "readings/p35-backward/planning-learning.html",
+      "goal": "Compare access to a transition model with access to sampled transitions using the same tiny task.",
+      "minutes": 6,
+      "source": "content/readings/p35-backward/planning-learning.html",
+      "requires": [
+        "p1-values/evaluation-optimality"
+      ],
+      "teaches": [
+        "p35-backward/planning-learning"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-backward/finite-model",
+      "title": "A known finite model",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-backward",
+      "route": "readings/p35-backward/finite-model.html",
+      "goal": "Enumerate time-indexed states and legal actions, assign terminal values and count states before solving.",
+      "minutes": 6,
+      "source": "content/readings/p35-backward/finite-model.html",
+      "requires": [
+        "p35-backward/planning-learning"
+      ],
+      "teaches": [
+        "p35-backward/finite-model"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-backward/backward-induction",
+      "title": "Backward induction by hand",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-backward",
+      "route": "readings/p35-backward/backward-induction.html",
+      "goal": "Preserve the worked pit-now versus stay-out example and show why greedy one-step decisions fail.",
+      "minutes": 6,
+      "source": "content/readings/p35-backward/backward-induction.html",
+      "requires": [
+        "p35-backward/finite-model"
+      ],
+      "teaches": [
+        "p35-backward/backward-induction"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-backward/verify-solver",
+      "title": "Implement and independently verify a solver",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-backward",
+      "route": "readings/p35-backward/verify-solver.html",
+      "goal": "Compare a tiny backward solver with brute-force action sequences; include terminal and no-legal-action cases.",
+      "minutes": 6,
+      "source": "content/readings/p35-backward/verify-solver.html",
+      "requires": [
+        "p35-backward/backward-induction"
+      ],
+      "teaches": [
+        "p35-backward/verify-solver"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-backward/value-iteration",
+      "title": "Backward induction and value iteration",
+      "role": "further-depth",
+      "module": "planning",
+      "lesson": "p35-backward",
+      "route": "readings/p35-backward/value-iteration.html",
+      "goal": "Work a discounted iterative example and contrast stopping rules with an acyclic finite horizon.",
+      "minutes": 6,
+      "source": "content/readings/p35-backward/value-iteration.html",
+      "requires": [
+        "p35-backward/verify-solver"
+      ],
+      "teaches": [
+        "p35-backward/value-iteration"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-stochastic/expectation-refresher",
+      "title": "Recap probability and expectation",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-stochastic",
+      "route": "readings/p35-stochastic/expectation-refresher.html",
+      "goal": "Recompute a hazard/no-event weighted average and state conditional independence before combining hazards and weather.",
+      "minutes": 6,
+      "source": "content/readings/p35-stochastic/expectation-refresher.html",
+      "requires": [
+        "p35-backward/verify-solver",
+        "p1-probability/weighted-expectation"
+      ],
+      "teaches": [
+        "p35-stochastic/expectation-refresher"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-stochastic/weighted-backups",
+      "title": "Weighted outcome backups",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-stochastic",
+      "route": "readings/p35-stochastic/weighted-backups.html",
+      "goal": "Calculate a complete stochastic Bellman cell; keep successor-dependent costs inside the correct expectation.",
+      "minutes": 6,
+      "source": "content/readings/p35-stochastic/weighted-backups.html",
+      "requires": [
+        "p35-stochastic/expectation-refresher"
+      ],
+      "teaches": [
+        "p35-stochastic/weighted-backups"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-stochastic/rare-outcomes",
+      "title": "Rare outcomes and risk",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-stochastic",
+      "route": "readings/p35-stochastic/rare-outcomes.html",
+      "goal": "Compare average cost with a rare costly outcome; distinguish risk-neutral optimization from a changed risk objective.",
+      "minutes": 6,
+      "source": "content/readings/p35-stochastic/rare-outcomes.html",
+      "requires": [
+        "p35-stochastic/weighted-backups"
+      ],
+      "teaches": [
+        "p35-stochastic/rare-outcomes"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-stochastic/stochastic-solver",
+      "title": "A complete stochastic planning example",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-stochastic",
+      "route": "readings/p35-stochastic/stochastic-solver.html",
+      "goal": "Extend the independently checked solver with safety-car hazard, legal masks and a second random process; validate probability sums.",
+      "minutes": 12,
+      "source": "content/readings/p35-stochastic/stochastic-solver.html",
+      "requires": [
+        "p35-stochastic/rare-outcomes"
+      ],
+      "teaches": [
+        "p35-stochastic/stochastic-solver"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-markov/transition-matrix",
+      "title": "Transition matrices and chains",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-markov",
+      "route": "readings/p35-markov/transition-matrix.html",
+      "goal": "Count and normalize the existing three-race 3-by-3 weather example; discuss unobserved rows rather than dividing by zero.",
+      "minutes": 6,
+      "source": "content/readings/p35-markov/transition-matrix.html",
+      "requires": [
+        "p35-stochastic/stochastic-solver",
+        "p1-state/missing-information"
+      ],
+      "teaches": [
+        "p35-markov/transition-matrix"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-markov/sampling-not-foresight",
+      "title": "Sampling is not knowing the future",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-markov",
+      "route": "readings/p35-markov/sampling-not-foresight.html",
+      "goal": "Trace seeded sampling from a fitted chain and distinguish a sampled rollout from privileged future information.",
+      "minutes": 6,
+      "source": "content/readings/p35-markov/sampling-not-foresight.html",
+      "requires": [
+        "p35-markov/transition-matrix"
+      ],
+      "teaches": [
+        "p35-markov/sampling-not-foresight"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-markov/rollout-variability",
+      "title": "Variation between rollouts",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-markov",
+      "route": "readings/p35-markov/rollout-variability.html",
+      "goal": "Compare multiple traces and distributions of returns; distinguish deterministic calculations from stochastic evaluation.",
+      "minutes": 6,
+      "source": "content/readings/p35-markov/rollout-variability.html",
+      "requires": [
+        "p35-markov/sampling-not-foresight"
+      ],
+      "teaches": [
+        "p35-markov/rollout-variability"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p35-markov/empirical-checks",
+      "title": "Checking transitions against the model",
+      "role": "core",
+      "module": "planning",
+      "lesson": "p35-markov",
+      "route": "readings/p35-markov/empirical-checks.html",
+      "goal": "Compare empirical transition frequencies with the specified matrix using sample counts and uncertainty.",
+      "minutes": 6,
+      "source": "content/readings/p35-markov/empirical-checks.html",
+      "requires": [
+        "p35-markov/rollout-variability"
+      ],
+      "teaches": [
+        "p35-markov/empirical-checks"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "planning/oracle-model",
+      "title": "Modeling the F1 planning state",
+      "role": "application",
+      "module": "planning",
+      "lesson": null,
+      "route": "applications/planning/oracle-model.html",
+      "goal": "Preserve DP state-size arithmetic, hazard/weather assumptions, masks and the noise=0 expectation argument with its limitations.",
+      "minutes": 8,
+      "source": "content/applications/planning/oracle-model.html",
+      "requires": [
+        "p35-backward/verify-solver",
+        "p35-stochastic/stochastic-solver",
+        "p35-markov/empirical-checks"
+      ],
+      "teaches": [
+        "planning/oracle-model"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "planning/oracle-bound",
+      "title": "An achievable oracle and a foresight bound",
+      "role": "application",
+      "module": "planning",
+      "lesson": null,
+      "route": "applications/planning/oracle-bound.html",
+      "goal": "Distinguish Oracle A and B, cost versus reward signs, a real-scale backward cell and the optimality-gap metric.",
+      "minutes": 8,
+      "source": "content/applications/planning/oracle-bound.html",
+      "requires": [
+        "planning/oracle-model"
+      ],
+      "teaches": [
+        "planning/oracle-bound"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "planning/oracle-verification",
+      "title": "Shared dynamics and independent oracle checks",
+      "role": "application",
+      "module": "planning",
+      "lesson": null,
+      "route": "applications/planning/oracle-verification.html",
+      "goal": "Map solver/weather modules and rollout harness to brute force, probability and consistency checks; explain checkpoint evidence.",
+      "minutes": 8,
+      "source": "content/applications/planning/oracle-verification.html",
+      "requires": [
+        "planning/oracle-bound"
+      ],
+      "teaches": [
+        "planning/oracle-verification"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-td/sampled-learning",
+      "title": "Learning from transitions",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-td",
+      "route": "readings/p4-td/sampled-learning.html",
+      "goal": "Replace an exact expectation with a sampled transition; explain bootstrapping as estimating from an estimate.",
+      "minutes": 6,
+      "source": "content/readings/p4-td/sampled-learning.html",
+      "requires": [
+        "p1-values/evaluation-optimality"
+      ],
+      "teaches": [
+        "p4-td/sampled-learning"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-td/td-error",
+      "title": "Target, error and update",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-td",
+      "route": "readings/p4-td/td-error.html",
+      "goal": "Calculate target, TD error and learning-rate update separately on a three-state toy.",
+      "minutes": 6,
+      "source": "content/readings/p4-td/td-error.html",
+      "requires": [
+        "p4-td/sampled-learning"
+      ],
+      "teaches": [
+        "p4-td/td-error"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-td/q-learning",
+      "title": "Q-learning step by step",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-td",
+      "route": "readings/p4-td/q-learning.html",
+      "goal": "Preserve four hand-run updates, distinguish learning rate and discount, and state finite-table convergence conditions without promising a practical guarantee.",
+      "minutes": 6,
+      "source": "content/readings/p4-td/q-learning.html",
+      "requires": [
+        "p4-td/td-error"
+      ],
+      "teaches": [
+        "p4-td/q-learning"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-td/terminal-masked-targets",
+      "title": "Terminal targets and legal actions",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-td",
+      "route": "readings/p4-td/terminal-masked-targets.html",
+      "goal": "Contrast termination, time-limit bootstrap and cutoff; calculate a masked maximum and handle terminal rows with no legal successor.",
+      "minutes": 6,
+      "source": "content/readings/p4-td/terminal-masked-targets.html",
+      "requires": [
+        "p4-td/q-learning"
+      ],
+      "teaches": [
+        "p4-td/terminal-masked-targets"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-explore/greedy-discovery",
+      "title": "Why greedy discovery fails",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-explore",
+      "route": "readings/p4-explore/greedy-discovery.html",
+      "goal": "Show a never-visited rewarding action under greedy-only selection.",
+      "minutes": 6,
+      "source": "content/readings/p4-explore/greedy-discovery.html",
+      "requires": [
+        "p4-td/terminal-masked-targets"
+      ],
+      "teaches": [
+        "p4-explore/greedy-discovery"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-explore/epsilon-probabilities",
+      "title": "Epsilon-greedy probabilities",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-explore",
+      "route": "readings/p4-explore/epsilon-probabilities.html",
+      "goal": "Derive probabilities including the exploratory share on greedy actions, ties and legal-action masks.",
+      "minutes": 6,
+      "source": "content/readings/p4-explore/epsilon-probabilities.html",
+      "requires": [
+        "p4-explore/greedy-discovery"
+      ],
+      "teaches": [
+        "p4-explore/epsilon-probabilities"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-explore/behavior-evaluation",
+      "title": "Behavior and evaluation policies",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-explore",
+      "route": "readings/p4-explore/behavior-evaluation.html",
+      "goal": "Compare exploratory training with greedy evaluation using separate random streams and recorded evidence.",
+      "minutes": 6,
+      "source": "content/readings/p4-explore/behavior-evaluation.html",
+      "requires": [
+        "p4-explore/epsilon-probabilities"
+      ],
+      "teaches": [
+        "p4-explore/behavior-evaluation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-explore/exploration-schedules",
+      "title": "Ties, masks and exploration schedules",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-explore",
+      "route": "readings/p4-explore/exploration-schedules.html",
+      "goal": "Calculate the existing linear-decay example; enforce masks inside random sampling and explain reproducibility limits.",
+      "minutes": 6,
+      "source": "content/readings/p4-explore/exploration-schedules.html",
+      "requires": [
+        "p4-explore/behavior-evaluation"
+      ],
+      "teaches": [
+        "p4-explore/exploration-schedules"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-sarsa/policy-targets",
+      "title": "Which policy supplies the target?",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-sarsa",
+      "route": "readings/p4-sarsa/policy-targets.html",
+      "goal": "Compare Q-learning's maximum with the action actually sampled by a behavior policy.",
+      "minutes": 6,
+      "source": "content/readings/p4-sarsa/policy-targets.html",
+      "requires": [
+        "p4-explore/exploration-schedules"
+      ],
+      "teaches": [
+        "p4-sarsa/policy-targets"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-sarsa/sampled-sarsa",
+      "title": "Sampled SARSA",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-sarsa",
+      "route": "readings/p4-sarsa/sampled-sarsa.html",
+      "goal": "Trace the risky-push versus safe-pit example and pre-commit the next action before changing Q.",
+      "minutes": 6,
+      "source": "content/readings/p4-sarsa/sampled-sarsa.html",
+      "requires": [
+        "p4-sarsa/policy-targets"
+      ],
+      "teaches": [
+        "p4-sarsa/sampled-sarsa"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-sarsa/expected-sarsa",
+      "title": "Expected targets",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-sarsa",
+      "route": "readings/p4-sarsa/expected-sarsa.html",
+      "goal": "Calculate Expected SARSA with epsilon-greedy probabilities and distinguish it from sampled SARSA and Q-learning.",
+      "minutes": 6,
+      "source": "content/readings/p4-sarsa/expected-sarsa.html",
+      "requires": [
+        "p4-sarsa/sampled-sarsa"
+      ],
+      "teaches": [
+        "p4-sarsa/expected-sarsa"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-sarsa/algorithm-comparison",
+      "title": "A fair small comparison",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-sarsa",
+      "route": "readings/p4-sarsa/algorithm-comparison.html",
+      "goal": "Align seeds, masks, reward units and evaluation policies; preserve the shared learner-shell exercise and detect target leakage.",
+      "minutes": 12,
+      "source": "content/readings/p4-sarsa/algorithm-comparison.html",
+      "requires": [
+        "p4-sarsa/expected-sarsa"
+      ],
+      "teaches": [
+        "p4-sarsa/algorithm-comparison"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-bins/table-representation",
+      "title": "Representing observations in a table",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-bins",
+      "route": "readings/p4-bins/table-representation.html",
+      "goal": "Calculate the existing Cartesian state count and explain table growth versus generalization.",
+      "minutes": 6,
+      "source": "content/readings/p4-bins/table-representation.html",
+      "requires": [
+        "p4-td/terminal-masked-targets",
+        "p1-state/missing-information"
+      ],
+      "teaches": [
+        "p4-bins/table-representation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-bins/interval-boundaries",
+      "title": "Interval boundaries",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-bins",
+      "route": "readings/p4-bins/interval-boundaries.html",
+      "goal": "Work boundary, overflow and underflow cases; state the convention for digitize/searchsorted explicitly.",
+      "minutes": 6,
+      "source": "content/readings/p4-bins/interval-boundaries.html",
+      "requires": [
+        "p4-bins/table-representation"
+      ],
+      "teaches": [
+        "p4-bins/interval-boundaries"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-bins/state-aliasing",
+      "title": "Aliasing training cannot fix",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-bins",
+      "route": "readings/p4-bins/state-aliasing.html",
+      "goal": "Preserve the tyre-cliff bin collision and show two states sharing a code but requiring different actions.",
+      "minutes": 6,
+      "source": "content/readings/p4-bins/state-aliasing.html",
+      "requires": [
+        "p4-bins/interval-boundaries"
+      ],
+      "teaches": [
+        "p4-bins/state-aliasing"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p4-bins/encoder-checks",
+      "title": "Choosing and testing an encoder",
+      "role": "core",
+      "module": "tabular-learning",
+      "lesson": "p4-bins",
+      "route": "readings/p4-bins/encoder-checks.html",
+      "goal": "Test feature order, edges and distinct strategically important states; distinguish quantization from missing physical state.",
+      "minutes": 6,
+      "source": "content/readings/p4-bins/encoder-checks.html",
+      "requires": [
+        "p4-bins/state-aliasing"
+      ],
+      "teaches": [
+        "p4-bins/encoder-checks"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "tabular-learning/tabular-contract",
+      "title": "Mapping observations and masks to the Q-table",
+      "role": "application",
+      "module": "tabular-learning",
+      "lesson": null,
+      "route": "applications/tabular-learning/tabular-contract.html",
+      "goal": "Retain dimension-by-dimension discretization, reward-scale arithmetic, recorded bin/action-mask bugs and their tests.",
+      "minutes": 8,
+      "source": "content/applications/tabular-learning/tabular-contract.html",
+      "requires": [
+        "p4-td/terminal-masked-targets",
+        "p4-explore/exploration-schedules",
+        "p4-sarsa/algorithm-comparison",
+        "p4-bins/encoder-checks"
+      ],
+      "teaches": [
+        "tabular-learning/tabular-contract"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "tabular-learning/tabular-training",
+      "title": "Training, curriculum and evaluation",
+      "role": "application",
+      "module": "tabular-learning",
+      "lesson": null,
+      "route": "applications/tabular-learning/tabular-training.html",
+      "goal": "Explain curriculum switches, SARSA pre-commit mechanics, evaluation cadence and optimality gaps; map readiness to unchanged practice evidence.",
+      "minutes": 8,
+      "source": "content/applications/tabular-learning/tabular-training.html",
+      "requires": [
+        "tabular-learning/tabular-contract"
+      ],
+      "teaches": [
+        "tabular-learning/tabular-training"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/tables-functions",
+      "title": "Tables versus functions",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/tables-functions.html",
+      "goal": "Preserve dimensionality arithmetic and show one shared function predicting values for nearby observations.",
+      "minutes": 6,
+      "source": "content/readings/p5-network/tables-functions.html",
+      "requires": [
+        "p4-td/terminal-masked-targets",
+        "p4-bins/encoder-checks"
+      ],
+      "teaches": [
+        "p5-network/tables-functions"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/vectors-shapes",
+      "title": "Vectors and tensor shapes",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/vectors-shapes.html",
+      "goal": "Explain scalar/vector/matrix and batch dimensions with a two-observation, three-action example before matrix multiplication.",
+      "minutes": 6,
+      "source": "content/readings/p5-network/vectors-shapes.html",
+      "requires": [
+        "p5-network/tables-functions"
+      ],
+      "teaches": [
+        "p5-network/vectors-shapes"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/forward-loss",
+      "title": "Forward pass and loss",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/forward-loss.html",
+      "goal": "Preserve the tiny-network forward pass, selected-action gather, squared loss and batch reduction with explicit shapes.",
+      "minutes": 8,
+      "source": "content/readings/p5-network/forward-loss.html",
+      "requires": [
+        "p5-network/vectors-shapes"
+      ],
+      "teaches": [
+        "p5-network/forward-loss"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/gradients",
+      "title": "Derivatives and backpropagation",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/gradients.html",
+      "goal": "Calculate a scalar derivative and apply the chain rule to the same tiny network; distinguish gradient direction from loss value.",
+      "minutes": 8,
+      "source": "content/readings/p5-network/gradients.html",
+      "requires": [
+        "p5-network/forward-loss"
+      ],
+      "teaches": [
+        "p5-network/gradients"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/optimizer-update",
+      "title": "One optimizer update",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/optimizer-update.html",
+      "goal": "Trace zero_grad, backward and step; introduce SGD and Adam's role, finite checks and the delivered tensor exercise.",
+      "minutes": 6,
+      "source": "content/readings/p5-network/optimizer-update.html",
+      "requires": [
+        "p5-network/gradients"
+      ],
+      "teaches": [
+        "p5-network/optimizer-update"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-network/adam-moments",
+      "title": "How Adam rescales a gradient",
+      "role": "further-depth",
+      "module": "neural-value-learning",
+      "lesson": "p5-network",
+      "route": "readings/p5-network/adam-moments.html",
+      "goal": "Calculate a first/second moment update and bias correction; explain that the core optimizer usage needs no hidden derivation.",
+      "minutes": 6,
+      "source": "content/readings/p5-network/adam-moments.html",
+      "requires": [
+        "p5-network/optimizer-update"
+      ],
+      "teaches": [
+        "p5-network/adam-moments"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-stability/moving-targets",
+      "title": "Why neural TD targets move",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-stability",
+      "route": "readings/p5-stability/moving-targets.html",
+      "goal": "Trace a bootstrap target changing as online weights change; explain correlated samples and feedback.",
+      "minutes": 6,
+      "source": "content/readings/p5-stability/moving-targets.html",
+      "requires": [
+        "p5-network/optimizer-update",
+        "p4-explore/exploration-schedules"
+      ],
+      "teaches": [
+        "p5-stability/moving-targets"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-stability/target-detachment",
+      "title": "Target networks and detachment",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-stability",
+      "route": "readings/p5-stability/target-detachment.html",
+      "goal": "Distinguish independent snapshot storage, no-grad target calculation and hard/soft updates with the existing update-rate arithmetic.",
+      "minutes": 8,
+      "source": "content/readings/p5-stability/target-detachment.html",
+      "requires": [
+        "p5-stability/moving-targets"
+      ],
+      "teaches": [
+        "p5-stability/target-detachment"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-stability/replay",
+      "title": "Replay decorrelation and reuse",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-stability",
+      "route": "readings/p5-stability/replay.html",
+      "goal": "Build a minimal buffer; explain capacity, sampling, warm-up and reuse without implying samples become independent automatically.",
+      "minutes": 6,
+      "source": "content/readings/p5-stability/replay.html",
+      "requires": [
+        "p5-stability/target-detachment"
+      ],
+      "teaches": [
+        "p5-stability/replay"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-stability/complete-dqn-update",
+      "title": "A complete DQN update",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-stability",
+      "route": "readings/p5-stability/complete-dqn-update.html",
+      "goal": "Trace gather, masks, ending flags, detached targets, loss and optimizer shapes; separate training steps from target-sync timing.",
+      "minutes": 12,
+      "source": "content/readings/p5-stability/complete-dqn-update.html",
+      "requires": [
+        "p5-stability/replay"
+      ],
+      "teaches": [
+        "p5-stability/complete-dqn-update"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-double-dueling/maximization-bias",
+      "title": "Maximization bias",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-double-dueling",
+      "route": "readings/p5-double-dueling/maximization-bias.html",
+      "goal": "Compare noisy action estimates and demonstrate why selecting their maximum can exaggerate value.",
+      "minutes": 6,
+      "source": "content/readings/p5-double-dueling/maximization-bias.html",
+      "requires": [
+        "p5-stability/complete-dqn-update"
+      ],
+      "teaches": [
+        "p5-double-dueling/maximization-bias"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-double-dueling/double-selection",
+      "title": "Double DQN selection and evaluation",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-double-dueling",
+      "route": "readings/p5-double-dueling/double-selection.html",
+      "goal": "Preserve online [5,4,100], target [1,7,99], legal mask and 1.5 versus 4.5 targets; avoid a universal performance claim.",
+      "minutes": 6,
+      "source": "content/readings/p5-double-dueling/double-selection.html",
+      "requires": [
+        "p5-double-dueling/maximization-bias"
+      ],
+      "teaches": [
+        "p5-double-dueling/double-selection"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-double-dueling/dueling-values",
+      "title": "Dueling value and advantage",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-double-dueling",
+      "route": "readings/p5-double-dueling/dueling-values.html",
+      "goal": "Build two heads on a shared trunk and compare their roles using a small action-value vector.",
+      "minutes": 8,
+      "source": "content/readings/p5-double-dueling/dueling-values.html",
+      "requires": [
+        "p5-double-dueling/double-selection"
+      ],
+      "teaches": [
+        "p5-double-dueling/dueling-values"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-double-dueling/dueling-centering",
+      "title": "Identifiability and centering",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-double-dueling",
+      "route": "readings/p5-double-dueling/dueling-centering.html",
+      "goal": "Derive constant-offset ambiguity and mean centering; preserve the delivered centering convention and distinguish it from policy advantages.",
+      "minutes": 6,
+      "source": "content/readings/p5-double-dueling/dueling-centering.html",
+      "requires": [
+        "p5-double-dueling/dueling-values"
+      ],
+      "teaches": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-double-dueling/double-dueling-masks",
+      "title": "Legal-action handling",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-double-dueling",
+      "route": "readings/p5-double-dueling/double-dueling-masks.html",
+      "goal": "Trace illegal actions, ties and terminal empty masks through selection and evaluation; state where dueling centering and legal selection differ.",
+      "minutes": 6,
+      "source": "content/readings/p5-double-dueling/double-dueling-masks.html",
+      "requires": [
+        "p5-double-dueling/dueling-centering"
+      ],
+      "teaches": [
+        "p5-double-dueling/double-dueling-masks"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-per/prioritize-errors",
+      "title": "Why prioritize samples?",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-per",
+      "route": "readings/p5-per/prioritize-errors.html",
+      "goal": "Compare TD errors and explain stale priorities, epsilon and possible overuse of noisy transitions.",
+      "minutes": 6,
+      "source": "content/readings/p5-per/prioritize-errors.html",
+      "requires": [
+        "p5-stability/complete-dqn-update",
+        "p1-probability/weighted-expectation"
+      ],
+      "teaches": [
+        "p5-per/prioritize-errors"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-per/priority-probability",
+      "title": "Raw priority versus probability",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-per",
+      "route": "readings/p5-per/priority-probability.html",
+      "goal": "Normalize powered raw priorities on a tiny buffer and verify the sum; distinguish priority from sampling probability.",
+      "minutes": 6,
+      "source": "content/readings/p5-per/priority-probability.html",
+      "requires": [
+        "p5-per/prioritize-errors"
+      ],
+      "teaches": [
+        "p5-per/priority-probability"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-per/importance-weights",
+      "title": "Importance weights",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-per",
+      "route": "readings/p5-per/importance-weights.html",
+      "goal": "Calculate inverse-probability weights and beta/normalization, including the zero-priority safeguard.",
+      "minutes": 6,
+      "source": "content/readings/p5-per/importance-weights.html",
+      "requires": [
+        "p5-per/priority-probability"
+      ],
+      "teaches": [
+        "p5-per/importance-weights"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p5-per/priority-updates",
+      "title": "Updating and checking priorities",
+      "role": "core",
+      "module": "neural-value-learning",
+      "lesson": "p5-per",
+      "route": "readings/p5-per/priority-updates.html",
+      "goal": "Trace sampling, weighted loss and detached error feedback; test empirical frequencies and preserve the pack's conventions.",
+      "minutes": 6,
+      "source": "content/readings/p5-per/priority-updates.html",
+      "requires": [
+        "p5-per/importance-weights"
+      ],
+      "teaches": [
+        "p5-per/priority-updates"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "neural-value-learning/dqn-reward-scale",
+      "title": "Reward scale, loss and gradients",
+      "role": "application",
+      "module": "neural-value-learning",
+      "lesson": null,
+      "route": "applications/neural-value-learning/dqn-reward-scale.html",
+      "goal": "Preserve the numerical scale trap and centering assumptions; explain effects on targets, TD errors and priorities without promising invariance in neural optimization.",
+      "minutes": 8,
+      "source": "content/applications/neural-value-learning/dqn-reward-scale.html",
+      "requires": [
+        "p5-network/optimizer-update",
+        "p5-stability/complete-dqn-update",
+        "p5-double-dueling/double-dueling-masks",
+        "p5-per/priority-updates"
+      ],
+      "teaches": [
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "neural-value-learning/dqn-integration",
+      "title": "Integrating a DQN learner",
+      "role": "application",
+      "module": "neural-value-learning",
+      "lesson": null,
+      "route": "applications/neural-value-learning/dqn-integration.html",
+      "goal": "Map observation dimensions, architecture, replay, schedules and all extension flags to one complete update and unchanged packs.",
+      "minutes": 12,
+      "source": "content/applications/neural-value-learning/dqn-integration.html",
+      "requires": [
+        "neural-value-learning/dqn-reward-scale"
+      ],
+      "teaches": [
+        "neural-value-learning/dqn-integration"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "neural-value-learning/dqn-evidence",
+      "title": "Reading DQN checks and ablation evidence",
+      "role": "application",
+      "module": "neural-value-learning",
+      "lesson": null,
+      "route": "applications/neural-value-learning/dqn-evidence.html",
+      "goal": "Separate recorded PyTorch fixtures from live training; audit walkthrough and target/mask/shape checks before the project checkpoint.",
+      "minutes": 8,
+      "source": "content/applications/neural-value-learning/dqn-evidence.html",
+      "requires": [
+        "neural-value-learning/dqn-integration"
+      ],
+      "teaches": [
+        "neural-value-learning/dqn-evidence"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-credit/joint-actions",
+      "title": "Joint actions and rewards",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-credit",
+      "route": "readings/p6-credit/joint-actions.html",
+      "goal": "Trace a two-agent transition and identify shared state, observations, actions and individual or team reward.",
+      "minutes": 6,
+      "source": "content/readings/p6-credit/joint-actions.html",
+      "requires": [
+        "p1-state/missing-information",
+        "p4-td/terminal-masked-targets"
+      ],
+      "teaches": [
+        "p6-credit/joint-actions"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-credit/team-contribution",
+      "title": "Team reward versus contribution",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-credit",
+      "route": "readings/p6-credit/team-contribution.html",
+      "goal": "Compare equal team rewards with different individual actions; explain credit assignment without assuming causal attribution.",
+      "minutes": 6,
+      "source": "content/readings/p6-credit/team-contribution.html",
+      "requires": [
+        "p6-credit/joint-actions"
+      ],
+      "teaches": [
+        "p6-credit/team-contribution"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-credit/credit-examples",
+      "title": "Credit assignment examples",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-credit",
+      "route": "readings/p6-credit/credit-examples.html",
+      "goal": "Preserve lap-time, position and dense-proxy comparisons; show a proxy rewarding behavior that hurts the objective.",
+      "minutes": 6,
+      "source": "content/readings/p6-credit/credit-examples.html",
+      "requires": [
+        "p6-credit/team-contribution"
+      ],
+      "teaches": [
+        "p6-credit/credit-examples"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-credit/credit-diagnostics",
+      "title": "Limits and useful diagnostics",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-credit",
+      "route": "readings/p6-credit/credit-diagnostics.html",
+      "goal": "Compare three reward designs with fixed scenarios and counterfactual diagnostics; distinguish attribution from correlation.",
+      "minutes": 6,
+      "source": "content/readings/p6-credit/credit-diagnostics.html",
+      "requires": [
+        "p6-credit/credit-examples"
+      ],
+      "teaches": [
+        "p6-credit/credit-diagnostics"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-shaping/base-bonuses",
+      "title": "Base objectives and reward bonuses",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-shaping",
+      "route": "readings/p6-shaping/base-bonuses.html",
+      "goal": "Work an ad-hoc position-bonus counterexample before introducing a principled alternative.",
+      "minutes": 6,
+      "source": "content/readings/p6-shaping/base-bonuses.html",
+      "requires": [
+        "p1-return/return-calculation",
+        "p1-values/evaluation-optimality",
+        "p6-credit/credit-diagnostics"
+      ],
+      "teaches": [
+        "p6-shaping/base-bonuses"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-shaping/potential-differences",
+      "title": "Potential differences",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-shaping",
+      "route": "readings/p6-shaping/potential-differences.html",
+      "goal": "Calculate gamma times next potential minus current potential and distinguish it from an arbitrary bonus.",
+      "minutes": 6,
+      "source": "content/readings/p6-shaping/potential-differences.html",
+      "requires": [
+        "p6-shaping/base-bonuses"
+      ],
+      "teaches": [
+        "p6-shaping/potential-differences"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-shaping/telescoping",
+      "title": "Telescoping returns and terminal treatment",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-shaping",
+      "route": "readings/p6-shaping/telescoping.html",
+      "goal": "Expand a finite return term by term; account for terminal potential, gamma and variable horizons.",
+      "minutes": 8,
+      "source": "content/readings/p6-shaping/telescoping.html",
+      "requires": [
+        "p6-shaping/potential-differences"
+      ],
+      "teaches": [
+        "p6-shaping/telescoping"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-shaping/shaping-conditions",
+      "title": "Conditions and counterexamples",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-shaping",
+      "route": "readings/p6-shaping/shaping-conditions.html",
+      "goal": "State policy-invariance assumptions; preserve a non-telescoping implementation failure and terminal-potential counterexample.",
+      "minutes": 8,
+      "source": "content/readings/p6-shaping/shaping-conditions.html",
+      "requires": [
+        "p6-shaping/telescoping"
+      ],
+      "teaches": [
+        "p6-shaping/shaping-conditions"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-opponent/interaction-mechanics",
+      "title": "Interaction mechanics",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-opponent",
+      "route": "readings/p6-opponent/interaction-mechanics.html",
+      "goal": "Use a generic blocking/overtaking toy to show when relative position actually affects future actions.",
+      "minutes": 6,
+      "source": "content/readings/p6-opponent/interaction-mechanics.html",
+      "requires": [
+        "p6-credit/credit-diagnostics",
+        "p35-stochastic/stochastic-solver"
+      ],
+      "teaches": [
+        "p6-opponent/interaction-mechanics"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-opponent/opponent-transitions",
+      "title": "Opponents as part of transitions",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-opponent",
+      "route": "readings/p6-opponent/opponent-transitions.html",
+      "goal": "Compare a fixed scripted rival with an adaptive rival; distinguish joint model from a single-agent effective model.",
+      "minutes": 6,
+      "source": "content/readings/p6-opponent/opponent-transitions.html",
+      "requires": [
+        "p6-opponent/interaction-mechanics"
+      ],
+      "teaches": [
+        "p6-opponent/opponent-transitions"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-opponent/missing-changing",
+      "title": "Missing state versus a changing policy",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-opponent",
+      "route": "readings/p6-opponent/missing-changing.html",
+      "goal": "Contrast aliasing with nonstationarity using two identical observations and changed opponent behavior.",
+      "minutes": 6,
+      "source": "content/readings/p6-opponent/missing-changing.html",
+      "requires": [
+        "p6-opponent/opponent-transitions"
+      ],
+      "teaches": [
+        "p6-opponent/missing-changing"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p6-opponent/opponent-evaluation",
+      "title": "Nonstationarity and evaluation design",
+      "role": "core",
+      "module": "multiple-agents",
+      "lesson": "p6-opponent",
+      "route": "readings/p6-opponent/opponent-evaluation.html",
+      "goal": "Evaluate against fixed, named opponents; separate mechanical model defects from inadequate training.",
+      "minutes": 6,
+      "source": "content/readings/p6-opponent/opponent-evaluation.html",
+      "requires": [
+        "p6-opponent/missing-changing"
+      ],
+      "teaches": [
+        "p6-opponent/opponent-evaluation"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "multiple-agents/multi-car-dynamics",
+      "title": "Position, overtaking and dirty air",
+      "role": "application",
+      "module": "multiple-agents",
+      "lesson": null,
+      "route": "applications/multiple-agents/multi-car-dynamics.html",
+      "goal": "Retain 19-dimensional observations, fixed rivals, undercut/blocking mechanism and probabilistic overtake ordering.",
+      "minutes": 8,
+      "source": "content/applications/multiple-agents/multi-car-dynamics.html",
+      "requires": [
+        "p6-credit/credit-diagnostics",
+        "p6-shaping/shaping-conditions",
+        "p6-opponent/opponent-evaluation"
+      ],
+      "teaches": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "multiple-agents/multi-car-bugs",
+      "title": "Tracing interaction defects",
+      "role": "application",
+      "module": "multiple-agents",
+      "lesson": null,
+      "route": "applications/multiple-agents/multi-car-bugs.html",
+      "goal": "Trace E1 double-counting, E2 overwritten overtakes, E3 dynamics/reward inconsistency, E5 shaping and E6 smaller findings with their consequences.",
+      "minutes": 8,
+      "source": "content/applications/multiple-agents/multi-car-bugs.html",
+      "requires": [
+        "multiple-agents/multi-car-dynamics"
+      ],
+      "teaches": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "multiple-agents/multi-car-checks",
+      "title": "Reward comparisons and reachable objectives",
+      "role": "application",
+      "module": "multiple-agents",
+      "lesson": null,
+      "route": "applications/multiple-agents/multi-car-checks.html",
+      "goal": "Map the staged blocking toy, three reward configurations and tests to checkpoint checks; state what passing tests cannot establish.",
+      "minutes": 8,
+      "source": "content/applications/multiple-agents/multi-car-checks.html",
+      "requires": [
+        "multiple-agents/multi-car-bugs"
+      ],
+      "teaches": [
+        "multiple-agents/multi-car-checks"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-game/best-response",
+      "title": "Best response to whom?",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-game",
+      "route": "readings/p8-game/best-response.html",
+      "goal": "Compare policies against two fixed opponents and explain why a single optimal response can be fragile.",
+      "minutes": 6,
+      "source": "content/readings/p8-game/best-response.html",
+      "requires": [
+        "p6-opponent/opponent-evaluation",
+        "p4-explore/exploration-schedules",
+        "p1-probability/weighted-expectation"
+      ],
+      "teaches": [
+        "p8-game/best-response"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-game/payoff-matrices",
+      "title": "Payoff matrices",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-game",
+      "route": "readings/p8-game/payoff-matrices.html",
+      "goal": "Preserve the complete rock-paper-scissors witness and calculate payoffs against an opponent mixture.",
+      "minutes": 6,
+      "source": "content/readings/p8-game/payoff-matrices.html",
+      "requires": [
+        "p8-game/best-response"
+      ],
+      "teaches": [
+        "p8-game/payoff-matrices"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-game/mixed-equilibrium",
+      "title": "Mixed strategies and equilibrium",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-game",
+      "route": "readings/p8-game/mixed-equilibrium.html",
+      "goal": "Calculate a best response to a mixture and illustrate equilibrium without promising convergence of independent neural learners.",
+      "minutes": 6,
+      "source": "content/readings/p8-game/mixed-equilibrium.html",
+      "requires": [
+        "p8-game/payoff-matrices"
+      ],
+      "teaches": [
+        "p8-game/mixed-equilibrium"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-game/robustness",
+      "title": "Robustness beyond one opponent",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-game",
+      "route": "readings/p8-game/robustness.html",
+      "goal": "Compare independent learning, centralized training and empirical fictitious play; distinguish snapshot mixtures from exact strategy averages.",
+      "minutes": 6,
+      "source": "content/readings/p8-game/robustness.html",
+      "requires": [
+        "p8-game/mixed-equilibrium"
+      ],
+      "teaches": [
+        "p8-game/robustness"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-pool/forgetting",
+      "title": "Forgetting historical opponents",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-pool",
+      "route": "readings/p8-pool/forgetting.html",
+      "goal": "Trace a cyclic best-response sequence and why newest-only evaluation misses forgetting.",
+      "minutes": 6,
+      "source": "content/readings/p8-pool/forgetting.html",
+      "requires": [
+        "p8-game/robustness",
+        "p5-stability/complete-dqn-update"
+      ],
+      "teaches": [
+        "p8-pool/forgetting"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-pool/independent-snapshots",
+      "title": "Independent snapshots",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-pool",
+      "route": "readings/p8-pool/independent-snapshots.html",
+      "goal": "Compare copying parameters with sharing mutable storage; define evaluation mode and fixed snapshots.",
+      "minutes": 6,
+      "source": "content/readings/p8-pool/independent-snapshots.html",
+      "requires": [
+        "p8-pool/forgetting"
+      ],
+      "teaches": [
+        "p8-pool/independent-snapshots"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-pool/pool-sampling",
+      "title": "Sampling an opponent pool",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-pool",
+      "route": "readings/p8-pool/pool-sampling.html",
+      "goal": "Calculate normalized uniform/recency-biased probabilities and preserve the first-opponent degenerate-seed failure.",
+      "minutes": 6,
+      "source": "content/readings/p8-pool/pool-sampling.html",
+      "requires": [
+        "p8-pool/independent-snapshots"
+      ],
+      "teaches": [
+        "p8-pool/pool-sampling"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-pool/pool-coverage",
+      "title": "Coverage and evaluation over time",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-pool",
+      "route": "readings/p8-pool/pool-coverage.html",
+      "goal": "Evaluate historical opponents, pool size and replacement; separate coverage metrics from a convergence claim.",
+      "minutes": 6,
+      "source": "content/readings/p8-pool/pool-coverage.html",
+      "requires": [
+        "p8-pool/pool-sampling"
+      ],
+      "teaches": [
+        "p8-pool/pool-coverage"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-audit/fair-pairings",
+      "title": "Fair pairings and baselines",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-audit",
+      "route": "readings/p8-audit/fair-pairings.html",
+      "goal": "Align starting conditions, roles and seeds; preserve the shuffled-pairing null baseline for apparent bimodality.",
+      "minutes": 6,
+      "source": "content/readings/p8-audit/fair-pairings.html",
+      "requires": [
+        "p8-pool/pool-coverage",
+        "p35-markov/empirical-checks"
+      ],
+      "teaches": [
+        "p8-audit/fair-pairings"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-audit/uncertainty",
+      "title": "Stochasticity and uncertainty",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-audit",
+      "route": "readings/p8-audit/uncertainty.html",
+      "goal": "Compare sample counts, variability and uncertainty; distinguish an observed two-peak histogram from evidence of specialization.",
+      "minutes": 6,
+      "source": "content/readings/p8-audit/uncertainty.html",
+      "requires": [
+        "p8-audit/fair-pairings"
+      ],
+      "teaches": [
+        "p8-audit/uncertainty"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-audit/agent-lifecycle",
+      "title": "Multi-agent lifecycle",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-audit",
+      "route": "readings/p8-audit/agent-lifecycle.html",
+      "goal": "Trace generic AEC and Parallel APIs, selected-agent cleanup, per-agent ending dictionaries and live/dead agent sets.",
+      "minutes": 8,
+      "source": "content/readings/p8-audit/agent-lifecycle.html",
+      "requires": [
+        "p8-audit/uncertainty"
+      ],
+      "teaches": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p8-audit/comparison-protocol",
+      "title": "A defensible comparison",
+      "role": "core",
+      "module": "self-play",
+      "lesson": "p8-audit",
+      "route": "readings/p8-audit/comparison-protocol.html",
+      "goal": "Specify opponents, transitions, pairings, held-out scenarios and recorded-versus-live evidence before interpreting results.",
+      "minutes": 6,
+      "source": "content/readings/p8-audit/comparison-protocol.html",
+      "requires": [
+        "p8-audit/agent-lifecycle"
+      ],
+      "teaches": [
+        "p8-audit/comparison-protocol"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "self-play/self-play-mechanics",
+      "title": "Blocking and opponent initialization",
+      "role": "application",
+      "module": "self-play",
+      "lesson": null,
+      "route": "applications/self-play/self-play-mechanics.html",
+      "goal": "Preserve the Phase 6 blocking dependency, first-opponent problem and the staged toy intervention demonstrating consequences.",
+      "minutes": 8,
+      "source": "content/applications/self-play/self-play-mechanics.html",
+      "requires": [
+        "p8-game/robustness",
+        "p8-pool/pool-coverage",
+        "p8-audit/comparison-protocol"
+      ],
+      "teaches": [
+        "self-play/self-play-mechanics"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "self-play/self-play-integration",
+      "title": "The F1 multi-agent interface and pool",
+      "role": "application",
+      "module": "self-play",
+      "lesson": null,
+      "route": "applications/self-play/self-play-integration.html",
+      "goal": "Map Parallel environment, independent learner loop and pool parameters to validated lifecycle/snapshot contracts.",
+      "minutes": 8,
+      "source": "content/applications/self-play/self-play-integration.html",
+      "requires": [
+        "self-play/self-play-mechanics"
+      ],
+      "teaches": [
+        "self-play/self-play-integration"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "self-play/self-play-evidence",
+      "title": "Historical evaluation and evidence",
+      "role": "application",
+      "module": "self-play",
+      "lesson": null,
+      "route": "applications/self-play/self-play-evidence.html",
+      "goal": "Map bimodality null tests and readiness items to the plan; explain which claims the listed tests do and do not support.",
+      "minutes": 8,
+      "source": "content/applications/self-play/self-play-evidence.html",
+      "requires": [
+        "self-play/self-play-integration"
+      ],
+      "teaches": [
+        "self-play/self-play-evidence"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-probability/policy-probabilities",
+      "title": "Policy probabilities and logs",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-probability",
+      "route": "readings/p9-probability/policy-probabilities.html",
+      "goal": "Normalize logits with softmax, explain logarithms using likelihood products and calculate log probability of a sampled action.",
+      "minutes": 6,
+      "source": "content/readings/p9-probability/policy-probabilities.html",
+      "requires": [
+        "p1-probability/weighted-expectation",
+        "p5-network/optimizer-update"
+      ],
+      "teaches": [
+        "p9-probability/policy-probabilities"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-probability/score-gradient",
+      "title": "Gradients of log probabilities",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-probability",
+      "route": "readings/p9-probability/score-gradient.html",
+      "goal": "Derive a small softmax score vector and show that probability-weighted scores sum to zero; introduce trajectory likelihood assumptions.",
+      "minutes": 6,
+      "source": "content/readings/p9-probability/score-gradient.html",
+      "requires": [
+        "p9-probability/policy-probabilities"
+      ],
+      "teaches": [
+        "p9-probability/score-gradient"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-reinforce/gradient-intuition",
+      "title": "Gradient intuition",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-reinforce",
+      "route": "readings/p9-reinforce/gradient-intuition.html",
+      "goal": "Compare increasing a rewarded action's probability with directly differentiating the reward; explain ascent versus loss minimization.",
+      "minutes": 6,
+      "source": "content/readings/p9-reinforce/gradient-intuition.html",
+      "requires": [
+        "p9-probability/score-gradient",
+        "p1-return/return-calculation"
+      ],
+      "teaches": [
+        "p9-reinforce/gradient-intuition"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-reinforce/score-function",
+      "title": "The score-function derivation",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-reinforce",
+      "route": "readings/p9-reinforce/score-function.html",
+      "goal": "Derive the likelihood-ratio identity and episodic return-to-go under stated differentiability/support assumptions.",
+      "minutes": 8,
+      "source": "content/readings/p9-reinforce/score-function.html",
+      "requires": [
+        "p9-reinforce/gradient-intuition"
+      ],
+      "teaches": [
+        "p9-reinforce/score-function"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-reinforce/reinforce-example",
+      "title": "REINFORCE by hand",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-reinforce",
+      "route": "readings/p9-reinforce/reinforce-example.html",
+      "goal": "Preserve the worked softmax gradient and noisy-bandit update with probabilities, return and gradient signs.",
+      "minutes": 6,
+      "source": "content/readings/p9-reinforce/reinforce-example.html",
+      "requires": [
+        "p9-reinforce/score-function"
+      ],
+      "teaches": [
+        "p9-reinforce/reinforce-example"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-reinforce/sampled-update",
+      "title": "Implement and diagnose a sampled update",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-reinforce",
+      "route": "readings/p9-reinforce/sampled-update.html",
+      "goal": "Trace log_prob times detached return, batch reduction and optimizer; show variance and destructive steps in the delivered exercise.",
+      "minutes": 6,
+      "source": "content/readings/p9-reinforce/sampled-update.html",
+      "requires": [
+        "p9-reinforce/reinforce-example"
+      ],
+      "teaches": [
+        "p9-reinforce/sampled-update"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-advantage/value-baselines",
+      "title": "Value baselines",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-advantage",
+      "route": "readings/p9-advantage/value-baselines.html",
+      "goal": "Compare raw returns with the worked value-baseline example and explain the baseline's prediction target.",
+      "minutes": 6,
+      "source": "content/readings/p9-advantage/value-baselines.html",
+      "requires": [
+        "p9-reinforce/sampled-update",
+        "p4-td/terminal-masked-targets"
+      ],
+      "teaches": [
+        "p9-advantage/value-baselines"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-advantage/baseline-proof",
+      "title": "Why action-independent baselines work",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-advantage",
+      "route": "readings/p9-advantage/baseline-proof.html",
+      "goal": "Sum baseline-weighted score gradients over actions and identify action independence and detached actor weights.",
+      "minutes": 6,
+      "source": "content/readings/p9-advantage/baseline-proof.html",
+      "requires": [
+        "p9-advantage/value-baselines"
+      ],
+      "teaches": [
+        "p9-advantage/baseline-proof"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-advantage/actor-critic",
+      "title": "Advantages and actor–critic",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-advantage",
+      "route": "readings/p9-advantage/actor-critic.html",
+      "goal": "Calculate Q minus V and a one-step estimated advantage; distinguish exact advantages from sampled estimates.",
+      "minutes": 6,
+      "source": "content/readings/p9-advantage/actor-critic.html",
+      "requires": [
+        "p9-advantage/baseline-proof"
+      ],
+      "teaches": [
+        "p9-advantage/actor-critic"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-advantage/separate-gradients",
+      "title": "Keeping actor and critic gradients separate",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-advantage",
+      "route": "readings/p9-advantage/separate-gradients.html",
+      "goal": "Trace actor loss and critic loss on one batch; detach advantage and explain shared-trunk versus accidental target gradients.",
+      "minutes": 6,
+      "source": "content/readings/p9-advantage/separate-gradients.html",
+      "requires": [
+        "p9-advantage/actor-critic"
+      ],
+      "teaches": [
+        "p9-advantage/separate-gradients"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-gae/td-residuals",
+      "title": "TD residuals as advantage signals",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-gae",
+      "route": "readings/p9-gae/td-residuals.html",
+      "goal": "Calculate two residuals using rewards, values and ending flags; distinguish critic error from an advantage estimator.",
+      "minutes": 6,
+      "source": "content/readings/p9-gae/td-residuals.html",
+      "requires": [
+        "p9-advantage/separate-gradients",
+        "p1-loop/spaces-and-contract"
+      ],
+      "teaches": [
+        "p9-gae/td-residuals"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-gae/lambda-sum",
+      "title": "The lambda-weighted sum",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-gae",
+      "route": "readings/p9-gae/lambda-sum.html",
+      "goal": "Preserve the hand-worked GAE example, lambda extremes and bias/variance assumptions.",
+      "minutes": 6,
+      "source": "content/readings/p9-gae/lambda-sum.html",
+      "requires": [
+        "p9-gae/td-residuals"
+      ],
+      "teaches": [
+        "p9-gae/lambda-sum"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-gae/reverse-recursion",
+      "title": "Reverse recursion",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-gae",
+      "route": "readings/p9-gae/reverse-recursion.html",
+      "goal": "Implement and manually verify the reverse recurrence on the same residuals and explicit batch/time shapes.",
+      "minutes": 8,
+      "source": "content/readings/p9-gae/reverse-recursion.html",
+      "requires": [
+        "p9-gae/lambda-sum"
+      ],
+      "teaches": [
+        "p9-gae/reverse-recursion"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-gae/gae-boundaries",
+      "title": "Terminals, time limits and rollout cutoffs",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-gae",
+      "route": "readings/p9-gae/gae-boundaries.html",
+      "goal": "Separate bootstrap eligibility from recursion continuation; bootstrap the final observation at truncation without leaking into a reset episode.",
+      "minutes": 8,
+      "source": "content/readings/p9-gae/gae-boundaries.html",
+      "requires": [
+        "p9-gae/reverse-recursion"
+      ],
+      "teaches": [
+        "p9-gae/gae-boundaries"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-ppo/old-current",
+      "title": "Old versus current policy",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-ppo",
+      "route": "readings/p9-ppo/old-current.html",
+      "goal": "Freeze rollout log probabilities and distinguish current-policy updates from resampling old likelihoods.",
+      "minutes": 6,
+      "source": "content/readings/p9-ppo/old-current.html",
+      "requires": [
+        "p9-gae/gae-boundaries"
+      ],
+      "teaches": [
+        "p9-ppo/old-current"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-ppo/likelihood-ratios",
+      "title": "Likelihood ratios",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-ppo",
+      "route": "readings/p9-ppo/likelihood-ratios.html",
+      "goal": "Calculate exp(new_log_prob minus old_log_prob), masked distributions and support requirements.",
+      "minutes": 6,
+      "source": "content/readings/p9-ppo/likelihood-ratios.html",
+      "requires": [
+        "p9-ppo/old-current"
+      ],
+      "teaches": [
+        "p9-ppo/likelihood-ratios"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-ppo/clipping-branches",
+      "title": "Both clipping branches",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-ppo",
+      "route": "readings/p9-ppo/clipping-branches.html",
+      "goal": "Work positive and negative advantages inside and outside the clipping interval; calculate min and gradient incentive.",
+      "minutes": 8,
+      "source": "content/readings/p9-ppo/clipping-branches.html",
+      "requires": [
+        "p9-ppo/likelihood-ratios"
+      ],
+      "teaches": [
+        "p9-ppo/clipping-branches"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-ppo/surrogate-limits",
+      "title": "What the surrogate limits",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-ppo",
+      "route": "readings/p9-ppo/surrogate-limits.html",
+      "goal": "Show an out-of-range ratio and explain why clipping is no hard trust-region or universal stability guarantee.",
+      "minutes": 6,
+      "source": "content/readings/p9-ppo/surrogate-limits.html",
+      "requires": [
+        "p9-ppo/clipping-branches"
+      ],
+      "teaches": [
+        "p9-ppo/surrogate-limits"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "p9-ppo/ppo-minibatches",
+      "title": "Minibatches and implementation checks",
+      "role": "core",
+      "module": "policy-gradients",
+      "lesson": "p9-ppo",
+      "route": "readings/p9-ppo/ppo-minibatches.html",
+      "goal": "Trace frozen old data across epochs, detached advantages, critic updates and diagnostics; align with the delivered PPO exercise.",
+      "minutes": 8,
+      "source": "content/readings/p9-ppo/ppo-minibatches.html",
+      "requires": [
+        "p9-ppo/surrogate-limits"
+      ],
+      "teaches": [
+        "p9-ppo/ppo-minibatches"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "policy-gradients/library-choice",
+      "title": "Building and using a PPO implementation",
+      "role": "application",
+      "module": "policy-gradients",
+      "lesson": null,
+      "route": "applications/policy-gradients/library-choice.html",
+      "goal": "Preserve build-versus-buy reasoning and inventory library behavior that must be understood despite using a packaged learner.",
+      "minutes": 10,
+      "source": "content/applications/policy-gradients/library-choice.html",
+      "requires": [
+        "p9-probability/score-gradient",
+        "p9-reinforce/sampled-update",
+        "p9-advantage/separate-gradients",
+        "p9-gae/gae-boundaries",
+        "p9-ppo/ppo-minibatches"
+      ],
+      "teaches": [
+        "policy-gradients/library-choice"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "policy-gradients/vector-library",
+      "title": "Vector environments and masked PPO",
+      "role": "application",
+      "module": "policy-gradients",
+      "lesson": null,
+      "route": "applications/policy-gradients/vector-library.html",
+      "goal": "Explain SB3/MaskablePPO learn/predict, rollout arithmetic, logging, evaluation masks and train/eval mode contracts; verify APIs during authoring.",
+      "minutes": 10,
+      "source": "content/applications/policy-gradients/vector-library.html",
+      "requires": [
+        "policy-gradients/library-choice"
+      ],
+      "teaches": [
+        "policy-gradients/vector-library"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "policy-gradients/workers",
+      "title": "Factories, serialization and worker contracts",
+      "role": "application",
+      "module": "policy-gradients",
+      "lesson": null,
+      "route": "applications/policy-gradients/workers.html",
+      "goal": "Distinguish ordinary pickle from SB3 mechanisms; preserve the local spawn exercise, main guard, serializable factories and worker-local masks.",
+      "minutes": 10,
+      "source": "content/applications/policy-gradients/workers.html",
+      "requires": [
+        "policy-gradients/vector-library"
+      ],
+      "teaches": [
+        "policy-gradients/workers"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "policy-gradients/fair-budget",
+      "title": "Fair algorithm comparison",
+      "role": "application",
+      "module": "policy-gradients",
+      "lesson": null,
+      "route": "applications/policy-gradients/fair-budget.html",
+      "goal": "Preserve both fixes to the unequal-transition budget, worker-count arithmetic and curriculum compounding; align experience and evaluation protocols.",
+      "minutes": 10,
+      "source": "content/applications/policy-gradients/fair-budget.html",
+      "requires": [
+        "policy-gradients/workers",
+        "tabular-learning/tabular-training",
+        "neural-value-learning/dqn-evidence"
+      ],
+      "teaches": [
+        "policy-gradients/fair-budget"
+      ],
+      "status": "authored"
+    },
+    {
+      "id": "policy-gradients/ppo-integration",
+      "title": "F1 PPO integration and verification",
+      "role": "application",
+      "module": "policy-gradients",
+      "lesson": null,
+      "route": "applications/policy-gradients/ppo-integration.html",
+      "goal": "Map wrapper, agent, configuration, recorded integration evidence and test limitations to readiness without assuming self-play was studied.",
+      "minutes": 10,
+      "source": "content/applications/policy-gradients/ppo-integration.html",
+      "requires": [
+        "policy-gradients/fair-budget",
+        "planning/oracle-bound"
+      ],
+      "teaches": [
+        "policy-gradients/ppo-integration"
+      ],
+      "status": "authored"
+    }
+  ],
+  "projectStages": [
+    {
+      "phase": "0",
+      "title": "Data foundation",
+      "module": null,
+      "guidance": "Prepare project data using the project plan; there is no dedicated RL lesson module for this stage."
+    },
+    {
+      "phase": "0.5",
+      "title": "Calibration",
+      "module": null,
+      "guidance": "Complete calibration remediation using the project plan; there is no dedicated RL lesson module for this stage."
+    },
+    {
+      "phase": "1",
+      "title": "Gymnasium environment",
+      "module": "foundations",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 1 locally, then return for the next project stage."
+    },
+    {
+      "phase": "2",
+      "title": "Dashboard skeleton",
+      "module": null,
+      "guidance": "Implement the dashboard skeleton after the project environment; no additional RL module is required."
+    },
+    {
+      "phase": "3",
+      "title": "Rule-based baseline",
+      "module": null,
+      "guidance": "Implement rule-based baselines after the environment and runner exist. Reuse the Foundations concepts; this is project implementation, not an additional RL course module."
+    },
+    {
+      "phase": "3.5",
+      "title": "DP oracle",
+      "module": "planning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 3.5 locally, then return for the next project stage."
+    },
+    {
+      "phase": "4",
+      "title": "Q-learning and SARSA",
+      "module": "tabular-learning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 4 locally, then return for the next project stage."
+    },
+    {
+      "phase": "5",
+      "title": "Dueling Double DQN",
+      "module": "neural-value-learning",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 5 locally, then return for the next project stage."
+    },
+    {
+      "phase": "6",
+      "title": "Multi-car rivals",
+      "module": "multiple-agents",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 6 locally, then return for the next project stage."
+    },
+    {
+      "phase": "7",
+      "title": "Dashboard polish",
+      "module": null,
+      "guidance": "Implement dashboard polish after the earlier project stages; no additional RL module is required."
+    },
+    {
+      "phase": "8",
+      "title": "Self-play",
+      "module": "self-play",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 8 locally, then return for the next project stage."
+    },
+    {
+      "phase": "9",
+      "title": "PPO",
+      "module": "policy-gradients",
+      "guidance": "Complete the module and its project-readiness checkpoint, implement Phase 9 locally, then return for the next project stage."
+    }
+  ]
+}

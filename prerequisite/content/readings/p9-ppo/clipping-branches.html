@@ -1,0 +1,14 @@
+<section>
+<h2>Take the minimum after multiplying by advantage</h2>
+<p>The per-sample maximized objective is min(rho A,clip(rho,1−epsilon,1+epsilon)A). With epsilon .2, the interval is [.8,1.2]. Positive A=1 gives objectives .7,1,1.2,1.2 at ratios .7,1,1.3,1.8. Negative A=−1 gives −.8,−1,−1.3,−1.8 at the same ratios. The sign changes which branch is smaller.</p>
+<p>For A&gt;0, objective=A min(rho,1.2): derivative with respect to rho is A below 1.2, zero above. For A&lt;0, objective=A max(rho,.8): derivative is zero below .8, A above. At exact thresholds the objective is nondifferentiable; framework subgradient conventions need not be used to infer a unique mathematical derivative.</p>
+<p>The four-row pack witness uses ratios [1.3,.7,.7,1.3] and advantages [1,1,−1,−1]. Objectives [1.2,.7,−.8,−1.3] average −.05, so descent loss is +.05. Away from knots, descent gradients with respect to new log probabilities are [0,−.175,0,.325], because d rho/d logπ_new=rho and reduction divides by four.</p>
+<h2>Clip fraction counts thresholds, not active gradients</h2>
+<p>Every ratio in that witness is outside [.8,1.2], so clip fraction is one. Only two samples use flat branches. Therefore a ratio-outside diagnostic and a fraction-of-flat-objective diagnostic are different. Keep old logs and advantages detached while allowing the current log probability path.</p>
+<pre><code>def ppo_loss(new_log_probs, old_log_probs, advantage, epsilon=.2):
+    r,lr,a=ratio_data(new_log_probs,old_log_probs,advantage,epsilon)
+    return -torch.minimum(r*a,r.clamp(1-epsilon,1+epsilon)*a).mean()</code></pre>
+<h2>Recap and self-check</h2>
+<details><summary>Is the negative-advantage objective just minus the positive branch?</summary><p>No. The minimum changes to the larger ratio under multiplication by a negative advantage.</p></details>
+<p>Reference: <a href="https://arxiv.org/abs/1707.06347">PPO paper</a>.</p>
+</section>

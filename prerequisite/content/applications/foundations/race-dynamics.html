@@ -1,0 +1,79 @@
+<section>
+<h2>Grow a model one physical effect at a time</h2>
+<p>Start with a ten-decision toy: every lap costs <code>1 + 0.05×age²</code>, and pitting adds 2 seconds before resetting age for the next lap. Run a stay-out policy and one pit policy; compare total time. Then add a second compound: a fast tyre wearing at 0.09×age² versus a slower tyre with a 0.6 pace penalty and 0.03×age² wear. At age 2 their pace-plus-wear costs are 0.36 and 0.72; at age 8 they are 5.76 and 2.52. “Fastest when fresh” does not mean “best for the whole stint.”</p>
+<p>Now replace that unbounded quadratic wear with a linear term plus a capped cliff. Add fuel, weather, warmup and pit loss separately. The following complete pure functions form the final toy model; use them in the same script as the environment in the last application reading. Toy seconds and constants are illustrative, not project calibration.</p>
+<pre><code>COMPOUNDS = {
+    "A": dict(pace=0.0, rate=0.05, cliff=4, severity=0.15, cap=4.0),
+    "B": dict(pace=0.6, rate=0.02, cliff=7, severity=0.08, cap=4.0),
+}
+WEATHER_PENALTY = {0: {"A": 0.0, "B": 0.0},
+                   1: {"A": 6.0, "B": 5.5}}
+
+def toy_pace(compound):
+    return COMPOUNDS[compound]["pace"]
+
+def toy_wear(compound, age):
+    c = COMPOUNDS[compound]
+    over = max(0, age - c["cliff"])
+    return c["rate"]*age + min(c["severity"]*over**2, c["cap"])
+
+def toy_fuel_penalty(laps_left):
+    return laps_left * 0.08 * 0.02
+
+def toy_weather_penalty(weather, compound):
+    return WEATHER_PENALTY[weather][compound]
+
+def toy_warmup(age):
+    return 0.3 if age == 1 else 0.15 if age == 2 else 0.0
+
+def toy_pit_loss(safety_car):
+    return 2.0 * (0.4 if safety_car else 1.0)
+
+def toy_lap_time(state):
+    if state["safety_car"]:
+        return 8.0
+    return (1.0 + toy_pace(state["compound"])
+            + toy_wear(state["compound"], state["age"])
+            + toy_fuel_penalty(state["remaining"])
+            + toy_weather_penalty(state["weather"], state["compound"])
+            + toy_warmup(state["age"]))
+
+def toy_transition(state, action):
+    # Caller validates action legality. No mutation of the input state.
+    lap_time = toy_lap_time(state)
+    if action != 0:
+        lap_time += toy_pit_loss(state["safety_car"])
+    next_state = dict(state)
+    next_state["remaining"] -= 1
+    if action:
+        next_state["compound"] = "A" if action == 1 else "B"
+        next_state["age"] = 1
+    else:
+        next_state["age"] += 1
+    return next_state, -lap_time, next_state["remaining"] == 0
+</code></pre>
+<h2>Inspect each contribution before adding them</h2>
+<p>For A, wear at age 8 is <code>0.4 + 2.4 = 2.8</code>; at age 10 it is <code>0.5 + 4 = 4.5</code>; at age 16 it is <code>0.8 + 4 = 4.8</code>. Only the <strong>cliff contribution</strong> plateaus. The linear part keeps growing. A finite race bounds reachable ages, but a cap on one component does not globally bound total wear for arbitrary ages.</p>
+<p>In the final model, pace plus wear is 0.1 for A versus 0.64 for B at age 2, and 2.8 versus 0.84 at age 8. Fuel shrinks with remaining laps: four laps contribute 0.0064, zero contribute zero. Weather penalties depend on both compound and regime; both toy compounds are dry tyres, so both are poor in wet conditions. Adding real wet tyres and the eligibility mask is a later project extension.</p>
+<p>Warmup is 0.3 on age 1, 0.15 on age 2, then zero. Switching to a fresh tyre does not erase its next-lap warmup. During a safety car, this toy uses a fixed 8-second lap rather than adding green-flag pace/wear to it. A pit then costs another 0.8, compared with 2.0 under green. The project can calibrate separate safety-car and virtual-safety-car branches; neither should accidentally double-count the normal lap formula.</p>
+<h2>A pit changes tomorrow's tyre, not today's timing</h2>
+<p>For A age 8, four laps left, dry and green, staying costs <code>1 + 0 + 2.8 + 0.0064 = 3.8064</code>. PIT_B costs 5.8064 now and produces B age 1, three laps remaining. Its next green lap costs <code>1 + 0.6 + 0.02 + 0.0048 + 0.3 = 1.9248</code>. The two-step total is 7.7312. Recomputing the pit lap on B would answer a different question.</p>
+<h2>Sample uncertainty without handing over its future</h2>
+<p>Historical weather traces can vary conditions lap by lap; training and held-out evaluation need separate scenario sets. Fresh safety-car hazard sampling avoids a small fixed library of perfectly memorized interruption schedules. This toy sampler has a 0.06 start probability on each green lap and geometrically distributed duration with mean three laps:</p>
+<pre><code>def sample_safety_cars(rng, horizon, hazard=0.06):
+    flags = [False] * horizon
+    lap = 0
+    while lap &lt; horizon:
+        if rng.random() &lt; hazard:
+            duration = int(rng.geometric(1/3))
+            end = min(horizon, lap + duration)
+            flags[lap:end] = [True] * (end-lap)
+            lap = end
+        else:
+            lap += 1
+    return flags</code></pre>
+<p>The start probability applies only when green, not on every already-interrupted lap. A geometric draw is a positive integer; the probability of lasting k laps is <code>(2/3)^(k−1)×(1/3)</code>. Seed the generator at reset and draw a fresh schedule each episode. Keep future flags private: “sampled in advance” does not mean “visible to the policy.” Independence between sampled weather and safety cars is a model assumption, not a fact guaranteed by nature. Test distributions across many seeds rather than demanding that every pair of seeds differ.</p>
+<h2>Recap and self-check</h2><p>Pure timing and transition functions let you test components without running an entire environment. They also let a later planner ask hypothetical questions without corrupting the live race state.</p>
+<details><summary>Does the cliff cap mean a tyre at age 100 costs the same as at age 16?</summary><p>No. A's cliff is capped in both cases, but its linear wear is 5.0 versus 0.8. Observation clamping would hide this difference, so check whether such ages are reachable before claiming the observation is sufficient.</p></details>
+<p>Next, decide exactly what reward measures and which transformations preserve its objective.</p>
+</section>

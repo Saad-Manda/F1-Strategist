@@ -1,0 +1,10 @@
+<section>
+<h2>Expand the entire discounted sum</h2>
+<p>Let G=Σ_(t=0)^(T−1) gamma^t r_t. Adding potential differences gives G′−G=Σ gamma^t(gamma Φ_(t+1)−Φ_t). Written out, this is −Φ_0+gamma Φ_1−gamma Φ_1+gamma² Φ_2−gamma² Φ_2+…+gamma^T Φ_T. All intermediate terms cancel, leaving −Φ_0+gamma^T Φ_T.</p>
+<p>A fixed start with zero task-terminal potential therefore shifts every route by the same −Φ_0, even if route lengths differ. If terminal potential is a nonzero constant and gamma&lt;1, gamma^T still depends on route length. Equal terminal potentials alone do not guarantee a common shift at variable horizons. At gamma one, a common terminal potential does give a common shift.</p>
+<p>The Bellman check yields Q′^π(s,a)=Q^π(s,a)−Φ(s) when the endpoint term vanishes: substitute V′=V−Φ into r+gamma Φ(s′)−Φ(s)+gamma V′(s′). Successor potentials cancel. Because the remaining shift is action-independent at state s, argmax actions are preserved. This is an objective identity, not a neural optimization convergence result.</p>
+<h2>Task terminals and collection limits differ</h2>
+<p>A true stopped-task terminal needs the chosen terminal convention. A time limit on a continuing task retains a successor and its potential/value; zeroing that potential merely because collection stops can change the objective. In a continuing discounted process, bounded potential and a vanishing discounted tail supply the corresponding limit. Gamma one needs additional endpoint reasoning; boundedness alone is not enough.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Does the initial potential need to be zero?</summary><p>No. A fixed initial potential gives a common shift. The endpoint and discount conditions decide whether routes keep the same ranking.</p></details>
+</section>

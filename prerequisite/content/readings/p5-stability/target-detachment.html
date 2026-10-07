@@ -1,0 +1,32 @@
+<section><h2>Storage independence and detachment do different work</h2><p><code>target=online</code> creates an alias to the same model; delayed copying cannot freeze that alias. Make independent parameter storage. Separately, calculate bootstrap targets without recording gradients. A graph-connected target would differentiate through the quantity being treated as a label, changing the semi-gradient TD update taught here.</p>
+<pre><code>import copy
+import math
+
+def make_target(online):
+    target = copy.deepcopy(online).eval()
+    for parameter in target.parameters():
+        parameter.requires_grad_(False)
+    return target
+
+def sync_target(target, online, step, interval):
+    if (type(step) is not int or step &lt; 1 or type(interval) is not int
+        or interval &lt; 1):
+        raise ValueError("positive integer step/interval required")
+    if step % interval == 0:
+        target.load_state_dict(online.state_dict())</code></pre>
+<p>This matches the pack's hard-copy contract. If the original biases are [1,2], changing online biases to [3,4] must leave the target at [1,2] until the designated copy. eval() controls layers such as dropout; it does not itself disable autograd. requires_grad_(False) freezes these parameters, while torch.no_grad() also protects target computation if a caller supplies a trainable source. See <a href="https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html">no_grad documentation</a>.</p>
+<h2>Hard copies and soft tracking are different schedules</h2><p>The lab copies every eight optimizer updates. The project plan instead uses soft tracking <code>θ⁻←τθ+(1−τ)θ⁻</code>, with τ=0.005. If online moves once and then holds still, the remaining gap after n updates is (1−τ)^n. Solving for half a gap gives ln(0.5)/ln(0.995)≈138.28, so 139 updates first pass halfway. At one optimizer update per four environment transitions, that is 556 transitions after updating starts.</p>
+<pre><code>def soft_update(target, online, tau):
+    if not math.isfinite(tau) or not 0 &lt;= tau &lt;= 1:
+        raise ValueError("tau in [0,1] required")
+    target_parameters = dict(target.named_parameters())
+    online_parameters = dict(online.named_parameters())
+    if (target_parameters.keys() != online_parameters.keys()
+        or any(target_parameters[k].shape != p.shape
+               for k,p in online_parameters.items())):
+        raise ValueError("matching architectures required")
+    with torch.no_grad():
+        for key,source in online_parameters.items():
+            target_parameters[key].mul_(1-tau).add_(source,alpha=tau)</code></pre>
+<p>This helper is for the taught plain linear/ReLU models, which have no running-statistic buffers. An architecture with buffers needs its own synchronization policy. State whether soft updates count optimizer steps or environment steps. The half-gap estimate assumes online stays fixed; it is not the lag of an arbitrary moving learner.</p>
+<h2>Recap and self-check</h2><details><summary>Does detach() on an output create an independently stored target model?</summary><p>No. It cuts that output's graph connection. A separate copy is needed to preserve old parameters; these are different tests.</p></details><p>Next, store experience and choose batches independently of their original collection order.</p></section>

@@ -1,0 +1,38 @@
+<section><h2>Decode the project vector before choosing an action</h2><p>The Phase 4 plan, <code>phase-4-q-learning-sarsa.md</code>, builds Q-learning and SARSA on the Phase 1 environment. Both agents must use the same state encoder and legal-mask contract. Read <code>discretize_obs</code> before the agent methods, because every table lookup depends on its meaning.</p>
+<div class="table-wrap"><table><thead><tr><th>Observation</th><th>Key feature</th><th>Resolution/encoding</th></tr></thead><tbody>
+<tr><td>0</td><td>Remaining laps</td><td>12 uniform bins, valid upper endpoint in bin 11</td></tr>
+<tr><td>1–5</td><td>Compound</td><td>Validate one-hot, decode index 0–4</td></tr>
+<tr><td>6</td><td>Tyre age</td><td>25–50 candidate bins; specify exact edges and validate cliff distinctions</td></tr>
+<tr><td>7–9</td><td>Weather</td><td>Validate one-hot, decode index 0–2</td></tr>
+<tr><td>10</td><td>Temperature</td><td>3 bins under the Phase 1 normalization</td></tr>
+<tr><td>11</td><td>Safety car</td><td>Binary flag</td></tr>
+<tr><td>12–14</td><td>Compounds used</td><td>Eight masks: SOFT×4 + MEDIUM×2 + HARD</td></tr>
+<tr><td>15</td><td>Mandatory pit</td><td>Use the environment's binary obligation flag</td></tr>
+</tbody></table></div>
+<p>The used-mask bit ordering is an explicit encoder convention and must match its consumers or be translated. Do not recompute the obligation from only current weather: an episode's declared-wet status and prior compound use may matter. Validate semantic one-hot/binary values rather than letting argmax hide an invalid vector.</p>
+<h2>A complete teaching encoder</h2><p>This example uses 40 uniform age bins and the actual supplied floating values. It accepts the specified float32 vector. If the project instead reconstructs integer ages with a rounding convention or adopts nonuniform edges, version and test that different encoder explicitly.</p>
+<pre><code>import numpy as np
+
+def discretize_obs(observation, age_bins=40):
+    obs = np.asarray(observation)
+    if (obs.shape != (16,) or obs.dtype != np.float32
+        or not np.isfinite(obs).all() or ((obs &lt; 0) | (obs &gt; 1)).any()):
+        raise ValueError("16 finite normalized float32 features required")
+    if type(age_bins) is not int or age_bins &lt; 1:
+        raise ValueError("positive age bin count required")
+    for row in (obs[1:6], obs[7:10]):
+        if not np.isin(row,[0,1]).all() or row.sum() != 1:
+            raise ValueError("one-hot category required")
+    if not np.isin(obs[[11,12,13,14,15]],[0,1]).all():
+        raise ValueError("binary flags required")
+    uniform = lambda x,n: min(int(float(x)*n),n-1)
+    used = int(obs[12])*4 + int(obs[13])*2 + int(obs[14])
+    return (uniform(obs[0],12), int(np.argmax(obs[1:6])),
+            uniform(obs[6],age_bins), int(np.argmax(obs[7:10])),
+            uniform(obs[10],3), int(obs[11]), used, int(obs[15]))</code></pre>
+<p>Forty age bins give 691,200 rectangular keys; six float64 values each require 33,177,600 bytes, about 31.64 MiB before container overhead. The original ten-age-bin product is 172,800, not the plan's quoted 518,400. Count the implemented scheme, not a headline total. Finer age alone does not fix capped raw ages, coarse remaining-time aliases or hidden weather information.</p>
+<h2>Choose and update with the correct mask</h2><p>Exploration samples only current legal indices. Exploitation maximizes only current legal values. The update uses the successor's legal set. A raw-observation dictionary key, an unmasked 99 target or an illegal-value multiplication by zero can break the learner even when its TD arithmetic is otherwise correct.</p>
+<p>Save/load must carry action order, encoder configuration/version, alpha/gamma, exploration settings and counter. Serialize sparse tables as a supported plain mapping and restore the intended default behavior deliberately; a lambda default factory is not portable through every serialization mechanism. Loading incompatible bins should fail clearly.</p>
+<h2>Reward scale: useful engineering, not a convergence theorem</h2><p>At roughly 95 seconds per lap for 52 laps, raw return is −4940. Adding a fixed 90-second baseline per reward gives about −5 per lap and −260 total. Common-horizon ranking is preserved, with all the Foundations caveats about penalties, early aborts and truncation. Keep physical time in info unchanged.</p>
+<p>For a fixed target and alpha 0.1, error shrinks by 0.9 each visit, whatever its initial scale: reaching one percent of the initial error takes about 44 visits in both cases. Centering can help absolute numerical scales and initialization choices, but it does not inherently accelerate that relative convergence or repair low visitation. A +10 optimistic pit initialization can influence action ranking; its small size relative to −4940 does not prove it useless. Test the intended effect rather than labeling reward magnitude alone the likely cause of stalled learning.</p>
+<h2>Recap and self-check</h2><details><summary>Which test demonstrates that finer age bins address a decision loss?</summary><p>Construct full-key collisions with independently different optimal actions, then confirm the revised encoder separates those states. A larger table-size count alone does not demonstrate better decision information.</p></details><p>Next, integrate those contracts into curriculum, episode boundaries and fair evaluation.</p></section>

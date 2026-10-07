@@ -1,0 +1,53 @@
+<section aria-labelledby="why-spaces"><h2 id="why-spaces">Why this matters</h2>
+<p>You can now choose actions, record transitions and stop on either ending flag. The remaining question is what counts as a valid action or observation. An environment should describe those formats before an agent begins using it.</p>
+<p>A <strong>space</strong> is a description of permitted values. It is a contract, not a container holding the current observation. Our chain has three possible location observations and two possible action labels.</p></section>
+
+<section aria-labelledby="chain-spaces"><h2 id="chain-spaces">Describe the chain's values</h2>
+<pre><code>from gymnasium import spaces
+
+observation_space = spaces.Discrete(3)  # 0, 1 or 2
+action_space = spaces.Discrete(2)       # 0 (LEFT) or 1 (RIGHT)
+
+assert observation_space.contains(2)
+assert not observation_space.contains(3)
+assert action_space.contains(0)
+assert not action_space.contains(2)</code></pre>
+<p><code>Discrete(3)</code>, with its default starting value, describes the integers 0, 1 and 2. The upper count is excluded: 3 is not a chain observation. The assertion succeeds only when its condition is true, so these lines are small checks you can run.</p>
+<p>The observation space includes the terminal observation 2. Ending the episode does not make that observation invalid. A checker should be able to inspect the final transition before you reset.</p>
+<p>Spaces describe formats, not all decision rules. LEFT is a valid action at position 0, even though it makes no movement. In other tasks an action can be representable but temporarily unavailable; such tasks need an additional legal-action rule, often called an action mask. The chain permits both actions at every nonterminal position, so it needs no mask. A later lesson develops masks and policies.</p></section>
+
+<section aria-labelledby="array-shapes"><h2 id="array-shapes">When one number becomes an array</h2>
+<p>Suppose a small grid world reports row and column together. Its observation is an array with two entries, such as <code>[1, 2]</code>. An array's <strong>shape</strong> describes how its entries are arranged; <code>(2,)</code> means one dimension with two entries. Its <strong>dtype</strong> describes the type stored in each entry.</p>
+<pre><code>import numpy as np
+from gymnasium import spaces
+
+grid_observations = spaces.Box(low=0, high=2, shape=(2,), dtype=np.int64)
+observation = np.array([1, 2], dtype=np.int64)
+assert grid_observations.contains(observation)</code></pre>
+<p><code>np</code> is the usual short name for NumPy, a Python library for arrays. Here <code>Box</code> says each entry is between 0 and 2 inclusive, and each uses a 64-bit integer type. A scalar <code>1</code> does not have the required two-entry shape; an array with three entries is wrong too. For continuous measurements, an environment can specify a floating-point dtype instead. The returned data must agree with the declared space.</p>
+<p>The grid example introduces an array format; it does not replace the supplied chain exercise. Keep its scalar <code>Discrete(3)</code> observations and two actions so the downloaded checks continue to test the same world. Tensor batches and matrix calculations are taught later when networks need them.</p></section>
+
+<section aria-labelledby="reset-seeding"><h2 id="reset-seeding">Reset the episode and seed randomness deliberately</h2>
+<p>The chain's reset clears position, the step count and the finished flag, then returns observation 0 and a fresh <code>{"steps": 0}</code> dictionary. In a Gymnasium environment subclass, call <code>super().reset(seed=seed)</code> to initialize the environment's random generator correctly, even when the small teaching transition is deterministic.</p>
+<p>A <strong>seed</strong> initializes a random generator so a run can be reproduced under the same implementation. Resetting a stochastic environment with the same seed reproduces its random sequence; resetting with no new seed lets that generator continue. Repeatedly fixing the same seed at every episode can unintentionally keep repeating the same scenario.</p>
+<p>Random action sampling has its own generator. If you use <code>env.action_space.sample()</code>, seed the action space separately for repeatable action choices. The browser and Python exercises use different random generators; identical seed numbers need not produce identical traces across the two platforms. Compare scripted RIGHT, RIGHT when checking that their contracts agree.</p></section>
+
+<section aria-labelledby="checking-contract"><h2 id="checking-contract">Check the interface, then check your task rules</h2>
+<pre><code>from gymnasium.utils.env_checker import check_env
+
+# ChainEnv is your implemented environment class from the exercise.
+env = ChainEnv()
+try:
+    check_env(env, skip_render_check=True)
+finally:
+    env.close()</code></pre>
+<p><code>check_env</code> checks aspects of the Gymnasium interface, including declared spaces and reset/step behavior. It interacts with the environment, so reset again before collecting your own trace. The <code>try</code>/<code>finally</code> structure closes the environment even if a check raises an error.</p>
+<p>Rendering means producing a view for a person, such as a window or an image. Environments that support rendering declare their modes and choose a <code>render_mode</code> when created. The chain's Python pack declares no rendering modes; skipping the render check fits that contract. The browser's visible chain is a teaching interface, not a rendering mode you must implement in Python.</p>
+<p>A checker cannot infer that your intended destination was 2 or that its reward should be +5. Verify those task rules independently: RIGHT, RIGHT must give observations 1 and 2, rewards −1 and +5, total +4, and termination on the second move. A one-step cap must stop at observation 1 with reward −1 and truncation. LEFT at 0 must stay at 0 and still cost −1.</p>
+<div class="reading-callout"><p><strong>Common mistake:</strong> changing the declared space to accept a mistaken output rather than fixing the output or explaining an intentional task change. Spaces and rules must describe the same environment.</p></div></section>
+
+<section aria-labelledby="practice-recap"><h2 id="practice-recap">Ready for practice</h2>
+<p>You can now explain the two jobs in the loop, unpack a step response, preserve a transition record, distinguish stopping reasons and check the permitted data formats. None of this requires a learned policy yet.</p>
+<details class="self-check"><summary>Self-check: can the terminal observation 2 be outside the declared Discrete(3) observation space because the episode has ended?</summary><p><strong>Explanation:</strong> no. Discrete(3) includes 2, and every returned observation, including an ending observation, must fit the declared space. A terminal flag changes what the collector does next; it does not excuse an invalid observation.</p></details>
+<p>Continue to the Browser lab. Predict the chain's trace, try RIGHT moves and a one-step cap, then use Python practice to implement reset, step and the collector in the unchanged exercise pack. Hints and the reference solution are available when you choose to request them.</p>
+<p class="reading-source">API references: <a href="https://gymnasium.farama.org/api/spaces/fundamental/">Gymnasium spaces</a>, <a href="https://gymnasium.farama.org/api/env/">seeding and rendering</a> and <a href="https://gymnasium.farama.org/api/utils/">environment checking</a>.</p></section>

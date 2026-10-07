@@ -1,0 +1,14 @@
+<section><h2>A derivative measures local change</h2><p>For L=(q−y)² with fixed target y, a small increase Δq changes loss by approximately 2(q−y)Δq. The derivative dL/dq=2(q−y) is its slope. At q=0.5, y=0 it is 1: increasing q slightly increases loss. A positive derivative calls for a negative gradient-descent change, not a positive one.</p><p>In the previous two-hidden-unit network, q=u₁h₁+u₂h₂ with u=[2,−1], h=[1,1.5]. The chain rule multiplies slopes along a dependency: ∂L/∂u₁=(∂L/∂q)(∂q/∂u₁)=1×1=1; the second output weight's gradient is 1×1.5=1.5. Hidden gradients are [2,−1]. Since both pre-activations are positive, ReLU's local derivative is 1. The first-layer weight gradients are the hidden gradients times input [2,1], giving [[4,2],[−2,−1]].</p>
+<pre><code>x_tiny = torch.tensor([2.,1.], dtype=torch.float64)
+w1 = torch.tensor([[1.,-1.],[0.5,0.5]], dtype=torch.float64,
+                  requires_grad=True)
+w2 = torch.tensor([2.,-1.], dtype=torch.float64, requires_grad=True)
+hidden = torch.relu(w1 @ x_tiny)
+output = w2 @ hidden
+loss_tiny = output.square()
+loss_tiny.backward()
+assert torch.equal(w2.grad, torch.tensor([1.,1.5], dtype=torch.float64))
+assert torch.equal(w1.grad, torch.tensor([[4.,2.],[-2.,-1.]],
+                                       dtype=torch.float64))</code></pre>
+<h2>Trace the actual pack's factor of two</h2><p>At zero prediction in the two-output warm-up, MSE divides by two. Each output derivative is 2(q−label)/2, giving bias gradients [−0.25,−0.75]. Multiplication by x=0.25 gives weight gradients [−0.0625,−0.1875]. With SGD learning rate 0.1, weights become [0.00625,0.01875], biases [0.025,0.075]. Their new predictions at x=0.25 are [0.0265625,0.0796875]. Loss and gradient are different objects: one scalar error measure versus one sensitivity per trainable parameter.</p><p>PyTorch records operations involving requires_grad tensors so backward() can apply these rules. A leaf parameter receives an accumulated .grad. Calling backward twice on independent losses without clearing adds gradients. The graph for a particular forward pass is normally freed after backward; compute a fresh forward for a new update. At negative ReLU input its derivative is zero; at the zero kink PyTorch uses zero. Do not use a finite-difference test across that kink to demand a unique smooth derivative.</p>
+<h2>Recap and self-check</h2><details><summary>Does positive TD error mean a positive loss derivative with respect to Q?</summary><p>No. TD error is y−q. For squared loss the derivative is 2(q−y)=−2δ, before reduction. Subtracting the gradient moves q toward y.</p></details><p>Next, use those gradients in one controlled optimizer update.</p></section>

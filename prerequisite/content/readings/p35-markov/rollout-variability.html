@@ -1,0 +1,20 @@
+<section><h2>Propagate a distribution without drawing a trace</h2><p>The distribution calculation averages every possible transition. It is reproducible without a random generator. Reuse the matrix validator and compute the probability of destination j by summing current-origin probability times its transition probability:</p>
+<pre><code>def advance(distribution, matrix):
+    validate_matrix(matrix)
+    validate_distribution(distribution)
+    if len(distribution) != len(matrix):
+        raise ValueError("distribution dimension mismatch")
+    return [sum(p*matrix[i][j] for i,p in enumerate(distribution))
+            for j in range(len(matrix))]
+
+WEATHER = [[0.8,0.2],[0.3,0.7]]
+one_step = advance([1,0], WEATHER)
+two_steps = advance(one_step, WEATHER)
+assert abs(two_steps[0] - 0.7) &lt; 1e-10</code></pre>
+<p>A single sampled trace cannot reproduce those fractional probabilities at each lap: it occupies one state. Across many separately seeded traces, occupancy frequencies can approximate the propagated distribution when the simulated law matches it.</p>
+<h2>A distribution that stays unchanged</h2><p>A stationary distribution satisfies <code>dP=d</code>: one transition leaves its probabilities unchanged. Write d=[x,1−x] for this two-state matrix. Its dry coordinate gives <code>x=0.8x+0.3(1−x)</code>, hence <code>0.5x=0.3</code>, so d=[0.6,0.4]. Check both coordinates: dry is 0.48+0.12=0.6 and wet is 0.12+0.28=0.4. This chain can reach either state from the other and has positive self-transition probabilities, so its marginal distributions approach that unique stationary distribution from either start. Other chains can have several stationary distributions or oscillating marginals; do not assume this behavior from row normalization alone.</p>
+<h2>Label the quantity you compare</h2><p>Suppose dry lap cost is 10 and wet lap cost is 14. Expected next-lap cost starting dry is <code>0.8×10+0.2×14=10.8</code>. One actual next lap costs either 10 or 14. The expectation is not a claim that every lap takes 10.8 seconds.</p>
+<p>The expected sum of lap costs is the sum of their expectations even when successive weather states are dependent. Its variance also depends on correlations: persistent wet periods can create clustered high-cost laps. Do not treat all laps from one chain as independent race samples when estimating uncertainty in race totals.</p>
+<h2>Compare controlled policies fairly</h2><p>To compare an oracle policy and another policy, run both under the same scenario settings and a paired set of environment seeds. Record total physical cost for each race, then form per-seed differences. Independent policy streams avoid action-sampling calls changing weather draws. Equal seeds still require matching environment draw schedules; if actions alter random-call counts, use explicit exogenous schedules or document the weaker pairing.</p>
+<p>A measured average can lie above or below a true model expectation. Increasing independent race count reduces sampling uncertainty under appropriate finite-variance assumptions; it does not repair a biased model, policy information leak or wrong cost sign.</p>
+<h2>Recap and self-check</h2><details><summary>Should every sampled run score below a perfect-information policy's expected reward?</summary><p>No. A lucky realization can exceed an expectation. Information bounds compare optimal expected values under aligned task assumptions, not every realized score against one average.</p></details><p>Next, test the sampler and fit using counts and uncertainty rather than one lucky trace.</p></section>

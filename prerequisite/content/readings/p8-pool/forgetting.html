@@ -1,0 +1,10 @@
+<section>
+<h2>A cycle can look like repeated improvement</h2>
+<p>Start with opponent ROCK. Its best response is PAPER, then SCISSORS responds to PAPER, ROCK to SCISSORS, and PAPER again. Every latest response wins against the immediately preceding action, but none secures a nonnegative score against all three. A newest-only win curve misses the historical loss.</p>
+<p>Let p be current policy and evaluate pᵀM against each fixed pure column. PAPER gives [1,0,−1]; SCISSORS gives [−1,1,0]. The newest score can increase while the ROCK column falls by 2. Log stable opponent IDs and a matrix, not a single opponent whose identity changes with every measurement.</p>
+<p>In neural self-play, old replay describes earlier effective opponent laws. Retaining old episodes can support coverage or conflict with a changing target mixture. Record collection opponent IDs, mixture versions and sampling weights before attributing weak results to forgetting.</p>
+<h2>Bounded memory is a design tradeoff</h2>
+<p>A finite pool retains only selected policies and eventually evicts some. Recency bias emphasizes current opponents while retaining some historical support; it does not prevent forgetting, guarantee broad competence or solve general nonstationarity. Reserve an independent audit archive of opponent styles if historical coverage matters.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Why is beating the newest checkpoint insufficient?</summary><p>It tests one changing column. The cyclic witness wins that column while losing another historical one.</p></details>
+</section>

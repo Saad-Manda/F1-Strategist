@@ -1,0 +1,99 @@
+<section>
+<h2>An environment must work before a policy can learn</h2>
+<p>Passing a shape check cannot establish correct pit timing, reward units or constraints. Start with an independently verifiable toy, run hand-selected actions, then use the same kinds of witnesses against the Phase 1 implementation plan. This is preparation to implement and review <code>phase-1-gym-environment.md</code>; course completion does not certify that implementation.</p>
+<h2>Wrap the pure model in the Gymnasium contract</h2>
+<p>Place the pure functions from the race-dynamics reading above this class in one script. This final toy has ten laps, two dry compounds, fixed dry weather and no safety car. Those fixed conditions let its four-feature observation describe its changing state. The pure functions also support wet/SC inputs for independent tests; exposing sampled weather or safety-car variation would require extending the observation and state contract.</p>
+<pre><code>import numpy as np
+import gymnasium as gym
+from gymnasium import spaces
+
+class ToyRaceEnv(gym.Env):
+    metadata = {"render_modes": []}
+
+    def __init__(self):
+        super().__init__()
+        self.horizon = 10
+        self.observation_space = spaces.Box(0.0, 1.0, (4,), np.float32)
+        self.action_space = spaces.Discrete(3)
+        self.state = None
+
+    def reset(self, *, seed=None, options=None):
+        super().reset(seed=seed)
+        start = (options or {}).get("compound", "A")
+        if start not in COMPOUNDS:
+            raise ValueError("Unknown starting compound")
+        self.state = dict(remaining=self.horizon, age=1, compound=start,
+                          weather=0, safety_car=False)
+        return self._get_obs(), self._get_info()
+
+    def _get_obs(self):
+        s = self.state
+        return np.array([s["remaining"]/self.horizon,
+                         min(s["age"]/self.horizon, 1.0),
+                         float(s["compound"] == "A"),
+                         float(s["compound"] == "B")], dtype=np.float32)
+
+    def _get_info(self):
+        return dict(self.state)  # all values here are immutable scalars
+
+    def action_masks(self):
+        return np.array([True, self.state["compound"] != "A",
+                        self.state["compound"] != "B"], dtype=bool)
+
+    def step(self, action):
+        if self.state is None or self.state["remaining"] == 0:
+            raise RuntimeError("Reset before stepping an unfinished episode")
+        if not self.action_space.contains(action):
+            raise ValueError("Action outside space")
+        # The teaching toy accepts same-compound pits, even though masked.
+        # This keeps generic check_env's unmasked random actions executable.
+        self.state, reward, terminated = toy_transition(self.state, int(action))
+        info = self._get_info()
+        info["lap_time"] = -reward
+        return self._get_obs(), reward, terminated, False, info
+
+from gymnasium.utils.env_checker import check_env
+env = ToyRaceEnv()
+check_env(env, skip_render_check=True)
+obs, info = env.reset(seed=7)
+total = 0.0
+for lap in range(10):
+    action = 2 if lap == 5 else 0
+    obs, reward, terminated, truncated, info = env.step(action)
+    assert env.observation_space.contains(obs)
+    assert reward == -info["lap_time"]
+    total += reward
+assert terminated and not truncated
+env.close()</code></pre>
+<p>The mask advises a consumer; this toy deliberately permits redundant pits when called directly. The project must independently specify its stricter handling and compound-rule backstop. Gymnasium's checker samples from the declared action space without honoring a custom mask. Check masked-policy behavior separately. No rendering mode is declared, so skipping rendering tests here makes that limitation explicit.</p>
+<h2>Find each responsibility in the project plan</h2>
+<div class="table-wrap"><table><thead><tr><th>Planned location</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td><code>calibration.json</code></td><td>Versioned physical constants and scenario assumptions, not unexplained numbers inside step.</td></tr>
+<tr><td><code>compound_pace_offset</code>, <code>tyre_degradation</code></td><td>Compound pace, linear wear and the capped cliff contribution.</td></tr>
+<tr><td><code>out_lap_warmup</code>, <code>fuel_effect</code></td><td>Age-dependent warmup and remaining-fuel cost with a stated lap convention.</td></tr>
+<tr><td><code>weather_compound_penalty</code>, <code>compute_lap_time</code></td><td>Weather mismatch and composition, including explicit SC/VSC branches.</td></tr>
+<tr><td><code>compute_pit_loss</code>, <code>compute_action_mask</code></td><td>Flag-dependent pit cost and one shared set of eligibility rules.</td></tr>
+<tr><td><code>F1StrategyEnv.reset/step</code>, <code>_get_obs</code>, <code>_get_info</code></td><td>Seeded scenario selection, state bookkeeping and stable public outputs.</td></tr>
+</tbody></table></div>
+<p>For future exact planning, a pure model queried without noise should return its specified expectation. Removing a random draw is equivalent only if the remaining calculation really computes that expectation: nonlinear functions generally cannot be evaluated at average inputs to get the average output. Never let a hypothetical query advance the live random generator or mutate the race.</p>
+<h2>Ten groups of checks with independent witnesses</h2>
+<ol>
+<li><strong>Reset:</strong> check 16 features, float32, bounds, one-hot sums, usage bits and starting-compound options; the observation must agree with initial state.</li>
+<li><strong>Trace:</strong> reproduce the 115.5816-second pit example, old tyre timing, next age 1, counter decrement and fresh information objects.</li>
+<li><strong>Ending:</strong> exactly the race horizon naturally terminates; an earlier external cap truncates; both flags remain possible at coincident boundaries.</li>
+<li><strong>Masks:</strong> exercise all weather rows, redundant pits, the two-lap obligation, declared-wet exception, at least one legal action and shared environment/planner equality.</li>
+<li><strong>Bypasses:</strong> call actions directly and verify documented errors or penalties; separately test the terminal rule backstop and legal-policy avoidance.</li>
+<li><strong>Timing:</strong> below/at/above the cliff, cap on the cliff term only, monotonic fuel, out-lap warmup, mismatch costs, green/SC/VSC pit branches.</li>
+<li><strong>Units:</strong> legal raw return equals negative total seconds; fixed-horizon centering adds the predicted constant without changing lap-time diagnostics.</li>
+<li><strong>Randomness:</strong> same seed/actions repeat, repeated unseeded resets draw fresh schedules, large-sample hazards/durations fit the specified model within justified tolerance.</li>
+<li><strong>Information:</strong> no future scenario leaks into observation or policy-facing diagnostics; clamping and hidden weather assumptions are documented.</li>
+<li><strong>Isolation:</strong> pure hypothetical queries do not mutate inputs or consume the live stream; run Gymnasium's checker and deterministic tests independently of training.</li>
+</ol>
+<h2>The same contract in a two-dimensional world</h2>
+<p>Keep the old GridWorld comparison as an independent domain check: a 5×5 grid starts at (0, 0), ends at (4, 4), and has actions UP, DOWN, LEFT, RIGHT numbered 0–3. Encode row and column divided by 4 in a float32 <code>Box(0, 1, shape=(2,))</code>. Alternatively, a <code>Discrete(25)</code> observation can enumerate the cells; a vector and an enumerated ID are different representation choices, not different physical tasks.</p>
+<p>UP at the top boundary stays in place; RIGHT from (0, 0) produces observation [0, 0.25]. Every transition costs −1, including the goal transition. Alternating RIGHT and DOWN reaches (4, 4) after eight transitions with return −8 and true termination. Always UP reaches an external 50-step cap with return −50, truncation and no goal termination. Put that external cap in <code>TimeLimit</code>; it is not an intrinsic task deadline. At a coincident goal/cap boundary both flags can be true, unlike code that forcibly suppresses truncation whenever the goal is reached.</p>
+<p>The helper that constructs observations, seeded reset and five-output step are the same patterns used by the chain and assembled race toy. Their complete implementations consolidate repeated class boilerplate. Coordinate bounds, normalization, boundary moves and goal/cap traces remain separate tests of meaning. Normalized features keep input scales comparable, but normalization alone guarantees neither sufficiency nor successful neural learning.</p>
+<h2>Recap and self-check</h2><p>You can now explain a transition, identify missing state, compute its objective, apply a mask and check an implementation without relying on learned behavior. Complete the module's preparation checklist after reviewing the project implementation plan.</p>
+<details><summary>Can a successful training curve replace these tests?</summary><p>No. A policy may exploit an incorrect pit order, hidden future information or reward transformation. Tests anchor the simulator to its declared task before evaluating learning.</p></details>
+<p>Next is the project preparation checkpoint, followed by the dashboard and baseline project stages and the later Planning module.</p>
+</section>

@@ -1,0 +1,17 @@
+<section><h2>Average after specifying when costs occur</h2><p>For cost-to-go C_t(s), a stochastic backup is <code>C_t(s)=min_(legal a) Σ_(s′) P(s′|s,a)[c(s,a,s′)+C_(t+1)(s′)]</code>. The minimum selects an action now. The sum accounts for random successors after that action. If today's cost c(s,a) is fixed by current state, it can be moved outside the sum because the successor probabilities sum to one.</p>
+<p>For the earlier lap-three, age-two example, STAY is <code>13 + 0.75×16 + 0.25×20 = 30</code>. PIT costs 19 today and next age one costs 10 green or 20 under SC: <code>19 + 0.75×10 + 0.25×20 = 31.5</code>. STAY is better. These are complete branch comparisons; a change in one branch alone does not prove that the best action changes.</p>
+<h2>The cheap pit is still a cost</h2><p>If a safety car is already active, a toy pit loss of 6 becomes <code>0.4×6=2.4</code>. Its fixed SC lap costs 20, so immediate PIT cost is 22.4. STAY costs 20. Do not zero the reward for an interrupted lap: that would hide both the lap and pit time and make pitting appear free.</p>
+<p>This is the current-state cost rule, independent of the distribution of next flags. If instead the modeled decision occurs before the flag affecting today's pit is known, include flag-dependent immediate cost inside the expectation. Both conventions can be modeled; applying one convention's formula to the other's timeline is the error.</p>
+<h2>A general weighted helper</h2><p>For reward calculations, the unchanged stochastic practice pack takes rows (probability, reward). Its function validates the row rather than silently normalizing. Reuse <code>validate_distribution</code> from Foundations.</p>
+<pre><code>def expected_value(outcomes):
+    import math
+    if not outcomes:
+        raise ValueError("outcomes must not be empty")
+    validate_distribution([p for p, reward in outcomes])
+    if any(not math.isfinite(reward) for p, reward in outcomes):
+        raise ValueError("rewards must be finite")
+    return sum(p*reward for p, reward in outcomes)
+
+assert expected_value([(0.75, 16), (0.25, 20)]) == 17</code></pre>
+<p>For our cost cell, apply the helper to complete branch costs then minimize across legal actions. For a reward cell, negate costs and maximize. Neither operation allows taking the maximum over lucky random outcomes.</p>
+<h2>Recap and self-check</h2><details><summary>Can min(16,20)=16 replace the weighted successor cost?</summary><p>No. It pretends you can select whether the interruption occurs. The policy selects an action, not the weather or flag outcome.</p></details><p>Next, examine what a mean objective can hide about rare events.</p></section>

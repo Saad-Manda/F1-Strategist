@@ -1,0 +1,10 @@
+<section>
+<h2>Keep bootstrap eligibility explicit</h2>
+<p>For each stored transition retain reward r_t, current value V_t, actual final successor value N_t and true termination t_t. The residual is delta_t=r_t+gamma where(t_t,0,N_t)−V_t. This removes true terminal continuation without multiplying infinity by zero; value inputs should be finite. Truncation is a separate collector boundary.</p>
+<p>Use rewards [1,2], values [.5,1], gamma .9. The first ongoing residual is 1+.9×1−.5=1.4. If the second is terminal its residual is 2−1=1. If instead it continues with final successor value 3, its residual is 2+.9×3−1=3.7. These are the unchanged pack’s inputs for the GAE witness.</p>
+<p>A residual is a critic temporal-difference error and can serve as a one-step advantage estimate. Exact advantage is a conditional expected quantity. A single residual can be positive because of stochastic reward or inaccurate values; it is not proof the action is better than all alternatives.</p>
+<h2>Align time and environment axes</h2>
+<p>For a vector rollout use r,V,N,terminated with shape [T,N_envs]; action logs and old values align to the same (time,worker) index. Compute residuals before flattening. A one-dimensional pack example represents one temporal stream. Reshaping a multi-worker buffer into one long chain before recursion leaks one worker’s tail into another.</p>
+<h2>Recap and self-check</h2>
+<details><summary>Should a reset observation be used as the truncated successor value?</summary><p>No. Use the final observation of the transition that ended collection, not the next episode’s start.</p></details>
+</section>

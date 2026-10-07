@@ -1,0 +1,25 @@
+<section><h2>Separate a common level from action differences</h2><p>Actions at one state often share much of their return: remaining race length and current tyre condition affect every choice. A dueling network uses a shared trunk and two output heads. The value head emits V[B,1]; the advantage head emits A[B,actions]. It combines them as <code>Q=V+A−mean_actions(A)</code>, keeping the mean dimension for broadcasting.</p><p>For V=2 and raw advantages [1,3], mean A=2, so centered advantages are [−1,+1] and Q=[1,3]. The common level is 2 and the action difference is 2. The raw head is not already required to have mean zero. The next reading explains the distinction.</p>
+<pre><code>def dueling(value, advantage):
+    if (advantage.ndim != 2 or advantage.shape[1] == 0
+        or value.shape != (advantage.shape[0],1)
+        or not all(finite(t) for t in (value,advantage))):
+        raise ValueError("expected V[B,1], A[B,actions], finite")
+    return value + advantage - advantage.mean(dim=1,keepdim=True)
+
+class DuelingMLP(torch.nn.Module):
+    def __init__(self, input_dim=16, actions=6, width=128):
+        super().__init__()
+        if any(type(n) is not int or n &lt; 1 for n in (input_dim,actions,width)):
+            raise ValueError("positive dimensions required")
+        self.trunk = torch.nn.Sequential(torch.nn.Linear(input_dim,width),
+                         torch.nn.ReLU(),torch.nn.Linear(width,width),torch.nn.ReLU())
+        self.value = torch.nn.Sequential(torch.nn.Linear(width,64),torch.nn.ReLU(),
+                                         torch.nn.Linear(64,1))
+        self.advantage = torch.nn.Sequential(torch.nn.Linear(width,64),torch.nn.ReLU(),
+                                             torch.nn.Linear(64,actions))
+
+    def forward(self, observations):
+        features = self.trunk(observations)
+        return dueling(self.value(features),self.advantage(features))</code></pre>
+<p>This complete architecture follows the project plan. At width 128: input [B,16] becomes shared features [B,128], each head's hidden features [B,64], then V[B,1] and A[B,6]. Its parameters total 35,655: trunk 2176+16,512; value head 8256+65; advantage head 8256+390. A forward call creates six values per observation, not six separate networks.</p><p>A plain six-output head also shares a trunk and therefore already shares information. Dueling changes how that output is factored; it does not rescue six wholly independent networks. “STAY is usually right” is not sufficient evidence that all alternative actions have similar value, or that dueling will win. Measure the intended benefit with matched ablations rather than treating the plan's frequency estimates as established results.</p>
+<h2>Recap and self-check</h2><details><summary>Does dueling change how Double DQN computes its target?</summary><p>No. Dueling changes the representation producing Q; Double changes which Q array chooses versus evaluates the successor action. They can be used separately or together.</p></details><p>Reference: <a href="https://arxiv.org/abs/1511.06581">the dueling architecture paper</a>. Next, determine what centering does and does not make unique.</p></section>
