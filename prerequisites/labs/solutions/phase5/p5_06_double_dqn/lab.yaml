@@ -1,0 +1,14 @@
+id: p5-06
+title: Who chooses, who scores
+page: phase-5-dqn-prerequisites/06-double-dqn.html
+format: notebook
+minutes: 20
+tasks: [bias, batch, double, "predict:left", C]
+goal: >-
+  You will measure maximization bias by simulation, write the Double DQN target for a batch and reproduce page 06's three rows, then run Q-learning and Double Q-learning on the textbook problem built to show the bias doing damage.
+environment: >-
+  coin-flip estimates, page 06's batch of three, and the maximization-bias MDP (Sutton &amp; Barto, Example 6.7).
+hints:
+  - "TODO 1: A and B are arrays with one row per trial. The single value is A's row maximum. The double value needs the column where A's row is largest, then B's entry in that column. TODO 2 is the same idea with the mask first. TODO 3: decide which table learns, then build its target from the two tables."
+  - "TODO 1: A.argmax(axis=1) gives the chosen column in every row, and B[np.arange(trials), columns] reads one entry per row. TODO 2: np.where(legal_next, online_next, -np.inf).argmax(axis=1) is the choice. TODO 3: i = int(rng.random() < 0.5); learn, other = tables[i], tables[1 - i]."
+  - "TODO 2 ends with: score = target_next[np.arange(len(rewards)), chosen]; return rewards + gamma * score * (1.0 - dones). TODO 3: target = reward if done else reward + other[next_state][int(np.argmax(learn[next_state]))]; then learn[state][action] += alpha * (target - learn[state][action])."

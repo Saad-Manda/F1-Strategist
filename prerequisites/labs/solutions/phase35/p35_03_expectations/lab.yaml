@@ -1,0 +1,14 @@
+id: p35-03
+title: Expectations over a risk
+page: phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html
+format: pytest
+minutes: 20
+files: [faulty_machine.py]
+goal: >-
+  You will commit to a prediction, then add the expectation step to a backward-induction solver, and check the value it computes against twenty thousand simulated histories.
+environment: >-
+  the machine-replacement problem from the previous lab, where the machine can now develop a fault at random. A fault plays the part a safety car plays in the race.
+hints:
+  - "Set MY_PREDICTION first. Task 1 has two functions: fault_prob is one line, and step returns three things where lab p35-02's returned two. The third is the probability of being FAULTY next year, which depends on the action and on whether the machine is faulty now."
+  - "Task 1: for KEEP the probability is 1.0 if the machine is already faulty, and fault_prob(age + 1) otherwise. Task 2 is page 03's weighted average of exactly two numbers. Task 3 is lab p35-02's loop with one extra loop over (HEALTHY, FAULTY), and expected_value(V, year + 1, next_age, p_faulty) in the place where V[(year + 1, next_age)] used to be."
+  - "Task 3: V = {(horizon + 1, a, f): 0.0 for a in range(0, start_age + horizon + 1) for f in (HEALTHY, FAULTY)}; then for year, for age in reachable_ages(year, start_age), for faulty in (HEALTHY, FAULTY): cost, next_age, p = step(age, faulty, action); total = cost + expected_value(V, year + 1, next_age, p). Try KEEP first and compare with `<` so that KEEP wins a tie."

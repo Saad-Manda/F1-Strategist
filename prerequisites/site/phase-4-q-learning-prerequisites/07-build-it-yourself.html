@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Build it yourself — Phase 4 Q-learning · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="4/07">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 4 · Page 07 of 09 — Building it yourself</p>
+      <h1>Build It Yourself: A Toy Q-Learning and SARSA, Side by Side</h1>
+      <p class="dek">Six stages: a tiny world small enough to reason about by hand, a shared learner shell, an off-policy learner, an on-policy learner, a run that reproduces <a class="xref" href="04-sarsa-on-policy.html">page 4</a>'s divergence for real, and a leak you trigger yourself.</p>
+
+      <p>Every name below (<code>TinyStrategyWorld</code>, <code>OffPolicyLearner</code>, <code>_pending_action</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match <code>q_learning_agent.py</code>. The goal, same as every prior toy-build in this project's prerequisite sets, is to arrive at the same <em>shape</em> of solution independently, so the real file reads as familiar structure rather than new material when <a class="xref" href="09-code-walkthrough.html">page 9</a> opens it.</p>
+
+      <h2>Stage 1 — a tiny world with a genuine risky-shortcut-vs-safe-route contrast</h2>
+      <p>The exact toy from <a class="xref" href="04-sarsa-on-policy.html">page 4</a>, made runnable. State <code>0</code> is the opening decision; state <code>1</code> is reached only by the risky choice; both terminate:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class TinyStrategyWorld:
+    """
+    State 0: opening decision.
+      action 0 (BOX_NOW)  -> reward -12, done          (safe, known cost)
+      action 1 (STRETCH)  -> reward  -1, state -> 1     (cheap now, risk later)
+    State 1: reached only after STRETCH.
+      action 0 (BOX)         -> reward  -8, done        (clean recovery)
+      action 1 (OVERSTRETCH) -> reward -30, done        (the cliff)
+    """
+    N_ACTIONS = 2
+
+    def reset(self):
+        self._state = 0
+        return self._state
+
+    def legal_actions(self, state: int) -> list[int]:
+        return [0, 1]   # both actions legal in both states, in this toy
+
+    def step(self, action: int):
+        if self._state == 0:
+            if action == 0:
+                return None, -12.0, True
+            self._state = 1
+            return 1, -1.0, False
+        else:
+            reward = -8.0 if action == 0 else -30.0
+            return None, reward, True</code></pre>
+      </details>
+
+      <h2>Stage 2 — a shared TD-learner shell</h2>
+      <p>A <code>dict</code>-based table (<code>defaultdict</code> pattern, matching what <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a>'s arithmetic already justified for a sparsely-visited state space), ε-greedy action selection respecting a supplied legal-action list, and <a class="xref" href="03-epsilon-greedy-exploration.html">page 3</a>'s linear decay schedule — sized for a toy that trains in thousands, not millions, of steps:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>from collections import defaultdict
+import numpy as np
+
+class TDLearnerShell:
+    def __init__(self, n_actions, alpha=0.5, gamma=1.0,
+                 eps_start=1.0, eps_end=0.05, decay_steps=2_000):
+        self.n_actions = n_actions
+        self.alpha, self.gamma = alpha, gamma
+        self.eps_start, self.eps_end, self.decay_steps = eps_start, eps_end, decay_steps
+        self.epsilon = eps_start
+        self._step = 0
+        self.table = defaultdict(lambda: np.zeros(n_actions))
+
+    def pick_action(self, state, legal, rng):
+        if rng.random() &lt; self.epsilon:
+            return int(rng.choice(legal))
+        q = self.table[state].copy()
+        mask = np.full(self.n_actions, -np.inf)
+        mask[legal] = 0
+        return int(np.argmax(q + mask))
+
+    def decay(self):
+        self._step += 1
+        step_size = (self.eps_start - self.eps_end) / self.decay_steps
+        self.epsilon = max(self.eps_end, self.epsilon - step_size)</code></pre>
+      </details>
+
+      <h2>Stage 3 — <code>OffPolicyLearner</code>: page 2's target</h2>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class OffPolicyLearner(TDLearnerShell):
+    def learn(self, state, action, reward, next_state, done, legal_next, rng):
+        if done:
+            target = reward
+        else:
+            q_next = self.table[next_state].copy()
+            mask = np.full(self.n_actions, -np.inf)
+            mask[legal_next] = 0
+            target = reward + self.gamma * np.max(q_next + mask)
+        td_error = target - self.table[state][action]
+        self.table[state][action] += self.alpha * td_error
+        self.decay()</code></pre>
+      </details>
+
+      <h2>Stage 4 — <code>OnPolicyLearner</code>: page 4's target, with the pre-commit mechanic</h2>
+      <p>The real <code>SARSAAgent</code> has to know <code>a'</code> <em>before</em> it can compute this step's target — but the natural training loop only asks for the next action <em>after</em> stepping the environment. The fix, built here first in miniature: pick <code>a'</code> during <code>learn()</code>, stash it, and hand it back out on the very next call to <code>pick_action</code>:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class OnPolicyLearner(TDLearnerShell):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._pending_action = None
+
+    def pick_action(self, state, legal, rng):
+        if self._pending_action is not None:
+            action, self._pending_action = self._pending_action, None
+            return action
+        return super().pick_action(state, legal, rng)
+
+    def learn(self, state, action, reward, next_state, done, legal_next, rng):
+        if done:
+            target = reward
+        else:
+            self._pending_action = super().pick_action(next_state, legal_next, rng)
+            target = reward + self.gamma * self.table[next_state][self._pending_action]
+        td_error = target - self.table[state][action]
+        self.table[state][action] += self.alpha * td_error
+        self.decay()</code></pre>
+      </details>
+
+      <h2>Stage 5 — run both, identical seeds, watch them diverge for real</h2>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>def run_episodes(learner, world, n_episodes, seed):
+    rng = np.random.default_rng(seed)
+    for _ in range(n_episodes):
+        state = world.reset()
+        done = False
+        while not done:
+            legal = world.legal_actions(state)
+            action = learner.pick_action(state, legal, rng)
+            next_state, reward, done = world.step(action)
+            legal_next = [] if done else world.legal_actions(next_state)
+            learner.learn(state, action, reward, next_state, done, legal_next, rng)
+            state = next_state
+
+off_policy = OffPolicyLearner(TinyStrategyWorld.N_ACTIONS)
+on_policy  = OnPolicyLearner(TinyStrategyWorld.N_ACTIONS)
+world = TinyStrategyWorld()
+
+run_episodes(off_policy, world, n_episodes=3000, seed=0)
+run_episodes(on_policy,  world, n_episodes=3000, seed=0)
+
+print("Off-policy Q(state 0):", off_policy.table[0])
+print("On-policy  Q(state 0):", on_policy.table[0])
+print("Off-policy prefers:", "STRETCH" if np.argmax(off_policy.table[0]) else "BOX_NOW")
+print("On-policy  prefers:", "STRETCH" if np.argmax(on_policy.table[0]) else "BOX_NOW")</code></pre>
+      </details>
+      <p>The off-policy learner's <code>Q(0, STRETCH)</code> settles on the greedy-optimal value of <code>−9</code> and stays there: its target ignores the 5% of the time that exploration picks <code>OVERSTRETCH</code>. The on-policy learner's value is pulled below <code>−9</code> every time its own exploration lands on the cliff. How visible that is depends on <code>α</code>. At the shell's default of <code>0.5</code> the cell jumps most of the way to each new target, so what you print is mostly the last one or two episodes: usually <code>−9</code>, now and then something like <code>−14.5</code>. Rerun both learners with <code>alpha=0.05</code> and the on-policy value settles between about <code>−9.1</code> and <code>−9.4</code>, a little below the off-policy <code>−9</code>, which is the average its exploration really earns. In this toy the difference is too small to change the preferred action. Lab p4-04 runs the same comparison on a problem where it does.</p>
+
+      <h2>Stage 6 — catch the leak</h2>
+      <p>The pre-commit mechanic has one weak point. <code>learn()</code> chooses an action for a step that has not happened yet. If that step never happens, the choice is still sitting in <code>_pending_action</code> when the next episode begins.</p>
+      <p>A loop in which every episode runs to its terminal step never triggers this: the last <code>learn()</code> of an episode has <code>done = True</code> and commits to nothing. Check that first. Add <code>print(on_policy._pending_action)</code> after stage 5's run and confirm it is <code>None</code>.</p>
+      <p>Now stop episodes early, the way a step limit, a red flag or an exception in the middle of a race would. This loop takes exactly one step per episode and then abandons it:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code># A step limit of 1: every episode is cut off after its first step, finished or not.
+rng = np.random.default_rng(1)
+leaky = OnPolicyLearner(TinyStrategyWorld.N_ACTIONS)
+stale = 0
+for ep in range(500):
+    state = world.reset()
+    if leaky._pending_action is not None:
+        stale += 1          # an action chosen for state 1 is about to be used at state 0
+    action = leaky.pick_action(state, world.legal_actions(state), rng)
+    next_state, reward, done = world.step(action)
+    legal_next = [] if done else world.legal_actions(next_state)
+    leaky.learn(state, action, reward, next_state, done, legal_next, rng)
+print(stale, "of 500 episodes began with a leftover action")</code></pre>
+      </details>
+      <p>It prints <code>259 of 500</code>. Whenever the first step was <code>STRETCH</code>, <code>learn()</code> committed to an action for state <code>1</code>, the episode was dropped, and the next episode's opening move at state <code>0</code> was that leftover. In this toy the two states happen to share action numbers, so nothing crashes and the damage is extra noise in the table. In the real environment a leftover action would be applied to the first lap of a different race, in a different scenario, possibly where it is not even legal.</p>
+      <p>The fix is one method. Give <code>OnPolicyLearner</code> a <code>reset()</code> that sets <code>_pending_action = None</code>, call it at the top of every episode, and confirm the count drops to <code>0</code>. <a class="xref" href="08-this-project-formalized.html">Pages 8</a> and <a class="xref" href="09-code-walkthrough.html">9</a> point at the same gap in the real <code>SARSAAgent</code>.</p>
+
+      <p>That's the full toy pair: a world with a genuine risk-vs-safety contrast, a shared TD shell, off-policy and on-policy learners implementing exactly <a class="xref" href="02-q-learning-derived.html">page 2</a> and <a class="xref" href="04-sarsa-on-policy.html">page 4</a>'s update rules, a run that reproduces the hand-worked divergence at scale, and the specific on-policy bug class a reader who built <code>_pending_action</code> here will recognize immediately in the real code. <a class="xref" href="08-this-project-formalized.html">Page 8</a> doesn't repeat this code — it names which piece of the real state design and reward shaping corresponds to what you just built.</p>
+
+      <section class="lab" id="lab" data-lab-id="p4-cap" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p4-cap · Code + tests · about 90 min</span>
+        <h2>Toy race learners</h2>
+        <p class="lab-goal">This page is the brief. You will build an off-policy and an on-policy table learner for the toy race in six checked stages, and measure both against the exact optimum the Phase 3.5 capstone computed. Along the way you meet the pending-action mechanic and the leak it allows, find out what evaluating with exploration left on costs, and see what reward centring does to a table that starts at zero.</p>
+        <p><strong>Environment:</strong> an F1-flavoured mini: the 20-lap toy race, with its exact optimum as the ruler. About an hour and a half.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p4-cap</code></div>
+          <div><span>Check</span><code>python -m labs check p4-cap</code></div>
+          <div><span>Stage</span><code>python -m labs check p4-cap 1</code></div>
+          <div><span>Hint</span><code>python -m labs hint p4-cap</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase4/p4_cap_toy_learners/toy_learners.py</code>, <code>labs/phase4/p4_cap_toy_learners/report.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase4/p4_cap_toy_learners/</code>.</p>
+        <details><summary>Hint 1</summary><p>Read the header of toy_learners.py first: what a state is, what the table holds, what `legal` looks like. Stages 1 to 4 are short methods and each docstring states the rule to implement. Stage 5 is the longest: it is the training loop, and its docstring lists the five things to do on every lap in order. Stage 6 has no code of its own; it trains what you built. Check one stage at a time with `python -m labs check p4-cap N`.</p></details>
+        <details><summary>Hint 2</summary><p>Stage 1: max(legal, key=lambda a: (values[a], -a)) is the best legal action with ties going to the lowest number. Stage 2: the target is reward + max(self.table[next_state][a] for a in legal_next), or the reward alone when done. Stage 3: in learn(), self.pending = super().act(next_state, legal_next) and the target uses self.table[next_state][self.pending]; in act(), hand the pending action out and clear it. Use super().act so the pending check is not triggered while choosing.</p></details>
+        <details><summary>Hint 3</summary><p>Stage 4: self.pending = None. Stage 5: keep compound, age, sc, used_both as local variables; build `state` from them at the top of each lap and overwrite them with the next_ values at the bottom. Compute lap_time before calling model.next_tyre. Stage 6 failing with stages 1-5 green usually means learn() is not being reached (check `train=True` is passed through) or the reward has the wrong sign.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

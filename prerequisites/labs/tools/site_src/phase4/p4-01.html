@@ -1,0 +1,54 @@
+<!-- page: phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html | title: A little at a time | format: widget | minutes: 10 | scripts: widgets/alphanudge.js -->
+        <p class="lab-goal">The page says to move an estimate "a little at a time". Here you choose how little, on one table cell, and see what each choice costs. Then you sort four updates into bootstrapped and not.</p>
+
+        <div class="lab-part">
+          <h3>1 · One cell, one noisy value</h3>
+          <p>A single cell starts at <code>0</code> and is shown 200 noisy samples of a quantity whose true value is <code>−10</code> (each sample is off by up to 4 either way). After each sample it applies <code>estimate ← estimate + α · (sample − estimate)</code>. The dots are the samples and the line is the estimate. Drag <code>α</code>.</p>
+          <div class="widget" data-widget="alphanudge"></div>
+          <div class="lab-q" data-type="num" data-answer="7.93" data-tol="0.06" data-explain="At α = 1 the estimate is simply the latest sample, so it carries the samples' full noise: nearly the whole 8-wide band." data-nudge="Set α to 1.00 and read the spread at the end of the line under the chart.">
+            <label>At <code>α = 1.00</code>, what is the spread of the estimate over the last 100 samples? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="50" data-tol="0" data-explain="A twentieth of the gap per sample: slow to arrive, and steady once there (a spread of 1.20)." data-nudge="Set α to 0.05 and read where it first came within 1 of the true value.">
+            <label>At <code>α = 0.05</code>, at which sample does the estimate first come within 1 of the true value? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="At 1.00 it never stops chasing noise. At 0.01 the spread is not noise at all: the estimate is still on its way and has only reached −8.68 after 200 samples." data-nudge="Try all three and compare the spread. Then look at why the smallest α is not the steadiest.">
+            <span class="lab-prompt">Which of these has the smallest spread over the last 100 samples?</span>
+            <label class="lab-opt"><input type="radio" name="p401-spread" value="a"> α = 1.00</label>
+            <label class="lab-opt"><input type="radio" name="p401-spread" value="b"> α = 0.05</label>
+            <label class="lab-opt"><input type="radio" name="p401-spread" value="c"> α = 0.01</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · The same thing, as arithmetic</h3>
+          <p>Leave the noise out. If every sample were exactly the target, each update would close a fraction <code>α</code> of whatever gap is left, so after <code>n</code> updates the fraction of the original gap closed is <code>1 − (1 − α)ⁿ</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="65.1" data-tol="0.3" data-explain="1 − 0.9¹⁰. Ten visits to a cell at the real plan's α = 0.1 close about two thirds of the gap." data-nudge="1 − 0.9¹⁰, as a percentage.">
+            <label>At <code>α = 0.1</code>, what percentage of the gap is closed after 10 updates? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="86.6" data-tol="0.3" data-explain="1 − 0.99²⁰⁰. This is why the α = 0.01 line in the chart stops near −8.7: 86.6% of the way from 0 to −10." data-nudge="1 − 0.99²⁰⁰, as a percentage.">
+            <label>At <code>α = 0.01</code>, after 200 updates? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Bootstrapped or not?</h3>
+          <p>An update is <strong>bootstrapped</strong> if its target contains an estimate. It is <strong>Monte Carlo</strong> if its target is made only of rewards that were actually observed.</p>
+          <div class="lab-q" data-type="select" data-answer="boot" data-explain="Q(s′, ·) is the table's own current guess.">
+            <label>Target = <code>r + γ · max Q(s′, a′)</code>, applied after every lap. &nbsp; <select><option value="">choose…</option><option value="boot">bootstrapped</option><option value="mc">Monte Carlo</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="mc" data-explain="Nothing in that target is a guess. The price is waiting 52 laps before learning anything.">
+            <label>Wait until the race ends, then move every visited cell toward the total time actually lost from that lap to the finish. &nbsp; <select><option value="">choose…</option><option value="boot">bootstrapped</option><option value="mc">Monte Carlo</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="mc" data-explain="On the last lap nothing follows, so the target is the observed reward alone. Every bootstrapped method has this one estimate-free update per episode, and all the others lean on it." data-nudge="What is in the target when there is no next state?">
+            <label>The update for the final lap of a race, under Q-learning. &nbsp; <select><option value="">choose…</option><option value="boot">bootstrapped</option><option value="mc">Monte Carlo</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="boot" data-explain="Q(s′, a′) is still an estimate, whichever action a′ is. Page 04 is about which a′.">
+            <label>Target = <code>r + γ · Q(s′, a′)</code>, where <code>a′</code> is the action taken next. &nbsp; <select><option value="">choose…</option><option value="boot">bootstrapped</option><option value="mc">Monte Carlo</option></select></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> α = 1.00: spread 7.93. α = 0.05: within 1 of the true value from sample 50, spread 1.20. α = 0.01: never arrives in 200 samples (it ends at −8.68), and its spread of 2.42 is drift, not noise. The smallest spread of the three is at 0.05.</p>
+          <p><strong>2.</strong> 1 − 0.9¹⁰ = 65.1%. 1 − 0.99²⁰⁰ = 86.6%.</p>
+          <p><strong>3.</strong> Bootstrapped, Monte Carlo, Monte Carlo (the terminal target has no estimate in it), bootstrapped.</p>
+        </details>

@@ -1,0 +1,71 @@
+<!-- page: phase-1-rl-prerequisites/02-markov-decision-processes.html | title: Returns and one lap by hand | format: paper | minutes: 15 | scripts: widgets/discount.js -->
+        <p class="lab-goal">Pen and paper (or a calculator). You will compute a return at three discount factors, see what a discount does to the late laps of a race, and price one lap for two actions the way the worked example above did, with different numbers.</p>
+
+        <div class="lab-part">
+          <h3>1 · A return, three ways</h3>
+          <p>An episode produces the rewards <code>−2, −1, −3, −1, −4</code>, in that order. Using <code>G = R₁ + γ·R₂ + γ²·R₃ + …</code>, what is the return from the start?</p>
+          <div class="lab-q" data-type="num" data-answer="-2" data-tol="0.01" data-explain="With γ = 0 only the first reward counts." data-nudge="At γ = 0, every term after the first is multiplied by zero.">
+            <label>γ = 0 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-3.625" data-tol="0.01" data-explain="−2 − 0.5 − 0.75 − 0.125 − 0.25." data-nudge="The weights are 1, 0.5, 0.25, 0.125, 0.0625.">
+            <label>γ = 0.5 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-11" data-tol="0.01" data-explain="With γ = 1 the return is the plain sum, the case this project uses." data-nudge="At γ = 1 every reward has weight 1.">
+            <label>γ = 1 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · What a discount does to the end of a race</h3>
+          <p>Each bar is the weight <code>γᵗ</code> that one step's reward gets in the return of a 20-step episode. Drag the slider.</p>
+          <div class="widget" data-widget="discount"></div>
+          <div class="lab-q" data-type="num" data-answer="9.6" data-tol="0.3" data-explain="Under 10%, where an undiscounted return gives those five steps 25%. That gap is the “late-race pace bias” the plan avoids by setting γ = 1." data-nudge="Set the slider to 0.90 and read the highlighted share.">
+            <label>At γ = 0.90, what percentage of the total weight sits on the last five steps? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="25" data-tol="0.1" data-explain="Five of twenty equal weights. Every lap counts the same, which is what “return = −total race time” needs.">
+            <label>And at γ = 1? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · One lap, two actions, new numbers</h3>
+          <p>Same arithmetic as the worked example, different state: <strong>lap 40 of 52</strong> (so 12 laps remaining), fitted compound <strong>HARD</strong>, tyre age <strong>20</strong>, DRY, no safety car. Constants:</p>
+          <div class="table-wrap"><table><tbody>
+            <tr><td class="mono">base_pace</td><td class="mono">92.000 s</td></tr>
+            <tr><td class="mono">compound_pace_offset[HARD]</td><td class="mono">+0.550 s</td></tr>
+            <tr><td>HARD: <code>base_deg</code> / <code>cliff_age</code></td><td class="mono">0.020 s/lap / 30 laps</td></tr>
+            <tr><td>fuel: consumption / sensitivity</td><td class="mono">1.600 kg/lap / 0.033 s/kg</td></tr>
+            <tr><td>weather penalty, warm-up</td><td class="mono">0.000 s (matched tyre, long past its out-lap)</td></tr>
+            <tr><td class="mono">pit_loss (GREEN)</td><td class="mono">22.000 s</td></tr>
+          </tbody></table></div>
+          <div class="lab-q" data-type="num" data-answer="93.584" data-tol="0.01" data-explain="92 + 0.55 + 0.40 + 0.634." data-nudge="Four terms: base pace, compound offset, degradation (age 20 is below the cliff, so linear), and fuel for 12 remaining laps.">
+            <label>Lap time for <code>STAY_OUT</code> (s) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="115.584" data-tol="0.01" data-explain="The same lap on the same old tyre, plus the pit loss." data-nudge="The pit lap is still driven on the old HARD tyre; the stop only adds pit_loss.">
+            <label>Lap time for <code>PIT_MEDIUM</code> (s) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="A one-step comparison always favours staying out. The decision turns on the two full returns, which is why this is a sequential problem." data-nudge="Look at what the comparison of the two rewards leaves out.">
+            <span class="lab-prompt">Comparing just these two rewards, which action looks better, and does that settle the decision?</span>
+            <label class="lab-opt"><input type="radio" name="p102-settle" value="a"> PIT_MEDIUM looks better, and that settles it.</label>
+            <label class="lab-opt"><input type="radio" name="p102-settle" value="b"> STAY_OUT looks better, and that settles it.</label>
+            <label class="lab-opt"><input type="radio" name="p102-settle" value="c"> STAY_OUT looks better, but it settles nothing: what matters is the return over all the laps that follow.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Is it Markov?</h3>
+          <div class="lab-q stack" data-type="multi" data-answer="a,c" data-explain="In the door example the past (was the key picked up?) changes what happens next but is not in the state. That is exactly the kind of hidden history the Markov property forbids." data-nudge="Ask of each: could two different histories lead to this same state and then behave differently?">
+            <span class="lab-prompt">Tick every state description that is enough, on its own, to predict what happens next.</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> A robot's cell in a maze whose walls never change.</label>
+            <label class="lab-opt"><input type="checkbox" value="b"> A robot's cell in a maze where a door opens only after a key has been picked up, with no record of whether it has been.</label>
+            <label class="lab-opt"><input type="checkbox" value="c"> Fitted compound, tyre age, laps remaining and weather, for predicting the next lap time.</label>
+            <label class="lab-opt"><input type="checkbox" value="d"> The lap time just set, and nothing else, for predicting the next lap time.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> γ = 0: −2. γ = 0.5: −2 + 0.5(−1) + 0.25(−3) + 0.125(−1) + 0.0625(−4) = −3.625. γ = 1: −11.</p>
+          <p><strong>2.</strong> Weight on the last five of twenty steps is (γ¹⁵ − γ²⁰) / (1 − γ²⁰). At γ = 0.9 that is 0.0843 / 0.8784 ≈ 9.6%. At γ = 1 all weights are equal: 5 / 20 = 25%.</p>
+          <p><strong>3.</strong> Degradation 0.020 × 20 = 0.400. Fuel (12 × 1.600) × 0.033 = 0.634. STAY_OUT: 92.000 + 0.550 + 0.400 + 0.634 = 93.584 s. PIT_MEDIUM: 93.584 + 22.000 = 115.584 s.</p>
+          <p><strong>4.</strong> The static maze and the tyre state are Markov. The door maze hides whether the key was collected; the last lap time alone hides the tyre's age and compound.</p>
+        </details>

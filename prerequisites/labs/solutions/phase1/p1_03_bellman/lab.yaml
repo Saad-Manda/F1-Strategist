@@ -1,0 +1,14 @@
+id: p1-03
+title: Bellman backups
+page: phase-1-rl-prerequisites/03-value-functions-bellman.html
+format: notebook
+minutes: 20
+tasks: [backup, evaluation, greedy, "predict:shift", C]
+goal: >-
+  You will implement the Bellman backup, use it to compute a value function that matches the textbook table, read a policy off it, and then find out exactly which assumption makes reward centring safe.
+environment: >-
+  the 4×4 GridWorld of Sutton &amp; Barto, Example 4.1.
+hints:
+  - "TODO 1: two nested loops. The outer one goes over the four actions with their probabilities policy[s][a]; the inner one goes over the outcomes in model[s][a]. Each outcome contributes action_prob * prob * (something)."
+  - "TODO 1: the 'something' is reward + gamma * V[next_state], except when done is True, where it is just reward. TODO 2: one sweep visits every state once and overwrites V[s] with its backup; track the largest |new - old| in the sweep."
+  - "TODO 2: wrap the sweep in `while True:` and return V when the largest change is below tol. TODO 3: for each state build a list of four lookahead values, one per action, each computed like the inner loop of the backup, then take int(np.argmax(...))."

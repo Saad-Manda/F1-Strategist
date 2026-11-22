@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Non-stationarity, revisited — Phase 8 Self-play · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="8/01">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 8 · Page 01 of 10 — Conceptual</p>
+      <h1>When the Opponent Learns Too: Non-Stationarity, Revisited</h1>
+      <p class="dek"><a class="xref" href="../phase-6-multi-car-prerequisites/07-non-stationarity.html">Phase 6 page 07</a> explained why scripted rivals sidestep this problem. Phase 8 removes that shield on purpose.</p>
+
+      <h2>A quick recap of the shield</h2>
+      <p>Standard RL theory — everything Phase 4 and 5 rely on — assumes the environment is <em>stationary</em>: the same state, visited at two different times, produces the same distribution over next states and rewards. Phase 6's rivals follow a predetermined <code>pit_laps</code> plan with no learning update of their own, so from the agent's point of view they're part of a fixed environment, exactly like the weather trace or the safety-car process. All of Q-learning and DQN's convergence arguments keep applying unmodified — only the state and reward got bigger.</p>
+
+      <h2>What breaks once the opponent is also learning</h2>
+      <p>Phase 8 lets two (or more) copies of the same kind of learner train against each other. Now the "environment," from any one agent's point of view, includes the other agent's policy — and if that policy is changing over time, so is everything the first agent is trying to learn. A pit-under-safety-car move that worked well against last week's opponent policy might not work at all against this week's, purely because the opponent adapted, not because anything about the track, tyres, or weather changed. The transition dynamics the agent's Q-learning update is trying to converge on are themselves moving under it.</p>
+
+      <div class="note grounded">
+        <div class="tag">A second, sharper reason experience replay needs care here</div>
+        <p>Phase 5 justified experience replay by breaking the temporal correlation between consecutive transitions. Self-play adds a second reason to be careful with it: a transition collected against an old opponent checkpoint describes a game that, strictly, no longer exists once that opponent has been replaced by a newer one in the pool. Replaying it later trains the learner against a summary of a game state that isn't the one it will actually face next. This doesn't mean replay has to be abandoned — <a class="xref" href="03-checkpoint-pool.html">page 03</a>'s checkpoint pool is part of how the real plan manages this — but it's worth naming as a second source of staleness beyond Phase 5's original one.</p>
+      </div>
+
+      <h2>Three ways to structure multi-agent training</h2>
+      <p>Given that more than one agent is learning at once, there's a genuine design choice in how their learning is organized. Three points on that spectrum, briefly:</p>
+      <ul>
+        <li><strong>Independent learners.</strong> Each agent has its own separate value function (its own DQN, its own replay buffer, its own weights) and learns purely from its own experience, with no communication between agents and no shared network. From any one agent's perspective, every other agent is just part of a — now nonstationary — environment. This is the simplest setup and the one the real plan uses.</li>
+        <li><strong>Parameter sharing.</strong> All agents use one shared network, trained on the combined experience of everyone. This tends to learn faster, because experience is pooled, but it implicitly assumes the agents are meaningfully symmetric (interchangeable roles) — true here, since every car runs the same strategy problem, but the real plan doesn't exploit this.</li>
+        <li><strong>Centralized-training, decentralized-execution (CTDE).</strong> A shared value function (often a "centralized critic") sees the full joint state of every agent during training, while each agent still acts on its own local observation at execution time. This is more powerful — it can directly represent how one agent's action affects another's return — and more complex to implement (the more sophisticated MARL methods, such as MADDPG, are built this way).</li>
+      </ul>
+      <p>Why independent learners is the deliberate choice here, not a corner cut: Phase 5's <code>DuelingDoubleDQNAgent</code> already exists as a complete, working single-agent learner. The real plan reuses it completely unmodified, one instance per car, and treats coordination-shaped behavior — the undercut, the overcut — as something that should <em>emerge</em> from the environment's own payoff structure (once <a class="xref" href="06-blocking-model-dependency.html">page 06</a>'s blocking model exists) rather than something engineered into a shared critic. It's the simplest setup that can, in principle, still produce the interesting result.</p>
+
+      <section class="lab" id="lab" data-lab-id="p8-01" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p8-01 · Notebook · about 15 min</span>
+        <h2>When the opponent learns too</h2>
+        <p class="lab-goal">Put two of Phase 4's simplest learners against each other in matching pennies and watch neither settle, because each is the other's moving environment. Then fill a replay buffer against an opponent that has since changed, and measure how wrong the replayed values are about the game being played now.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, in the page · which paradigm is it?</h3>
+          <p>Each set-up below trains four cars. Name the paradigm from the page above.</p>
+          <div class="lab-q" data-type="select" data-answer="il" data-explain="Four networks, four buffers, no shared anything: each car's &quot;environment&quot; includes the other three cars, so it changes whenever they learn." data-nudge="Count the networks.">
+            <label>Each car has its own DQN and its own replay buffer. Nothing is shared.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="ps" data-explain="One set of weights, trained on everyone's experience. It only makes sense because the cars are interchangeable." data-nudge="One network, four cars.">
+            <label>One network picks every car's action from that car's own observation, and all four cars' transitions go into one buffer.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="ctde" data-explain="The critic sees the joint state, but only while training; at race time each policy acts on its own observation." data-nudge="What does each part see, and when?">
+            <label>During training, a critic sees all four cars' observations and actions. In the race, each car's policy sees only its own 19 numbers.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="A transition is (observation, action, reward, next observation). Which opponent policy produced the reward is not in it. Replayed after the opponent has changed, an old transition teaches the value of an action against an opponent who no longer exists. The notebook measures this: the replayed learner's error is about eight times the fresh one's." data-nudge="Write out what one transition stores.">
+            <span class="lab-prompt">An independent learner's replay buffer is full of transitions from when its rival pitted early. The rival now pits late. Why are the old transitions misleading?</span>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="a"> they are older, and DQN weights old transitions less</label>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="b"> a transition does not record which rival policy produced its reward, so the old rewards are mixed in as if they still held</label>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="c"> they are not misleading: the reward of an action does not depend on the rival</label>
+          </div>
+        </div>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> matching pennies: two players show heads or tails, one wins on a match, the other on a mismatch, and no action is best against everything.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p8-01</code></div>
+          <div><span>Check</span><code>python -m labs check p8-01</code></div>
+          <div><span>Hint</span><code>python -m labs hint p8-01</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase8/p8_01_nonstationary/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase8/p8_01_nonstationary/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1 is Phase 4&#x27;s update with no next state: q[a] moves alpha of the way to the reward. TODO 2 is epsilon-greedy over two numbers; on a tie pick either at random. TODO 3 repeats TODO 1 on pairs drawn from the buffer.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 2: if rng.random() &lt; eps: return int(rng.integers(len(q))); best = np.flatnonzero(q == q.max()); return int(rng.choice(best)). The column player&#x27;s reward is minus the row player&#x27;s.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 3: for _ in range(updates): a, o = buffer[int(rng.integers(len(buffer)))]; update(q, a, U[a, o], alpha). Then return q.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

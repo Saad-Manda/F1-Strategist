@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Q-learning, derived &amp; hand-run — Phase 4 Q-learning · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="4/02">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 4 · Page 02 of 09 — Foundations</p>
+      <h1>Q-Learning: The Update Rule, Derived and Hand-Run</h1>
+      <p class="dek">One equation, traced back to <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s general TD-error form, then run by hand for four steps on a toy table small enough to track cell by cell.</p>
+
+      <h2>The full update</h2>
+      <p>Q-learning's update fills in <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s <code>target</code> with a specific choice:</p>
+      <blockquote class="eq">Q(s, a) ← Q(s, a) + α [ r + γ · max_a' Q(s', a')  −  Q(s, a) ]
+                    \_______________/   \__________/
+                        target              δ</blockquote>
+      <p>Matched against <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s general form: <code>target = r + γ · max_a' Q(s', a')</code>, and <code>δ = target − Q(s, a)</code>, exactly as before. Everything here is one concrete instance of the shape already introduced — nothing new in the mechanics, only in what <code>target</code> is built from.</p>
+
+      <h2>Why <code>max_a'</code>: this is what "off-policy" means</h2>
+      <p>The target assumes the agent will play <em>optimally</em> from <code>s'</code> onward — it takes the best Q-value available at <code>s'</code>, regardless of which action the agent actually ends up taking next while it's still exploring. That's a deliberate mismatch: the policy generating the data (ε-greedy, <a class="xref" href="03-epsilon-greedy-exploration.html">page 3</a>) is not the same policy the update assumes will be followed afterward (purely greedy). This mismatch — updating toward a different policy than the one producing the experience — is precisely what <strong>off-policy</strong> means. The agent can take a random exploratory action next and the update still credits <code>(s,a)</code> as if the best follow-up action were coming, because <code>max_a'</code> doesn't care what was actually sampled.</p>
+
+      <h2>Learning rate and discount, in their learning-specific role</h2>
+      <p><code>α</code> (learning rate) and <code>γ</code> (discount) were both named in Phase 1 and used by Phase 3.5, but they do a different job here. <code>α</code> controls how far a single sampled transition is allowed to move an estimate: too high and the table chases noise from one race to the next without settling; too low and learning proceeds at a crawl, needing many more visits to the same cell before it reflects reality. <code>γ</code> stays at <code>1.0</code>, unchanged from every earlier phase, for the same fixed-horizon reason <a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 3</a> gave: a race is a finite number of laps, and there's no reason to discount a lap 40 reward less than a lap 5 one just because it's further away in time.</p>
+
+      <h2>Worked example: a 3-state toy, hand-run for four steps</h2>
+      <p>A tiny MDP, small enough to track every table cell by hand. Two non-terminal states, <code>s1</code> and <code>s2</code>; a terminal state <code>s3</code>; two actions, <code>a0</code> and <code>a1</code>, in every state:</p>
+      <blockquote class="eq">s1, a0  →  r = −1,  next = s2
+s1, a1  →  r = −3,  next = s3 (terminal)
+s2, a0  →  r = −1,  next = s3 (terminal)
+s2, a1  →  r = −2,  next = s3 (terminal)</blockquote>
+      <p>Backward induction (<a class="xref" href="../phase-3.5-dp-oracle-prerequisites/02-backward-induction.html">page 2</a> of the Phase 3.5 set) would solve this exactly in one pass: <code>Q*(s2,a0) = −1</code>, <code>Q*(s2,a1) = −2</code>, so the best move from <code>s2</code> is <code>a0</code>; then <code>Q*(s1,a0) = −1 + (−1) = −2</code>, <code>Q*(s1,a1) = −3</code>, so the optimal policy is <code>a0</code> at <code>s1</code>, then <code>a0</code> at <code>s2</code>. Q-learning is given none of this — only four sampled transitions, in this order, with <code>α = 0.5</code>, <code>γ = 1</code>, and every table cell starting at <code>0</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">#</th><th>Sampled transition</th><th>Target</th><th class="mono">δ</th><th>Updated cell</th><th class="mono">New value</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td class="mono">(s1, a0, r=−1, s2)</td><td class="mono">−1 + max(0, 0) = −1</td><td class="mono">−1</td><td class="mono">Q(s1,a0)</td><td class="mono">0 + 0.5(−1) = −0.5</td></tr>
+            <tr><td class="mono">2</td><td class="mono">(s2, a0, r=−1, s3, terminal)</td><td class="mono">−1 (terminal)</td><td class="mono">−1</td><td class="mono">Q(s2,a0)</td><td class="mono">0 + 0.5(−1) = −0.5</td></tr>
+            <tr><td class="mono">3</td><td class="mono">(s1, a1, r=−3, s3, terminal)</td><td class="mono">−3 (terminal)</td><td class="mono">−3</td><td class="mono">Q(s1,a1)</td><td class="mono">0 + 0.5(−3) = −1.5</td></tr>
+            <tr><td class="mono">4</td><td class="mono">(s1, a0, r=−1, s2)</td><td class="mono">−1 + max(−0.5, 0) = −1</td><td class="mono">−1 − (−0.5) = −0.5</td><td class="mono">Q(s1,a0)</td><td class="mono">−0.5 + 0.5(−0.5) = −0.75</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Two things worth reading carefully out of this trace. First, every cell is moving in the right <em>direction</em> — toward the true values <code>Q*(s1,a0)=−2</code>, <code>Q*(s1,a1)=−3</code>, <code>Q*(s2,a0)=−1</code> — without landing on them exactly after only one or two visits; convergence is a many-episode process, and four steps only establishes the trend. Second, step 4's target used <code>max(Q(s2,a0), Q(s2,a1)) = max(−0.5, 0) = 0</code> — picking the <em>still-untouched</em> <code>Q(s2,a1)</code> over the already-updated <code>Q(s2,a0)</code>, purely because nothing has pulled it down from its optimistic zero initialization yet. That's not a bug; it's the mechanism <a class="xref" href="08-this-project-formalized.html">page 8</a> leans on when discussing why a table's initial values matter, and a preview of why an all-zero start is mildly optimistic until enough transitions have been seen to correct it.</p>
+
+      <h2>Convergence, stated but not proven</h2>
+      <p>Q-learning is provably guaranteed to converge to <code>Q*</code> given two conditions: every state-action pair is visited infinitely often, and the learning rate <code>α</code> decays appropriately over time (a fixed <code>α</code>, as used throughout this project's plan, converges to a small neighborhood of <code>Q*</code> rather than exactly to it — acceptable in practice, and the reason "train for a lot of episodes" is the theoretical justification behind the real plan's 10,000-episode training runs, not a proof this page needs to reproduce). What matters practically is the shape of the guarantee: nothing here promises fast convergence, only that enough visits eventually get there.</p>
+
+      <section class="lab" id="lab" data-lab-id="p4-02" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p4-02 · Code + tests · about 15 min</span>
+        <h2>The Q-learning update, two ways</h2>
+        <p class="lab-goal">First run four updates by hand, on the page's toy with a different sequence of transitions. Then write the update as two small functions and reproduce the page's table exactly, including the two cases that are easy to get wrong: the last transition of an episode, and a next state where some actions are illegal.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's toy, a different four transitions</h3>
+          <p>Same toy as the worked example, same settings (<code>α = 0.5</code>, <code>γ = 1</code>, every cell starting at <code>0</code>), but the transitions arrive in this order. Enter the value of the updated cell after each one.</p>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.001" data-explain="Terminal: target −2, δ = −2, cell 0 + 0.5(−2)." data-nudge="The transition ends the episode, so the target is the reward alone.">
+            <label>1 · <code>(s2, a1, r = −2, terminal)</code> → <code>Q(s2, a1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.5" data-tol="0.001" data-explain="Target −1 + max(Q(s2,a0), Q(s2,a1)) = −1 + max(0, −1) = −1. The max picks the untouched cell." data-nudge="Q(s2, a1) is now −1 and Q(s2, a0) is still 0. Which does max pick?">
+            <label>2 · <code>(s1, a0, r = −1, next = s2)</code> → <code>Q(s1, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.5" data-tol="0.001" data-explain="Terminal: target −1, cell 0 + 0.5(−1).">
+            <label>3 · <code>(s2, a0, r = −1, terminal)</code> → <code>Q(s2, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-1.5" data-tol="0.001" data-explain="−1 + max(−0.5, −1) = −1.5. Both cells of s2 have now been visited, so the max is no longer an untouched zero." data-nudge="Q(s2, a0) = −0.5 and Q(s2, a1) = −1.">
+            <label>4 · <code>(s1, a0, r = −1, next = s2)</code>: the <strong>target</strong> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.001" data-explain="δ = −1.5 − (−0.5) = −1, so the cell moves from −0.5 to −1.0. The page's order left this cell at −0.75 after its second visit: same transitions for s1, different order overall, different table." data-nudge="δ = target − current value, and the current value is −0.5.">
+            <label>4 · … and the new <code>Q(s1, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>1.</strong> Q(s2,a1) = 0 + 0.5(−2 − 0) = −1. <strong>2.</strong> Target −1 + max(0, −1) = −1; Q(s1,a0) = −0.5. <strong>3.</strong> Q(s2,a0) = 0 + 0.5(−1) = −0.5. <strong>4.</strong> Target −1 + max(−0.5, −1) = −1.5; δ = −1; Q(s1,a0) = −0.5 + 0.5(−1) = −1.0.</p>
+          <p>The true value is Q*(s1,a0) = −2. After two visits this order has reached −1.0 and the page's order −0.75, because here the cells of s2 were corrected before s1 looked at them the second time.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> the page's own three-state toy.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p4-02</code></div>
+          <div><span>Check</span><code>python -m labs check p4-02</code></div>
+          <div><span>Hint</span><code>python -m labs hint p4-02</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase4/p4_02_q_update/q_update.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase4/p4_02_q_update/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1 has two cases. If `done`, return the reward and look at nothing else. Otherwise you need the largest of a few table cells: the cells Q[next_state, a] for each a in legal_next, and only those.</p></details>
+        <details><summary>Hint 2</summary><p>Task 1: max(Q[next_state, a] for a in legal_next) gives the largest legal next value. Task 2 is three lines: compute the target with td_target, subtract the current cell to get delta, add alpha * delta to the cell.</p></details>
+        <details><summary>Hint 3</summary><p>Task 2: delta = td_target(Q, reward, next_state, done, legal_next, gamma) - Q[state, action]; Q[state, action] += alpha * delta; return float(delta).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

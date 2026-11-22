@@ -1,0 +1,14 @@
+id: p9-06
+title: The library, from the outside
+page: phase-9-ppo-prerequisites/06-stable-baselines3-api.html
+format: notebook
+minutes: 20
+tasks: [A, B, "predict:sampled", C, D, "predict:warn", E]
+goal: >-
+  Page 06's API surface, used rather than read about. The rollout arithmetic for the real config and two others; a short PPO run on CartPole, with the log values that come straight from pages 03 and 04; deterministic against sampled play from the same trained policy; MaskablePPO's masking, checked from inside the distribution; and what really happens when batch_size does not divide the buffer.
+environment: >-
+  CartPole-v1 from Gymnasium (about 30 s of training), and the toy race as a masked Gymnasium environment (labs/labkit/racegym.py). The whole notebook runs in about a minute and a half.
+hints:
+  - "TODO 1: n_steps is per environment, so a rollout holds n_steps × n_envs transitions; minibatches per epoch round UP (the last one is short); learn() keeps collecting rollouts until it has at least total_timesteps, so the number of updates also rounds up. TODO 2: the values are in model.logger.name_to_value after learn(). TODO 3: model.predict(obs, deterministic=...) returns (action, state)."
+  - "TODO 1: transitions = n_steps * n_envs; minibatches = math.ceil(transitions / batch_size); gradient_steps = minibatches * n_epochs; updates = math.ceil(total / transitions); steps_taken = updates * transitions. TODO 4: dist = model.policy.get_distribution(obs_tensor, action_masks=mask); dist.log_prob(th.arange(3)) gives one log-probability per action."
+  - "TODO 5: count the warnings whose message mentions 'mini-batch'; then [len(b.actions) for b in model.rollout_buffer.get(batch_size)] lists the minibatch sizes the buffer really yields after one learn()."

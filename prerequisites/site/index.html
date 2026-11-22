@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course map · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="hub">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Course map</p>
+      <h1>Prerequisites</h1>
+      <p class="dek">Seven prerequisite sets, 72 pages, one path. This is the only index: every page is reachable from the tree on the left, and Next at the bottom of any page carries on through the whole course.</p>
+
+      <div id="resume"><noscript><p><a class="inline-link" href="phase-1-rl-prerequisites/00-overview.html">Start: Phase 1 · Overview →</a></p></noscript></div>
+
+      <h2>Course map</h2>
+      <p>Open a phase to see its pages, what each one covers, and why that phase needs it.</p>
+      <div class="phase-grid">
+        <details class="phase-row" data-phase="1">
+          <summary>
+            <span class="num">1</span>
+            <span class="name">RL Prerequisites</span>
+            <span class="counts" data-phase-count="1">8 pages</span>
+            <p class="desc">Everything you need to read and build <code>phase-1-gym-environment.md</code> with no prior reinforcement-learning background: the agent/environment loop, MDPs, Bellman equations, and the Gymnasium API.</p>
+            <div class="chain">Assumes: <strong>nothing</strong> — start here</div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-1-rl-prerequisites/00-overview.html">Open Phase 1 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="1/00" href="phase-1-rl-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="1/01" href="phase-1-rl-prerequisites/01-rl-fundamentals.html">RL fundamentals</a><span class="grp-label">Concepts</span><p class="covers">Agent/environment loop, reward hypothesis, episodes</p><p class="why">The vocabulary everything else is built from</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="1/02" href="phase-1-rl-prerequisites/02-markov-decision-processes.html">Markov decision processes</a><span class="grp-label">Concepts</span><p class="covers">The MDP tuple (S, A, P, R, γ), the Markov property, policies, return — with a fully worked numeric race example</p><p class="why">Phase 1 is the specification of an MDP — the formal language the plan is written in</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="1/03" href="phase-1-rl-prerequisites/03-value-functions-bellman.html">Value functions &amp; Bellman</a><span class="grp-label">Concepts</span><p class="covers">State/action-value functions, the Bellman equation derived step by step, and the reward-centring proof worked in full</p><p class="why">Explains exactly why the reward design (γ=1, no zeroing on SC laps, the −5,000 problem) is written the way it is</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="1/04" href="phase-1-rl-prerequisites/04-gymnasium-api.html">The Gymnasium API</a><span class="grp-label">Concepts</span><p class="covers">The Env contract: spaces, reset(), step(), action masking, check_env — plus a complete, runnable toy environment</p><p class="why">The literal API f1_strategy_env.py must implement</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="1/05" href="phase-1-rl-prerequisites/05-building-the-environment.html">Building the environment</a><span class="grp-label">Capstone</span><p class="covers">A sequence of small, runnable toy Gymnasium environments, each adding one real-world complication, building up in your own code toward the shape of the real environment</p><p class="why">Understanding by building, not by reading someone else&#x27;s finished file</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="1/06" href="phase-1-rl-prerequisites/06-this-project-as-mdp.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">State/action/reward/transition grounded in the actual plan, with a lap time computed by hand and a full step() trace</p><p class="why">Bridges the general theory above to the specific file you are about to write</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="1/07" href="phase-1-rl-prerequisites/07-code-walkthrough.html">Code walkthrough</a><span class="grp-label">This project</span><p class="covers">A reading guide to dynamics.py and f1_strategy_env.py — what to look for and why, not a copy of the code itself</p><p class="why">Line-level understanding before implementation</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="3.5">
+          <summary>
+            <span class="num">3.5</span>
+            <span class="name">DP Oracle Prerequisites</span>
+            <span class="counts" data-phase-count="3.5">8 pages</span>
+            <p class="desc">Everything you need to build the exact optimality oracle in <code>phase-3.5-dp-oracle.md</code>: planning vs. learning, backward induction, stochastic transitions, and Markov chains.</p>
+            <div class="chain">Assumes: <strong>Phase 1</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-3.5-dp-oracle-prerequisites/00-overview.html">Open Phase 3.5 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="3.5/00" href="phase-3.5-dp-oracle-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="3.5/01" href="phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html">Planning vs. learning</a><span class="grp-label">Concepts</span><p class="covers">What makes an MDP exactly solvable, and why that&#x27;s a size argument, not a magic trick</p><p class="why">Frames why this phase looks nothing like Phases 4/5, and why that&#x27;s the point</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="3.5/02" href="phase-3.5-dp-oracle-prerequisites/02-backward-induction.html">Backward induction</a><span class="grp-label">Concepts</span><p class="covers">The finite-horizon Bellman recursion, derived step by step, with a fully worked numeric race example</p><p class="why">The exact algorithm dp_oracle.py implements</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="3.5/03" href="phase-3.5-dp-oracle-prerequisites/03-stochastic-transitions.html">Expectations over randomness</a><span class="grp-label">Concepts</span><p class="covers">Computing E[V(s&#x27;)] when the next state is random — the safety-car hazard term, and why compute_lap_time(noise=0) is the exact expectation, not an approximation</p><p class="why">The one genuinely new piece of math the oracle needs beyond page 3&#x27;s Bellman equation</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="3.5/04" href="phase-3.5-dp-oracle-prerequisites/04-markov-chains.html">Markov chains</a><span class="grp-label">Concepts</span><p class="covers">Transition matrices, fitting one from data by counting, sampling from a fitted chain — with a fully worked numeric weather example</p><p class="why">What Oracle B&#x27;s weather model is, precisely, and why it&#x27;s &quot;exactly achievable&quot; while Oracle A is only a bound</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="3.5/05" href="phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html">Build a toy DP solver</a><span class="grp-label">Capstone</span><p class="covers">A sequence of small, runnable backward-induction solvers, each adding one complication a plain toy ignores</p><p class="why">Understanding by building, not by reading someone else&#x27;s finished solver</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="3.5/06" href="phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">The real DPState, the state-space size arithmetic, and the Oracle A / Oracle B distinction grounded in this project&#x27;s actual design</p><p class="why">Bridges the general theory above to the specific files you are about to write</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="3.5/07" href="phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html">Code walkthrough</a><span class="grp-label">This project</span><p class="covers">A reading guide to dp_oracle.py, weather_markov.py, and run_dp_oracle.py — what to look for and why</p><p class="why">Line-level understanding before implementation</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="4">
+          <summary>
+            <span class="num">4</span>
+            <span class="name">Q-Learning Prerequisites</span>
+            <span class="counts" data-phase-count="4">10 pages</span>
+            <p class="desc">Everything you need to build tabular Q-learning and SARSA in <code>phase-4-q-learning-sarsa.md</code>: the update rule derived from the Bellman equation, epsilon-greedy exploration, and state discretization.</p>
+            <div class="chain">Assumes: <strong>Phase 1, Phase 3.5</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-4-q-learning-prerequisites/00-overview.html">Open Phase 4 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="4/00" href="phase-4-q-learning-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="4/01" href="phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html">From equation to update rule</a><span class="grp-label">Concepts</span><p class="covers">Why Q-learning can&#x27;t solve the Bellman equation the way DP did, and the TD-error idea that replaces solving with nudging</p><p class="why">Frames every update rule in the rest of this set as one instance of the same idea</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="4/02" href="phase-4-q-learning-prerequisites/02-q-learning-derived.html">Q-learning, derived &amp; hand-run</a><span class="grp-label">Concepts</span><p class="covers">The off-policy TD-control update, traced term by term, hand-run on a 3-state toy table</p><p class="why">The exact update QLearningAgent.update() implements</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="4/03" href="phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Exploration: ε-greedy</a><span class="grp-label">Concepts</span><p class="covers">Why a purely greedy agent gets stuck, the ε-greedy rule, linear decay arithmetic, and why masking must apply inside exploration</p><p class="why">What select_action() actually does before it ever looks exploitative</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="4/04" href="phase-4-q-learning-prerequisites/04-sarsa-on-policy.html">On- vs. off-policy: SARSA</a><span class="grp-label">Concepts</span><p class="covers">SARSA&#x27;s update contrasted term-by-term with Q-learning&#x27;s, and a worked &quot;risky shortcut vs. safe route&quot; example where the two converge to different policies</p><p class="why">Why the plan trains and compares both agents rather than picking one</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="4/05" href="phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html">State discretization</a><span class="grp-label">Concepts</span><p class="covers">Why a table needs a finite key space, and the too-few-bins/too-many-bins tension in general terms</p><p class="why">Sets up why the real binning scheme is a real design decision, not a formality</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="4/06" href="phase-4-q-learning-prerequisites/06-the-binning-bug.html">The binning bug</a><span class="grp-label">Concepts</span><p class="covers">The real plan&#x27;s tire_age binning worked through against Phase 3.5&#x27;s own validated pit-window numbers, showing exactly how coarseness erases a decision no amount of training can recover</p><p class="why">An audit finding recorded against the real plan — read before writing discretize_obs, not after</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="4/07" href="phase-4-q-learning-prerequisites/07-build-it-yourself.html">Build it yourself</a><span class="grp-label">Capstone</span><p class="covers">A toy Q-learning agent and a toy SARSA agent, built side by side and run on identical seeds, plus a deliberately reproduced on-policy leak bug</p><p class="why">Understanding by building, not by reading someone else&#x27;s finished agent</p></div></li>
+            <li><span class="n">08</span><div><a class="pt" data-page-link="4/08" href="phase-4-q-learning-prerequisites/08-this-project-formalized.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">The real discretize_obs, the reward-scale problem worked out numerically, curriculum learning, and two bugs recorded against the real plan</p><p class="why">Bridges the general theory above to the specific files you are about to write</p></div></li>
+            <li><span class="n">09</span><div><a class="pt" data-page-link="4/09" href="phase-4-q-learning-prerequisites/09-code-walkthrough.html">Code walkthrough</a><span class="grp-label">This project</span><p class="covers">A reading guide to q_learning_agent.py, train_tabular.py, and q_learning.yaml — what to look for and why</p><p class="why">Line-level understanding before implementation</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="5">
+          <summary>
+            <span class="num">5</span>
+            <span class="name">DQN Prerequisites</span>
+            <span class="counts" data-phase-count="5">12 pages</span>
+            <p class="desc">Everything you need to build the Dueling Double DQN agent with prioritized experience replay in <code>phase-5-dueling-double-dqn.md</code>: going from a table to a function approximator, target networks, experience replay, the dueling architecture, Double DQN, prioritized replay, and the reward-scale trap.</p>
+            <div class="chain">Assumes: <strong>Phase 1, Phase 3.5, Phase 4</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-5-dqn-prerequisites/00-overview.html">Open Phase 5 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="5/00" href="phase-5-dqn-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="5/01" href="phase-5-dqn-prerequisites/01-table-to-function.html">Table to function</a><span class="grp-label">Concepts</span><p class="covers">Why tabular breaks even with better binning, and function approximation defined generally</p><p class="why">Frames every technique in the rest of this set as a way to make one update rule work on a function instead of a table</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="5/02" href="phase-5-dqn-prerequisites/02-neural-networks-primer.html">Neural networks primer</a><span class="grp-label">Concepts</span><p class="covers">Forward pass, loss, backpropagation, gradient descent, Adam — scoped tightly to what the real network&#x27;s training step does</p><p class="why">The reader has not needed a neural network until this phase</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="5/03" href="phase-5-dqn-prerequisites/03-target-network.html">The target network</a><span class="grp-label">Concepts</span><p class="covers">Why training a network on its own moving target is unstable, and the fix — a slowly-tracking second copy</p><p class="why">The exact mechanism behind target_net and the Polyak update</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="5/04" href="phase-5-dqn-prerequisites/04-experience-replay.html">Experience replay</a><span class="grp-label">Concepts</span><p class="covers">Why correlated, in-order training data is a second, separate instability, and the replay-buffer fix</p><p class="why">The exact mechanism behind PrioritizedReplayBuffer&#x27;s uniform-sampling baseline</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="5/05" href="phase-5-dqn-prerequisites/05-dueling-architecture.html">The dueling architecture</a><span class="grp-label">Concepts</span><p class="covers">Separating V(s) from A(s,a), the identifiability problem, and the mean-subtraction fix, derived</p><p class="why">The exact shape of DuelingDQN&#x27;s two heads</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="5/06" href="phase-5-dqn-prerequisites/06-double-dqn.html">Double DQN</a><span class="grp-label">Concepts</span><p class="covers">Why a max over noisy estimates runs high, the online-chooses / target-scores fix, masking inside the choice, the terminal cut-off, and a full batch of targets worked by hand</p><p class="why">The exact target computed in update(), line by line</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="5/07" href="phase-5-dqn-prerequisites/07-prioritized-replay.html">Prioritized replay</a><span class="grp-label">Concepts</span><p class="covers">Sampling by TD error, the α exponent, importance-sampling weights and β, and the sum tree walked through by hand</p><p class="why">The exact mechanism behind PrioritizedReplayBuffer, and the bug recorded against it</p></div></li>
+            <li><span class="n">08</span><div><a class="pt" data-page-link="5/08" href="phase-5-dqn-prerequisites/08-reward-scale-trap.html">The reward-scale trap</a><span class="grp-label">Concepts</span><p class="covers">Why outputs near −5,000 are reached slowly and silently: Huber loss, gradient clipping, Adam&#x27;s step size and a target that starts at zero — and the reward-centring fix</p><p class="why">The plan&#x27;s own most likely reason this phase looks broken when it isn&#x27;t</p></div></li>
+            <li><span class="n">09</span><div><a class="pt" data-page-link="5/09" href="phase-5-dqn-prerequisites/09-build-it-yourself.html">Build it yourself</a><span class="grp-label">Capstone</span><p class="covers">A staged toy DQN in your own code: a bare network learner, then a target network and replay, a dueling head and Double DQN target, prioritized replay, and a planted bug</p><p class="why">Understanding by building, not by reading someone else&#x27;s finished file</p></div></li>
+            <li><span class="n">10</span><div><a class="pt" data-page-link="5/10" href="phase-5-dqn-prerequisites/10-this-project-formalized.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">The real network counted layer by layer, every hyperparameter turned into what it means over a 260,000-step run, and the issues recorded against the real plan</p><p class="why">Bridges the general theory above to the specific files you are about to write</p></div></li>
+            <li><span class="n">11</span><div><a class="pt" data-page-link="5/11" href="phase-5-dqn-prerequisites/11-code-walkthrough.html">Code walkthrough</a><span class="grp-label">This project</span><p class="covers">A reading guide to dqn_agent.py, train_dqn.py, and dqn.yaml — what to look for and why</p><p class="why">Line-level understanding before implementation</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="6">
+          <summary>
+            <span class="num">6</span>
+            <span class="name">Multi-Car Prerequisites</span>
+            <span class="counts" data-phase-count="6">11 pages</span>
+            <p class="desc">Everything you need to build the multi-car environment and rule-based rivals in <code>phase-6-multi-car-rivals.md</code>: multi-agent MDPs, credit assignment, potential-based shaping, and overtaking/dirty-air modelling.</p>
+            <div class="chain">Assumes: <strong>Phase 1, Phase 3.5, Phase 4, Phase 5</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-6-multi-car-prerequisites/00-overview.html">Open Phase 6 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="6/00" href="phase-6-multi-car-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="6/01" href="phase-6-multi-car-prerequisites/01-multi-car-mdp.html">One car to N</a><span class="grp-label">Concepts</span><p class="covers">What actually changes in the MDP when rivals are added — three new state features, rivals as fixed scripts</p><p class="why">Frames every other page as a consequence of this one change</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="6/02" href="phase-6-multi-car-prerequisites/02-credit-assignment.html">Credit assignment</a><span class="grp-label">Concepts</span><p class="covers">The credit-assignment problem, sparse vs. dense reward, the real plan&#x27;s two proxy reward designs and their risks</p><p class="why">Motivates why the real plan trains and compares three separate reward designs instead of picking one</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="6/03" href="phase-6-multi-car-prerequisites/03-potential-based-shaping.html">Potential-based shaping</a><span class="grp-label">Concepts</span><p class="covers">Ng, Harada &amp; Russell (1999) — why F = γΦ(s′) − Φ(s) provably can&#x27;t change the optimal policy, via return decomposition plus a worked example</p><p class="why">The principled reward-shaping design the real plan claims to use for its third variant</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="6/04" href="phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html">Overtaking &amp; dirty air</a><span class="grp-label">Concepts</span><p class="covers">The real linear dirty-air penalty and sigmoid overtake-probability formulas, worked against the plan&#x27;s own calibration numbers</p><p class="why">The exact math behind overtaking.py</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="6/05" href="phase-6-multi-car-prerequisites/05-position-and-blocking.html">Position vs. the undercut</a><span class="grp-label">Concepts</span><p class="covers">The audit&#x27;s central design-gap finding, and the one-line blocking fix that makes track position a real resource</p><p class="why">Without this, Phase 6&#x27;s most interesting goal — and all of Phase 8 — is unreachable, no matter how long training runs</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="6/06" href="phase-6-multi-car-prerequisites/06-bug-ledger.html">The bug ledger</a><span class="grp-label">Concepts</span><p class="covers">The double-counted rival time, the dead overtake code, the reward that disagrees with the dynamics, the mislabeled shaping, and four smaller items — each taught as a reusable lesson</p><p class="why">These bugs would each individually make a training run look like it worked when it didn&#x27;t</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="6/07" href="phase-6-multi-car-prerequisites/07-non-stationarity.html">Non-stationarity preview</a><span class="grp-label">Concepts</span><p class="covers">Why a learning opponent breaks the fixed-environment assumption Phase 4/5&#x27;s theory relies on, and why scripted rivals sidestep it entirely</p><p class="why">Explains why this phase&#x27;s rivals are deliberately not learning agents, and previews why Phase 8 is harder</p></div></li>
+            <li><span class="n">08</span><div><a class="pt" data-page-link="6/08" href="phase-6-multi-car-prerequisites/08-build-it-yourself.html">Build it yourself</a><span class="grp-label">Capstone</span><p class="covers">A staged toy multi-car race — reproduce the no-blocking failure, fix it, add overtaking, then compare reward designs on a scenario built to make ad-hoc shaping fail</p><p class="why">Understanding by building the exact failure and fix yourself, not just reading about them</p></div></li>
+            <li><span class="n">09</span><div><a class="pt" data-page-link="6/09" href="phase-6-multi-car-prerequisites/09-this-project-formalized.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">The real 19-dimensional observation, the three reward_type configs, the five fixed rival strategies, and the Definition-of-Done items that exist specifically because of pages 5–6</p><p class="why">Bridges the general theory above to the specific files about to be written</p></div></li>
+            <li><span class="n">10</span><div><a class="pt" data-page-link="6/10" href="phase-6-multi-car-prerequisites/10-reading-the-plan.html">Reading the plan&#x27;s code</a><span class="grp-label">This project</span><p class="covers">A critical reading guide to the plan&#x27;s pseudocode, including exactly where each audit finding lives and what its existing tests do and don&#x27;t catch</p><p class="why">Line-level understanding before a single line of src/env/f1_multi_env.py gets written</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="8">
+          <summary>
+            <span class="num">8</span>
+            <span class="name">Self-Play Prerequisites</span>
+            <span class="counts" data-phase-count="8">11 pages</span>
+            <p class="desc">Everything you need to build the multi-agent self-play training loop in <code>phase-8-self-play.md</code>: non-stationarity revisited, Nash equilibria and fictitious play, checkpoint pools, and the PettingZoo API.</p>
+            <div class="chain">Assumes: <strong>Phase 1, Phase 3.5, Phase 4, Phase 5, Phase 6</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-8-self-play-prerequisites/00-overview.html">Open Phase 8 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="8/00" href="phase-8-self-play-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="8/01" href="phase-8-self-play-prerequisites/01-non-stationarity-revisited.html">Non-stationarity, revisited</a><span class="grp-label">Concepts</span><p class="covers">What breaks when the opponent learns too, and the three MARL training paradigms (independent learners, parameter sharing, CTDE)</p><p class="why">Frames why self-play is a genuinely harder problem than Phase 6, not just &quot;Phase 6 with a smarter rival&quot;</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="8/02" href="phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html">Nash &amp; fictitious play</a><span class="grp-label">Concepts</span><p class="covers">Nash equilibria, fictitious self-play, and matching pennies worked by hand: latest-only cycles, the running average converges</p><p class="why">The theoretical target the checkpoint pool is a practical approximation of</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="8/03" href="phase-8-self-play-prerequisites/03-checkpoint-pool.html">Checkpoint pool</a><span class="grp-label">Concepts</span><p class="covers">Recency-biased opponent sampling, worked as a probability calculation, and the self-play evaluation trap</p><p class="why">The exact mechanism behind CheckpointPool</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="8/04" href="phase-8-self-play-prerequisites/04-pettingzoo-apis.html">PettingZoo APIs</a><span class="grp-label">Concepts</span><p class="covers">PettingZoo&#x27;s AEC and Parallel APIs, both taught with a worked micro-example, and why F1 needs Parallel</p><p class="why">The API F1PettingZooEnv is built on</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="8/05" href="phase-8-self-play-prerequisites/05-first-opponent-problem.html">The first opponent</a><span class="grp-label">Concepts</span><p class="covers">The degenerate deterministic first-opponent bug, taught as a general lesson about disguised determinism</p><p class="why">Early self-play trains against a broken opponent if this isn&#x27;t fixed</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="8/06" href="phase-8-self-play-prerequisites/06-blocking-model-dependency.html">The blocking dependency</a><span class="grp-label">Concepts</span><p class="covers">The Phase 6 E4 dependency, restated where it becomes load-bearing, and why the fix must reach F1PettingZooEnv too</p><p class="why">Without it, this phase&#x27;s headline result is unreachable no matter how training goes</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="8/07" href="phase-8-self-play-prerequisites/07-is-it-bimodal.html">Is it bimodal?</a><span class="grp-label">Concepts</span><p class="covers">A permutation-test null baseline for the pit-timing histogram, stratified for causes both cars share, and what it cannot show</p><p class="why">Makes &quot;emergent undercut&quot; a defensible claim, not an eyeballed one</p></div></li>
+            <li><span class="n">08</span><div><a class="pt" data-page-link="8/08" href="phase-8-self-play-prerequisites/08-build-it-yourself.html">Build it yourself</a><span class="grp-label">Capstone</span><p class="covers">The pit-timing duel, solved exactly in seven stages: the payoff, best responses and the latest-only cycle, fictitious play, a pool of best responses, the plan&#x27;s own pool rule, the pit-delta histogram, and the null test on it</p><p class="why">Understanding by building the exact failure and fix yourself</p></div></li>
+            <li><span class="n">09</span><div><a class="pt" data-page-link="8/09" href="phase-8-self-play-prerequisites/09-this-project-formalized.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">F1PettingZooEnv, CheckpointPool, and the independent-learner training loop&#x27;s real parameters</p><p class="why">Bridges the general theory above to the specific files about to be written</p></div></li>
+            <li><span class="n">10</span><div><a class="pt" data-page-link="8/10" href="phase-8-self-play-prerequisites/10-reading-the-plan.html">Reading the plan&#x27;s code</a><span class="grp-label">This project</span><p class="covers">A critical reading guide to the plan&#x27;s pseudocode, including exactly where each finding lives and what its tests do and don&#x27;t catch</p><p class="why">Line-level understanding before a single line of src/agents/self_play_trainer.py gets written</p></div></li>
+            </ul>
+          </div>
+        </details>
+        <details class="phase-row" data-phase="9">
+          <summary>
+            <span class="num">9</span>
+            <span class="name">PPO Prerequisites</span>
+            <span class="counts" data-phase-count="9">12 pages</span>
+            <p class="desc">Everything you need to build the MaskablePPO training and DQN-comparison work in <code>phase-9-ppo-sb3.md</code>: policy gradients, actor-critic and advantage, generalized advantage estimation, and PPO's clipped objective.</p>
+            <div class="chain">Assumes: <strong>Phase 1, Phase 3.5, Phase 4, Phase 5, Phase 6, Phase 8</strong></div>
+          </summary>
+          <div class="phase-body">
+            <a class="start" href="phase-9-ppo-prerequisites/00-overview.html">Open Phase 9 overview →</a>
+            <ul class="page-map">
+            <li><span class="n">00</span><div><a class="pt" data-page-link="9/00" href="phase-9-ppo-prerequisites/00-overview.html">Overview</a></div></li>
+            <li><span class="n">01</span><div><a class="pt" data-page-link="9/01" href="phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html">Policy gradients: REINFORCE</a><span class="grp-label">Concepts</span><p class="covers">The policy-gradient theorem, derived, and REINFORCE built on it, with a hand-worked softmax-gradient example</p><p class="why">The foundation everything else in this phase sits on top of</p></div></li>
+            <li><span class="n">02</span><div><a class="pt" data-page-link="9/02" href="phase-9-ppo-prerequisites/02-actor-critic-advantage.html">Actor-critic &amp; advantage</a><span class="grp-label">Concepts</span><p class="covers">Baselines, the critic, and A(s,a) = Q(s,a) − V(s), with a hand-worked variance comparison</p><p class="why">Why raw REINFORCE is too noisy in practice, and what fixes it</p></div></li>
+            <li><span class="n">03</span><div><a class="pt" data-page-link="9/03" href="phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html">Generalized advantage estimation</a><span class="grp-label">Concepts</span><p class="covers">The bias-variance dial between 1-step and Monte Carlo advantage estimates, worked numerically at three λ values</p><p class="why">What SB3&#x27;s MaskablePPO actually computes, silently, via a config key the real plan never sets</p></div></li>
+            <li><span class="n">04</span><div><a class="pt" data-page-link="9/04" href="phase-9-ppo-prerequisites/04-ppo-clipped-objective.html">PPO&#x27;s clipped objective</a><span class="grp-label">Concepts</span><p class="covers">The probability ratio, the surrogate objective, and the clip, worked through both signs of advantage</p><p class="why">The exact mechanism clip_range: 0.2 and n_epochs: 10 in the real config rely on</p></div></li>
+            <li><span class="n">05</span><div><a class="pt" data-page-link="9/05" href="phase-9-ppo-prerequisites/05-build-vs-buy.html">Why build vs. buy</a><span class="grp-label">Concepts</span><p class="covers">Which pieces of PPO fail loudly vs. quietly when implemented slightly wrong, and the general engineering heuristic this illustrates</p><p class="why">The README&#x27;s &quot;PPO vs DQN: Build vs Library&quot; section, and the project&#x27;s portfolio-framing point</p></div></li>
+            <li><span class="n">06</span><div><a class="pt" data-page-link="9/06" href="phase-9-ppo-prerequisites/06-stable-baselines3-api.html">Stable-Baselines3&#x27;s API</a><span class="grp-label">Concepts</span><p class="covers">VecEnv, the rollout/update loop behind .learn(), and MaskablePPO&#x27;s masked action distribution, taught generically</p><p class="why">The API sb3_wrapper.py and ppo_agent.py are direct instantiations of</p></div></li>
+            <li><span class="n">07</span><div><a class="pt" data-page-link="9/07" href="phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html">Lambdas, processes &amp; the guard</a><span class="grp-label">Concepts</span><p class="covers">Pickling and process-start methods, then what the audit&#x27;s lambda claim gets wrong: SB3 uses cloudpickle, and the real Windows trap is a missing __main__ guard</p><p class="why">Where J1&#x27;s fix really belongs, and why DummyVecEnv is the better choice here</p></div></li>
+            <li><span class="n">08</span><div><a class="pt" data-page-link="9/08" href="phase-9-ppo-prerequisites/08-unfair-comparison.html">The unfair comparison</a><span class="grp-label">Concepts</span><p class="covers">The ~7.7× training-budget mismatch between the real plan&#x27;s DQN and PPO configs, and two genuine fixes</p><p class="why">Without this fix, any DQN-vs-PPO result the phase produces is uninterpretable</p></div></li>
+            <li><span class="n">09</span><div><a class="pt" data-page-link="9/09" href="phase-9-ppo-prerequisites/09-build-it-yourself.html">Build it yourself</a><span class="grp-label">Capstone</span><p class="covers">Seven stages on the toy race: a masked table policy, REINFORCE, GAE and a critic, a destructive update, the clip, a small PPO, and ten epochs per batch</p><p class="why">Understanding by building the exact mechanism and the exact failure yourself</p></div></li>
+            <li><span class="n">10</span><div><a class="pt" data-page-link="9/10" href="phase-9-ppo-prerequisites/10-this-project-formalized.html">This project, formalized</a><span class="grp-label">This project</span><p class="covers">sb3_wrapper.py, ppo_agent.py, and configs/ppo.yaml&#x27;s real parameters mapped onto pages 01–08</p><p class="why">Bridges the general theory above to the specific files about to be written</p></div></li>
+            <li><span class="n">11</span><div><a class="pt" data-page-link="9/11" href="phase-9-ppo-prerequisites/11-reading-the-plan.html">Reading the plan&#x27;s code</a><span class="grp-label">This project</span><p class="covers">A critical reading guide to the plan&#x27;s pseudocode, including exactly where each fix belongs and what the Definition of Done does and doesn&#x27;t catch</p><p class="why">Line-level understanding before a single line of src/agents/ppo_agent.py gets written</p></div></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <h2>How the course works</h2>
+      <p>The sets are cumulative: each assumes every set above it and nothing later. Read top to bottom on a first pass, and jump straight to a phase only once the sets it lists under "Assumes" are behind you.</p>
+      <p>Every set has the same three parts, marked in the sidebar. <strong>Concepts</strong> build one continuous argument and are read in order, with the F1 examples inside them as illustration. <strong>Capstone</strong> is the hands-on page: you build a small toy version of the phase's technique yourself, one complication at a time, under names that deliberately do not match the real project. <strong>This project</strong> then maps the same ideas onto the real design and gives a reading guide to the phase's implementation plan. Terms from every set are collected in the <a class="inline-link" href="glossary.html">glossary</a>.</p>
+      <p><strong>Labs.</strong> Where a set has labs, every page ends in one: a hand calculation or quiz checked in the page, or a notebook or code exercise in <code>prerequisites/labs/</code>, opened and checked with <code>python -m labs</code> from inside the <code>prerequisites/</code> folder (see <code>prerequisites/README.md</code>). The capstone page is the brief for a longer staged build. Phases 1, 3.5 and 4 have labs today; the other sets get theirs phase by phase.</p>
+      <p>The sidebar marks a page as opened when you visit it and as finished when you reach its end, and ticks in-page labs as you complete them. That record lives in this browser only. Code labs are ticked by running <code>python -m labs status</code> and reloading.</p>
+
+      <h2>Where things stand</h2>
+      <div class="note grounded">
+        <div class="tag">Read before relying on these pages</div>
+        <p><strong>Only Phase 0 of the project is implemented.</strong> The code-walkthrough pages for Phases 1, 3.5, 4 and 5 are reading guides to files that are planned, not yet present in <code>src/</code>. Phases 6, 8 and 9 already say this about themselves.</p>
+      </div>
+      <div class="note generic">
+        <div class="tag">Not covered yet</div>
+        <p>Phases 2, 7, and any phase after 9 have no prerequisite set here. A new set is a new phase folder plus one entry in <code>assets/course.js</code>.</p>
+      </div>
+
+      <p><button class="reset-btn" id="reset-progress" type="button">Reset reading progress</button></p>
+    </div>
+  </main>
+</div>
+<script src="assets/course.js"></script>
+<script src="assets/progress.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+id: p4-04
+title: SARSA on the cliff
+page: phase-4-q-learning-prerequisites/04-sarsa-on-policy.html
+format: notebook
+minutes: 20
+tasks: [update, "predict:routes", B, "predict:low-epsilon", C]
+goal: >-
+  You will implement SARSA's update, predict which route each algorithm learns and which one scores better while training, run both, and then turn exploration down to see the difference disappear.
+environment: >-
+  Cliff Walking (Sutton &amp; Barto, Example 6.6), the experiment this page's worked example is a miniature of.
+hints:
+  - "TODO 1: start from q_learning_update, which is shown just above. One expression in it says 'the best next action'. SARSA needs 'the next action that was actually chosen', and that action is handed to you as a2."
+  - "TODO 1: Q[s2] is the row of four values for the next state. Q[s2].max() is the best of them; Q[s2][a2] is the one for the chosen action. The `done` case does not change."
+  - "TODO 1: target = r if done else r + Q[s2][a2]; Q[s][a] += alpha * (target - Q[s][a])."

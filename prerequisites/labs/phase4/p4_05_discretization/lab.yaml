@@ -1,0 +1,14 @@
+id: p4-05
+title: How many bins?
+page: phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html
+format: notebook
+minutes: 20
+tasks: [grouping, learning, "predict:bins", C, D]
+goal: >-
+  You will write a binning function and a learner that keeps one value per bin, then measure both failures this page describes on one problem, too few bins and too many, and find that the best count moves with the training budget.
+environment: >-
+  the 1000-state random walk with state aggregation (Sutton &amp; Barto, Example 9.1).
+hints:
+  - "TODO 1: shift the state so it starts at 0, scale it by n_groups / 1000 using whole-number division, and cap the result at n_groups - 1. TODO 2: two nested loops, episodes outside and steps inside, with page 01's update applied to a bin."
+  - "TODO 1: (state - 1) * n_groups // WALK_STATES. TODO 2: inside the step loop, call envs.walk_step, build the target (the reward alone when done, otherwise reward plus the value of the next state's bin), and move the current state's bin toward it by alpha times the difference."
+  - "TODO 2: values = np.zeros(n_groups); for each episode: state, done = WALK_START, False; while not done: next_state, reward, done = envs.walk_step(state, rng); target = reward if done else reward + values[group_of(next_state, n_groups)]; g = group_of(state, n_groups); values[g] += alpha * (target - values[g]); state = next_state."

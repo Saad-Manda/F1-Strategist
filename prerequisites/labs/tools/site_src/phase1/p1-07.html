@@ -1,0 +1,75 @@
+<!-- page: phase-1-rl-prerequisites/07-code-walkthrough.html | title: What each test defends | format: quiz | minutes: 10 -->
+        <p class="lab-goal">The page says the test list is “every way an earlier draft of this plan was found to be wrong”. Check that you can read it that way.</p>
+
+        <div class="lab-part">
+          <h3>1 · Match each planned test to the bug it would catch</h3>
+          <div class="lab-q" data-type="select" data-answer="order" data-explain="The pit-lap ordering rule: time the lap on the old tyre, then fit the new one.">
+            <label><code>test_pit_lap_runs_on_old_tyre</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="replay" data-explain="Fresh sampling per episode, so there is no answer key to memorise.">
+            <label><code>test_sc_timing_is_not_memorizable</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="cap" data-explain="The cap on the cliff term, checked on every path that could let it grow.">
+            <label><code>test_cliff_is_capped</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="sum" data-explain="Page 3's identity, return = −total race time, checked in code.">
+            <label><code>test_return_equals_negative_race_time</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rule" data-explain="The mask's half of the two-compound rule; the −500 penalty is the backstop behind it.">
+            <label><code>test_action_mask_forces_pit_near_end</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Pure function, or method that needs episode state?</h3>
+          <div class="lab-q" data-type="multi" data-answer="a,b,c" data-explain="Everything in dynamics.py takes its inputs explicitly. step(), reset() and _get_obs() read or write the state of one particular race." data-nudge="Which of these live in dynamics.py, and which on the environment class?">
+            <span class="lab-prompt">Tick the ones that are pure functions.</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> <code>compute_lap_time</code></label>
+            <label class="lab-opt"><input type="checkbox" value="b"> <code>tyre_degradation</code></label>
+            <label class="lab-opt"><input type="checkbox" value="c"> <code>compute_action_mask</code></label>
+            <label class="lab-opt"><input type="checkbox" value="d"> <code>step()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="e"> <code>reset()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="f"> <code>_get_obs()</code></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="A pure function can be asked about any state, including ones no live race has visited, and three callers can share it without keeping anything in sync." data-nudge="Think about what the oracle has to evaluate that a running environment never does.">
+            <span class="lab-prompt">Why does the DP oracle in particular need the physics to be pure functions?</span>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="a"> Pure functions run faster than methods.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="b"> It has to evaluate lap times for hypothetical states the live environment was never actually in.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="c"> Gymnasium's <code>check_env</code> rejects environments whose physics is written as methods.</label>
+          </div>
+        </div>

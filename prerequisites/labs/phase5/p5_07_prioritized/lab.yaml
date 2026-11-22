@@ -1,0 +1,14 @@
+id: p5-07
+title: A memory that ranks
+page: phase-5-dqn-prerequisites/07-prioritized-replay.html
+format: pytest
+minutes: 25
+files: [per.py]
+goal: >-
+  You will build page 07's sum tree in one flat array, turn TD errors into sampling probabilities and importance weights, and store new transitions at the current maximum priority. Then you write the test the real plan is missing: one that fails on the plan's add() and passes on a correct one. The plan's version is provided, so you can watch your test catch it.
+environment: >-
+  page 07's four-leaf tree and four-transition buffer, then a buffer of 1,000 transitions with 31 rare ones.
+hints:
+  - "Task 1: update converts the leaf index to a node index (add capacity - 1), works out the change, and climbs to the root adding it. find walks down while k is not yet a leaf (k < capacity - 1). Task 2 is one line each. Task 3: read the largest leaf before storing anything. Task 4: pick priorities whose largest leaf is above 1, then compare the new leaf with that maximum."
+  - "Task 1 find: left = 2 * k + 1; go left if mass <= self.nodes[left], else subtract and go to left + 1; at the end return k - (self.capacity - 1). Task 2: w = (n_stored * probs) ** (-beta), then w / w.max(). Task 4: give four transitions TD errors [8, 0.5, 0.5, 0.5]; the maximum leaf is then 3.482."
+  - "Task 3: top = float(self.tree.leaves().max()); self.items[self.next_slot] = item; self.tree.update(self.next_slot, top if top > 0 else 1.0); then advance next_slot and count as in p5-04. Task 4: memory = memory_class(capacity=8); push 4 items; memory.update_priorities(np.arange(4), [8.0, 0.5, 0.5, 0.5]); before = memory.tree.leaves()[:4].max(); memory.push('new'); assert abs(memory.tree.leaf(4) - before) < 1e-9."

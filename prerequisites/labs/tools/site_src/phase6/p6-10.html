@@ -1,0 +1,42 @@
+<!-- page: phase-6-multi-car-prerequisites/10-reading-the-plan.html | title: What the plan's tests can see | format: quiz | minutes: 10 -->
+        <p class="lab-goal">The page's table, extended to all five lettered findings, plus three questions on reading the plan in the right order.</p>
+
+        <div class="lab-part">
+          <h3>1 · The plan's five tests against E1 to E5</h3>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Positions stay a valid permutation under E1 and E2; the dirty-air formula is right under E3; the observation shape is unaffected by everything; the pit-lap test reads tire_age. E4 and E5 are about what the race and the reward mean, which none of the five tests ask." data-nudge="For each finding, which quantity goes wrong? Is it one of the quantities the five tests read?">
+            <label>How many of the five findings E1 to E5 is caught by at least one of the plan's five tests? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="The two dirty-air tests check the formula's output. E3 is about where that output goes: the number is right, it just never reaches the lap time.">
+            <span class="lab-prompt">Why do the two dirty-air tests pass with E3 present?</span>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="a"> they use the wrong constants</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="b"> E3 only appears under a safety car</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="c"> they test the penalty's value, and E3 is about the value never being applied to the car</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reading order</h3>
+          <div class="lab-q" data-type="select" data-answer="rival" data-explain="RivalState.advance_lap still calls compute_lap_time with Phase 1's original arguments (laps_since_pit, safety_car_active), and reads params['pit_loss'] directly. It will not run against the revised dynamics module until that is fixed.">
+            <label>Which file has to be brought up to date with Phase 1's revised <code>compute_lap_time</code> before anything else can run?<br><select>
+              <option value="">choose…</option>
+              <option value="rival">rival.py</option>
+              <option value="overtaking">overtaking.py</option>
+              <option value="env">f1_multi_env.py</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The line caps a car's lap time, so it belongs where lap times are computed, before they are added to the totals. Positions are then read off the totals as before. As a comment or a post-processing step it changes nothing.">
+            <span class="lab-prompt">Where does page 05's blocking line belong?</span>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="a"> in f1_multi_env.py's lap-time computation, before the times are accumulated</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="b"> in _update_positions, after sorting</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="c"> in overtaking.py's attempt_overtake</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="With Φ = −position/n_cars kept at the finish, the leftover term is a bonus of 1/n_cars per place gained by the end. A plan that trades a little time for a better finish can now beat the unshaped optimum. Setting Φ = 0 on the last step makes the shift the same for every race, and the test passes.">
+            <span class="lab-prompt">The Definition of Done says the fixed potential_shaping and the unshaped reward must agree on the optimal policy. E5 is fixed (a real Φ(s′) − Φ(s)), but Φ is not set to 0 at the finish. Is the test guaranteed to pass?</span>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="a"> yes: it is now potential-based shaping</label>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="b"> no: the finishing potential depends on the finishing position, which works as a hidden position bonus</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>None of E1 to E5 is caught by the plan's five tests. The dirty-air tests check the value, not where it goes. rival.py needs the revised signature first. The blocking line belongs where lap times are computed, before accumulation. Without Φ = 0 at the finish the agreement test is not guaranteed: the leftover term rewards finishing position.</p>
+        </details>

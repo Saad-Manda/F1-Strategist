@@ -1,0 +1,52 @@
+<!-- page: phase-6-multi-car-prerequisites/01-multi-car-mdp.html | title: Three new numbers | format: paper | minutes: 10 -->
+        <p class="lab-goal">Build the three new observation features for a race snapshot by hand, then see the one case where the plan's version of them loses information.</p>
+
+        <div class="lab-part">
+          <h3>1 · A three-car snapshot</h3>
+          <p>Accumulated race time after lap 30: the agent <strong>2,412.6 s</strong>, RIVAL_A <strong>2,409.9 s</strong>, RIVAL_B <strong>2,431.0 s</strong>. Less time is further ahead. Gaps are normalised by the plan's 60-second cap, <code>min(gap / 60, 1)</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="2.7" data-tol="0.01" data-explain="RIVAL_A is the car immediately ahead: 2,412.6 − 2,409.9 = 2.7 s." data-nudge="Which rival has less time than the agent, and by how much?">
+            <label><code>gap_to_car_ahead</code>, seconds &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.045" data-tol="0.002" data-explain="2.7 / 60 = 0.045." data-nudge="Divide by 60.">
+            <label>…normalised &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.3067" data-tol="0.002" data-explain="RIVAL_B is behind by 2,431.0 − 2,412.6 = 18.4 s; 18.4 / 60 = 0.307." data-nudge="The car behind is the one with more time.">
+            <label><code>gap_to_car_behind</code>, normalised &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.667" data-tol="0.002" data-explain="The agent is second of three: 2 / 3 = 0.667." data-nudge="position / n_cars.">
+            <label><code>position_normalized</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · When the agent leads</h3>
+          <p>Now suppose the agent leads. The plan's <code>_compute_gap_to_ahead</code> returns a sentinel of <code>99.0</code> when there is no car ahead.</p>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0.001" data-explain="min(99 / 60, 1) = 1.0." data-nudge="Apply the same normalisation to 99.">
+            <label>What does the normalised <code>gap_to_car_ahead</code> become? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Any gap of 60 s or more is also capped at 1.0. Leading and being 75 s behind the car ahead give the network the same number: page 06's E6c. The fix is an explicit is_leader feature, which the capstone builds.">
+            <span class="lab-prompt">Which other situation gives exactly the same normalised value?</span>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="a"> right behind the car ahead, 0.5 s back</label>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="b"> 75 s behind the car ahead</label>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="c"> none: 1.0 only ever means "leading"</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Two consequences</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The first layer's weight matrix has one column per input. A checkpoint stores 16 columns; the new network needs 19, so loading fails on a shape mismatch, and there is no meaningful way to invent the three missing columns.">
+            <span class="lab-prompt">Why can a Phase 5 checkpoint not simply be loaded into the 19-input network?</span>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="a"> its first layer's weights have 16 input columns, not 19</label>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="b"> the output layer has a different number of actions</label>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="c"> the dueling head cannot handle more than 16 inputs</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The rivals follow scripts fixed before the race. From the agent's side they behave like the weather trace: the same state and action always lead to the same distribution of outcomes. Page 07 is about the case where that stops being true.">
+            <span class="lab-prompt">Four rivals with fixed pit-stop scripts are added. From the agent's point of view, is the environment still stationary?</span>
+            <label class="lab-opt"><input type="radio" name="p601-stat" value="a"> no: other cars are now making decisions</label>
+            <label class="lab-opt"><input type="radio" name="p601-stat" value="b"> yes: their decisions never change in response to anything the agent learns</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>Gap ahead 2.7 s → 0.045; gap behind 18.4 s → 0.307; position 2/3 = 0.667. Leading gives min(99/60, 1) = 1.0, the same as any gap of 60 s or more, e.g. 75 s behind. The checkpoint's first layer has 16 input columns. Fixed scripts keep the environment stationary.</p>
+        </details>

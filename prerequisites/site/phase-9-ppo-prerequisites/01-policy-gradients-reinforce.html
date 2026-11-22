@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Policy gradients: REINFORCE — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/01">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 01 of 11 — A little math</p>
+      <h1>Policy Gradients From Scratch: The REINFORCE Idea</h1>
+      <p class="dek">Everything through Phase 8 learned a value function and acted greedily. Phase 9's whole family of algorithms starts from a different question: why not just optimize the policy directly?</p>
+
+      <h2>A different objective</h2>
+      <p>Phase 4 and Phase 5 both learn <code>Q(s,a)</code> and then act by taking <code>argmax_a Q(s,a)</code> — the policy is never a first-class object, it's a byproduct of the value function. Policy gradient methods flip this around: parameterize the policy itself, <code>π_θ(a|s)</code>, a function of state with learnable parameters <code>θ</code> that outputs a probability over actions, and adjust <code>θ</code> directly so that actions which led to high return become more likely, and actions that led to low return become less likely. The objective is the expected return under the current policy:</p>
+      <blockquote class="eq">J(θ) = E_τ~π_θ [ G(τ) ]</blockquote>
+      <p>where <code>τ</code> is a full trajectory (state/action/reward sequence) and <code>G(τ)</code> is its total return. Compare this to Phase 4/5's objective, which was never phrased as maximizing anything about <code>θ</code> directly — it was minimizing TD error toward a bootstrapped target. Here there is one objective, <code>J(θ)</code>, and the whole derivation below is about how to compute <code>∇_θ J(θ)</code> so gradient ascent can be run on it directly.</p>
+
+      <h2>The policy gradient theorem</h2>
+      <p>The obstacle: <code>J(θ)</code> is an expectation over trajectories whose probabilities depend on the environment's (unknown) transition dynamics as well as on <code>θ</code>. Differentiating through unknown dynamics looks impossible. The policy gradient theorem shows it isn't necessary. Start by writing the expectation as a sum over trajectories weighted by their probability:</p>
+      <blockquote class="eq">∇_θ J(θ) = ∇_θ Σ_τ P(τ; θ) · G(τ)
+           = Σ_τ ∇_θ P(τ; θ) · G(τ)</blockquote>
+      <p>Now apply the log-derivative trick — for any differentiable, strictly positive function <code>P</code>, <code>∇_θ P = P · ∇_θ log P</code> (this is just the chain rule run in reverse: <code>∇_θ log P = ∇_θ P / P</code>). Substituting:</p>
+      <blockquote class="eq">∇_θ J(θ) = Σ_τ P(τ; θ) · ∇_θ log P(τ; θ) · G(τ)
+           = E_τ~π_θ [ ∇_θ log P(τ; θ) · G(τ) ]</blockquote>
+      <p>This is now an expectation again — exactly the form Monte Carlo sampling can estimate from trajectories actually rolled out. The last step removes the dependence on the environment's dynamics entirely: a trajectory's probability factors as <code>P(τ;θ) = ρ(s_0) · Π_t π_θ(a_t|s_t) · P(s_{t+1}|s_t,a_t)</code>, and taking <code>log</code> turns the product into a sum, of which only the <code>π_θ(a_t|s_t)</code> terms depend on <code>θ</code> — every transition-probability term's gradient with respect to <code>θ</code> is exactly zero. What survives is:</p>
+      <blockquote class="eq">∇_θ J(θ) = E_π [ Σ_t ∇_θ log π_θ(a_t|s_t) · G ]</blockquote>
+      <p>The gradient of the expected return equals the expected value of the policy's own log-probability gradient, scaled by the return — computable purely from the policy's known functional form and a sampled return, with no knowledge of how the environment works required at all.</p>
+
+      <h2>REINFORCE</h2>
+      <p>The algorithm built directly on this result: run a full episode under the current policy, and for every <code>(s, a)</code> visited, nudge <code>θ</code> in the direction of <code>∇_θ log π_θ(a|s) · G</code> — increasing the log-probability of actions that were followed by high return, decreasing it for actions followed by low return. This is a <strong>Monte Carlo</strong> method: it uses the full realized return <code>G</code> for the whole episode (the same quantity Phase 3.5's oracle computes exactly, by brute force, rather than a bootstrapped one-step target the way Phase 4's TD update does).</p>
+
+      <h2>A hand-worked example: the softmax gradient</h2>
+      <p>A tiny 2-action policy: two logits <code>z_R</code>, <code>z_P</code>, and <code>π(a) = softmax(z)_a = e^{z_a} / (e^{z_R} + e^{z_P})</code>. Suppose <code>z_R = 1.0</code>, <code>z_P = 0.0</code>:</p>
+      <blockquote class="eq">π(R) = e^1 / (e^1 + e^0) = 2.718 / 3.718 = 0.731
+π(P) = e^0 / (e^1 + e^0) = 1.000 / 3.718 = 0.269</blockquote>
+      <p>The softmax log-gradient has a clean closed form worth deriving once: for the action actually taken, <code>∂ log π(a)/∂z_a = 1 − π(a)</code>; for every other action <code>b</code>, <code>∂ log π(a)/∂z_b = −π(b)</code>. Suppose action <code>R</code> was sampled and the episode returned <code>G = +4</code>:</p>
+      <blockquote class="eq">∂ log π(R)/∂z_R = 1 − π(R) = 1 − 0.731 = 0.269
+∂ log π(R)/∂z_P = −π(P)     = −0.269
+
+Update (learning rate α = 0.1):
+  z_R ← z_R + α · G · 0.269  = 1.0 + 0.1 · 4 · 0.269  = 1.0 + 0.1076 = 1.108
+  z_P ← z_P + α · G · (−0.269) = 0.0 + 0.1 · 4 · (−0.269) = 0.0 − 0.1076 = −0.108</blockquote>
+      <p>The logit for the action that was actually taken increases, and the logit for the action not taken decreases — both because the return was positive. If <code>G</code> had been negative, both updates would flip sign: the action taken would become <em>less</em> likely. This one step is the entire content of REINFORCE, repeated over every timestep of every episode.</p>
+
+      <div class="note generic">
+        <div class="tag">Why this isn't the end of the story</div>
+        <p>Raw returns <code>G</code> are noisy — the same action in the same state can be followed by wildly different total returns across episodes, purely from what happens later (Phase 3.5's DP oracle already showed how much variance exists across scenario draws; here the concern is variance in the <em>training signal itself</em>, not just in evaluation). REINFORCE as derived above is correct in expectation but can be very slow to converge in practice as a direct result. <a class="xref" href="02-actor-critic-advantage.html">Page 02</a> fixes exactly this, without changing what the gradient estimator is aiming at.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p9-01" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p9-01 · Notebook · about 20 min</span>
+        <h2>The log-gradient trick</h2>
+        <p class="lab-goal">Write the softmax log-gradient and check it against finite differences, then build REINFORCE on a corridor where every fixed choice of action loops forever, and watch it find the one probability that works. Last, a prediction: what is the best a policy that always picks the same action can do here?</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, in the page · one REINFORCE step by hand</h3>
+          <p>Three actions with logits <code>z = (0.5, 0, −1)</code>. The <strong>middle</strong> action is sampled, the return from that step is <code>G = −3</code>, and the step size is <code>α = 0.2</code>. Give each answer to four decimals (±0.005 is accepted).</p>
+          <div class="lab-q" data-type="num" data-answer="0.5465" data-tol="0.005" data-explain="e^0.5 = 1.6487, e^0 = 1, e^−1 = 0.3679; the sum is 3.0166, and 1.6487 / 3.0166 = 0.5465." data-nudge="Exponentiate each logit, then divide by the sum of all three.">
+            <label>π(first) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.3315" data-tol="0.005" data-explain="1 / 3.0166 = 0.3315." data-nudge="Same sum underneath, e^0 = 1 on top.">
+            <label>π(middle) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.1220" data-tol="0.005" data-explain="0.3679 / 3.0166 = 0.1220. The three add up to 1." data-nudge="Or 1 minus the other two.">
+            <label>π(last) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>The gradient of log π(middle) with respect to the logits is the one-hot vector of the sampled action minus the probabilities.</p>
+          <div class="lab-q" data-type="num" data-answer="-0.5465" data-tol="0.005" data-explain="0 − 0.5465." data-nudge="The first action was not sampled: 0 minus its probability.">
+            <label>∂ log π(middle) / ∂z₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.6685" data-tol="0.005" data-explain="1 − 0.3315." data-nudge="The sampled action: 1 minus its probability.">
+            <label>∂ log π(middle) / ∂z₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.1220" data-tol="0.005" data-explain="0 − 0.1220. The three components add up to 0: adding the same number to every logit changes no probability." data-nudge="0 minus its probability.">
+            <label>∂ log π(middle) / ∂z₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now the update <code>z ← z + α · G · ∇ log π(middle)</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="0.8279" data-tol="0.005" data-explain="0.5 + 0.2 × (−3) × (−0.5465) = 0.5 + 0.3279." data-nudge="α · G = −0.6. Multiply that by the first gradient component and add.">
+            <label>new z₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.4011" data-tol="0.005" data-explain="0 + (−0.6) × 0.6685." data-nudge="α · G = −0.6, times 0.6685.">
+            <label>new z₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.9268" data-tol="0.005" data-explain="−1 + (−0.6) × (−0.1220) = −1 + 0.0732." data-nudge="α · G = −0.6, times −0.1220, added to −1.">
+            <label>new z₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="G is negative, so the step goes against the log-gradient. The sampled action loses probability, and the other two gain in proportion to how likely they already were. This is the sign flip of the page: with every return negative, as in a race, every sampled action is pushed down, and only a baseline (page 02) tells a good negative return from a bad one.">
+            <span class="lab-prompt">What did the update do to the action that was taken?</span>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="a"> made it more likely: it was the action the agent chose</label>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="b"> made it less likely: its return was negative</label>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="c"> left it alone: only the actions not taken move</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Probabilities 0.5465, 0.3315, 0.1220. Log-gradient of the middle action: (−0.5465, 0.6685, −0.1220), which adds up to 0. With α · G = −0.6 the new logits are (0.8279, −0.4011, −0.9268): the middle action drops from 0.33 to about 0.21.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> the short corridor with switched actions (Sutton &amp; Barto, Example 13.1): four cells, −1 per step, the middle cell's actions reversed, and nothing in the observation that tells the cells apart.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-01</code></div>
+          <div><span>Check</span><code>python -m labs check p9-01</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-01</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_01_log_gradient/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_01_log_gradient/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: subtract the largest logit before exponentiating, then divide by the sum. TODO 2 is page 01&#x27;s formula: start from minus the probabilities and add 1 at the action taken. TODO 3: for one episode, the returns-to-go G_t are a reversed cumulative sum of the rewards; each step contributes G_t times d log pi(a_t) / d theta.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 2: g = -softmax(z); g[a] += 1; return g. In the corridor the policy&#x27;s two logits are (0, theta), so d log pi(right) / d theta = 1 - p and d log pi(left) / d theta = -p, where p = corridor.p_right(theta).</p></details>
+        <details><summary>Hint 3</summary><p>TODO 3: G = np.cumsum(rewards[::-1])[::-1]; return sum(((1 - p) if a == corridor.RIGHT else -p) * g for (cell, a, r), g in zip(ep, G)). Compute p once, at the theta the episode was played with.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

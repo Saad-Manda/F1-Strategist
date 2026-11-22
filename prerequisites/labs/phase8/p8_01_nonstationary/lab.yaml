@@ -1,0 +1,14 @@
+id: p8-01
+title: When the opponent learns too
+page: phase-8-self-play-prerequisites/01-non-stationarity-revisited.html
+format: notebook
+minutes: 15
+tasks: [A, "predict:settle", B]
+goal: >-
+  Put two of Phase 4's simplest learners against each other in matching pennies and watch neither settle, because each is the other's moving environment. Then fill a replay buffer against an opponent that has since changed, and measure how wrong the replayed values are about the game being played now.
+environment: >-
+  matching pennies: two players show heads or tails, one wins on a match, the other on a mismatch, and no action is best against everything.
+hints:
+  - "TODO 1 is Phase 4's update with no next state: q[a] moves alpha of the way to the reward. TODO 2 is epsilon-greedy over two numbers; on a tie pick either at random. TODO 3 repeats TODO 1 on pairs drawn from the buffer."
+  - "TODO 2: if rng.random() < eps: return int(rng.integers(len(q))); best = np.flatnonzero(q == q.max()); return int(rng.choice(best)). The column player's reward is minus the row player's."
+  - "TODO 3: for _ in range(updates): a, o = buffer[int(rng.integers(len(buffer)))]; update(q, a, U[a, o], alpha). Then return q."

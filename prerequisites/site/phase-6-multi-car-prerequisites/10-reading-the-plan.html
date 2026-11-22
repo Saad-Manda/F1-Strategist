@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Reading the plan's code — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/10">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 10 of 10 — Reading a plan critically</p>
+      <h1>Reading the Implementation Plan's Code</h1>
+      <p class="dek">Unlike every code-walkthrough page in the earlier prerequisite sets, this one points at a plan's pseudocode, not a file that has actually been built and run.</p>
+
+      <div class="note grounded">
+        <div class="tag">Why this page is different</div>
+        <p>Phase 6 hasn't been implemented — there is no <code>src/env/f1_multi_env.py</code>, <code>rival.py</code>, or <code>overtaking.py</code> in the repository yet. What follows reads the pseudocode inside <code>.antigravity/plans/phase-6-multi-car-rivals.md</code> itself. Part of the point of this page is that a plan's own code sample is not automatically correct just because it's written in a plan — <a class="xref" href="05-position-and-blocking.html">pages 05</a> and <a class="xref" href="06-bug-ledger.html">06</a> found a missing model and five bugs in it before a single line was ever run. Reading a plan this way, before implementation starts, is the whole reason those findings exist rather than being discovered three weeks into a confusing training run.</p>
+      </div>
+
+      <h2>Reading order</h2>
+      <p><strong><code>rival.py</code>'s <code>RivalState.advance_lap</code> first</strong> — this is where E1's double-add lives (<a class="xref" href="06-bug-ledger.html">page 06</a>), and where the plan's own cross-phase audit flags a second issue worth knowing before reading a line further: this file, as sketched in the Phase 6 plan, still calls <code>compute_lap_time</code> with Phase 1's <em>original</em> five-argument signature. Phase 1's revised contract dropped <code>laps_since_pit</code> and replaced <code>safety_car_active: bool</code> with <code>track_status: int</code> — <code>rival.py</code> needs updating for that before it will even run against the real dynamics module. Rivals also need to call <code>compute_pit_loss(track_status, params)</code> rather than reading <code>params["pit_loss"]</code> directly, or they pay full price for pit stops the agent gets at Phase 0.5's calibrated safety-car discount (this is E6d's flip side, from <a class="xref" href="06-bug-ledger.html">page 06</a> — rivals need the same discount mechanism, not just a reason to want to pit under SC).</p>
+
+      <p><strong>Then <code>overtaking.py</code></strong>, matched directly against <a class="xref" href="04-overtaking-dirty-air.html">page 04</a>'s two formulas — nothing new to look for here beyond confirming the constants (<code>OVERTAKE_ATTEMPT_GAP = 1.0</code>, <code>DIRTY_AIR_MAX_GAP = 1.5</code>, <code>DIRTY_AIR_MAX_PENALTY = 0.5</code>) match what <a class="xref" href="04-overtaking-dirty-air.html">page 04</a> worked through by hand.</p>
+
+      <p><strong>Then <code>f1_multi_env.py</code>'s <code>step()</code></strong>, in the order <a class="xref" href="06-bug-ledger.html">page 06</a> introduced its findings: E2 (the overwritten overtake result), E3 (dirty air reaching the reward but not the lap time), E5 (the mislabeled <code>potential_shaping</code> branch), and E6a–d (the career-average <code>pace_delta</code>, the lap-index ordering, the leader gap sentinel, rivals ignoring safety cars).</p>
+
+      <div class="note generic">
+        <div class="tag">A specific pointer: where <a class="xref" href="05-position-and-blocking.html">page 05</a>'s fix belongs</div>
+        <p><code>f1_multi_env.py</code>'s multi-car lap-time computation, as sketched in the plan, has <strong>no blocking line at all</strong> — position is computed purely from cumulative time, with nothing in the dynamics that caps a trailing car's pace. <a class="xref" href="05-position-and-blocking.html">Page 05</a>'s constraint (<code>lap_time = max(own_lap_time, car_ahead_lap_time + dirty_air_penalty(gap))</code>) needs to be added directly to the multi-car lap-time model, not left as a comment or a follow-up — every other piece of the file's overtaking and position logic depends on this constraint existing first, per <a class="xref" href="05-position-and-blocking.html">page 05</a>'s argument that <code>attempt_overtake</code> has nothing to overcome without it.</p>
+      </div>
+
+      <h2>What the plan's own listed tests would — and wouldn't — catch</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Test (as listed in the plan)</th><th>What it actually catches</th><th>What it misses</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">test_multi_env_positions_sum_correctly</td><td>Every position from 1 to N is assigned exactly once</td><td>Neither E1 nor E2 — both bugs still leave <em>some</em> valid sorted ordering of positions, just the wrong one relative to what actually happened on track. A test that only checks the ordering is well-formed can pass while the ordering itself is meaningless.</td></tr>
+            <tr><td class="mono">test_dirty_air_penalty_at_zero_gap</code>, <code>test_dirty_air_penalty_zero_beyond_threshold</td><td><a class="xref" href="04-overtaking-dirty-air.html">Page 04</a>'s formula, correct as written, at its two boundary values</td><td>E3 entirely — these test the <em>formula</em> for dirty air, not whether its output ever reaches <code>agent_lap_time</code>. Both pass even with E3 present, because E3 is about a correctly-computed number never being applied, not about the number being wrong.</td></tr>
+            <tr><td class="mono">test_rival_uses_configured_pit_laps</td><td>A rival's tyre age resets to 1 on its scripted pit lap</td><td>E1's accumulation bug — this test never inspects <code>total_time</code>, only <code>tire_age</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The gap between "the plan's tests pass" and "the phase's goal is reachable"</h2>
+      <p>None of the five tests already written into the plan would catch E4 — the missing blocking model, <a class="xref" href="05-position-and-blocking.html">page 05</a>'s central finding — at all. Every one of them can pass in a world with no blocking constraint whatsoever, because none of them ever asks the question <a class="xref" href="05-position-and-blocking.html">page 05</a>'s proposed new test asks: does being stuck behind a faster car actually cost anything? That's exactly why the real Definition of Done had to gain new, explicit entries for the blocking model and the overtake-changes-positions check (<a class="xref" href="09-this-project-formalized.html">page 09</a>), rather than trusting the original five tests to cover a finding that came from reading the pseudocode's <em>design</em>, not from running any of its code.</p>
+
+      <section class="lab" id="lab" data-lab-id="p6-10" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p6-10 · In page · about 10 min</span>
+        <h2>What the plan&#x27;s tests can see</h2>
+        <p class="lab-goal">The page's table, extended to all five lettered findings, plus three questions on reading the plan in the right order.</p>
+
+        <div class="lab-part">
+          <h3>1 · The plan's five tests against E1 to E5</h3>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Positions stay a valid permutation under E1 and E2; the dirty-air formula is right under E3; the observation shape is unaffected by everything; the pit-lap test reads tire_age. E4 and E5 are about what the race and the reward mean, which none of the five tests ask." data-nudge="For each finding, which quantity goes wrong? Is it one of the quantities the five tests read?">
+            <label>How many of the five findings E1 to E5 is caught by at least one of the plan's five tests? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="The two dirty-air tests check the formula's output. E3 is about where that output goes: the number is right, it just never reaches the lap time.">
+            <span class="lab-prompt">Why do the two dirty-air tests pass with E3 present?</span>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="a"> they use the wrong constants</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="b"> E3 only appears under a safety car</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="c"> they test the penalty's value, and E3 is about the value never being applied to the car</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reading order</h3>
+          <div class="lab-q" data-type="select" data-answer="rival" data-explain="RivalState.advance_lap still calls compute_lap_time with Phase 1's original arguments (laps_since_pit, safety_car_active), and reads params['pit_loss'] directly. It will not run against the revised dynamics module until that is fixed.">
+            <label>Which file has to be brought up to date with Phase 1's revised <code>compute_lap_time</code> before anything else can run?<br><select>
+              <option value="">choose…</option>
+              <option value="rival">rival.py</option>
+              <option value="overtaking">overtaking.py</option>
+              <option value="env">f1_multi_env.py</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The line caps a car's lap time, so it belongs where lap times are computed, before they are added to the totals. Positions are then read off the totals as before. As a comment or a post-processing step it changes nothing.">
+            <span class="lab-prompt">Where does page 05's blocking line belong?</span>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="a"> in f1_multi_env.py's lap-time computation, before the times are accumulated</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="b"> in _update_positions, after sorting</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="c"> in overtaking.py's attempt_overtake</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="With Φ = −position/n_cars kept at the finish, the leftover term is a bonus of 1/n_cars per place gained by the end. A plan that trades a little time for a better finish can now beat the unshaped optimum. Setting Φ = 0 on the last step makes the shift the same for every race, and the test passes.">
+            <span class="lab-prompt">The Definition of Done says the fixed potential_shaping and the unshaped reward must agree on the optimal policy. E5 is fixed (a real Φ(s′) − Φ(s)), but Φ is not set to 0 at the finish. Is the test guaranteed to pass?</span>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="a"> yes: it is now potential-based shaping</label>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="b"> no: the finishing potential depends on the finishing position, which works as a hidden position bonus</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>None of E1 to E5 is caught by the plan's five tests. The dirty-air tests check the value, not where it goes. rival.py needs the revised signature first. The blocking line belongs where lap times are computed, before accumulation. Without Φ = 0 at the finish the agreement test is not guaranteed: the leftover term rewards finishing position.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

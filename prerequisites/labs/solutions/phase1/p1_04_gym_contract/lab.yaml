@@ -1,0 +1,14 @@
+id: p1-04
+title: The Gymnasium contract
+page: phase-1-rl-prerequisites/04-gymnasium-api.html
+format: pytest
+minutes: 20
+files: [corridor_env.py, diagnosis.py, broken_envs.py]
+goal: >-
+  You will implement an environment from a written spec until <code>check_env</code> and the contract tests pass, then diagnose three environments that each break the contract in one way.
+environment: >-
+  a one-dimensional corridor, deliberately not this page's GridWorld, so the listing above cannot be pasted in.
+hints:
+  - "Task 1: the class has the same four parts as page 04's GridWorld: spaces in __init__, reset(), a _get_obs() helper, and step(). The corridor is one-dimensional, so the observation has one number where GridWorld's had two."
+  - "Task 1: a time limit is 'an external reason unrelated to the task', which page 04 says belongs to one specific flag. Compute `terminated` first, then make the other flag require `not terminated`. Task 2: check_env's message names the value it objects to; for the one it does not catch, step the env with LEFT forever and watch which flag fires."
+  - "Task 1: truncated = self._steps >= MAX_STEPS and not terminated. action_masks() is np.array([self._pos > 0, True], dtype=bool). Task 2: compare each broken class's overridden method with _Base, line by line."

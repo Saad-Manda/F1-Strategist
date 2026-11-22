@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · This project, formalized — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/10">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 10 of 11 — Grounded in the real design</p>
+      <h1>This Project, Formalized</h1>
+      <p class="dek">Everything above, mapped onto the real network, the real hyperparameters, and the issues already recorded against the plan. A reader who built <a class="xref" href="09-build-it-yourself.html">page 09</a>'s toy will recognise the shape of each one.</p>
+
+      <h2>The real network, layer by layer</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Layers</th><th>Output</th><th>Adjustable numbers</th></tr></thead>
+          <tbody>
+            <tr><td>Input</td><td>Phase 1's normalized observation</td><td class="mono">16</td><td class="mono">—</td></tr>
+            <tr><td>Shared trunk</td><td class="mono">Linear(16→128) → ReLU → Linear(128→128) → ReLU</td><td class="mono">128</td><td class="mono">2,176 + 16,512</td></tr>
+            <tr><td>Value stream</td><td class="mono">Linear(128→64) → ReLU → Linear(64→1)</td><td class="mono">1, V(s)</td><td class="mono">8,256 + 65</td></tr>
+            <tr><td>Advantage stream</td><td class="mono">Linear(128→64) → ReLU → Linear(64→6)</td><td class="mono">6, A(s,·)</td><td class="mono">8,256 + 390</td></tr>
+            <tr><td>Combine</td><td class="mono">V + (A − mean of A)</td><td class="mono">6, Q(s,·)</td><td class="mono">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each count is <a class="xref" href="02-neural-networks-primer.html">page 02</a>'s <code>y = Wx + b</code>: inputs times outputs for the weight matrix, plus one bias per output. <code>16 × 128 + 128 = 2,176</code> for the first layer. The total is <strong>35,655</strong> numbers. Compare the thing it replaces. Phase 4's table, by <a class="xref" href="../phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html">Phase 4 page 05</a>'s count, has 172,800 states and six actions, so 1,036,800 separate numbers, each learned alone. The network is about thirty times smaller, and no part of it belongs to a single state. That is <a class="xref" href="01-table-to-function.html">page 01</a>'s generalization, as a count.</p>
+
+      <h2>The hyperparameters, each tied to its page</h2>
+      <p>These are the values in <code>configs/dqn.yaml</code> and the agent's defaults. One planned training run is 5,000 races of 52 laps, which is <code>5,000 × 52 = 260,000</code> environment steps. Every "what that means" below is arithmetic on that number.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Setting</th><th>Value</th><th>Concept</th><th>What that means in this run</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">lr</td><td class="mono">0.001</td><td><a class="xref" href="02-neural-networks-primer.html">page 02</a></td><td>Adam's base step size. The plan's fallback if training is unstable is <code>0.0003</code>.</td></tr>
+            <tr><td class="mono">gamma</td><td class="mono">1.0</td><td><a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 03</a></td><td>No discounting. Every race has the same fixed length, so a second saved on lap 50 counts the same as one saved on lap 2.</td></tr>
+            <tr><td class="mono">tau</td><td class="mono">0.005</td><td><a class="xref" href="03-target-network.html">page 03</a></td><td>The target network closes half of a gap in about 139 updates. That is 556 laps, or about 11 races.</td></tr>
+            <tr><td class="mono">train_freq</td><td class="mono">4</td><td><a class="xref" href="04-experience-replay.html">page 04</a></td><td>One update every 4 laps, so 13 updates per race and about 64,750 in the whole run.</td></tr>
+            <tr><td class="mono">learning_starts</td><td class="mono">1,000</td><td><a class="xref" href="04-experience-replay.html">page 04</a></td><td>No updates until the buffer holds 1,000 transitions, about 19 races of nearly random driving. A buffer with a handful of transitions would be sampled into the same batch again and again.</td></tr>
+            <tr><td class="mono">batch_size</td><td class="mono">64</td><td><a class="xref" href="04-experience-replay.html">page 04</a>, <a class="xref" href="06-double-dqn.html">page 06</a></td><td><code>64,750 × 64 ≈ 4.1 million</code> transitions drawn from 260,000 collected. Each one is trained on about 16 times on average.</td></tr>
+            <tr><td class="mono">buffer_size</td><td class="mono">100,000</td><td><a class="xref" href="04-experience-replay.html">page 04</a></td><td>Room for about 1,923 races. It is full by race 1,923, and from then on each new lap overwrites the oldest.</td></tr>
+            <tr><td class="mono">epsilon_start, epsilon_end, epsilon_decay_steps</td><td class="mono">1.0, 0.05, 200,000</td><td><a class="xref" href="../phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Phase 4 page 03</a></td><td>The same linear schedule as Phase 4. Exploration reaches its floor at step 200,000, which is race 3,846. The last 1,154 races run at <code>ε = 0.05</code>.</td></tr>
+            <tr><td class="mono">alpha</td><td class="mono">0.6</td><td><a class="xref" href="07-prioritized-replay.html">page 07</a></td><td>How strongly priority skews sampling.</td></tr>
+            <tr><td class="mono">beta_start, beta_end, beta_steps</td><td class="mono">0.4, 1.0, 500,000</td><td><a class="xref" href="07-prioritized-replay.html">page 07</a></td><td>The importance-sampling correction, meant to rise from partial to full. See the first note below.</td></tr>
+            <tr><td class="mono">max_norm</td><td class="mono">10</td><td><a class="xref" href="08-reward-scale-trap.html">page 08</a></td><td>The gradient-clipping limit, written directly into <code>update()</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note grounded">
+        <div class="tag">Two things this table turns up</div>
+        <p><strong>β never gets near 1.</strong> The buffer raises <code>β</code> by one tick each time <code>sample()</code> is called, and the schedule is 500,000 ticks long. The run calls <code>sample()</code> about 64,750 times. So <code>β</code> ends at <code>0.4 + 0.6 × 64,750 / 500,000 ≈ 0.48</code>. The "full correction late in training" that <a class="xref" href="07-prioritized-replay.html">page 07</a> described does not happen with these numbers. <code>beta_steps</code> should be about the number of updates in the run.</p>
+        <p><strong>The PER settings are not in the config.</strong> <code>alpha</code> and the three <code>beta</code> values are absent from <code>configs/dqn.yaml</code>, and the agent builds its buffer with only a capacity, so the buffer's own defaults apply. The Definition of Done asks for every hyperparameter to be in the config. The trunk-to-head width of 64 and <code>max_norm</code> are hardcoded in the same way.</p>
+        <p>Neither of these is in the plan's Risks table or the audit. They came out of doing this page's arithmetic, and are worth raising when the phase is built.</p>
+      </div>
+
+      <h2>The reward the network trains on</h2>
+      <p>The plan's first and most emphatic risk is <a class="xref" href="08-reward-scale-trap.html">page 08</a>'s trap, and its mitigation is the same switch Phase 4 used: build the environment with <code>reward_offset="base_pace"</code>, so targets sit near <code>−250</code> and not near <code>−5,000</code>. Race times in every table and chart are read from <code>info["lap_time"]</code> and are never centred.</p>
+
+      <h2>Issues recorded against the real plan</h2>
+      <p>All four are in the plan's Risks table or the audit. Each is a design lesson with a recognisable shape.</p>
+      <div class="note grounded">
+        <div class="tag">Evaluated agent still exploring</div>
+        <p><code>select_action</code> branches on <code>self.epsilon</code>, and nothing in <code>evaluate.py</code> turns exploration off. At the floor of <code>ε = 0.05</code> over 52 laps, an "evaluated" agent takes <code>0.05 × 52 ≈ 2.6</code> random actions per race, and some of those are 18-second pit stops its policy would never choose. This is the same class of mistake as the leak on <a class="xref" href="../phase-4-q-learning-prerequisites/08-this-project-formalized.html">Phase 4 page 08</a>: a training-time mechanism left on during evaluation, quietly worsening every reported number. The fix is an explicit <code>eval_mode</code> flag that forces greedy selection, set by the evaluation code, with a test that two evaluation runs on one seed give identical races.</p>
+      </div>
+      <div class="note grounded">
+        <div class="tag">New transitions: the exponent applied twice</div>
+        <p>The bug from <a class="xref" href="07-prioritized-replay.html">page 07</a>, reproduced on <a class="xref" href="09-build-it-yourself.html">page 09</a> stage 5. <code>add()</code> reads the largest leaf, which already holds <code>p^α</code>, and stores that value raised to <code>α</code> again. The fix is to store the largest leaf as it is. <a class="xref" href="09-build-it-yourself.html">Page 09</a> showed why no reward curve will reveal it.</p>
+      </div>
+      <div class="note grounded">
+        <div class="tag">One counter, two owners</div>
+        <p><code>self._step</code> is increased only inside <code>decay_epsilon()</code>. <code>update()</code> reads the same counter to decide whether this is a fourth step. The two methods are joined by nothing except the order the training loop happens to call them in. If a caller ever skips <code>decay_epsilon()</code>, as an evaluation loop reasonably would, <code>update()</code> either fires on every call or never fires. Nothing is wrong today. It is a coupling that nothing enforces, and the fix is to count steps in one place that both methods are documented to depend on.</p>
+      </div>
+      <div class="note grounded">
+        <div class="tag">Unseeded randomness</div>
+        <p><code>select_action</code> and the buffer's <code>sample()</code> draw from NumPy's global random state. The project's rule is that every source of randomness takes a seed, because paired-seed comparison depends on it. Both should draw from a seeded generator the agent owns, the way <a class="xref" href="09-build-it-yourself.html">page 09</a>'s toy passes one <code>rng</code> to its learner and its memory.</p>
+      </div>
+
+      <h2>The four-way comparison</h2>
+      <p>The phase's headline result extends the table Phase 3.5 and Phase 4 built, with one more row:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Agent</th><th>Mean race time</th><th>Optimality gap (s)</th><th>Share of the baseline-to-optimum gap closed</th></tr></thead>
+          <tbody>
+            <tr><td>DP oracle (Phase 3.5)</td><td>the exact optimum</td><td class="mono">0</td><td class="mono">100%</td></tr>
+            <tr><td>Threshold baseline (Phase 3)</td><td>measured</td><td>measured</td><td class="mono">0%, by definition</td></tr>
+            <tr><td>Tabular Q-learning (Phase 4)</td><td>measured</td><td>measured</td><td>measured</td></tr>
+            <tr><td>Dueling Double DQN (this phase)</td><td>measured</td><td>measured</td><td>measured</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>All four run on the same 100 seeds, and differences are reported per seed with a paired confidence interval, as in <a class="xref" href="../phase-4-q-learning-prerequisites/08-this-project-formalized.html">Phase 4 page 08</a>.</p>
+      <p>The plan is explicit about one outcome that would otherwise look like failure. This state space is small. A table with fine enough bins can represent the answer, and <a class="xref" href="01-table-to-function.html">page 01</a>'s argument for a network is about what happens when dimensions are <em>added</em>. If DQN only matches tabular Q-learning here, that is a legitimate finding to report with the gap numbers. The network earns its place in the next phase, where rival gaps add continuous dimensions that a table cannot absorb.</p>
+
+      <section class="lab" id="lab" data-lab-id="p5-10" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p5-10 · In page · about 12 min</span>
+        <h2>Redo the arithmetic</h2>
+        <p class="lab-goal">This page's tables are arithmetic on the real settings. Here you redo that arithmetic for a smaller network and a shorter run, so the numbers are new and the method is the page's. Then you match settings to the pages that explain them, and place the recorded issues.</p>
+
+        <div class="lab-part">
+          <h3>1 · A smaller network</h3>
+          <p>Same shape as the real one (16 inputs, a two-layer trunk, two heads, 6 actions), with every 128 replaced by <strong>64</strong> and every 64 replaced by <strong>32</strong>.</p>
+          <div class="lab-q" data-type="num" data-answer="1088" data-tol="0" data-explain="16 × 64 weights plus 64 biases. Half the width, half the first layer." data-nudge="Inputs × outputs, plus one bias per output: 16 × 64 + 64.">
+            <label>Adjustable numbers in the first layer, <code>Linear(16→64)</code> &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="9639" data-tol="0" data-explain="Trunk 1,088 + 4,160. Value stream 2,080 + 33. Advantage stream 2,080 + 198. Total 9,639, about a quarter of the real 35,655: the square layers dominate, and halving their width quarters them." data-nudge="Six layers: Linear(16→64), Linear(64→64), then Linear(64→32) and Linear(32→1) for the value, Linear(64→32) and Linear(32→6) for the advantage.">
+            <label>Adjustable numbers in the whole network &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · A shorter run</h3>
+          <p>A run of <strong>3,000 races</strong> of 52 laps, every other setting as in the real config (<code>train_freq = 4</code>, <code>buffer_size = 100,000</code>, ε from 1.0 to 0.05 over 200,000 steps, β from 0.4 toward 1.0 over 500,000 ticks of <code>sample()</code>).</p>
+          <div class="lab-q" data-type="num" data-answer="39000" data-tol="0" data-explain="3,000 × 52 = 156,000 laps, one update every 4: 39,000 updates." data-nudge="Laps in the run, divided by train_freq.">
+            <label>Training updates in the run &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.447" data-tol="0.002" data-explain="0.4 + 0.6 × 39,000 / 500,000 = 0.447. Even further from full correction than the page's 0.48, because the run is shorter and the schedule is not." data-nudge="β rises by 0.6 / 500,000 per call to sample(), and sample() is called once per update.">
+            <label>β at the end of the run &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="39000" data-tol="0" data-explain="beta_steps has to count what the buffer counts, calls to sample(), which is one per update. The page's rule: about the number of updates in the run." data-nudge="β reaches 1 when the tick count reaches beta_steps.">
+            <label>What should <code>beta_steps</code> be for β to reach 1.0 on the last update? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.259" data-tol="0.002" data-explain="The run has 156,000 environment steps, so ε = 1 − 0.95 × 156,000 / 200,000 = 0.259. The run ends before exploration reaches its floor: a quarter of the last race's laps are still random." data-nudge="ε falls by 0.95 over 200,000 environment steps, and this run has 156,000.">
+            <label>ε on the last lap of the run &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="962" data-tol="1" data-explain="50,000 / 52 = 961.5, so the buffer fills during race 962 and then starts overwriting the oldest laps." data-nudge="One transition per lap.">
+            <label>With <code>buffer_size = 50,000</code>, during which race does the buffer fill? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · An evaluation at a lower floor</h3>
+          <p>Suppose the floor were ε = 0.02 and, as in the plan, nothing turned it off for evaluation.</p>
+          <div class="lab-q" data-type="num" data-answer="1.04" data-tol="0.01" data-explain="0.02 × 52 = 1.04 random actions per race, on average." data-nudge="ε × laps.">
+            <label>Random actions per evaluated race, on average &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="35" data-tol="1" data-explain="0.98⁵² = 0.35. Even at this lower floor, about two races in three are not the policy's own race. Lowering ε is not a fix; an explicit evaluation mode is." data-nudge="Every one of 52 laps has to be greedy: 0.98 to the power 52.">
+            <label>Percentage of evaluated races with no random action at all &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Which page explains which setting</h3>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="τ is the soft-update rate of the target network.">
+            <label><code>tau = 0.005</code> &nbsp; <select><option value="">choose…</option><option value="p02">page 02 · the four steps</option><option value="p03">page 03 · target network</option><option value="p04">page 04 · replay</option><option value="p07">page 07 · prioritized replay</option><option value="p08">page 08 · reward scale</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p08" data-explain="The gradient-norm clip, one of page 08's three speed limits.">
+            <label><code>max_norm = 10</code> &nbsp; <select><option value="">choose…</option><option value="p02">page 02 · the four steps</option><option value="p03">page 03 · target network</option><option value="p04">page 04 · replay</option><option value="p07">page 07 · prioritized replay</option><option value="p08">page 08 · reward scale</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p04" data-explain="No updates until the buffer holds enough transitions that a batch is not the same few again and again.">
+            <label><code>learning_starts = 1,000</code> &nbsp; <select><option value="">choose…</option><option value="p02">page 02 · the four steps</option><option value="p03">page 03 · target network</option><option value="p04">page 04 · replay</option><option value="p07">page 07 · prioritized replay</option><option value="p08">page 08 · reward scale</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p07" data-explain="α is how strongly priority skews sampling; 0 is uniform.">
+            <label><code>alpha = 0.6</code> &nbsp; <select><option value="">choose…</option><option value="p02">page 02 · the four steps</option><option value="p03">page 03 · target network</option><option value="p04">page 04 · replay</option><option value="p07">page 07 · prioritized replay</option><option value="p08">page 08 · reward scale</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p02" data-explain="Adam's base step size, the lr of page 02's update rule.">
+            <label><code>lr = 0.001</code> &nbsp; <select><option value="">choose…</option><option value="p02">page 02 · the four steps</option><option value="p03">page 03 · target network</option><option value="p04">page 04 · replay</option><option value="p07">page 07 · prioritized replay</option><option value="p08">page 08 · reward scale</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · The recorded issues</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Every evaluation race carries about 2.6 random actions, some of them pit stops, and nothing errors. It is the Phase 4 leak's class of mistake: a training-time mechanism left on." data-nudge="Which one changes the numbers that get reported, on every race?">
+            <span class="lab-prompt">Which recorded issue makes every reported DQN race time worse, with no error and no warning?</span>
+            <label class="lab-opt"><input type="radio" name="p510-issue" value="a"> the counter shared by update() and decay_epsilon()</label>
+            <label class="lab-opt"><input type="radio" name="p510-issue" value="b"> the evaluated agent still exploring</label>
+            <label class="lab-opt"><input type="radio" name="p510-issue" value="c"> unseeded randomness</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Paired-seed comparison needs every source of randomness to take a seed. With NumPy's global state, two runs on 'the same seed' are not the same run." data-nudge="Which one breaks the paired comparison on 100 seeds?">
+            <span class="lab-prompt">Which one breaks the four-way comparison's paired confidence intervals?</span>
+            <label class="lab-opt"><input type="radio" name="p510-seed" value="a"> new transitions stored with the exponent applied twice</label>
+            <label class="lab-opt"><input type="radio" name="p510-seed" value="b"> the counter shared by update() and decay_epsilon()</label>
+            <label class="lab-opt"><input type="radio" name="p510-seed" value="c"> unseeded randomness</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="Nothing is wrong today. An evaluation loop that skips decay_epsilon() leaves _step frozen, so update() either fires on every call or never, depending on the frozen value." data-nudge="Which one is harmless until a caller does something reasonable and different?">
+            <span class="lab-prompt">Which one does no harm until someone writes a loop that calls the methods in a different order?</span>
+            <label class="lab-opt"><input type="radio" name="p510-couple" value="a"> the counter shared by update() and decay_epsilon()</label>
+            <label class="lab-opt"><input type="radio" name="p510-couple" value="b"> the evaluated agent still exploring</label>
+            <label class="lab-opt"><input type="radio" name="p510-couple" value="c"> β ending at 0.48</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 16 × 64 + 64 = 1,088. Whole network: 1,088 + 4,160 + 2,080 + 33 + 2,080 + 198 = 9,639.</p>
+          <p><strong>2.</strong> 156,000 laps / 4 = 39,000 updates. β = 0.4 + 0.6 × 39,000 / 500,000 = 0.447; beta_steps should be 39,000. ε = 1 − 0.95 × 156,000 / 200,000 = 0.259. 50,000 / 52 = 961.5, so race 962.</p>
+          <p><strong>3.</strong> 0.02 × 52 = 1.04; 0.98⁵² ≈ 35%.</p>
+          <p><strong>4.</strong> tau: page 03. max_norm: page 08. learning_starts: page 04. alpha: page 07. lr: page 02.</p>
+          <p><strong>5.</strong> Exploring evaluation; unseeded randomness; the shared counter.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

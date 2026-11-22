@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · One car to N — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/01">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 01 of 10 — Foundations</p>
+      <h1>From One Car to N</h1>
+      <p class="dek">Nothing about how the agent's own tyres or fuel behave changes. What's new is that the agent's outcome now depends on cars it doesn't control.</p>
+
+      <h2>What breaks, and what doesn't</h2>
+      <p>Phase 1's state has 16 features, every one of them about the agent's own car — its tyre compound, tyre age, laps remaining, the weather, whether a safety car is out. Adding four more cars to the same race changes none of that. <code>compute_lap_time</code> is unchanged: the agent's own tyres degrade exactly the way Phase 0's calibration says they do, regardless of who else is on track. What's new is a second question layered on top of the first: it's no longer enough to drive your own race well, because now there's a notion of <em>relative</em> outcome — position, gap to the cars around you — that depends on choices the agent never makes.</p>
+
+      <h2>Three new state features</h2>
+      <p>The real plan adds exactly three: <code>gap_to_car_ahead</code>, <code>gap_to_car_behind</code> (both in seconds, normalized by a 60-second cap), and <code>position_normalized</code> (<code>position / n_cars</code>). The observation grows from Phase 1's 16 dimensions to <code>N_OBS_MULTI = N_OBS_SINGLE + N_NEW_FEATURES = 19</code>.</p>
+      <p>Why these three, and not — say — the full ordered list of every rival's tyre age and compound: the same Markov-sufficiency argument <a class="xref" href="../phase-1-rl-prerequisites/06-this-project-as-mdp.html">Phase 1 page 06</a> made about the single-car state applies again. The agent's next decision only needs to know what's immediately relevant to <em>it</em>: is there a car close enough ahead to be worth attacking or close enough behind to be a threat, and roughly how well is the race going overall. The rest of the field's internal state (what tyres rival #3 is on, four cars back) doesn't change what the agent should do this lap, so it doesn't belong in the state any more than <code>cumulative_race_time_so_far</code> belonged in Phase 1's.</p>
+
+      <div class="note grounded">
+        <div class="tag">Consequence for the Phase 5 network</div>
+        <p>The observation width changing from 16 to 19 isn't just a documentation detail — it means <code>DuelingDQN</code>'s first <code>Linear</code> layer, sized for a 16-wide input, has to be rebuilt for 19. A checkpoint trained on the single-car environment cannot be reloaded as-is for Phase 6; a fresh network has to be constructed with the new input width and trained from scratch. This is worth knowing before training day, not discovering as a shape-mismatch error.</p>
+      </div>
+
+      <h2>Rivals as fixed scripts, not learners</h2>
+      <p>The other four (or however many) cars in the race are not RL agents. They follow deterministic, pre-defined pit-stop plans — a strategy is just a starting compound and a list of <code>(lap, new_compound)</code> pairs, chosen before the race and never adapted mid-race based on what the agent does. This is a deliberate simplification with a name and a payoff: it sidesteps the multi-agent non-stationarity problem entirely (<a class="xref" href="07-non-stationarity.html">page 07</a> explains exactly what that problem is and why avoiding it here is the right call), which is precisely why fixed rivals are the sensible first step before Phase 8's self-play, where rivals <em>do</em> learn and adapt.</p>
+      <p>From the agent's point of view, a fixed-script rival's behavior is just one more piece of the environment it needs to react to — no different in kind from the weather trace or the safety-car process it already has to handle. All of it is <em>given</em>, not something the agent's actions can change the rules of.</p>
+
+      <section class="lab" id="lab" data-lab-id="p6-01" data-lab-format="paper">
+        <span class="lab-kicker">Lab p6-01 · In page · about 10 min</span>
+        <h2>Three new numbers</h2>
+        <p class="lab-goal">Build the three new observation features for a race snapshot by hand, then see the one case where the plan's version of them loses information.</p>
+
+        <div class="lab-part">
+          <h3>1 · A three-car snapshot</h3>
+          <p>Accumulated race time after lap 30: the agent <strong>2,412.6 s</strong>, RIVAL_A <strong>2,409.9 s</strong>, RIVAL_B <strong>2,431.0 s</strong>. Less time is further ahead. Gaps are normalised by the plan's 60-second cap, <code>min(gap / 60, 1)</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="2.7" data-tol="0.01" data-explain="RIVAL_A is the car immediately ahead: 2,412.6 − 2,409.9 = 2.7 s." data-nudge="Which rival has less time than the agent, and by how much?">
+            <label><code>gap_to_car_ahead</code>, seconds &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.045" data-tol="0.002" data-explain="2.7 / 60 = 0.045." data-nudge="Divide by 60.">
+            <label>…normalised &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.3067" data-tol="0.002" data-explain="RIVAL_B is behind by 2,431.0 − 2,412.6 = 18.4 s; 18.4 / 60 = 0.307." data-nudge="The car behind is the one with more time.">
+            <label><code>gap_to_car_behind</code>, normalised &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.667" data-tol="0.002" data-explain="The agent is second of three: 2 / 3 = 0.667." data-nudge="position / n_cars.">
+            <label><code>position_normalized</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · When the agent leads</h3>
+          <p>Now suppose the agent leads. The plan's <code>_compute_gap_to_ahead</code> returns a sentinel of <code>99.0</code> when there is no car ahead.</p>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0.001" data-explain="min(99 / 60, 1) = 1.0." data-nudge="Apply the same normalisation to 99.">
+            <label>What does the normalised <code>gap_to_car_ahead</code> become? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Any gap of 60 s or more is also capped at 1.0. Leading and being 75 s behind the car ahead give the network the same number: page 06's E6c. The fix is an explicit is_leader feature, which the capstone builds.">
+            <span class="lab-prompt">Which other situation gives exactly the same normalised value?</span>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="a"> right behind the car ahead, 0.5 s back</label>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="b"> 75 s behind the car ahead</label>
+            <label class="lab-opt"><input type="radio" name="p601-same" value="c"> none: 1.0 only ever means "leading"</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Two consequences</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The first layer's weight matrix has one column per input. A checkpoint stores 16 columns; the new network needs 19, so loading fails on a shape mismatch, and there is no meaningful way to invent the three missing columns.">
+            <span class="lab-prompt">Why can a Phase 5 checkpoint not simply be loaded into the 19-input network?</span>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="a"> its first layer's weights have 16 input columns, not 19</label>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="b"> the output layer has a different number of actions</label>
+            <label class="lab-opt"><input type="radio" name="p601-ckpt" value="c"> the dueling head cannot handle more than 16 inputs</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The rivals follow scripts fixed before the race. From the agent's side they behave like the weather trace: the same state and action always lead to the same distribution of outcomes. Page 07 is about the case where that stops being true.">
+            <span class="lab-prompt">Four rivals with fixed pit-stop scripts are added. From the agent's point of view, is the environment still stationary?</span>
+            <label class="lab-opt"><input type="radio" name="p601-stat" value="a"> no: other cars are now making decisions</label>
+            <label class="lab-opt"><input type="radio" name="p601-stat" value="b"> yes: their decisions never change in response to anything the agent learns</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>Gap ahead 2.7 s → 0.045; gap behind 18.4 s → 0.307; position 2/3 = 0.667. Leading gives min(99/60, 1) = 1.0, the same as any gap of 60 s or more, e.g. 75 s behind. The checkpoint's first layer has 16 input columns. Fixed scripts keep the environment stationary.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

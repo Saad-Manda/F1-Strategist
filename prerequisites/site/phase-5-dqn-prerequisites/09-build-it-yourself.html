@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Build it yourself — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/09">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 09 of 11 — Building it yourself</p>
+      <h1>Build It Yourself: A Toy DQN, One Technique at a Time</h1>
+      <p class="dek">Six stages: a small world with a continuous observation and an exact answer to measure against, a bare network learner, then a target network and replay, then the dueling head and the Double DQN target, then prioritized replay, and last a bug you plant yourself.</p>
+
+      <p>Every name below (<code>StintWorld</code>, <code>ToyLearner</code>, <code>SplitNet</code>, <code>RankedMemory</code> and the rest) is invented for this page and deliberately does <strong>not</strong> match <code>dqn_agent.py</code>. The aim is the same as in every earlier toy build: arrive at the same shape of solution yourself, so the real file reads as familiar when <a class="xref" href="11-code-walkthrough.html">page 11</a> opens it. You need <code>numpy</code> and <code>torch</code>. Put everything in one file. Each training run takes a minute or two on a laptop CPU.</p>
+
+      <h2>Stage 0 — a world with a continuous observation, and its exact answer</h2>
+      <p>A 12-lap stint with one decision per lap: carry on, or fit fresh tyres. The observation is two decimals, the fraction of the race left and the tyre wear. Wear is the kind of quantity Phase 4 had to cut into bins. Here it goes to the network as it is.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+torch.set_num_threads(1)   # tiny networks run faster on one thread
+
+class StintWorld:
+    """
+    A 12-lap stint. Observation: [laps_left / 12, wear], both in [0, 1].
+      action 0 (PUSH_ON):      cost 1 + 6 * wear^2, then wear grows by 0.08
+      action 1 (FRESH_RUBBER): cost 3 flat, then wear returns to 0
+    Reward is minus the cost. FRESH_RUBBER is illegal on brand-new tyres.
+    """
+    LAPS, N_ACTIONS, STEP = 12, 2, 0.08
+
+    def reset(self):
+        self.lap, self.age = 0, 0
+        return self._obs()
+
+    def _obs(self):
+        return np.array([(self.LAPS - self.lap) / self.LAPS, self.age * self.STEP], dtype=np.float32)
+
+    def legal(self):
+        return np.array([True, self.age &gt; 0])
+
+    def step(self, action):
+        wear = self.age * self.STEP
+        if action == 0:
+            reward, self.age = -(1.0 + 6.0 * wear ** 2), self.age + 1
+        else:
+            reward, self.age = -3.0, 0
+        self.lap += 1
+        return self._obs(), reward, self.lap == self.LAPS</code></pre></details>
+      <p>Underneath, the world is small enough to solve exactly with the backward induction from <a class="xref" href="../phase-3.5-dp-oracle-prerequisites/02-backward-induction.html">Phase 3.5 page 02</a>. This is the ruler for every stage that follows:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>def exact_q():
+    """Backward induction over (lap, tyre age)."""
+    W = StintWorld
+    q = np.full((W.LAPS + 1, W.LAPS + 1, 2), -np.inf)
+    v = np.zeros((W.LAPS + 1, W.LAPS + 1))
+    for lap in range(W.LAPS - 1, -1, -1):
+        for age in range(lap + 1):
+            wear = age * W.STEP
+            q[lap, age, 0] = -(1.0 + 6.0 * wear ** 2) + v[lap + 1, age + 1]
+            if age &gt; 0:
+                q[lap, age, 1] = -3.0 + v[lap + 1, 0]
+            v[lap, age] = q[lap, age].max()
+    return q
+
+q_star = exact_q()
+print(q_star[0, 0].max())     # -16.9216</code></pre></details>
+      <p><strong>Check:</strong> the best total is <code>−16.92</code>, reached by fitting fresh tyres twice, for example on the 4th and the 9th lap (three two-stop plans tie for best). The next-best plan stops one lap early and scores <code>−17.11</code>. A learner that reports <code>−17.11</code> has found a good race and missed the best one by one lap of timing, which is the same kind of miss <a class="xref" href="../phase-4-q-learning-prerequisites/06-the-binning-bug.html">Phase 4 page 06</a> was about.</p>
+
+      <h2>Stage 1 — a bare network learner</h2>
+      <p>First the network: <a class="xref" href="02-neural-networks-primer.html">page 02</a>'s layers, two inputs in, one Q-value per action out.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class PlainNet(nn.Module):
+    def __init__(self, n_obs=2, n_actions=2, width=32):
+        super().__init__()
+        self.body = nn.Sequential(nn.Linear(n_obs, width), nn.ReLU(),
+                                  nn.Linear(width, width), nn.ReLU(),
+                                  nn.Linear(width, n_actions))
+
+    def forward(self, x):
+        return self.body(x)</code></pre></details>
+      <p>Then the learner. It is written once, with three switches that later stages turn on: <code>replay</code>, <code>lag_rate</code> and <code>decoupled</code>. With all three off, it trains on the single transition that just happened, and it builds the target from the same network it is training. That is the naive idea <a class="xref" href="03-target-network.html">page 03</a> opened with.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class ToyLearner:
+    def __init__(self, net_cls, seed, lr=1e-3, replay=None, batch=32, lag_rate=None,
+                 decoupled=False, warmup=200, eps_steps=6000):
+        torch.manual_seed(seed)
+        self.rng = np.random.default_rng(seed)
+        self.live = net_cls()
+        self.lagged = net_cls() if lag_rate is not None else self.live   # off: one network does both jobs
+        if lag_rate is not None:
+            self.lagged.load_state_dict(self.live.state_dict())
+        self.opt = torch.optim.Adam(self.live.parameters(), lr=lr)
+        self.replay, self.batch, self.lag_rate, self.decoupled = replay, batch, lag_rate, decoupled
+        self.warmup, self.eps, self.eps_end, self.eps_steps = warmup, 1.0, 0.05, eps_steps
+        self.losses = []
+
+    def act(self, obs, legal, greedy=False):
+        if not greedy and self.rng.random() &lt; self.eps:
+            return int(self.rng.choice(np.flatnonzero(legal)))
+        with torch.no_grad():
+            q = self.live(torch.as_tensor(obs).unsqueeze(0))[0].numpy().copy()
+        q[~legal] = -np.inf
+        return int(np.argmax(q))
+
+    def learn(self, transition):
+        self.eps = max(self.eps_end, self.eps - (1.0 - self.eps_end) / self.eps_steps)
+        if self.replay is None:
+            rows, idx, weight = [transition], None, np.ones(1)
+        else:
+            self.replay.push(transition)
+            if len(self.replay) &lt; self.warmup:
+                return
+            rows, idx, weight = self.replay.draw(self.batch)
+
+        obs  = torch.as_tensor(np.array([r[0] for r in rows]))
+        act  = torch.as_tensor(np.array([r[1] for r in rows]), dtype=torch.int64)
+        rew  = torch.as_tensor(np.array([r[2] for r in rows]), dtype=torch.float32)
+        nxt  = torch.as_tensor(np.array([r[3] for r in rows]))
+        done = torch.as_tensor(np.array([r[4] for r in rows]), dtype=torch.float32)
+        legal_next = torch.as_tensor(np.array([r[5] for r in rows]))
+        weight = torch.as_tensor(weight, dtype=torch.float32)
+
+        guess = self.live(obs).gather(1, act.unsqueeze(1)).squeeze(1)
+        with torch.no_grad():
+            if self.decoupled:      # live network picks, lagged network scores
+                pick = self.live(nxt).masked_fill(~legal_next, -torch.inf).argmax(dim=1)
+                future = self.lagged(nxt).gather(1, pick.unsqueeze(1)).squeeze(1)
+            else:                   # one network picks and scores
+                future = self.lagged(nxt).masked_fill(~legal_next, -torch.inf).max(dim=1).values
+            goal = rew + (1.0 - done) * future
+
+        loss = (weight * F.smooth_l1_loss(guess, goal, reduction="none")).mean()
+        self.opt.zero_grad()
+        loss.backward()
+        self.opt.step()
+        self.losses.append(loss.item())
+
+        if idx is not None:
+            self.replay.reprioritise(idx, (goal - guess).detach().numpy())
+        if self.lag_rate is not None:
+            with torch.no_grad():
+                for slow, fast in zip(self.lagged.parameters(), self.live.parameters()):
+                    slow.mul_(1.0 - self.lag_rate).add_(self.lag_rate * fast)</code></pre></details>
+      <p>Three lines carry ideas from earlier pages. <code>goal = rew + (1.0 - done) * future</code> is <a class="xref" href="06-double-dqn.html">page 06</a>'s terminal cut-off. Both <code>masked_fill</code> calls are the masking rule. The closing loop is <a class="xref" href="03-target-network.html">page 03</a>'s soft update. A training loop and a report finish the stage:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>def train(learner, episodes=1500):
+    world = StintWorld()
+    for _ in range(episodes):
+        obs, done = world.reset(), False
+        while not done:
+            action = learner.act(obs, world.legal())
+            nxt, reward, done = world.step(action)
+            learner.learn((obs, action, reward, nxt, done, world.legal()))
+            obs = nxt
+    return learner
+
+def report(learner):
+    """Greedy race total, worst Q error over every reachable state, and how steady the loss was."""
+    world = StintWorld()
+    obs, done, total = world.reset(), False, 0.0
+    while not done:
+        obs, reward, done = world.step(learner.act(obs, world.legal(), greedy=True))
+        total += reward
+    worst = 0.0
+    for lap in range(world.LAPS):
+        for age in range(lap + 1):
+            o = torch.tensor([[(world.LAPS - lap) / world.LAPS, age * world.STEP]], dtype=torch.float32)
+            with torch.no_grad():
+                q = learner.live(o)[0].numpy()
+            for a in range(2):
+                if np.isfinite(q_star[lap, age, a]):
+                    worst = max(worst, abs(q[a] - q_star[lap, age, a]))
+    tail = np.array(learner.losses[-2000:])
+    return round(total, 2), round(float(worst), 2), round(float(tail.mean()), 4), round(float(tail.std()), 4)
+
+for seed in (0, 1, 2):
+    print("stage 1", report(train(ToyLearner(PlainNet, seed))))</code></pre></details>
+      <p><strong>What to expect.</strong> In the runs used to check this page, two of the three seeds found the best race (<code>−16.92</code>) and one settled on <code>−17.11</code>. So the bare version is not hopeless on a world this small, and you should not expect it to blow up. Look at the last two numbers instead. Over the final 2,000 updates the loss averaged <code>0.004</code> to <code>0.008</code>, and its spread was <code>0.014</code> to <code>0.046</code>, several times its own average. That is a learner being pulled around by whichever lap it saw last, and chasing a target that moves with every step.</p>
+
+      <h2>Stage 2 — a lagged copy and a memory</h2>
+      <p>Add <a class="xref" href="04-experience-replay.html">page 04</a>'s minimal buffer: fixed size, overwrite the oldest, sample uniformly.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class RingMemory:
+    def __init__(self, capacity, rng):
+        self.capacity, self.rng, self.items, self.pos = capacity, rng, [], 0
+
+    def push(self, item):
+        if len(self.items) &lt; self.capacity:
+            self.items.append(item)
+        else:
+            self.items[self.pos] = item
+        self.pos = (self.pos + 1) % self.capacity
+
+    def draw(self, n):
+        idx = self.rng.integers(len(self.items), size=n)
+        return [self.items[i] for i in idx], idx, np.ones(n)
+
+    def reprioritise(self, idx, errors):
+        pass                      # a uniform memory has no priorities to update
+
+    def __len__(self):
+        return len(self.items)
+
+for seed in (0, 1, 2):
+    memory = RingMemory(5000, np.random.default_rng(seed))
+    print("stage 2", report(train(ToyLearner(PlainNet, seed, replay=memory, lag_rate=0.01))))</code></pre></details>
+      <p><strong>What to expect.</strong> The race totals look much the same as stage 1: two seeds at <code>−16.92</code>, one at <code>−17.11</code>. The loss does not. Its spread over the final 2,000 updates fell to <code>0.002</code> to <code>0.003</code>, around a tenth of stage 1's, and it now sits below its own average. This is what the target network and the replay buffer buy: steadier training. On a world this small, steadier training does not show up as a better race. On a 16-number observation and 52 laps, it is the difference between converging and not.</p>
+
+      <h2>Stage 3 — two heads, and a decoupled target</h2>
+      <p><a class="xref" href="05-dueling-architecture.html">Page 05</a>'s network: a shared body, one head for the state's worth, one for each action's edge over the average, combined with the mean subtracted.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class SplitNet(nn.Module):
+    def __init__(self, n_obs=2, n_actions=2, width=32):
+        super().__init__()
+        self.body = nn.Sequential(nn.Linear(n_obs, width), nn.ReLU(),
+                                  nn.Linear(width, width), nn.ReLU())
+        self.worth = nn.Linear(width, 1)
+        self.edge = nn.Linear(width, n_actions)
+
+    def forward(self, x):
+        h = self.body(x)
+        edge = self.edge(h)
+        return self.worth(h) + edge - edge.mean(dim=-1, keepdim=True)
+
+for seed in (0, 1, 2):
+    memory = RingMemory(5000, np.random.default_rng(seed))
+    learner = ToyLearner(SplitNet, seed, replay=memory, lag_rate=0.01, decoupled=True)
+    print("stage 3", report(train(learner)))</code></pre></details>
+      <p>Setting <code>decoupled=True</code> switches the target to <a class="xref" href="06-double-dqn.html">page 06</a>'s form. Find the two branches in <code>learn()</code> and confirm that the only difference is which network is inside the <code>argmax</code>.</p>
+      <p><strong>What to expect.</strong> The learner still solves the world: two seeds at <code>−16.92</code> and one at <code>−17.11</code> in the checking runs, with a loss as steady as stage 2's. The worst Q error over every reachable state came out between <code>1.4</code> and <code>3.0</code>. That sounds large against a best total of <code>−16.92</code>, and it is worth understanding why it is not alarming. The worst case is always a state the trained policy never visits, such as twelve laps on one set of tyres. The network has seen almost no data there. Its values are accurate where the data is.</p>
+      <p><strong>Two checks to add yourself.</strong> Feed any batch through <code>SplitNet</code> and confirm that <code>edge - edge.mean(...)</code> averages to zero across the actions in every row. Then add <code>10</code> to both of the <code>edge</code> head's biases and confirm the Q-values do not change: the mean subtraction absorbs any shift of the edges. Last, add <code>10</code> to the <code>worth</code> head's bias and subtract <code>10</code> from both edge biases. Without the mean subtraction that trade would leave every Q-value as it was, which is <a class="xref" href="05-dueling-architecture.html">page 05</a>'s degeneracy. With it, every Q-value rises by exactly <code>10</code>: the trade is no longer free, so the split between the two heads is pinned.</p>
+
+      <h2>Stage 4 — a memory that ranks</h2>
+      <p><a class="xref" href="07-prioritized-replay.html">Page 07</a>'s sum tree in one flat array. It has the same four methods as <code>RingMemory</code>, so the learner needs no changes. <code>draw</code> now returns real weights and <code>reprioritise</code> does real work.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class RankedMemory:
+    """Sum tree in one array: node k has children 2k+1 and 2k+2; the last `capacity` nodes are leaves."""
+
+    def __init__(self, capacity, rng, alpha=0.6, beta=0.4, double_exponent_bug=False):
+        self.capacity, self.rng, self.alpha, self.beta = capacity, rng, alpha, beta
+        self.bug = double_exponent_bug
+        self.tree = np.zeros(2 * capacity - 1)
+        self.items, self.pos, self.size = [None] * capacity, 0, 0
+
+    def _set_leaf(self, i, value):
+        k = i + self.capacity - 1
+        change = value - self.tree[k]
+        self.tree[k] = value
+        while k &gt; 0:
+            k = (k - 1) // 2
+            self.tree[k] += change
+
+    def push(self, item):
+        top = self.tree[self.capacity - 1:].max()      # leaves already hold p ** alpha
+        if self.bug:
+            leaf = max(top, 1.0) ** self.alpha         # stage 5: the exponent applied a second time
+        else:
+            leaf = top if top &gt; 0 else 1.0
+        self.items[self.pos] = item
+        self._set_leaf(self.pos, leaf)
+        self.pos = (self.pos + 1) % self.capacity
+        self.size = min(self.size + 1, self.capacity)
+
+    def _find(self, mass):
+        k = 0
+        while k &lt; self.capacity - 1:
+            left = 2 * k + 1
+            if mass &lt;= self.tree[left]:
+                k = left
+            else:
+                mass -= self.tree[left]
+                k = left + 1
+        return k - (self.capacity - 1)
+
+    def draw(self, n):
+        total = self.tree[0]
+        edges = np.linspace(0.0, total, n + 1)
+        idx = np.array([self._find(self.rng.uniform(edges[j], edges[j + 1])) for j in range(n)])
+        idx = np.minimum(idx, self.size - 1)
+        prob = self.tree[idx + self.capacity - 1] / total
+        weight = (self.size * prob) ** (-self.beta)
+        return [self.items[i] for i in idx], idx, weight / weight.max()
+
+    def reprioritise(self, idx, errors):
+        for i, e in zip(idx, errors):
+            self._set_leaf(int(i), (abs(float(e)) + 1e-6) ** self.alpha)
+
+    def __len__(self):
+        return self.size</code></pre></details>
+      <p><strong>Check the tree by hand first.</strong> Build <code>RankedMemory(4, rng)</code>, push four items, and call <code>_set_leaf</code> to give the leaves <code>3, 1, 4, 2</code>. Print <code>tree</code> and compare it with <a class="xref" href="07-prioritized-replay.html">page 07</a>'s diagram: <code>[10, 4, 6, 3, 1, 4, 2]</code>. Then confirm <code>_find(6.5)</code> returns <code>2</code>.</p>
+      <p><strong>Then test the promise.</strong> Fill a memory with 1,000 transitions, 31 of them "rare" with <code>|δ| = 8</code> and the rest "routine" with <code>|δ| = 0.5</code>, and count how often the rare ones turn up:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>for name, memory in (("uniform", RingMemory(1024, np.random.default_rng(0))),
+                     ("ranked", RankedMemory(1024, np.random.default_rng(0)))):
+    for i in range(1000):
+        memory.push(("rare" if i % 33 == 0 else "routine",))
+    memory.reprioritise(np.arange(1000), [8.0 if i % 33 == 0 else 0.5 for i in range(1000)])
+    hits = sum(sum(row[0] == "rare" for row in memory.draw(32)[0]) for _ in range(500))
+    print(name, hits / (500 * 32))</code></pre></details>
+      <p>The checking run printed <code>0.030</code> for the uniform memory and <code>0.148</code> for the ranked one. The rare transitions are 3.1% of the buffer and 14.8% of the batches, close to five times as often. That matches what <a class="xref" href="07-prioritized-replay.html">page 07</a>'s formula predicts for these numbers: <code>31 × 3.482 / (31 × 3.482 + 969 × 0.660) = 14.4%</code>.</p>
+      <p>Last, train with it:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>for seed in (0, 1, 2):
+    memory = RankedMemory(4096, np.random.default_rng(seed))
+    learner = ToyLearner(SplitNet, seed, replay=memory, lag_rate=0.01, decoupled=True)
+    print("stage 4", report(train(learner)))</code></pre></details>
+      <p><strong>What to expect.</strong> All three seeds found the best race, <code>−16.92</code>, in the checking runs. Three seeds are too few to claim that prioritized replay caused that. They are enough to confirm that the full stack of techniques works together.</p>
+
+      <h2>Stage 5 — plant the recorded bug</h2>
+      <p>Turn on <code>double_exponent_bug=True</code>. It reproduces the fault <a class="xref" href="07-prioritized-replay.html">page 07</a> described: reading a leaf that already holds <code>p^α</code> and raising it to <code>α</code> again. Look at the leaves directly:</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>for bug in (False, True):
+    memory = RankedMemory(8, np.random.default_rng(0), double_exponent_bug=bug)
+    for i in range(4):
+        memory.push((i,))
+    memory.reprioritise(np.arange(4), [8.0, 0.5, 0.5, 0.5])
+    memory.push(("new",))
+    print(bug, np.round(memory.tree[7:], 3))</code></pre></details>
+      <blockquote class="eq">False [3.482 0.66  0.66  0.66  3.482 0.    0.    0.   ]     new item stored at the current maximum
+True  [3.482 0.66  0.66  0.66  2.114 0.    0.    0.   ]     new item stored at 3.482 ^ 0.6</blockquote>
+      <p>Now change the four errors to <code>[0.2, 0.1, 0.1, 0.1]</code> and run it again. The correct version stores the new item at <code>0.381</code>, the current maximum. The buggy version stores it at <code>1.0</code>, more than twice the maximum, because of the <code>max(top, 1.0)</code> floor. So the bug has no fixed direction. When errors are large, new transitions are under-sampled. When errors are small, as they are late in training, new transitions are over-sampled.</p>
+      <p>Then train with the bug switched on, exactly as in stage 4. In the checking runs all three seeds still reported <code>−16.92</code>. Nothing in the final result reveals the fault. This is the most useful thing the stage teaches: some bugs in a replay buffer never show in a reward curve, and can only be caught by a test that inspects the buffer itself.</p>
+
+      <p>That is the full toy stack: a world with a continuous observation and an exact answer, a network learner, a lagged copy and a memory to steady it, two heads and a decoupled target, a ranked memory, and one of the real plan's recorded bugs seen from the inside. <a class="xref" href="10-this-project-formalized.html">Page 10</a> does not repeat this code. It names which part of the real design each of these pieces corresponds to.</p>
+
+      <section class="lab" id="lab" data-lab-id="p5-cap" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p5-cap · Code + tests · about 90 min</span>
+        <h2>Toy race network learner</h2>
+        <p class="lab-goal">This page is the brief. You will build a network learner for the toy race in seven checked stages: the observation, two networks, masked action choice, page 06's batch targets, the training step, and the race loop. Stage 7 trains it and measures it against the exact optimum. The report then adds the techniques one at a time, as this page does, and plants two faults to see which numbers give them away.</p>
+        <p><strong>Environment:</strong> an F1-flavoured mini: the 20-lap toy race of the earlier capstones, with a five-number observation and its exact optimum as the ruler. About an hour and a half, plus 15 to 30 minutes for the report to run.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-cap</code></div>
+          <div><span>Check</span><code>python -m labs check p5-cap</code></div>
+          <div><span>Stage</span><code>python -m labs check p5-cap 1</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-cap</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_cap_toy_dqn/toy_dqn.py</code>, <code>labs/phase5/p5_cap_toy_dqn/report.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_cap_toy_dqn/</code>.</p>
+        <details><summary>Hint 1</summary><p>Read the header of toy_dqn.py first: what a transition holds, and where the memories come from. Stages 1 to 4 are short functions with the rule in the docstring. Stage 5 is update(), whose docstring lists its eight steps in order. Stage 6 is the race loop, five steps per lap. Stage 7 has no code of its own: it trains what you built, for about 90 seconds. Check one stage at a time with `python -m labs check p5-cap N`.</p></details>
+        <details><summary>Hint 2</summary><p>Stage 4: online(next_obs).masked_fill(~next_masks, -torch.inf).argmax(dim=1) is the choice; target(next_obs).gather(1, chosen.unsqueeze(1)).squeeze(1) is the score. Stage 5: guess = self.online(obs).gather(1, actions.unsqueeze(1)).squeeze(1); the loss is (weights * F.smooth_l1_loss(guess, goal, reduction=&#x27;none&#x27;)).mean(). Clip with nn.utils.clip_grad_norm_ after backward and before step.</p></details>
+        <details><summary>Hint 3</summary><p>Stage 6: compute lap_time with model.cost before calling model.next_tyre; the next sc is int(rng.random() &lt; model.sc_prob(sc)); the next obs is encode(lap + 1, ...) and the next mask legal_mask(model, lap + 1, ...). Stage 7 failing with stages 1-6 green usually means update() is not reached (is learner.update() called inside the lap loop when train is true?) or the reward has the wrong sign.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

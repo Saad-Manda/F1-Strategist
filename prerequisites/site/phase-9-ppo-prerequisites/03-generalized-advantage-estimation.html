@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Generalized advantage estimation — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/03">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 03 of 11 — A little math</p>
+      <h1>Generalized Advantage Estimation (GAE-λ)</h1>
+      <p class="dek">The advantage estimator Stable-Baselines3 actually uses — not in idea.md's own concept list, but silently load-bearing in the real config.</p>
+
+      <div class="note generic">
+        <div class="tag">A gap this page exists to fill</div>
+        <p><a class="xref" href="02-actor-critic-advantage.html">Page 02</a> defined <code>A(s,a) = Q(s,a) − V(s)</code>, but nothing in a single trajectory hands you <code>Q(s,a)</code> directly — it has to be <em>estimated</em>, and there is more than one way to do it, trading bias against variance exactly like Phase 4/5's n-step-vs-Monte-Carlo TD tradeoff (assumed background) generalizes.</p>
+      </div>
+
+      <h2>Two extremes, already familiar</h2>
+      <p>The 1-step TD residual, using the critic's own value estimates:</p>
+      <blockquote class="eq">δ_t = r_t + γ·V(s_{t+1}) − V(s_t)</blockquote>
+      <p>This is itself an advantage estimate — a low-variance one (it only depends on one sampled transition and the critic's current estimates), but biased whenever <code>V</code> is inaccurate, which it always is to some degree during training. At the other extreme sits the full Monte Carlo advantage from <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>/02, <code>G_t − V(s_t)</code> — unbiased (it uses the actual realized return, no bootstrapping at all) but high-variance, for the same reason <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a> originally motivated the critic in the first place.</p>
+
+      <h2>GAE-λ: the interpolation</h2>
+      <p>Generalized Advantage Estimation defines the advantage as an exponentially-weighted sum of every possible <code>k</code>-step advantage estimate at once:</p>
+      <blockquote class="eq">A_t^GAE(λ) = Σ_{l=0}^∞ (γλ)^l · δ_{t+l}</blockquote>
+      <p><code>λ</code> is the dial. At <code>λ = 0</code>, every term beyond <code>l=0</code> vanishes and the sum collapses to the pure 1-step estimate, <code>δ_t</code>. At <code>λ = 1</code>, the geometric weighting disappears (<code>(γ·1)^l</code> just tracks the usual discount) and the sum telescopes back into exactly the full Monte Carlo advantage, <code>G_t − V(s_t)</code>. This is the same bias-variance dial as TD(λ) in Sutton &amp; Barto — if that's already familiar from Phase 4's background, GAE is that same idea applied specifically to advantage estimation for a policy gradient rather than to value learning directly.</p>
+
+      <h2>A hand-worked example</h2>
+      <p>A 4-step episode, <code>γ = 1.0</code> (this project's own convention for its fixed-length episodes). Rewards and the critic's value estimates at each visited state:</p>
+      <blockquote class="eq">rewards:  r0=−3   r1=−2   r2=−3   r3=−2
+values:   V(s0)=−10  V(s1)=−6  V(s2)=−5  V(s3)=−1  V(s4)=0  (terminal)</blockquote>
+      <p>First, the TD residuals at every step:</p>
+      <blockquote class="eq">δ0 = r0 + V(s1) − V(s0) = −3 + (−6) − (−10) =  1
+δ1 = r1 + V(s2) − V(s1) = −2 + (−5) − (−6)  = −1
+δ2 = r2 + V(s3) − V(s2) = −3 + (−1) − (−5)  =  1
+δ3 = r3 + V(s4) − V(s3) = −2 +   0  − (−1)  = −1</blockquote>
+      <p>Now compute <code>A_0^GAE(λ)</code> at three values of <code>λ</code>, using <code>(γλ)^l = λ^l</code> since <code>γ = 1</code>:</p>
+      <blockquote class="eq">λ = 0  (pure 1-step):
+  A_0 = δ0 = 1.0
+
+λ = 1  (pure Monte Carlo):
+  A_0 = δ0 + δ1 + δ2 + δ3 = 1 − 1 + 1 − 1 = 0.0
+  Check against G_0 − V(s0):  G_0 = −3−2−3−2 = −10,  G_0 − V(s0) = −10 − (−10) = 0  ✓ matches
+
+λ = 0.95  (this project's SB3 default, see below):
+  A_0 = δ0 + 0.95·δ1 + 0.95²·δ2 + 0.95³·δ3
+      = 1 + 0.95·(−1) + 0.9025·(1) + 0.857·(−1)
+      = 1 − 0.95 + 0.9025 − 0.857
+      ≈ 0.095</blockquote>
+      <p>The three answers genuinely differ: <code>λ=0</code> reports an advantage of exactly the first residual, <code>λ=1</code> reports the full-trajectory answer (which happens to be 0 here — this toy trajectory's rewards exactly matched the critic's own value estimates in total), and <code>λ=0.95</code> lands close to, but not exactly at, the Monte Carlo end — consistent with putting most of its weight on the nearby residuals while still discounting the far ones.</p>
+
+      <div class="note grounded">
+        <div class="tag">A config gap worth naming now, not discovering cold later</div>
+        <p><code>configs/ppo.yaml</code> never sets a <code>gae_lambda</code> key. The real plan as written therefore silently accepts <code>sb3-contrib</code>'s library default, <code>λ = 0.95</code> — the value used in the worked example above. This is worth stating explicitly here: it's a real hyperparameter choice being made by omission, and <a class="xref" href="10-this-project-formalized.html">page 10</a> flags it again as something to name in the write-up rather than leave implicit.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p9-03" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p9-03 · Code + tests · about 20 min</span>
+        <h2>GAE, backwards</h2>
+        <p class="lab-goal">First the page's trajectory by hand at a new λ. Then page 03's estimator as code, over a buffer that can hold more than one episode: the next value for every step, the residuals, and the backward pass. The tests check the page's numbers, the two extremes of λ, the two ways an episode can end, and finally your advantages against Stable-Baselines3's own, on the same buffer.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, in the page · the page's trajectory at λ = 0.5</h3>
+          <p>The same four steps as above: rewards <code>−3, −2, −3, −2</code>, values <code>V(s₀..s₃) = −10, −6, −5, −1</code>, γ = 1, and the episode ends after the last step (the value after it is 0). Its TD residuals are δ₀ = 1, δ₁ = −1, δ₂ = 1, δ₃ = −1.</p>
+          <p>At λ = 0.5, A₀ = 1 − 0.5 + 0.25 − 0.125 = 0.625. Work backwards with <code>A_t = δ_t + γλ · A_{t+1}</code>:</p>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.01" data-explain="The last step has nothing after it: A₃ = δ₃ = −1." data-nudge="Start at the end. What comes after the last step?">
+            <label>A₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5" data-tol="0.01" data-explain="1 + 0.5 × (−1) = 0.5." data-nudge="δ₂ + 0.5 × A₃.">
+            <label>A₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.75" data-tol="0.01" data-explain="−1 + 0.5 × 0.5 = −0.75. And A₀ = 1 + 0.5 × (−0.75) = 0.625, as given." data-nudge="δ₁ + 0.5 × A₂.">
+            <label>A₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now the critic changes its mind about one state: <code>V(s₂) = −4</code> instead of −5. Everything else is as before.</p>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="δ₁ = r₁ + V(s₂) − V(s₁) = −2 − 4 + 6 = 0." data-nudge="δ₁ = r₁ + γ V(s₂) − V(s₁).">
+            <label>new δ₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="δ₂ = r₂ + V(s₃) − V(s₂) = −3 − 1 + 4 = 0." data-nudge="δ₂ = r₂ + γ V(s₃) − V(s₂).">
+            <label>new δ₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="V(s₂) appears in two residuals with opposite signs: as the target of δ₁ and as the baseline of δ₂. One value changed, two residuals moved, and every advantage before step 2 moves with them through the recursion. That is why the code computes all the residuals from one consistent set of values.">
+            <span class="lab-prompt">Why did one changed value move two residuals?</span>
+            <label class="lab-opt"><input type="radio" name="p903-two" value="a"> V(s₂) is the next value in δ₁ and the current value in δ₂</label>
+            <label class="lab-opt"><input type="radio" name="p903-two" value="b"> λ spreads every change to the neighbouring steps</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Backwards: A₃ = −1, A₂ = 1 − 0.5 = 0.5, A₁ = −1 + 0.25 = −0.75, A₀ = 1 − 0.375 = 0.625. With V(s₂) = −4: δ₁ = −2 − 4 + 6 = 0 and δ₂ = −3 − 1 + 4 = 0. The residuals do not involve λ at all; λ only weights them.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> no environment: rollout buffers given as arrays, including the four-step trajectory of page 03, and SB3's RolloutBuffer for the last test.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-03</code></div>
+          <div><span>Check</span><code>python -m labs check p9-03</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-03</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_03_gae/gae.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_03_gae/</code>.</p>
+        <details><summary>Hint 1</summary><p>next_values has four cases; get the ending ones first. A terminated step bootstraps from 0, a truncated one from final_values[t]. Otherwise the next step&#x27;s value, unless the buffer has run out, which is what last_value is for. The backward pass carries one number from the end towards the start, and an episode end cuts the carry.</p></details>
+        <details><summary>Hint 2</summary><p>td_residuals is one numpy line: rewards + gamma * next_vals - values. In gae: if ends[t]: carry = 0.0; then carry = deltas[t] + gamma * lam * carry; adv[t] = carry.</p></details>
+        <details><summary>Hint 3</summary><p>If only test_agrees_with_stable_baselines3 fails: SB3 marks the START of each episode (episode_starts), you mark the END. A step t is followed by a new episode exactly when ends[t] is True, which is how the test builds SB3&#x27;s buffer.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

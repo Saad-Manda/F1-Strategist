@@ -1,0 +1,14 @@
+id: p6-03
+title: A potential that cannot change the answer
+page: phase-6-multi-car-prerequisites/03-potential-based-shaping.html
+format: pytest
+minutes: 20
+files: [shaping.py]
+goal: >-
+  First redo the page's chain by hand with a new potential. Then write the shaping term and a wrapper that adds it to any reward, and let an exact solver judge them: in every cell of a small maze, the optimal action must be the same with and without your shaping, for three very different potentials. Then the trap the page used to call optional: give the two exits of a grid different potentials and leave out the zero at the end, and the shaping picks a different exit.
+environment: >-
+  small deterministic gridworlds solved exactly by value iteration (gamma = 0.95): a maze with one exit, a room with a near exit worth 8 and a far one worth 10, and page 02's farming grid.
+hints:
+  - "Task 1 is two lines: if the next state ends the episode, its potential counts as 0; then gamma times the next potential minus this one. Task 2 returns a new function with the same four arguments as the reward it wraps. Task 3: the leftover term of page 03's telescoping sum is gamma^T times the LAST potential minus the first. Which exit has a last potential that is not 0?"
+  - "Task 2: def reward(s, a, s2, done): return reward_fn(s, a, s2, done) + shaping_term(phi(s), phi(s2), gamma, done); then return reward. Pass done as next_is_terminal: the step that lands on an exit is the one whose next potential must be 0."
+  - "Task 3: without the zero, a route ending at N collects an extra 5 times gamma^T, about 5 x 0.95^5 = 3.9. The near exit is worth 8 and reached in 5 steps; the far one is worth 10 and reached in 6. Compare 8 + 3.9 with 10, each discounted, and step costs aside: TRAP_EXIT = 'N'."

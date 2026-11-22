@@ -1,0 +1,33 @@
+<!-- page: phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html | title: warm-up | format: paper | minutes: 8 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · the page's trajectory at λ = 0.5</h3>
+          <p>The same four steps as above: rewards <code>−3, −2, −3, −2</code>, values <code>V(s₀..s₃) = −10, −6, −5, −1</code>, γ = 1, and the episode ends after the last step (the value after it is 0). Its TD residuals are δ₀ = 1, δ₁ = −1, δ₂ = 1, δ₃ = −1.</p>
+          <p>At λ = 0.5, A₀ = 1 − 0.5 + 0.25 − 0.125 = 0.625. Work backwards with <code>A_t = δ_t + γλ · A_{t+1}</code>:</p>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.01" data-explain="The last step has nothing after it: A₃ = δ₃ = −1." data-nudge="Start at the end. What comes after the last step?">
+            <label>A₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5" data-tol="0.01" data-explain="1 + 0.5 × (−1) = 0.5." data-nudge="δ₂ + 0.5 × A₃.">
+            <label>A₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.75" data-tol="0.01" data-explain="−1 + 0.5 × 0.5 = −0.75. And A₀ = 1 + 0.5 × (−0.75) = 0.625, as given." data-nudge="δ₁ + 0.5 × A₂.">
+            <label>A₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now the critic changes its mind about one state: <code>V(s₂) = −4</code> instead of −5. Everything else is as before.</p>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="δ₁ = r₁ + V(s₂) − V(s₁) = −2 − 4 + 6 = 0." data-nudge="δ₁ = r₁ + γ V(s₂) − V(s₁).">
+            <label>new δ₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="δ₂ = r₂ + V(s₃) − V(s₂) = −3 − 1 + 4 = 0." data-nudge="δ₂ = r₂ + γ V(s₃) − V(s₂).">
+            <label>new δ₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="V(s₂) appears in two residuals with opposite signs: as the target of δ₁ and as the baseline of δ₂. One value changed, two residuals moved, and every advantage before step 2 moves with them through the recursion. That is why the code computes all the residuals from one consistent set of values.">
+            <span class="lab-prompt">Why did one changed value move two residuals?</span>
+            <label class="lab-opt"><input type="radio" name="p903-two" value="a"> V(s₂) is the next value in δ₁ and the current value in δ₂</label>
+            <label class="lab-opt"><input type="radio" name="p903-two" value="b"> λ spreads every change to the neighbouring steps</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Backwards: A₃ = −1, A₂ = 1 − 0.5 = 0.5, A₁ = −1 + 0.25 = −0.75, A₀ = 1 − 0.375 = 0.625. With V(s₂) = −4: δ₁ = −2 − 4 + 6 = 0 and δ₂ = −3 − 1 + 4 = 0. The residuals do not involve λ at all; λ only weights them.</p>
+        </details>
+
+        <h3>Then, in code</h3>

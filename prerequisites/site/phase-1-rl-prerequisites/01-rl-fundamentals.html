@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · RL fundamentals — Phase 1 RL fundamentals · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="1/01">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 1 · Page 01 of 07 — Foundations</p>
+      <h1>RL Fundamentals</h1>
+      <p class="dek">The agent–environment loop, the reward hypothesis, and the vocabulary every later page is built from.</p>
+
+      <h2>The agent–environment loop</h2>
+      <p>Reinforcement learning has one loop, repeated over and over:</p>
+      <ol>
+        <li>The <strong>environment</strong> hands the <strong>agent</strong> an <strong>observation</strong> describing the current situation.</li>
+        <li>The agent chooses an <strong>action</strong>.</li>
+        <li>The environment applies that action, moves to a new situation, and hands back a <strong>reward</strong> (a single number saying how good that step was) plus the next observation.</li>
+        <li>Repeat until the episode ends.</li>
+      </ol>
+      <p>Nothing else in RL is more than an elaboration of this loop. The agent's only job is to learn a <strong>policy</strong> — a rule for picking actions from observations — that makes the running total of rewards as large as possible.</p>
+
+      <div class="note generic">
+        <div class="tag">Generic example</div>
+        <p>In a video game, the observation might be the screen pixels, the action a joystick direction, and the reward the score delta. The agent never sees "the rules of the game" directly — it only ever sees observation → action → reward, over and over, and has to infer good behaviour from that alone.</p>
+      </div>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>The observation is a 16-number description of the race (laps remaining, tyre compound and age, weather, whether a safety car is out); the action is one of six choices (stay out, or pit for one of five compounds); the reward is the negative lap time. Nothing about "tyre degradation" or "the pit-loss penalty" is ever told to the agent directly — it has to discover, purely from rewards, that pitting for softs late in dry weather is a bad idea.</p>
+      </div>
+
+      <h2>The reward hypothesis</h2>
+      <p>RL rests on one assumption, sometimes called the <strong>reward hypothesis</strong>: any goal you care about can be expressed as maximizing the expected cumulative sum of a scalar reward signal. This is a real design constraint, not a footnote — if you can't collapse "what we want" into a single number per step, you don't have an RL problem yet, you have a reward-design problem to solve first.</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>This is exactly the tension Phase 1's "Reward design" section wrestles with. The obvious goal is "win the race," but the reward actually used is <code>-lap_time</code> on every single lap. The plan spends real effort proving that summing <code>-lap_time</code> over the whole race is mathematically identical to <code>-total_race_time</code> — with no shortcut left for the agent to exploit, like getting free reward by pitting during a safety car. You'll see this same proof step again in Phase 5's reward-shaping decisions.</p>
+      </div>
+
+      <h2>Episodes, and episodic vs. continuing tasks</h2>
+      <p>An <strong>episode</strong> is one complete run of the loop from a starting situation to a natural ending. Some RL tasks never end (continuing tasks — e.g., a thermostat runs forever), but most have a clear boundary, and this project does too: one episode = one full race, from lap 1 to the chequered flag. Phase 1 fixes the episode length in advance, which is a <strong>fixed-length episode</strong>. This matters later because <code>terminated</code> (the race genuinely finished) and <code>truncated</code> (we cut it off early for some other reason) are different signals in Gymnasium, and Phase 1 explicitly sets <code>truncated = False</code> always — there's no artificial cutoff, the episode only ends when the race does.</p>
+
+      <h2>Exploration vs. exploitation</h2>
+      <p>At any point the agent can either <strong>exploit</strong> — take the action it currently believes is best — or <strong>explore</strong> — try something else, to find out if it's actually better. Too much exploitation and the agent gets stuck on a mediocre strategy it found early and never questions again. Too much exploration and it never settles into using what it's learned. Balancing the two is a central, recurring problem across almost every RL algorithm. Phase 1 doesn't need a resolution to it — no algorithm is trained here — but it's worth naming because it's the reason the next section (fresh-sampled stochasticity) matters as much as it does: an environment an agent can memorize gives exploration nothing real to discover.</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>Phase 1 doesn't implement exploration itself — that's the agent's job, in Phases 3 onward — but it shapes how hard the problem is. The <strong>curriculum hook</strong> (<code>options={"curriculum": "dry_no_sc"}</code>) exists specifically to make early exploration easier: by restricting episodes to dry weather with no safety cars, the agent faces a smaller, less noisy version of the problem first. This is <strong>curriculum learning</strong> — start simple, increase difficulty once the easy version is solved.</p>
+      </div>
+
+      <h2>Why stochasticity is sampled fresh, not replayed</h2>
+      <p>A subtler point Phase 1 is very deliberate about: safety cars are <strong>sampled from a hazard process every episode</strong>, not replayed from a fixed set of historical race templates. If only 3–4 fixed scenarios existed, and the agent's observation includes <code>laps_remaining</code>, the agent could simply memorize "an SC always arrives around lap 12 in scenario #2" — a lookup table dressed up as a policy, learning nothing generalizable. This failure mode has a name: <strong>reward hacking</strong> (or <strong>environment overfitting</strong>) — the agent finds a way to score well that exploits an accident of the environment's construction rather than solving the real problem.</p>
+      <p>Guarding against it is why the plan splits weather (replayed from real history, where variety is desirable) from safety cars (freshly sampled every episode, where memorization would be a bug).</p>
+
+      <section class="lab" id="lab" data-lab-id="p1-01" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p1-01 · Notebook · about 15 min</span>
+        <h2>Be the agent</h2>
+        <p class="lab-goal">You will drive the agent–environment loop by hand, write it as a function, and then watch a policy that only memorised one lucky episode win every time on replayed randomness and almost never on fresh randomness.</p>
+        <p><strong>Environment:</strong> FrozenLake, the classic 4×4 grid (Gymnasium <code>FrozenLake-v1</code>).</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p1-01</code></div>
+          <div><span>Check</span><code>python -m labs check p1-01</code></div>
+          <div><span>Hint</span><code>python -m labs hint p1-01</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase1/p1_01_agent_loop/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase1/p1_01_agent_loop/</code>.</p>
+        <details><summary>Hint 1</summary><p>Part B: the loop has the same four beats as the list at the top of page 01: the policy picks an action from the observation, the environment steps, you add the reward to a running total, repeat.</p></details>
+        <details><summary>Hint 2</summary><p>Part B: env.step returns five values. Two of them are booleans, and the episode is over as soon as either one is True. A time limit sets the second one, not the first.</p></details>
+        <details><summary>Hint 3</summary><p>Part B: reset first with env.reset(seed=seed) and unpack (obs, info). Keep total_reward and steps as local variables updated inside a `while True:` loop, and `break` when `terminated or truncated`.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

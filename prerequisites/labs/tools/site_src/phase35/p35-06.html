@@ -1,0 +1,61 @@
+<!-- page: phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html | title: Size it, prune it, name the oracle | format: quiz | minutes: 10 -->
+        <p class="lab-goal">Three short checks on this page's three ideas: the size of the state space, which states can actually occur, and which oracle a claim is about.</p>
+
+        <div class="lab-part">
+          <h3>1 · A longer race</h3>
+          <p>A different circuit runs <strong>70 laps</strong>. Everything else about <code>DPState</code> is as above.</p>
+          <div class="lab-q" data-type="num" data-answer="1176000" data-tol="0" data-explain="70 × 5 × 70 × 8 × 2 × 3. Laps appear twice in the product, once as the lap and once as the cap on tyre age." data-nudge="Two of the six factors change, not one.">
+            <label>How many states, before pruning? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1.62" data-tol="0.02" data-explain="(70 / 55)² ≈ 1.62. The table grows with the square of the race length, because lap and tyre age both scale with it." data-nudge="Divide your answer by the 55-lap count, 726,000.">
+            <label>How many times larger is that than the 55-lap table? &nbsp; <input type="text" inputmode="decimal"> ×</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reachable or not?</h3>
+          <p>A 55-lap race that starts on a new MEDIUM. For each state, say whether the reachability pass would keep it. <code>used_mask</code> is written as the set of dry compounds fitted so far.</p>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="A tyre cannot be older than the number of laps run." data-nudge="Compare tyre_age with lap.">
+            <label>lap 10, MEDIUM, tyre_age 12, used {MEDIUM} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="The fitted compound is always in the set of compounds used." data-nudge="Is the tyre on the car in the used set?">
+            <label>lap 30, HARD, tyre_age 5, used {MEDIUM, SOFT} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="yes" data-explain="A stop for HARD at the end of lap 32 gives exactly this, safety car and weather being whatever the dice say.">
+            <label>lap 40, HARD, tyre_age 8, used {MEDIUM, HARD}, safety car out, DAMP &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="A tyre as old as the race has never been changed, so only the starting compound can have been used." data-nudge="What does tyre_age = lap tell you about pit stops so far?">
+            <label>lap 20, MEDIUM, tyre_age 20, used {MEDIUM, HARD} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="yes" data-explain="This is the start state. The forward sweep begins here.">
+            <label>lap 1, MEDIUM, tyre_age 1, used {MEDIUM} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Oracle A or Oracle B?</h3>
+          <div class="lab-q" data-type="select" data-answer="b" data-explain="Only the current regime is observed, which is all the agent ever sees.">
+            <label>"Its state includes the current weather regime and nothing about future laps." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="a" data-explain="Knowing lap 31's weather on lap 1 is foresight no agent has.">
+            <label>"It already knows on lap 1 that lap 31 will be DAMP." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="b" data-explain="optimality_gap is defined against Oracle B, because that gap is purely the agent's own shortfall." data-nudge="Which one solves exactly the problem the agent faces?">
+            <label>"An agent's reported optimality gap is measured against it." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="a" data-explain="More information can never hurt an exact solver, so A's time is never above B's. The difference is the value of perfect foresight." data-nudge="Which one can always copy the other's decisions?">
+            <label>"Its expected race time is the lower of the two, or equal." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="V[s₀] comes from the model with noise switched off. The rollout is the measurement in the real environment. Agreement between the two is itself a test." data-nudge="Reread “The rollout harness and the optimality-gap metric”.">
+            <span class="lab-prompt">How is the oracle's race time obtained for a results table?</span>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="a"> It is read from <code>V[s₀]</code>, the solved value at the start state.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="b"> It is the best time found over many random rollouts.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="c"> Its policy is rolled out in the real environment on the shared seeds, like any other agent, and the mean is reported.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 70 × 5 × 70 × 8 × 2 × 3 = 1,176,000. Divided by 726,000 that is 1.62, which is (70 / 55)².</p>
+          <p><strong>2.</strong> Unreachable: tyre older than the race so far; fitted compound missing from the used set; a never-changed tyre with two compounds used. Reachable: the lap-40 state and the start state.</p>
+          <p><strong>3.</strong> B, A, B, A. The oracle is scored by rolling its policy out in the real environment.</p>
+        </details>

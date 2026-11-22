@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Double DQN — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/06">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 06 of 11 — What the real agent adds, part two</p>
+      <h1>Double DQN: Removing a Bias Vanilla DQN Doesn't Know It Has</h1>
+      <p class="dek">Taking the maximum of several uncertain numbers gives an answer that is too high on average. Vanilla DQN does exactly that inside every target. The fix changes which network chooses and which network scores.</p>
+
+      <h2>The vanilla target, restated</h2>
+      <p><a class="xref" href="03-target-network.html">Page 03</a> left the target as <code>r + γ·max_a' Q(s',a';θ⁻)</code>. Read the <code>max</code> as two jobs done by one network: the target network <em>chooses</em> which next action looks best, and the same target network <em>scores</em> how good that action is. Nothing has gone wrong yet. The problem appears once you remember that every one of those Q-values is an estimate with some error in it.</p>
+
+      <h2>Why a max over noisy estimates runs high</h2>
+      <p>Suppose three next actions all have a true value of exactly <code>5</code>. The network has not converged, so each estimate is off by <code>+1</code> or <code>−1</code>, each with probability one half, independently of the others. The true value of the best action is <code>5</code>. What does <code>max</code> report?</p>
+      <blockquote class="eq">Each estimate is either 4 or 6. Three estimates give 2 × 2 × 2 = 8 equally likely cases.
+
+max = 4 only when all three came out low:   1 case of 8
+max = 6 in every other case:                7 cases of 8
+
+E[max] = (1/8)(4) + (7/8)(6) = 0.5 + 5.25 = 5.75
+
+true value of the best action:  5.00
+what max reports on average:    5.75      →  bias of +0.75</blockquote>
+      <p>No single estimate is biased. Each one averages to exactly <code>5</code>. The bias comes from the <code>max</code> itself, because <code>max</code> always picks whichever estimate happened to land high, and it then reports that same lucky number as the value. This is called <strong>maximization bias</strong>. It has nothing to do with neural networks: the tabular <code>max_a'</code> in <a class="xref" href="../phase-4-q-learning-prerequisites/02-q-learning-derived.html">Phase 4 page 02</a> has it too. It matters more here for two reasons. A network's errors are larger and last longer than a table cell's, and the dueling network on <a class="xref" href="05-dueling-architecture.html">page 05</a> scores six actions at once, so there are more chances for one of them to land high.</p>
+      <div class="note generic">
+        <div class="tag">Why a small bias does not stay small</div>
+        <p>The inflated number does not stay in one place. It becomes part of the target for the state before it, whose inflated estimate becomes part of the target for the state before that. With <code>γ = 1</code> and 52 laps, an optimism of a fraction of a second per lap can add up along the whole chain. And the bias is not even across actions: it is largest where estimates are least certain, which is exactly the rarely tried actions. For this project those are the pit stops.</p>
+      </div>
+
+      <h2>The fix: one network chooses, another scores</h2>
+      <p>Keep two sets of estimates with <em>independent</em> errors. Let estimator A choose the action, and read that action's value from estimator B. Rerun the same example:</p>
+      <blockquote class="eq">A picks the action whose A-estimate is highest. Call it a*.
+B's estimate of a* is 4 or 6 with probability one half each, because B's error
+does not depend on anything A did.
+
+E[ B(a*) ] = (1/2)(4) + (1/2)(6) = 5.00      →  bias of 0</blockquote>
+      <p>A still tends to pick an action it overrates. That no longer matters, because A's overrated number is never used as the value. B's number is used, and B has no reason to be high on that particular action.</p>
+      <p><strong>Double DQN</strong> applies this with the two networks the agent already has. The online network <code>θ</code> chooses. The target network <code>θ⁻</code> scores.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Vanilla DQN</th><th>Double DQN</th></tr></thead>
+          <tbody>
+            <tr><td>Choose the next action</td><td class="mono">a* = argmax_a' Q(s',a';θ⁻)</td><td class="mono">a* = argmax_a' Q(s',a';θ)</td></tr>
+            <tr><td>Score that action</td><td class="mono">Q(s',a*;θ⁻)</td><td class="mono">Q(s',a*;θ⁻)</td></tr>
+            <tr><td>Target</td><td class="mono">r + γ·Q(s',a*;θ⁻)</td><td class="mono">r + γ·Q(s',a*;θ⁻)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Only the first row differs, and only by which weights sit inside the <code>argmax</code>. In code that is three lines: run the online network on <code>s'</code>, take its <code>argmax</code>, and use that index to read one value out of the target network's output. This is what the real plan means when it calls Double DQN a "3-line change".</p>
+      <div class="note generic">
+        <div class="tag">An honest limit</div>
+        <p>The worked example assumed A and B have independent errors. The online and target networks do not. <a class="xref" href="03-target-network.html">Page 03</a> showed the target network is a slowly updated copy of the online one, so their errors overlap. Double DQN therefore <em>reduces</em> the bias and does not remove it. It can also tip slightly the other way and underestimate. Both are accepted, because a small error in either direction does far less harm than a steady push upward that feeds on itself.</p>
+      </div>
+
+      <h2>Masking has to happen inside the choice</h2>
+      <p><a class="xref" href="../phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Phase 4 page 03</a> restricted exploration to legal actions, and <a class="xref" href="../phase-4-q-learning-prerequisites/02-q-learning-derived.html">Phase 4 page 02</a> restricted the tabular <code>max</code> the same way. The rule carries over unchanged, and it attaches to the <em>choosing</em> step: the online network's values for illegal next actions are set to <code>−∞</code> before the <code>argmax</code>. A network outputs a number for every action whether it is legal or not, and the number for an action that never occurs in training is never corrected by any target. If one of those meaningless numbers wins the <code>argmax</code>, the target is built from an action the car could not have taken.</p>
+      <p>This is also why each stored transition carries the legal-action mask of the <em>next</em> state. The mask is needed when the transition is replayed, which may be thousands of steps after the environment has moved on.</p>
+
+      <h2>The terminal cut-off</h2>
+      <p>On the last lap there is no next state, so there is nothing to bootstrap from. The target is just <code>r</code>. Phase 4's table handled this with an <code>if</code>. A network trains on a batch of transitions at once, so the same rule is written as arithmetic:</p>
+      <blockquote class="eq">target = r + γ · Q(s',a*;θ⁻) · (1 − done)
+
+done = 0  →  target = r + γ·Q(s',a*;θ⁻)      the usual bootstrapped target
+done = 1  →  target = r                       the future term is multiplied away</blockquote>
+      <p>Leaving this factor out is a quiet bug. The network would be asked to add a "value after the race" that it invents from an observation with zero laps remaining, and that invented number would leak backward into every earlier lap. The terminal transitions are the only targets that contain no estimate at all, so they are the anchor the whole chain of bootstrapped values hangs from.</p>
+
+      <h2>The whole target, on a batch of three</h2>
+      <p>The real agent computes 64 targets at a time. Three are enough to see every case. Take three actions instead of six to keep it short, <code>γ = 1</code>, and these numbers for each transition's next state:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Row</th><th>r</th><th>done</th><th>Online Q(s',·;θ)</th><th>Legal at s'</th><th>Target net Q(s',·;θ⁻)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td class="mono">−5</td><td class="mono">0</td><td class="mono">[−40, −38, −45]</td><td>all three</td><td class="mono">[−41, −42, −44]</td></tr>
+            <tr><td class="mono">2</td><td class="mono">−6</td><td class="mono">0</td><td class="mono">[−30, −22, −35]</td><td>actions 0 and 2</td><td class="mono">[−31, −20, −36]</td></tr>
+            <tr><td class="mono">3</td><td class="mono">−4</td><td class="mono">1</td><td class="mono">[−9, −7, −8]</td><td>all three</td><td class="mono">[−9, −6, −8]</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <blockquote class="eq">Row 1   choose with online:   argmax [−40, −38, −45]          = action 1
+        score with target:    Q(s',1;θ⁻)                      = −42
+        target = −5 + (−42)(1 − 0)                            = −47
+        (vanilla would use max [−41, −42, −44] = −41, giving −46: one unit more optimistic)
+
+Row 2   mask, then choose:    argmax [−30, −∞, −35]           = action 0
+        score with target:    Q(s',0;θ⁻)                      = −31
+        target = −6 + (−31)(1 − 0)                            = −37
+        (without the mask: action 1, scored −20, target −26, built on an illegal move)
+
+Row 3   done = 1, so the future term is multiplied by 0
+        target = −4 + (anything)(1 − 1)                       = −4</blockquote>
+      <p>Each row's loss then compares its target with <code>Q(s,a;θ)</code> for the action that was actually taken. The network outputs a value for every action in every row, a block of numbers with one row per transition and one column per action. Picking out "the column for the action taken, row by row" is the operation PyTorch calls <code>gather</code>. The same operation reads <code>Q(s',a*;θ⁻)</code> out of the target network's block. When <a class="xref" href="11-code-walkthrough.html">page 11</a> points at two <code>gather</code> calls, these are the two.</p>
+
+      <div class="note generic">
+        <div class="tag">Why this combination needs so much care</div>
+        <p>Three ingredients are now in use together: a function approximator (<a class="xref" href="01-table-to-function.html">page 01</a>), bootstrapping (a target built from the learner's own estimates), and off-policy learning (the <code>max</code>, and replaying old data). Sutton and Barto call this combination the <strong>deadly triad</strong>, because any two of the three are safe and all three together can make value estimates grow without limit. Phase 4's table had the last two and was safe. The target network, the replay buffer and Double DQN do not remove any ingredient. Each one weakens a way the three reinforce one another.</p>
+      </div>
+
+      <div class="note generic">
+        <div class="tag">Further reading — optional</div>
+        <p>Nothing later in this set depends on these. Hado van Hasselt, Arthur Guez and David Silver, <a class="inline-link" href="https://arxiv.org/abs/1509.06461">Deep Reinforcement Learning with Double Q-learning</a> (2015), is the source of the method on this page. Sutton and Barto, <em>Reinforcement Learning: An Introduction</em> (2nd edition), covers maximization bias in section 6.7 and the deadly triad in section 11.3.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p5-06" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p5-06 · Notebook · about 20 min</span>
+        <h2>Who chooses, who scores</h2>
+        <p class="lab-goal">You will measure maximization bias by simulation, write the Double DQN target for a batch and reproduce page 06's three rows, then run Q-learning and Double Q-learning on the textbook problem built to show the bias doing damage.</p>
+        <p><strong>Environment:</strong> coin-flip estimates, page 06's batch of three, and the maximization-bias MDP (Sutton &amp; Barto, Example 6.7).</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-06</code></div>
+          <div><span>Check</span><code>python -m labs check p5-06</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-06</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_06_double_dqn/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_06_double_dqn/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: A and B are arrays with one row per trial. The single value is A&#x27;s row maximum. The double value needs the column where A&#x27;s row is largest, then B&#x27;s entry in that column. TODO 2 is the same idea with the mask first. TODO 3: decide which table learns, then build its target from the two tables.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: A.argmax(axis=1) gives the chosen column in every row, and B[np.arange(trials), columns] reads one entry per row. TODO 2: np.where(legal_next, online_next, -np.inf).argmax(axis=1) is the choice. TODO 3: i = int(rng.random() &lt; 0.5); learn, other = tables[i], tables[1 - i].</p></details>
+        <details><summary>Hint 3</summary><p>TODO 2 ends with: score = target_next[np.arange(len(rewards)), chosen]; return rewards + gamma * score * (1.0 - dones). TODO 3: target = reward if done else reward + other[next_state][int(np.argmax(learn[next_state]))]; then learn[state][action] += alpha * (target - learn[state][action]).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

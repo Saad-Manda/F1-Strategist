@@ -1,0 +1,88 @@
+<!-- page: phase-9-ppo-prerequisites/04-ppo-clipped-objective.html | title: Where the clip binds | format: widget | minutes: 15 | scripts: widgets/clip.js -->
+        <p class="lab-goal">Move the ratio, the advantage and ε, and watch where the objective stops rewarding a push. Then fill in the clip table for new numbers, find the cells where the gradient is zero, and work out by hand how far one step can carry a ratio past the clip.</p>
+
+        <div class="lab-part">
+          <h3>1 · The objective, live</h3>
+          <div class="widget" data-widget="clip"></div>
+          <p>The solid line is <code>min(r·A, clip(r, 1−ε, 1+ε)·A)</code>; the dashed line is <code>r·A</code> on its own. In the shaded region the solid line is flat, so its slope in r, and with it the gradient the update follows, is zero.</p>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · The clip table for ε = 0.1</h3>
+          <p>With ε = 0.1 the band is [0.9, 1.1]. Enter <code>min(r·A, clip(r)·A)</code> for each cell.</p>
+          <div class="lab-q" data-type="num" data-answer="1.7" data-tol="0.01" data-explain="r·A = 1.7, clip(r)·A = 0.9 × 2 = 1.8; the min is 1.7, the unclipped term." data-nudge="clip(0.85) = 0.9.">
+            <label>(a) A = +2, r = 0.85 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2" data-tol="0.01" data-explain="Inside the band both terms are 2." data-nudge="r = 1 is inside the band.">
+            <label>(b) A = +2, r = 1.0 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.2" data-tol="0.01" data-explain="r·A = 2.3, clip(r)·A = 1.1 × 2 = 2.2; the min is the clipped term." data-nudge="clip(1.15) = 1.1.">
+            <label>(c) A = +2, r = 1.15 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.2" data-tol="0.01" data-explain="r·A = 3.2, clip(r)·A = 2.2. However far r goes past 1.1, the objective stays at 2.2." data-nudge="clip(1.6) = 1.1.">
+            <label>(d) A = +2, r = 1.6 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-1.8" data-tol="0.01" data-explain="r·A = −1.7, clip(r)·A = 0.9 × (−2) = −1.8; the min is the clipped term." data-nudge="With A negative, the smaller of the two is the more negative one.">
+            <label>(e) A = −2, r = 0.85 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-2" data-tol="0.01" data-explain="Both terms are −2." data-nudge="Inside the band.">
+            <label>(f) A = −2, r = 1.0 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-2.3" data-tol="0.01" data-explain="r·A = −2.3, clip(r)·A = −2.2; the min is the unclipped −2.3." data-nudge="Which is smaller, −2.3 or −2.2?">
+            <label>(g) A = −2, r = 1.15 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-3.2" data-tol="0.01" data-explain="r·A = −3.2, clip(r)·A = −2.2; the min is −3.2, unclipped. A bad action that became much more likely is still fully penalised." data-nudge="Which is smaller, −3.2 or −2.2?">
+            <label>(h) A = −2, r = 1.6 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="multi" data-answer="c,d,e" data-explain="The gradient is zero exactly where the min picks the clipped term and that term is flat in r: A &gt; 0 with r ≥ 1.1 (c, d), and A &lt; 0 with r ≤ 0.9 (e). In (a) and (h) r is outside the band but the unclipped term is the smaller one, so the update still pushes. Both of those pushes move r back towards the band." data-nudge="Find the cells where your answer was a clipped term with r outside the band.">
+            <span class="lab-prompt">In which cells is the gradient with respect to r zero? Tick all that apply.</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> (a) A = +2, r = 0.85</label>
+            <label class="lab-opt"><input type="checkbox" value="b"> (b) A = +2, r = 1.0</label>
+            <label class="lab-opt"><input type="checkbox" value="c"> (c) A = +2, r = 1.15</label>
+            <label class="lab-opt"><input type="checkbox" value="d"> (d) A = +2, r = 1.6</label>
+            <label class="lab-opt"><input type="checkbox" value="e"> (e) A = −2, r = 0.85</label>
+            <label class="lab-opt"><input type="checkbox" value="f"> (f) A = −2, r = 1.0</label>
+            <label class="lab-opt"><input type="checkbox" value="g"> (g) A = −2, r = 1.15</label>
+            <label class="lab-opt"><input type="checkbox" value="h"> (h) A = −2, r = 1.6</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · One step can overshoot</h3>
+          <p>Two actions. The taken one had <code>p_old = 0.1</code> and advantage <code>A = 5</code>; ε = 0.2. Start at r = 1 (the policy has not moved yet) and take one gradient step of size 0.1 on the logits. At r = 1 the gradient of r·A with respect to the taken action's logit is <code>A · (1 − p) = 5 × 0.9</code>, and the other logit's is the negative of that.</p>
+          <div class="lab-q" data-type="num" data-answer="0.2146" data-tol="0.002" data-explain="Each logit moves by 0.1 × 4.5 = 0.45 in opposite directions, so their difference grows by 0.9. The odds 1 : 9 become 1 : 9e^−0.9 = 1 : 3.659, so p = 1 / 4.659 = 0.2146." data-nudge="With two actions p = 1 / (1 + 9 · e^(−d)), where d is how much the difference between the two logits grew.">
+            <label>The taken action's new probability &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.146" data-tol="0.02" data-explain="0.2146 / 0.1 = 2.15, far past 1 + ε = 1.2, after a single step that started inside the band." data-nudge="New probability over p_old.">
+            <label>The new ratio &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The clip has no restoring force. At r = 2.15 with A &gt; 0 the objective is flat, so later steps on this sample leave it where it is; nothing pulls it back to 1.2. The capstone measured the same thing on the toy race (1 → 4.95 at stage 5). SB3 cannot prevent it either; it reports it, and target_kl can stop an update early.">
+            <span class="lab-prompt">Does the clip pull the ratio back to 1.2 on the next step?</span>
+            <label class="lab-opt"><input type="radio" name="p904-undo" value="a"> yes: clipping sets the ratio to 1 + ε</label>
+            <label class="lab-opt"><input type="radio" name="p904-undo" value="b"> no: it only stops later steps on this sample from pushing further</label>
+            <label class="lab-opt"><input type="radio" name="p904-undo" value="c"> yes, but only once the next batch is collected</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Reading it off the widget</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="With A &lt; 0 the objective is flat only for r ≤ 1 − ε. Everywhere above that, including far above 1 + ε, its slope is A, so the update keeps lowering the bad action's probability. Pushing r down from above moves it back towards the band, so leaving that side unclipped can only undo a step that went the wrong way." data-nudge="Set A to −1.5 and drag r from 0 to 2.5. Where is the readout's slope not zero?">
+            <span class="lab-prompt">With A &lt; 0, for which ratios does the objective still reward moving r, and why is that safe?</span>
+            <label class="lab-opt"><input type="radio" name="p904-neg" value="a"> every r above 1 − ε: it pushes r down, which for r above the band means back towards it</label>
+            <label class="lab-opt"><input type="radio" name="p904-neg" value="b"> only inside the band: outside it the clip always binds</label>
+            <label class="lab-opt"><input type="radio" name="p904-neg" value="c"> only r below 1 − ε: the clip leaves small ratios alone</label>
+          </div>
+          <div class="lab-q stack" data-type="multi" data-answer="clip,kl" data-explain="train/clip_fraction is the share of samples whose ratio was outside the band; train/approx_kl estimates how far the policy moved in the update. Both rise when steps overshoot. The value loss and explained variance are about the critic, and the entropy is about how random the policy still is." data-nudge="Which two are about how far the policy moved?">
+            <span class="lab-prompt">Which SB3 training logs would show that ratios are overshooting? Tick all that apply.</span>
+            <label class="lab-opt"><input type="checkbox" value="clip"> <code>train/clip_fraction</code></label>
+            <label class="lab-opt"><input type="checkbox" value="kl"> <code>train/approx_kl</code></label>
+            <label class="lab-opt"><input type="checkbox" value="vl"> <code>train/value_loss</code></label>
+            <label class="lab-opt"><input type="checkbox" value="ev"> <code>train/explained_variance</code></label>
+            <label class="lab-opt"><input type="checkbox" value="ent"> <code>train/entropy_loss</code></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>The table for ε = 0.1: A = +2 gives 1.7, 2, 2.2, 2.2; A = −2 gives −1.8, −2, −2.3, −3.2. The gradient is zero in (c), (d) and (e). In (a) and (h) r is outside the band, but the unclipped term is smaller and the push is back towards the band.</p>
+          <p>Overshoot: each logit moves by 0.45, the difference by 0.9, p goes from 0.1 to 0.2146, and the ratio from 1 to 2.15 in one step. The clip does not undo it; it only stops further pushing. <code>clip_fraction</code> and <code>approx_kl</code> show it happening.</p>
+        </details>

@@ -1,0 +1,14 @@
+id: p5-cap
+title: Toy race network learner
+page: phase-5-dqn-prerequisites/09-build-it-yourself.html
+format: pytest
+minutes: 90
+files: [toy_dqn.py, report.ipynb]
+goal: >-
+  This page is the brief. You will build a network learner for the toy race in seven checked stages: the observation, two networks, masked action choice, page 06's batch targets, the training step, and the race loop. Stage 7 trains it and measures it against the exact optimum. The report then adds the techniques one at a time, as this page does, and plants two faults to see which numbers give them away.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race of the earlier capstones, with a five-number observation and its exact optimum as the ruler. About an hour and a half, plus 15 to 30 minutes for the report to run.
+hints:
+  - "Read the header of toy_dqn.py first: what a transition holds, and where the memories come from. Stages 1 to 4 are short functions with the rule in the docstring. Stage 5 is update(), whose docstring lists its eight steps in order. Stage 6 is the race loop, five steps per lap. Stage 7 has no code of its own: it trains what you built, for about 90 seconds. Check one stage at a time with `python -m labs check p5-cap N`."
+  - "Stage 4: online(next_obs).masked_fill(~next_masks, -torch.inf).argmax(dim=1) is the choice; target(next_obs).gather(1, chosen.unsqueeze(1)).squeeze(1) is the score. Stage 5: guess = self.online(obs).gather(1, actions.unsqueeze(1)).squeeze(1); the loss is (weights * F.smooth_l1_loss(guess, goal, reduction='none')).mean(). Clip with nn.utils.clip_grad_norm_ after backward and before step."
+  - "Stage 6: compute lap_time with model.cost before calling model.next_tyre; the next sc is int(rng.random() < model.sc_prob(sc)); the next obs is encode(lap + 1, ...) and the next mask legal_mask(model, lap + 1, ...). Stage 7 failing with stages 1-6 green usually means update() is not reached (is learner.update() called inside the lap loop when train is true?) or the reward has the wrong sign."

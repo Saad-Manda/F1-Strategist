@@ -1,0 +1,27 @@
+<!-- page: phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html | title: warm-up | format: paper | minutes: 8 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · checking an equilibrium by hand</h3>
+          <p>A pair of strategies is a Nash equilibrium when neither player gains by switching on their own. In <strong>matching pennies</strong> the row player wins 1 on a match and loses 1 on a mismatch; the column player gets the opposite.</p>
+          <div class="lab-q" data-type="num" data-answer="2" data-tol="0.01" data-explain="At (H, H) the column player gets −1. Switching to T makes it a mismatch: +1. The gain is 2, so (H, H) is not an equilibrium, and neither is any other pure pair: in each one, somebody wants to switch." data-nudge="The column player's payoff at (H, H), then at (H, T).">
+            <label>Both play H. How much does the column player gain by switching to T? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="0.5 × (+1) + 0.5 × (−1) = 0, and the same for T. Every action earns 0 against 50/50, so no switch gains anything: 50/50 for both players is the equilibrium." data-nudge="Half the time a match, half the time a mismatch.">
+            <label>The column player plays 50/50. What does H earn the row player, on average? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.01" data-explain="Rock ties rock (0), loses to paper (−1), beats scissors (+1): (0 − 1 + 1) / 3 = 0. Paper and scissors earn 0 too, so 1/3 each is rock-paper-scissors' equilibrium." data-nudge="Average the three outcomes of rock.">
+            <label>Rock-paper-scissors. The opponent plays each move with probability 1/3. What does rock earn? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now the game this page used to use: two moves, R and P. Paper beats rock; the same move ties. As the row player: R against R is 0, R against P is −1, P against R is +1, P against P is 0.</p>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Against R, P earns 1 and R earns 0; against P, P earns 0 and R earns −1. P is better against everything: it dominates R. Neither player ever wants R, so (P, P) is the only equilibrium, and best response to the latest move goes to P and stays there. Nothing cycles. That is why the worked example above uses matching pennies." data-nudge="Compare P with R against each opponent move in turn.">
+            <span class="lab-prompt">What is the equilibrium of the R/P game?</span>
+            <label class="lab-opt"><input type="radio" name="p802-rp" value="a"> 50/50 for both, as in matching pennies</label>
+            <label class="lab-opt"><input type="radio" name="p802-rp" value="b"> there is none: best responses chase each other forever</label>
+            <label class="lab-opt"><input type="radio" name="p802-rp" value="c"> both play P: P earns more than R whatever the opponent does</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Matching pennies: at (H, H) the column player gains 2 by switching, so no pure pair is stable; against 50/50 both actions earn 0, so 50/50 is. Rock-paper-scissors: every move earns 0 against 1/3 each. The R/P game: P dominates R, so the equilibrium is pure, (P, P).</p>
+        </details>
+
+        <h3>Then, in code</h3>

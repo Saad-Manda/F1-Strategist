@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Stable-Baselines3's API — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/06">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 06 of 11 — Library mechanics, taught generically</p>
+      <h1>Stable-Baselines3 and sb3-contrib's API Surface</h1>
+      <p class="dek">Taught generically first, per this set's standing pattern, so "this project, formalized" (<a class="xref" href="10-this-project-formalized.html">page 10</a>) is a direct instantiation rather than new API surface.</p>
+
+      <h2>VecEnv: why PPO trains against several environments at once</h2>
+      <p>SB3 trains against a <strong>vectorized environment</strong> — <code>n_envs</code> copies running in lockstep, where a single <code>step()</code> call advances all of them and returns stacked arrays of observations, rewards, and done-flags. This follows directly from <a class="xref" href="04-ppo-clipped-objective.html">page 04</a>'s on-policy constraint: PPO needs a fresh, diverse batch of rollout data before every update (old data goes stale the moment the policy has changed, unlike Phase 5's replay buffer), and running several environment copies in parallel is the standard way to collect a large, diverse batch quickly without an off-policy buffer to fall back on.</p>
+      <p>Two implementations of the same interface: <strong><code>DummyVecEnv</code></strong> steps every copy sequentially inside one process — simple, no serialization needed to communicate between copies. <strong><code>SubprocVecEnv</code></strong> runs each copy in its own OS process and steps them genuinely in parallel — faster only when a single environment step is expensive enough that the added process/inter-process-communication overhead pays for itself. Which one this project should actually use is a specific, load-bearing question — deferred to <a class="xref" href="07-pickling-and-subprocvecenv.html">page 07</a>.</p>
+
+      <h2>The rollout-buffer arithmetic</h2>
+      <p><code>n_steps</code>, <code>n_envs</code>, <code>batch_size</code>, and <code>n_epochs</code> relate in a fixed way worth working through numerically, using the real plan's own values:</p>
+      <blockquote class="eq">n_steps = 256      (per env, per update)
+n_envs  = 4
+
+transitions collected per update = n_steps × n_envs = 256 × 4 = 1024
+
+batch_size = 64
+minibatches per update = 1024 / 64 = 16   (must divide evenly)
+
+n_epochs = 10
+→ each of the 16 minibatches is used for 10 separate gradient steps
+  before the next rollout of 1024 transitions is collected</blockquote>
+      <p><code>batch_size</code> should divide <code>n_steps × n_envs</code> evenly. SB3 does not enforce it. Plain <code>PPO</code> prints a warning when the model is built and then trains with a short last minibatch; <code>MaskablePPO</code>, the class this project uses, does the same without the warning. Nothing is dropped and nothing is raised (lab p9-06 part E shows both).</p>
+
+      <h2>The <code>.learn()</code> / <code>.predict()</code> shape</h2>
+      <p><code>model.learn(total_timesteps=...)</code> internally alternates two phases, repeated until the timestep budget is exhausted: a <strong>rollout phase</strong> (run the current policy across all <code>n_envs</code> copies for <code>n_steps</code>, storing observations, actions, rewards, log-probabilities, and value estimates as it goes), and an <strong>update phase</strong> (compute GAE per <a class="xref" href="03-generalized-advantage-estimation.html">page 03</a> over the collected rollout, then run <code>n_epochs</code> of clipped-objective gradient steps per <a class="xref" href="04-ppo-clipped-objective.html">page 04</a> over minibatches of it). This one method call encapsulates the entire <a class="xref" href="01-policy-gradients-reinforce.html">pages 01</a>–<a class="xref" href="04-ppo-clipped-objective.html">04</a> derivation chain — precisely what <a class="xref" href="05-build-vs-buy.html">page 05</a> said a library buys: nobody calling <code>.learn()</code> has to get GAE's backward recursion or the clip's minibatch-epoch interaction right themselves. <code>model.predict(obs, deterministic=...)</code> is the acting side: sample (or, if <code>deterministic=True</code>, take the mode of) the current policy's action distribution for a given observation.</p>
+
+      <h2>Action masking via <code>sb3-contrib</code>'s <code>MaskablePPO</code></h2>
+      <p>Masking invalid actions is not a new <em>concept</em> here — the reader already knows from Phase 1/4 background why actions that would be illegal (like pitting again immediately after just pitting) must be masked out before an agent can choose among them. What's new is only the <em>mechanism</em> SB3 expects: wrap the base environment with <code>ActionMasker(env, mask_fn)</code>, where <code>mask_fn</code> is a callable that returns a boolean array over the action space. <code>MaskablePPO</code> then applies that mask to the policy's output <em>before</em> sampling — zeroing out invalid actions' probability mass and renormalizing — rather than sampling freely and rejecting invalid draws after the fact. This matters for <a class="xref" href="04-ppo-clipped-objective.html">page 04</a>'s math: it guarantees the log-probabilities used in the ratio <code>r_t(θ)</code> are always computed over the valid-action subset only, so an action that happened to be invalid at collection time never distorts the ratio for a policy update.</p>
+
+      <h2>Logging</h2>
+      <p><code>tensorboard_log=...</code> is SB3's built-in equivalent of whatever logging Phase 4/5's from-scratch training loops hand-rolled for tracking episode reward, loss, and entropy over time — one configuration line, not a new topic to learn.</p>
+
+      <section class="lab" id="lab" data-lab-id="p9-06" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p9-06 · Notebook · about 20 min</span>
+        <h2>The library, from the outside</h2>
+        <p class="lab-goal">Page 06's API surface, used rather than read about. The rollout arithmetic for the real config and two others; a short PPO run on CartPole, with the log values that come straight from pages 03 and 04; deterministic against sampled play from the same trained policy; MaskablePPO's masking, checked from inside the distribution; and what really happens when batch_size does not divide the buffer.</p>
+        <p><strong>Environment:</strong> CartPole-v1 from Gymnasium (about 30 s of training), and the toy race as a masked Gymnasium environment (labs/labkit/racegym.py). The whole notebook runs in about a minute and a half.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-06</code></div>
+          <div><span>Check</span><code>python -m labs check p9-06</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-06</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_06_sb3_outside/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_06_sb3_outside/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: n_steps is per environment, so a rollout holds n_steps × n_envs transitions; minibatches per epoch round UP (the last one is short); learn() keeps collecting rollouts until it has at least total_timesteps, so the number of updates also rounds up. TODO 2: the values are in model.logger.name_to_value after learn(). TODO 3: model.predict(obs, deterministic=...) returns (action, state).</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: transitions = n_steps * n_envs; minibatches = math.ceil(transitions / batch_size); gradient_steps = minibatches * n_epochs; updates = math.ceil(total / transitions); steps_taken = updates * transitions. TODO 4: dist = model.policy.get_distribution(obs_tensor, action_masks=mask); dist.log_prob(th.arange(3)) gives one log-probability per action.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 5: count the warnings whose message mentions &#x27;mini-batch&#x27;; then [len(b.actions) for b in model.rollout_buffer.get(batch_size)] lists the minibatch sizes the buffer really yields after one learn().</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

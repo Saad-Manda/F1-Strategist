@@ -1,0 +1,14 @@
+id: p1-01
+title: Be the agent
+page: phase-1-rl-prerequisites/01-rl-fundamentals.html
+format: notebook
+minutes: 15
+tasks: [A, B, "predict:memorise", C]
+goal: >-
+  You will drive the agent–environment loop by hand, write it as a function, and then watch a policy that only memorised one lucky episode win every time on replayed randomness and almost never on fresh randomness.
+environment: >-
+  FrozenLake, the classic 4×4 grid (Gymnasium <code>FrozenLake-v1</code>).
+hints:
+  - "Part B: the loop has the same four beats as the list at the top of page 01: the policy picks an action from the observation, the environment steps, you add the reward to a running total, repeat."
+  - "Part B: env.step returns five values. Two of them are booleans, and the episode is over as soon as either one is True. A time limit sets the second one, not the first."
+  - "Part B: reset first with env.reset(seed=seed) and unpack (obs, info). Keep total_reward and steps as local variables updated inside a `while True:` loop, and `break` when `terminated or truncated`."

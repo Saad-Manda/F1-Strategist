@@ -1,0 +1,14 @@
+id: p6-02
+title: Sparse, dense, and farmed
+page: phase-6-multi-car-prerequisites/02-credit-assignment.html
+format: notebook
+minutes: 20
+tasks: [update, "predict:ratio", B, loop, C]
+goal: >-
+  Two measurements of page 02's argument. First, how many more steps a learner needs when the only reward comes at the end, and how that grows with the length of the episode. Then a helpful bonus on the way, turned up until the agent stops finishing and starts farming it, with a one-line formula for where that happens.
+environment: >-
+  a 1-D corridor of 5 to 40 cells, learned by tabular Q-learning; and a 5×5 grid with a goal worth +10 and a bonus tile that comes back three steps after it is taken.
+hints:
+  - "TODO 1 is the Phase 4 update with one branch: when the step ended the episode, the target is just r. TODO 2: find every index holding the largest value and let rng choose one. TODO 3 is a geometric series with ratio gamma^period; TODO 4 solves loop_value(b) = goal for b."
+  - "TODO 1: target = r if done else r + gamma * Q[s2].max(); Q[s, a] += alpha * (target - Q[s, a]). TODO 2: return int(rng.choice(np.flatnonzero(q_row == q_row.max())))."
+  - "TODO 3: return b / (1 - gamma ** period). TODO 4: return goal * (1 - gamma ** period), which is 1.855 at gamma = 0.95."

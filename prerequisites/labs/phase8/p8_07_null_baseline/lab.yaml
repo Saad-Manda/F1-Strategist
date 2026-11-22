@@ -1,0 +1,14 @@
+id: p8-07
+title: Is it really a reaction?
+page: phase-8-self-play-prerequisites/07-is-it-bimodal.html
+format: notebook
+minutes: 20
+tasks: [A, "predict:sc", B, C]
+goal: >-
+  Build page 07's shuffled-pairing test, then run it on three synthetic data sets: independent stops, two cars that both react to the same safety car but never to each other, and a real undercut-or-overcut reaction. The plain shuffle calls the shared safety car a reaction. Fix it by shuffling only among races that shared the same conditions, and finish with a strategic histogram the test cannot see at all.
+environment: >-
+  synthetic pit-stop data for 2,000 races of 52 laps (labs/labkit/pitdata.py), and the capstone's pit-timing duel for the last part.
+hints:
+  - "TODO 1 is one line: np.mean(agent == rival). TODO 2: null = [delta_stat(agent, rng.permutation(rival)) for each of n shuffles]; the p-value counts the null values whose distance from the null's mean is at least the real value's distance, plus one, over n plus one."
+  - "TODO 3: compute the index groups once (one per value of strata). For each shuffle, copy rival and, for every group idx, set shuffled[idx] = rival[rng.permutation(idx)]. Then score it with delta_stat."
+  - "If Part C still rejects the shared-safety-car data, check that you permute the INDICES within each group (rng.permutation(idx)) rather than the whole array, and that you start every shuffle from the original rival, not the previous shuffle."

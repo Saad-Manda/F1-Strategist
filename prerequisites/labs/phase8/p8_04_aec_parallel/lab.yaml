@@ -1,0 +1,14 @@
+id: p8-04
+title: AEC and Parallel
+page: phase-8-self-play-prerequisites/04-pettingzoo-apis.html
+format: pytest
+minutes: 20
+files: [rps_envs.py]
+goal: >-
+  Write rock-paper-scissors twice: as a Parallel environment that returns dicts keyed by agent, and as a turn-based game in which the second player sees the first one's move. Measure what going second is worth in each. Then run PettingZoo's own parallel_to_aec on your Parallel game and find that going second in an AEC cycle shows the second player nothing.
+environment: >-
+  rock-paper-scissors, five rounds an episode. PettingZoo is used by two optional checks and the lab works without it.
+hints:
+  - "ParallelRPS.reset sets self.agents and a round counter and returns two dicts. step scores both moves at once with winner_reward, gives each player the OTHER's move as its observation, and empties self.agents after ROUNDS rounds. SequentialRPS.step stores player_a's move as pending and passes the turn; player_b's move scores the round."
+  - "observe('player_b') returns self.pending when player_a has moved this round. second_mover_edge: player_a plays rng.integers(3); player_b plays beats(observation), or at random when it observes NONE_SEEN."
+  - "Parallel loop: obs, _ = env.reset(); while env.agents: obs, rew, *_ = env.step({'player_a': ..., 'player_b': reply(obs['player_b'])}); total += rew['player_b']. In the sequential loop call env.step twice per round and read env.rewards['player_b']."

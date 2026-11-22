@@ -1,0 +1,44 @@
+<!-- page: phase-5-dqn-prerequisites/02-neural-networks-primer.html | title: warm-up | format: paper | minutes: 8 -->
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's network, new numbers</h3>
+          <p>Same shape as the worked example (2 inputs, 2 hidden ReLU units, 1 output, no biases), with these weights and this input:</p>
+          <pre><code>W1 = [[1.0, -1.0],      x = [1.0, 3.0]      W2 = [1.0, 0.5]      target y* = 1.0
+      [0.5,  1.0]]</code></pre>
+          <div class="lab-q" data-type="num" data-answer="-2" data-tol="0.001" data-explain="1.0(1.0) + (−1.0)(3.0) = −2. This time a pre-activation is negative." data-nudge="Row 0 of W1 times x: 1.0 × 1.0 + (−1.0) × 3.0.">
+            <label>Forward · <code>h_pre[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.001" data-explain="ReLU(−2) = 0. Hidden unit 0 is switched off for this input." data-nudge="ReLU(z) = max(0, z).">
+            <label>Forward · <code>h[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1.75" data-tol="0.001" data-explain="h = [0, 3.5], so y = 1.0(0) + 0.5(3.5) = 1.75." data-nudge="h_pre[1] = 0.5(1.0) + 1.0(3.0) = 3.5, which ReLU leaves alone. Then y = W2 · h.">
+            <label>Forward · output <code>y</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5625" data-tol="0.001" data-explain="(1.75 − 1.0)² = 0.75² = 0.5625." data-nudge="L = (y − y*)².">
+            <label>Loss · <code>L = (y − y*)²</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>Backward · three gradients and one step</h3>
+          <p>Start from <code>∂L/∂y = 2(y − y*)</code>, then apply the chain rule as the page did.</p>
+          <div class="lab-q" data-type="num" data-answer="5.25" data-tol="0.001" data-explain="∂L/∂y = 2(0.75) = 1.5, and ∂y/∂W2[1] = h[1] = 3.5, so 1.5 × 3.5 = 5.25." data-nudge="∂L/∂W2[1] = ∂L/∂y × h[1].">
+            <label><code>∂L/∂W2[1]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.001" data-explain="∂y/∂W2[0] = h[0] = 0. A weight leaving a switched-off unit gets no gradient: changing it would not change y for this input." data-nudge="The same rule as the last question, with h[0].">
+            <label><code>∂L/∂W2[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.25" data-tol="0.001" data-explain="One layer further back: ∂L/∂y × W2[1] × ReLU′(3.5) × x[1] = 1.5 × 0.5 × 1 × 3.0 = 2.25. ReLU′ is 1 where the unit is active." data-nudge="Four factors: ∂L/∂y, the weight from unit 1 to the output, ReLU′ at unit 1 (it is active), and the input that W1[1][1] multiplies.">
+            <label><code>∂L/∂W1[1][1]</code> (row 1, column 1) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.025" data-tol="0.0005" data-explain="0.5 − 0.1 × 5.25 = −0.025. The positive gradient said a larger W2[1] means a larger loss, so the step lowers it." data-nudge="θ ← θ − lr · ∂L/∂θ with lr = 0.1.">
+            <label>One gradient-descent step with <code>lr = 0.1</code>: the new <code>W2[1]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>Forward.</strong> h_pre = [1 − 3, 0.5 + 3] = [−2, 3.5]; h = [0, 3.5]; y = 0 + 0.5 × 3.5 = 1.75; L = 0.75² = 0.5625.</p>
+          <p><strong>Backward.</strong> ∂L/∂y = 1.5. ∂L/∂W2 = 1.5 × h = [0, 5.25]. Row 0 of ∂L/∂W1 is all zero, because unit 0 is inactive and ReLU passes no gradient back through it. Row 1 is 1.5 × 0.5 × x = [0.75, 2.25].</p>
+          <p><strong>Step.</strong> W2[1] = 0.5 − 0.525 = −0.025. The zeros are worth carrying into the code lab: a weight leaving an inactive unit gets no gradient from that example, and a unit that is inactive on every input gets none at all.</p>
+        </details>
+
+        <h3>Then, in code</h3>

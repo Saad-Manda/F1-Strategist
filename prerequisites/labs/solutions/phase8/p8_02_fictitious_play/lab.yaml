@@ -1,0 +1,14 @@
+id: p8-02
+title: Best responses, cycles, and fictitious play
+page: phase-8-self-play-prerequisites/02-nash-and-fictitious-play.html
+format: notebook
+minutes: 20
+tasks: [A, "predict:cycle", B, C]
+goal: >-
+  Write a best response and the exploitability of a pair of strategies, then run best-response-to-the-latest on three small games and see which ones chase in cycles and which one settles at once. Last, fictitious play: best-respond to the opponent's average instead, and watch the averages close in on the equilibrium.
+environment: >-
+  three matrix games from labs/labkit/games.py: matching pennies, rock-paper-scissors, and the Rock/Paper game page 02 first used, in which one action dominates.
+hints:
+  - "TODO 1: the row player's expected payoffs against a column mix are U @ opp_mix; the column player wants the SMALLEST of opp_mix @ U. TODO 2: the value v = row_mix @ U @ col_mix; row could get (U @ col_mix).max(), column could hold row to (row_mix @ U).min()."
+  - "TODO 3: each round, i = best_response(U, games.pure(n_cols, j), 'row'); then j = best_response(U, games.pure(n_rows, i), 'col'); append (i, j)."
+  - "TODO 4: cr[best_response(U, cc / cc.sum(), 'row')] += 1; cc[best_response(U, cr / cr.sum(), 'col')] += 1; trace.append(exploitability(U, cr / cr.sum(), cc / cc.sum()))."

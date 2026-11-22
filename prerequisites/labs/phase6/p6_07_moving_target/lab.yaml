@@ -1,0 +1,14 @@
+id: p6-07
+title: A target that moves
+page: phase-6-multi-car-prerequisites/07-non-stationarity.html
+format: notebook
+minutes: 15
+tasks: [update, A, "predict:flips", B, C]
+goal: >-
+  The smallest game that shows page 07's point. You learn when to pit against an opponent, once against a fixed script and once against an opponent that copies what you have been doing. Against the script your values settle and the textbook estimate is nearly exact. Against the adapting one your choice flips dozens of times and nothing settles, though the rules never change.
+environment: >-
+  a repeated two-choice game (pit EARLY or LATE; +1 for choosing differently from the opponent, −1 for the same), 4,000 rounds, ε-greedy.
+hints:
+  - "Both updates move values[a] toward r; only the size of the step differs. The sample average counts the choice first, then steps 1 / count of the way, which keeps the value equal to the plain average of every reward so far."
+  - "TODO 1: values[a] += alpha * (r - values[a]). TODO 2: counts[a] += 1, then values[a] += (r - values[a]) / counts[a]."
+  - "The predictions are not graded: being wrong still counts as done. If a check on flips fails with your updates passing, rerun the notebook from the top: the plays use fixed seeds and must not be run out of order."

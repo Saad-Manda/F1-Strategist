@@ -1,0 +1,66 @@
+<!-- page: phase-1-rl-prerequisites/06-this-project-as-mdp.html | title: Trace a step yourself | format: quiz | minutes: 10 -->
+        <p class="lab-goal">The page traced one <code>step()</code> call. Trace a different one yourself, then apply the five mask rules to four states.</p>
+
+        <div class="lab-part">
+          <h3>1 · The observation after a pit stop</h3>
+          <p>Before the call: <strong>lap 18 of 52</strong>, on <strong>SOFT</strong> at tyre age 17, DRY, only SOFT used so far. The agent calls <code>env.step(PIT_HARD)</code>. Using the same encodings as the tables above, fill in the observation <em>returned</em> by that call.</p>
+          <div class="lab-q" data-type="num" data-answer="0.6538" data-tol="0.001" data-explain="The observation describes lap 19: (52 − 19 + 1) / 52." data-nudge="The returned observation is for the lap just started, lap 19. The page's own example used (52 − 31 + 1) / 52.">
+            <label>[0] laps_remaining &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.02" data-tol="0.0005" data-explain="A new tyre whose first lap is next: age 1, over the cap of 50." data-nudge="What age is HARD at when its out-lap is about to begin?">
+            <label>[6] tyre_age (normalized) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0" data-explain="SOFT was used.">
+            <label>[12] compounds_used: SOFT &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="MEDIUM has not been fitted.">
+            <label>[13] compounds_used: MEDIUM &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0" data-explain="HARD is fitted now, so it counts as used.">
+            <label>[14] compounds_used: HARD &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="Two dry compounds used: the rule is satisfied and the flag clears." data-nudge="How many dry compounds have been used after this stop?">
+            <label>[15] mandatory_pit_needed &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Two entries of <code>info</code></h3>
+          <div class="lab-q" data-type="choice" data-answer="soft" data-explain="The lap just completed was run on the old tyre. The stop takes effect from the next lap." data-nudge="Which tyre was the lap that just finished actually driven on?">
+            <span class="lab-prompt">After that call, <code>info["lap_time_compound"]</code> is</span>
+            <label class="lab-opt"><input type="radio" name="p106-ltc" value="soft"> "SOFT"</label>
+            <label class="lab-opt"><input type="radio" name="p106-ltc" value="hard"> "HARD"</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="next" data-explain="It is recomputed for the new state: lap 19, on HARD." data-nudge="The page calls this one out as easy to get backward.">
+            <span class="lab-prompt">And <code>info["action_masks"]</code> describes which actions are legal</span>
+            <label class="lab-opt"><input type="radio" name="p106-mask" value="prev"> on lap 18, the state in which PIT_HARD was chosen.</label>
+            <label class="lab-opt"><input type="radio" name="p106-mask" value="next"> on lap 19, the state the agent is in now.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Apply the mask</h3>
+          <p>For each state, tick every action that is <strong>illegal</strong> under the five rules above.</p>
+          <div class="lab-q" data-type="multi" data-answer="i,m,w" data-explain="No repeat of the fitted compound; INTERMEDIATE and WET are not legal in the dry." data-nudge="Rules 2, 3 and 4.">
+            <span class="lab-prompt"><strong>A.</strong> DRY, on MEDIUM, lap 20 of 52, only MEDIUM used.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="h,i,m,s" data-explain="Slicks are illegal in the wet, and INTERMEDIATE is already fitted. STAY_OUT and PIT_WET remain." data-nudge="Rules 1 and 4.">
+            <span class="lab-prompt"><strong>B.</strong> WET, on INTERMEDIATE, mid-race.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="i,m,o,w" data-explain="Rule 5 switches STAY_OUT off: only SOFT or HARD can still satisfy the two-compound rule." data-nudge="Two laps remain and only one dry compound has been used.">
+            <span class="lab-prompt"><strong>C.</strong> DRY, on MEDIUM, only MEDIUM used, 2 laps remaining.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="i,w" data-explain="A wet-declared race voids the two-compound rule, so STAY_OUT stays legal. In DAMP conditions slicks are allowed and WET tyres are not." data-nudge="Rule 5 has an exception, and DAMP is not WET.">
+            <span class="lab-prompt"><strong>D.</strong> DAMP, on INTERMEDIATE, race declared wet, no dry compound used, 2 laps remaining.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> The returned observation is for lap 19 on a new HARD tyre: laps_remaining = (52 − 19 + 1) / 52 = 0.6538; tyre_age = 1 / 50 = 0.02; compounds_used = (1, 0, 1); mandatory_pit_needed = 0.</p>
+          <p><strong>2.</strong> <code>lap_time_compound</code> is "SOFT" (lap 18 was driven on it). <code>action_masks</code> is for lap 19.</p>
+          <p><strong>3.</strong> A: PIT_MEDIUM, PIT_INTER, PIT_WET. B: PIT_SOFT, PIT_MEDIUM, PIT_HARD, PIT_INTER. C: STAY_OUT, PIT_MEDIUM, PIT_INTER, PIT_WET. D: PIT_INTER, PIT_WET.</p>
+        </details>

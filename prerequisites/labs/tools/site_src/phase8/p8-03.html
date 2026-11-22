@@ -1,0 +1,33 @@
+<!-- page: phase-8-self-play-prerequisites/03-checkpoint-pool.html | title: warm-up | format: paper | minutes: 6 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · the rule on a small pool</h3>
+          <p>The plan's rule: <code>cut = max(1, int(0.8 * n))</code>; with probability 0.7 sample from <code>checkpoints[cut:]</code> (the recent slice), otherwise from <code>checkpoints[:cut]</code>. Take a pool of <strong>n = 12</strong>.</p>
+          <div class="lab-q" data-type="num" data-answer="9" data-tol="0" data-explain="0.8 × 12 = 9.6, and int() truncates: 9." data-nudge="int() rounds towards zero.">
+            <label>cut &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.2333" data-tol="0.002" data-explain="The recent slice holds 12 − 9 = 3 checkpoints, sharing 0.7: 0.2333 each." data-nudge="How many are in checkpoints[9:]?">
+            <label>The probability of each recent checkpoint &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.0333" data-tol="0.002" data-explain="Nine older checkpoints share 0.3: 0.0333 each." data-nudge="0.3 shared by the older ones.">
+            <label>The probability of each older checkpoint &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="7" data-tol="0.05" data-explain="0.2333 / 0.0333 = 7. At n = 50 the same rule gives 9.33 : 1; the ratio depends on n." data-nudge="Divide the two answers above.">
+            <label>How many times likelier is a recent checkpoint than an older one? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now <strong>n = 1</strong>: the pool right after <code>pool.add(learner, episode=0)</code>, and for the next 999 episodes.</p>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="cut = max(1, int(0.8)) = 1, and checkpoints[1:] of a one-entry list is empty." data-nudge="cut is 1. What is left after index 1?">
+            <label>How many checkpoints does the recent slice hold? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="np.random.choice([]) raises ValueError. The 0.7 branch is taken about 70% of the time, so the plan's sample() crashes on about seven calls in ten (691 of 1,000 measured), within the first few episodes. One guard fixes it: a pool of one returns its only entry." data-nudge="What does np.random.choice do with an empty list?">
+            <span class="lab-prompt">What happens when the 0.7 branch is taken?</span>
+            <label class="lab-opt"><input type="radio" name="p803-n1" value="a"> it falls back to the older slice</label>
+            <label class="lab-opt"><input type="radio" name="p803-n1" value="b"> np.random.choice gets an empty list and raises ValueError</label>
+            <label class="lab-opt"><input type="radio" name="p803-n1" value="c"> it returns None, and the opponent plays randomly</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>n = 12: cut 9, three recent checkpoints at 0.2333 each, nine older at 0.0333 each, 7 : 1. n = 1: cut 1, the recent slice is empty, and the 0.7 branch raises. Lab p8-03's first test is this case.</p>
+        </details>
+
+        <h3>Then, in code</h3>

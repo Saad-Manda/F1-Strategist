@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Backward induction — Phase 3.5 DP oracle · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="3.5/02">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 3.5 · Page 02 of 07 — Foundations</p>
+      <h1>Backward Induction</h1>
+      <p class="dek">The last decision in a race is always the easiest one to get right — because nothing comes after it. Backward induction is just that observation, applied one lap at a time, from the end of the race to the start.</p>
+
+      <h2>Starting from a Bellman equation you already have</h2>
+      <p><a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 3</a> derived the Bellman optimality equation from first principles, by peeling the first reward off the return:</p>
+      <blockquote class="eq">Q*(s, a) = Σ_s' P(s'|s,a) · [ R(s,a,s') + γ · max_a' Q*(s', a') ]</blockquote>
+      <p>That page noted the equation admits two very different uses: Q-learning nudges a table toward satisfying it approximately, from sampled experience. Dynamic programming — this page — <em>solves</em> it directly, because for this project the right-hand side is fully computable: <code>P</code> and <code>R</code> are <code>dynamics.py</code>, not a mystery to be inferred.</p>
+      <p>The obstacle to just "solving" this equation directly is that it's <em>circular</em> — <code>Q*(s,a)</code> on the left depends on <code>Q*(s',a')</code> for other states on the right, which in turn depend on further states, and so on. In the general, infinite-horizon case, breaking that circularity requires iterating the whole equation repeatedly until the values stop changing (value iteration — see the aside below). A race doesn't need that trick, because it has something most MDPs in a textbook don't: a hard, known ending.</p>
+
+      <h2>The horizon breaks the circularity</h2>
+      <p>A race is exactly <code>T</code> laps long. After lap <code>T</code>, there is no lap <code>T+1</code> — nothing to be uncertain about, and nothing left to optimize. That single fact turns the equation from circular into a straight-line recursion, computable in one backward pass:</p>
+      <blockquote class="eq">V_(T+1)(s) = 0                                            (terminal condition — nothing follows the last lap)
+
+for t = T down to 1:
+    for every state s reachable at lap t:
+        V_t(s)  = min_a  [ cost(s, a)  +  E_s'[ V_(t+1)(s') ] ]
+        π*_t(s) = argmin_a [ ... ]                            (the action achieving that minimum)</blockquote>
+      <p>(This project's reward is <code>-lap_time</code>, so the oracle works in <em>cost</em> — minimizing total lap time — rather than maximizing reward. The two are the same optimization with a sign flip; <a class="xref" href="06-this-project-as-dp.html">page 6</a> makes the convention explicit for the real code.)</p>
+      <p>Read it lap by lap: <code>V_t(s)</code>, "the best possible total cost from lap <code>t</code> to the finish, starting in state <code>s</code> and playing optimally," is computable the instant <code>V_(t+1)</code> is fully known for every state — because every term on the right-hand side only refers to <code>t+1</code>, never back to <code>t</code> itself. Start at the last lap, where <code>V_(T+1)=0</code> makes the recursion trivial to evaluate, and each earlier lap becomes solvable in turn, using only work already finished. By the time the pass reaches lap 1, <code>V_1(s_0)</code> is the exact optimal expected cost of the entire race from the start — computed without ever having simulated one.</p>
+
+      <div class="note generic">
+        <div class="tag">Why this is dynamic programming, not just algebra</div>
+        <p>The name "dynamic programming" refers to two properties this recursion exploits. <strong>Optimal substructure</strong>: the optimal plan from lap <code>t</code> onward is built from the optimal plan from lap <code>t+1</code> onward — you never have to reconsider a later decision once its value is known. <strong>Overlapping subproblems</strong>: many different paths through the race arrive at the same <code>(lap, tyre_age, compound, ...)</code> state, and <code>V_t(s)</code> is computed for that state exactly <em>once</em>, then reused by every path that reaches it — the table <em>is</em> the memoization. Skip the table and recompute from scratch for every path, and the same tractable problem becomes exponential.</p>
+      </div>
+
+      <h2>Worked example: when does pitting actually pay off?</h2>
+      <p>A tiny 4-lap toy race, one tyre, one decision each lap: <code>STAY</code> or <code>PIT</code>. Deterministic — no safety cars or weather yet, that's <a class="xref" href="03-stochastic-transitions.html">page 3</a>'s job. Lap time grows with tyre age; pitting resets age to 1 but costs a fixed penalty charged to the lap you pit on:</p>
+      <blockquote class="eq">lap_time(age)     = 10 + 3·(age − 1)        (age is laps since this tyre was fitted, starting at 1)
+pit_loss          = 6
+cost(age, STAY)   = lap_time(age),            next age = age + 1
+cost(age, PIT)    = lap_time(age) + pit_loss,  next age = 1
+race starts lap 1 with age = 1 (fresh tyre from the grid)</blockquote>
+      <p>Fill the value table backward, one lap at a time. <strong>Lap 4 (the last lap):</strong> with <code>V_5 = 0</code>, pitting only adds <code>+6</code> for no benefit — the last lap never justifies a pit stop, because there is no lap 5 left to recoup the cost on. So <code>π*_4 = STAY</code> for every age, and <code>V_4(age) = lap_time(age)</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">age</th><th class="mono">V_4(age)</th><th>π*_4</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td class="mono">10.0</td><td>STAY</td></tr>
+            <tr><td class="mono">2</td><td class="mono">13.0</td><td>STAY</td></tr>
+            <tr><td class="mono">3</td><td class="mono">16.0</td><td>STAY</td></tr>
+            <tr><td class="mono">4</td><td class="mono">19.0</td><td>STAY</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Lap 3</strong> — now there's exactly one lap left afterward, so pitting can start to pay for itself. For <code>age = 3</code>: <code>STAY</code> costs <code>16 + V_4(4) = 16 + 19 = 35</code>; <code>PIT</code> costs <code>16 + 6 + V_4(1) = 22 + 10 = 32</code>. Pitting wins, by 3 — the extra 6 spent now buys a fresh tyre worth 9 less on lap 4 than the badly worn one would have been:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">age</th><th>STAY total</th><th>PIT total</th><th class="mono">V_3(age)</th><th>π*_3</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td class="mono">10 + V_4(2) = 23</td><td class="mono">16 + V_4(1) = 26</td><td class="mono">23.0</td><td>STAY</td></tr>
+            <tr><td class="mono">2</td><td class="mono">13 + V_4(3) = 29</td><td class="mono">19 + V_4(1) = 29</td><td class="mono">29.0</td><td>STAY <span class="mono">(tie)</span></td></tr>
+            <tr><td class="mono">3</td><td class="mono">16 + V_4(4) = 35</td><td class="mono">22 + V_4(1) = 32</td><td class="mono">32.0</td><td><strong>PIT</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Lap 2</strong>, using the <code>V_3</code> column just computed — only ages 1 and 2 are reachable here, since the race always starts at age 1:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">age</th><th>STAY total</th><th>PIT total</th><th class="mono">V_2(age)</th><th>π*_2</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td class="mono">10 + V_3(2) = 39</td><td class="mono">16 + V_3(1) = 39</td><td class="mono">39.0</td><td>STAY <span class="mono">(tie)</span></td></tr>
+            <tr><td class="mono">2</td><td class="mono">13 + V_3(3) = 45</td><td class="mono">19 + V_3(1) = 42</td><td class="mono">42.0</td><td><strong>PIT</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Lap 1</strong> — only <code>age = 1</code> is reachable, since every race starts on a fresh tyre:</p>
+      <blockquote class="eq">STAY:  10 + V_2(2) = 10 + 42 = 52
+PIT:   16 + V_2(1) = 16 + 39 = 55
+
+V_1(1) = 52,   π*_1(1) = STAY</blockquote>
+
+      <div class="note grounded">
+        <div class="tag">Reading the optimal policy back out</div>
+        <p>Walk forward through the <code>π*</code> table, always taking the action recorded for the state you're actually in: lap 1 age 1 → <strong>STAY</strong> (age becomes 2) → lap 2 age 2 → <strong>PIT</strong> (age resets to 1) → lap 3 age 1 → <strong>STAY</strong> (age becomes 2) → lap 4 age 2 → <strong>STAY</strong> (forced, last lap). Total cost: <code>10 + 19 + 10 + 13 = 52</code> — matching <code>V_1(1)</code> exactly, as it must. Compare that to the policy that never pits at all: <code>10 + 13 + 16 + 19 = 58</code>. One well-timed pit stop, at exactly the right lap, saves 6 — and backward induction found <em>both</em> the fact that pitting helps <em>and</em> the single lap where it helps, purely by propagating values backward from a horizon of zero future laps to a horizon of four.</p>
+      </div>
+
+      <h2>Why a one-step-ahead ("greedy") policy would have missed this</h2>
+      <p>A policy that only compares this lap's immediate cost — ignoring <code>V_(t+1)</code> entirely — picks <code>STAY</code> at every single lap in this example, because <code>STAY</code> is cheaper than <code>PIT</code> on every lap taken in isolation (<code>lap_time(age) &lt; lap_time(age) + 6</code>, always). That greedy policy is exactly the always-stay policy above, costing 58. The extra 6 backward induction is willing to spend at lap 2 only makes sense in light of what it buys three laps later — information a one-step-ahead view structurally cannot see. This is the general shape of the pitfall Phase 1's "common pitfalls" section warns about for a rising learning curve, arriving here in a much sharper form: the correct policy is provably <em>not</em> the myopic one.</p>
+
+      <h3>Backward induction vs. value iteration — a note for the resource map</h3>
+      <p>The plan's resource map points to Sutton &amp; Barto chapter 4, which covers dynamic programming for the <em>infinite</em>-horizon, discounted case: value iteration repeatedly sweeps and updates <code>V(s)</code> for every state using the <em>current</em> estimate of <code>V</code>, and only converges to the true values in the limit, because with no fixed end there's no <code>V_(T+1)=0</code> to anchor a single clean backward pass. Backward induction — what this page and the DP oracle actually use — is the finite-horizon special case: because a race has a hard, known length, the exact values are obtained in a <em>single</em> pass, lap by lap, with no iteration to convergence required. Chapter 4's ideas transfer directly; the finite horizon is what makes them exact here rather than merely convergent.</p>
+
+      <section class="lab" id="lab" data-lab-id="p35-02" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p35-02 · Code + tests · about 20 min</span>
+        <h2>Backward induction, two ways</h2>
+        <p class="lab-goal">First fill a value table by hand, for the page's toy race with new numbers. Then implement backward induction for a different problem and prove that it finds the same answer as trying every possible plan.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's race with new numbers</h3>
+          <p>The same 4-lap race as the worked example, with a gentler tyre and a cheaper stop: <code>lap_time(age) = 10 + 2·(age − 1)</code> and <code>pit_loss = 5</code>. Everything else is unchanged: <code>STAY</code> costs <code>lap_time(age)</code> and the tyre is one lap older; <code>PIT</code> costs <code>lap_time(age) + 5</code> and the next lap is on a tyre of age 1. Fill the table from lap 4 backward. Lap 4 is done for you: nobody pits on the last lap, so <code>V₄(age)</code> is <code>10, 12, 14, 16</code> for ages 1 to 4.</p>
+          <div class="lab-q" data-type="num" data-answer="29" data-tol="0.01" data-explain="STAY: 14 + V₄(4) = 30. PIT: 14 + 5 + V₄(1) = 29. Pitting wins by 1." data-nudge="Compute both totals. STAY leads to age 4 on lap 4, PIT leads to age 1.">
+            <label><code>V₃(age 3)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="26" data-tol="0.01" data-explain="STAY: 12 + V₄(3) = 26. PIT: 17 + V₄(1) = 27. Staying wins." data-nudge="STAY: lap_time(2) + V₄(3). PIT: lap_time(2) + 5 + V₄(1).">
+            <label><code>V₃(age 2)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="22" data-tol="0.01" data-explain="STAY: 10 + V₄(2) = 22. PIT: 15 + V₄(1) = 25.">
+            <label><code>V₃(age 1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="39" data-tol="0.01" data-explain="STAY: 12 + V₃(3) = 41. PIT: 17 + V₃(1) = 39. This is the stop." data-nudge="Use the V₃ values you just computed, not V₄.">
+            <label><code>V₂(age 2)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="36" data-tol="0.01" data-explain="STAY: 10 + V₃(2) = 36. PIT: 15 + V₃(1) = 37.">
+            <label><code>V₂(age 1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="49" data-tol="0.01" data-explain="STAY: 10 + V₂(2) = 49. PIT: 15 + V₂(1) = 51. The whole race, solved without simulating it." data-nudge="Only age 1 is possible on lap 1. STAY leads to V₂(2).">
+            <label><code>V₁(age 1)</code>, the best possible race time &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="choice" data-answer="2" data-explain="Lap 1 stays (age becomes 2), lap 2 pits, laps 3 and 4 stay: 10 + 17 + 10 + 12 = 49." data-nudge="Walk forward from lap 1, age 1, taking the cheaper action each time and following where it leads.">
+            <span class="lab-prompt">On which lap does the optimal race pit?</span>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="1"> lap 1</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="2"> lap 2</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="3"> lap 3</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="0"> it never pits</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3" data-tol="0.01" data-explain="Never pitting costs 10 + 12 + 14 + 16 = 52. With a tyre that wears this gently the stop is worth 3, where the page's harsher tyre made it worth 6." data-nudge="Add up the four lap times with no stop, then subtract V₁(1).">
+            <label>How much time does that stop save over never pitting? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>Lap 3.</strong> Age 1: STAY 10 + 12 = 22, PIT 15 + 10 = 25. Age 2: STAY 12 + 14 = 26, PIT 17 + 10 = 27. Age 3: STAY 14 + 16 = 30, PIT 19 + 10 = 29.</p>
+          <p><strong>Lap 2.</strong> Age 1: STAY 10 + 26 = 36, PIT 15 + 22 = 37. Age 2: STAY 12 + 29 = 41, PIT 17 + 22 = 39.</p>
+          <p><strong>Lap 1.</strong> STAY 10 + 39 = 49, PIT 15 + 36 = 51. So V₁(1) = 49: stay, pit on lap 2, stay, stay. Never pitting costs 52.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> machine replacement, the textbook keep-or-replace problem: an ageing machine, six years, one decision a year. It has the same structure as a pit stop and none of the same words.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p35-02</code></div>
+          <div><span>Check</span><code>python -m labs check p35-02</code></div>
+          <div><span>Hint</span><code>python -m labs hint p35-02</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase35/p35_02_backward_induction/replacement.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase35/p35_02_backward_induction/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1 is the model: two cases, each returning (cost, next age). Task 2 is page 02&#x27;s recursion with `year` in place of the lap: a terminal row of zeros, then two nested loops, years going backward and ages going over reachable_ages(year, start_age).</p></details>
+        <details><summary>Hint 2</summary><p>Task 2: inside the loops, call step(age, action) for each of the two actions and add V[(year + 1, next_age)] to the cost it returns. Keep the smaller total as V[(year, age)] and the action that produced it as policy[(year, age)]. The terminal row needs every age from 0 to start_age + horizon, because the last year&#x27;s lookups land there.</p></details>
+        <details><summary>Hint 3</summary><p>Task 2: V = {(horizon + 1, a): 0.0 for a in range(0, start_age + horizon + 1)}; for year in range(horizon, 0, -1): for age in reachable_ages(year, start_age): ... Compare with `&lt;` and try KEEP first, so that KEEP wins a tie. Task 3: age = start_age; each year, action = policy[(year, age)]; cost, age = step(age, action).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

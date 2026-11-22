@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · The target network — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/03">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 03 of 11 — Two instabilities, part one</p>
+      <h1>The Target Network</h1>
+      <p class="dek">The naive way to turn Q-learning into DQN trains a network to chase a target computed by that same network — which keeps moving every time the network gets updated. The fix is a second, slower copy.</p>
+
+      <h2>The naive idea</h2>
+      <p><a class="xref" href="01-table-to-function.html">Page 01</a> established what doesn't change: the target is still <code>r + γ·max_a' Q(s',a')</code>. The most direct way to use a network for this replaces the tabular lookup with the network's own prediction: <code>target = r + γ·max_a' Q(s',a';θ)</code>, and trains the same network <code>θ</code> toward it using <a class="xref" href="02-neural-networks-primer.html">page 02</a>'s gradient-descent step.</p>
+
+      <h2>Why that's unstable</h2>
+      <p><code>θ</code> is doing two jobs at once: it's the network being trained (<code>Q(s,a;θ)</code>, the prediction the loss is computed on), and it's also the network used to compute the very target that prediction is being trained toward (<code>Q(s',a';θ)</code>, inside the target). Every gradient step changes <code>θ</code> — and because both the prediction and the target are functions of the same <code>θ</code>, changing it to fix today's error also shifts tomorrow's target. It's chasing a target that runs away every time you get closer to it.</p>
+      <p>A tiny illustration makes this concrete. Suppose at some state-action pair the network currently predicts <code>Q(s,a;θ) = 3.0</code>, and the target (computed from the same weights) is <code>target = r + γ·max_a' Q(s',a';θ) = 5.0</code>. A gradient step moves <code>θ</code> to close that gap — but <code>θ</code> also appears inside <code>Q(s',a';θ)</code>, so the same step that raised <code>Q(s,a;θ)</code> toward <code>5.0</code> can simultaneously raise <code>Q(s',a';θ)</code>, which raises the target itself, say to <code>5.4</code>. The gap the next update sees hasn't shrunk to reflect the progress just made — worse, in this example it grew. Nothing here is a bug in gradient descent; it's a direct consequence of one set of weights serving two roles that are supposed to converge toward each other.</p>
+
+      <h2>The fix: a second, frozen-ish copy</h2>
+      <p>Keep two networks with separate weights: the <strong>online network</strong> (<code>θ</code>), updated by gradient descent every training step, and the <strong>target network</strong> (<code>θ⁻</code>), used <em>only</em> to compute the target: <code>target = r + γ·max_a' Q(s',a';θ⁻)</code>. Gradient steps only ever touch <code>θ</code>; <code>θ⁻</code> never receives a gradient directly. The target stops moving out from under the update that's chasing it, because the weights computing it are no longer the same weights that update just changed.</p>
+
+      <h2>Keeping <code>θ⁻</code> from going stale forever</h2>
+      <p>If <code>θ⁻</code> never changed at all, the online network would eventually be training toward a target computed by an arbitrarily out-of-date network — useful for stability, useless for actually converging to anything close to correct. Two ways to update <code>θ⁻</code>, both named because the real agent implements one of them:</p>
+      <ul>
+        <li><strong>Hard update:</strong> every <code>N</code> steps, copy <code>θ → θ⁻</code> directly. Simple, but causes a visible discontinuity in the target every <code>N</code> steps — right after a copy, every target the network is trained toward suddenly jumps to reflect however much <code>θ</code> had drifted since the last copy.</li>
+        <li><strong>Polyak / soft update:</strong> every step, nudge <code>θ⁻</code> a little toward <code>θ</code>: <code>θ⁻ ← τ·θ + (1−τ)·θ⁻</code>, with a small <code>τ</code> (the real agent's default: <code>0.005</code>). No jumps — <code>θ⁻</code> tracks <code>θ</code> continuously, just much more slowly.</li>
+      </ul>
+
+      <h2>Worked arithmetic: how slow is "slowly"?</h2>
+      <p>Suppose <code>θ</code> jumps to a new value and then holds perfectly still (an idealization, just to isolate how fast <code>θ⁻</code> catches up). After <code>n</code> soft-update steps with rate <code>τ</code>, the remaining gap between <code>θ⁻</code> and <code>θ</code> has shrunk by a factor of <code>(1−τ)ⁿ</code> — each step closes a fixed fraction <code>τ</code> of whatever gap is left, so the untouched fraction keeps compounding. Solving for the number of steps needed to close half the gap:</p>
+      <blockquote class="eq">(1 - τ)^n = 0.5
+n = ln(0.5) / ln(1 - τ)
+
+τ = 0.005:
+n = ln(0.5) / ln(0.995) = -0.6931 / -0.005013 ≈ 138.2
+
+→ roughly 139 steps for θ⁻ to close half the gap to a θ that jumped and then held still.</blockquote>
+      <p>That's the concrete meaning behind "slowly tracks": with <code>train_freq=4</code> (the real agent updates every 4 environment steps), 139 training steps is roughly 556 environment steps, which is about eleven 52-lap races — so the target network needs around eleven races to absorb half of any sudden shift in the online network. That is slow enough to avoid the same-weights instability this page opened with, and fast enough that across a 5,000-race training run the target never falls far behind.</p>
+
+      <section class="lab" id="lab" data-lab-id="p5-03" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p5-03 · Notebook · about 20 min</span>
+        <h2>Chasing your own target</h2>
+        <p class="lab-goal">First use the slider to see how slowly a soft-updated copy follows. Then write the soft and hard updates, watch one gradient step move a target that the trained network computes, and train the same network three ways on a problem where leaving the target network out is not a small mistake.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, in the page · how slowly is "slowly"?</h3>
+          <p>The online network jumps once and then holds still. After every update the target network closes a fraction <code>τ</code> of the gap that is left. Drag <code>τ</code>. The readout converts updates into laps and races with the real agent's settings: one update every 4 laps, 52 laps a race.</p>
+          <div class="widget" data-widget="polyak"></div>
+          <div class="lab-q" data-type="num" data-answer="69" data-tol="0" data-explain="ln 0.5 / ln 0.99 = 68.97, so update 69 is the first with half the gap closed. Doubling τ from the real 0.005 roughly halves the 139." data-nudge="Set τ to 0.010 and read the update number.">
+            <label>At <code>τ = 0.010</code>, after which update is half the gap closed? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5.3" data-tol="0.1" data-explain="69 updates × 4 laps = 276 laps, which is 5.3 races of 52." data-nudge="Same setting: read the number of races.">
+            <label>…and how many 52-lap races is that? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.052" data-tol="0.004" data-explain="One race is 13 updates. Solving (1 − τ)¹³ = 0.5 gives τ = 1 − 0.5^(1/13) = 0.052. That is ten times the real agent's τ: the real target network is meant to lag by about eleven races, not one." data-nudge="A race is 52 / 4 = 13 updates. Move τ until half the gap closes at update 13 or just before.">
+            <label>Which <code>τ</code> closes half the gap in about one race? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.67" data-tol="0.05" data-explain="0.995¹⁰⁰⁰ = 0.0067. After 1,000 updates, about 77 races, a jump in the online network has been almost completely absorbed." data-nudge="(1 − τ)ⁿ with τ = 0.005 and n = 1000, as a percentage.">
+            <label>At <code>τ = 0.005</code>, what percentage of the gap is still open after 1,000 updates? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The dashed line: nothing happens to the target for 138 updates, then it all happens at once. Every target computed just after the copy changes together. The soft update gets to the same place without that jump." data-nudge="Compare the solid and dashed lines at the moment of the copy.">
+            <span class="lab-prompt">A hard copy every 139 updates and a soft update at τ = 0.005 both close half a gap in about 139 updates. Which one makes every target jump at the same moment?</span>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="a"> the soft update</label>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="b"> the hard copy</label>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="c"> neither: they are the same thing</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Half-life in updates: n = ln 0.5 / ln(1 − τ). At τ = 0.01, n = 68.97, so update 69; 276 laps; 5.3 races. One race (13 updates) needs τ = 1 − 0.5^(1/13) ≈ 0.052. At τ = 0.005 after 1,000 updates, 0.995¹⁰⁰⁰ ≈ 0.67% of the gap is left. The hard copy is the one that jumps.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> a 20-state chain with −1 per step and no discount, learned by a network of two hidden layers of 32 units.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-03</code></div>
+          <div><span>Check</span><code>python -m labs check p5-03</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-03</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_03_target_network/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_03_target_network/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1 loops over the two networks&#x27; parameters in pairs and changes the target&#x27;s in place; wrap it in torch.no_grad() so PyTorch does not record it for a backward pass. TODO 2 is one line. TODO 3 is one line inside a no_grad block: the reward is -1 on every step.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: with torch.no_grad(): for t, o in zip(target.parameters(), online.parameters()): t.mul_(1 - tau).add_(tau * o). TODO 3: the next states are s + 1, and done is 1 where s is the last state.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 2: target.load_state_dict(online.state_dict()). TODO 3: with torch.no_grad(): goal = -1.0 + (1.0 - done) * target_net(encode(s + 1)).squeeze(1).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/widgets/polyak.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

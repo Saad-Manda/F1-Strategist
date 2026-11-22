@@ -1,0 +1,62 @@
+<!-- page: phase-5-dqn-prerequisites/11-code-walkthrough.html | title: What each test defends | format: quiz | minutes: 10 -->
+        <p class="lab-goal">The plan lists three new tests. For seven ways the real files could go wrong, say which test would catch it, if any. Then four questions on where things sit inside <code>update()</code>.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which test catches it?</h3>
+          <p>Assume the first test has been repaired so that it actually trains (<code>learning_starts</code> set below 200).</p>
+          <div class="lab-q" data-type="select" data-answer="target" data-explain="This is exactly the failure it was written for: two networks that are one object.">
+            <label>The constructor writes <code>self.target_net = self.online_net</code>. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="per" data-explain="It gives explicit priorities and counts how often the high one is drawn.">
+            <label><code>sample()</code> ignores the tree and draws indices uniformly. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="mask" data-explain="The greedy branch is what it checks.">
+            <label>The greedy branch of <code>select_action</code> forgets to set illegal actions to −inf. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="The masking test covers action selection only. A target built from an illegal next action passes all three (page 06's row 2)." data-nudge="Is there a test that calls update() and looks at the target it built?">
+            <label><code>update()</code> takes the argmax of the online network's next values without the mask. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="The PER test passes explicit priorities to add(), so the 'new transition at the maximum' path never runs. Your test in lab p5-07 is the one that catches it." data-nudge="Does the PER test ever call add() without a priority?">
+            <label><code>add()</code> raises the largest leaf to α a second time. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="No test calls update() on a terminal transition. The capstone report showed what this bug does: the race looks like a near-miss and the values sit at more than twice their true scale." data-nudge="Which test would compare a terminal transition's target with its reward?">
+            <label>The target is <code>reward + gamma * value</code>, with the <code>(1 − done)</code> factor left out. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="The dueling combine is never tested directly. A mean over the batch dimension runs without error and leaves the split unpinned; your p5-05 test 'the mean is per row' is the one that catches it." data-nudge="Does any of the three look inside DuelingDQN.forward?">
+            <label><code>DuelingDQN.forward</code> takes the advantage mean over the batch dimension. &nbsp; <select><option value="">choose…</option><option value="target">test_dqn_target_network_differs_from_online</option><option value="per">test_per_samples_high_td_more</option><option value="mask">test_action_masking_in_exploitation</option><option value="none">none of the three</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Inside <code>update()</code></h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="With learning_starts at its default of 1,000 and 200 transitions stored, update() returns at the gate. The networks stay identical and the test fails for a reason unrelated to what it tests." data-nudge="Compare the number of stored transitions with the default gate.">
+            <span class="lab-prompt">As written, why does <code>test_dqn_target_network_differs_from_online</code> fail?</span>
+            <label class="lab-opt"><input type="radio" name="p511-why" value="a"> the soft update copies the online network in full every step</label>
+            <label class="lab-opt"><input type="radio" name="p511-why" value="b"> update() returns early: 200 stored transitions is below learning_starts</label>
+            <label class="lab-opt"><input type="radio" name="p511-why" value="c"> the target network receives gradients</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="a,b,c" data-explain="Everything that builds the target: the online network on s′, the mask and argmax, and the target network's gather. The prediction Q(s, a; θ) must be outside, or nothing would train." data-nudge="Only the target is a fixed number. The prediction needs its gradient.">
+            <span class="lab-prompt">Tick everything that belongs inside the <code>torch.no_grad()</code> block. &nbsp;</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> the online network run on the next observations, and its masked argmax</label>
+            <label class="lab-opt"><input type="checkbox" value="b"> the target network run on the next observations, and the gather at a*</label>
+            <label class="lab-opt"><input type="checkbox" value="c"> reward + gamma · value · (1 − done)</label>
+            <label class="lab-opt"><input type="checkbox" value="d"> the online network's value of the action actually taken</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Before backward() there are no gradients to clip; after step() they have already been used." data-nudge="It needs the gradients to exist and not yet be used.">
+            <span class="lab-prompt">Where does <code>clip_grad_norm_</code> have to go?</span>
+            <label class="lab-opt"><input type="radio" name="p511-clip" value="a"> before zero_grad()</label>
+            <label class="lab-opt"><input type="radio" name="p511-clip" value="b"> after optimizer.step()</label>
+            <label class="lab-opt"><input type="radio" name="p511-clip" value="c"> between loss.backward() and optimizer.step()</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The mean of the batch is one number. Multiplying one number by 64 weights cannot weight the rows differently, so the importance correction does nothing." data-nudge="What is left for 64 weights to act on after the mean?">
+            <span class="lab-prompt">If the per-row losses were averaged first and multiplied by the importance weights afterwards, what would go wrong?</span>
+            <label class="lab-opt"><input type="radio" name="p511-mean" value="a"> the weights could no longer correct individual rows: page 07's correction is lost</label>
+            <label class="lab-opt"><input type="radio" name="p511-mean" value="b"> nothing: multiplication and mean can be swapped</label>
+            <label class="lab-opt"><input type="radio" name="p511-mean" value="c"> the loss would become negative</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> The first three each have their own test. The last four (mask missing in the target, the double exponent, the missing cut-off, a batch-dimension mean) are caught by none of the three. Page 11's four proposed tests close the first three of those gaps; the fourth needs a test on the network itself, like the one in lab p5-05.</p>
+          <p><strong>2.</strong> The gate (b). Inside no_grad: a, b and c, never d. The clip goes between backward and step. Averaging first loses the per-row weights.</p>
+        </details>

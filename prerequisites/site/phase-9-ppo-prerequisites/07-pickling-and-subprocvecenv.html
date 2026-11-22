@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Lambdas, processes &amp; the guard — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/07">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 07 of 11 — An audit finding, tested and corrected (J1)</p>
+      <h1>Lambdas, Processes, and the Guard Windows Needs</h1>
+      <p class="dek">A general lesson about functions crossing a process boundary, then what actually happens to the plan's code on this machine, measured. The audit's finding turns out to point at the wrong line.</p>
+
+      <h2>The general lesson</h2>
+      <p><code>SubprocVecEnv</code> (<a class="xref" href="06-stable-baselines3-api.html">page 06</a>) has to get "how to build this environment" into each of its worker <em>processes</em>. Separate processes do not share memory, so the only way to hand one a function is to <strong>serialize</strong> it: turn it into bytes, send them, and rebuild the function on the other side. Python's standard <code>pickle</code> serializes a module-level function by name, storing only "import this module, look up this name". A <code>lambda</code> or a closure has no importable name, so plain <code>pickle</code> refuses it with a <code>PicklingError</code>. That part of the lesson is true, and the lab measures it.</p>
+
+      <h2>What the audit claimed</h2>
+      <p>The real plan's <code>make_vec_masked_envs</code> contains:</p>
+      <pre><code>masked_env = ActionMasker(env, lambda e: e.action_masks())</code></pre>
+      <p>Audit finding J1 says this lambda cannot cross into the <code>SubprocVecEnv</code> workers, so the line raises <code>PicklingError</code> on Windows, while Linux hides the bug because its <code>fork</code> start method copies the parent's memory.</p>
+
+      <h2>What actually happens</h2>
+      <div class="note grounded">
+        <div class="tag">Measured on this machine</div>
+        <p>The plan's code runs. Stable-Baselines3 does not use plain <code>pickle</code> for environment factories: it wraps each one in a <code>CloudpickleWrapper</code>, and <strong>cloudpickle</strong> serializes lambdas and closures by value, code and captured variables included. The plan's exact factory, lambda and all, built four <code>SubprocVecEnv</code> workers and trained <code>MaskablePPO</code> under <code>spawn</code>. The Linux half of the story is off too: SB3 defaults to <code>forkserver</code> there, not <code>fork</code>, so Linux does not hide anything.</p>
+      </div>
+      <p>The start method does matter, for a different reason. Under <code>spawn</code>, the only method Windows has, each worker is a fresh Python interpreter that <strong>re-imports the main module</strong>, the script you ran. If that script creates the <code>SubprocVecEnv</code> at the top level, every worker reaches the same line while importing it and tries to start workers of its own. Python stops this with a <code>RuntimeError</code> ("An attempt has been made to start a new process before the current process has finished its bootstrapping phase"); in some setups the run hangs instead. The fix is the standard one:</p>
+      <pre><code>def main():
+    venv = make_vec_masked_envs(...)
+    model = MaskablePPO("MlpPolicy", venv, ...)
+    model.learn(...)
+
+if __name__ == "__main__":
+    main()</code></pre>
+      <p>That guard belongs in the <em>training script</em>, the module that is run. Nothing inside <code>sb3_wrapper.py</code> can add it.</p>
+
+      <h2>Still worth doing: a named mask function</h2>
+      <p>The lambda is harmless inside SB3, but a module-level function is the better habit, because it also works with plain <code>multiprocessing</code>, with <code>pickle</code>, and with any tool that is not as forgiving as cloudpickle:</p>
+      <pre><code>def _mask_fn(env) -> np.ndarray:
+    return env.action_masks()
+
+masked_env = ActionMasker(env, _mask_fn)</code></pre>
+      <p>The lesson generalizes. A claim about what breaks across a process boundary depends on which serializer and which start method are actually in use, and both are details of the library. Here a short script answers it faster than reading about it, which is what lab p9-07 does: three claims, each run in a fresh process with <code>spawn</code> forced.</p>
+
+      <h2>The better option for this environment: DummyVecEnv</h2>
+      <p>The plan's own Risks table names a fallback worth taking seriously. One <code>F1StrategyEnv.step()</code> is a handful of arithmetic operations, so the cost of sending each step's actions and observations between processes can exceed the work being parallelised. <code>DummyVecEnv</code> runs every copy in one process: nothing crosses a boundary, no guard is needed, and it is faster. Measured with four copies of a comparable cheap environment: <strong>41,468 steps per second</strong> with <code>DummyVecEnv</code> against <strong>3,010</strong> with <code>SubprocVecEnv</code>, about 14 times faster, before counting the 3 to 6 seconds each <code>SubprocVecEnv</code> takes to start its workers. <a class="xref" href="06-stable-baselines3-api.html">Page 06</a>'s general trade-off, settled for this environment.</p>
+
+      <section class="lab" id="lab" data-lab-id="p9-07" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p9-07 · Code + tests · about 20 min</span>
+        <h2>Test the claim</h2>
+        <p class="lab-goal">An audit finding said the plan's SubprocVecEnv with a lambda cannot run on this machine. Put it to the test: predict and then run three small scripts under spawn, Windows' only start method. Then write a vectorised toy race that works under spawn and with plain pickle too, and time the two kinds of VecEnv on an environment this cheap.</p>
+        <p><strong>Environment:</strong> the toy race as a masked Gymnasium environment (labs/labkit/racegym.py), in Stable-Baselines3's DummyVecEnv and SubprocVecEnv. Every script forces the spawn start method, so the results are the same on Windows, Linux and macOS. The check takes about a minute.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-07</code></div>
+          <div><span>Check</span><code>python -m labs check p9-07</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-07</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_07_test_the_claim/vec.py</code>, <code>labs/phase9/p9_07_test_the_claim/claim_1_plain_lambda.py</code>, <code>labs/phase9/p9_07_test_the_claim/claim_2_sb3_lambda.py</code>, <code>labs/phase9/p9_07_test_the_claim/claim_3_no_guard.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_07_test_the_claim/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1: plain multiprocessing uses the standard pickle module; Stable-Baselines3 wraps every factory in a CloudpickleWrapper. Which of the two can serialise a lambda? For the third script: under spawn, each worker starts a fresh Python that imports your main script. What does that import run, if nothing is guarded?</p></details>
+        <details><summary>Hint 2</summary><p>Task 2: env = TinyRaceEnv(); env.reset(seed=seed); return ActionMasker(env, mask_fn). In make_vec: factories = [functools.partial(make_env, seed + i) for i in range(n_envs)], then DummyVecEnv(factories) or SubprocVecEnv(factories, start_method=&#x27;spawn&#x27;). Task 3: time.perf_counter() before and after the loop.</p></details>
+        <details><summary>Hint 3</summary><p>OUTCOMES = {&#x27;claim_1_plain_lambda&#x27;: &#x27;PicklingError&#x27;, &#x27;claim_2_sb3_lambda&#x27;: &#x27;works&#x27;, &#x27;claim_3_no_guard&#x27;: &#x27;RuntimeError&#x27;}. The third one is the real Windows trap: the worker re-runs the unguarded module-level code, tries to start workers of its own, and Python stops each worker with &#x27;An attempt has been made to start a new process before the current process has finished its bootstrapping phase&#x27;. The main script is left waiting for workers that have died, and hangs: the error is printed, but the run never ends on its own.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+id: p8-05
+title: The first opponent
+page: phase-8-self-play-prerequisites/05-first-opponent-problem.html
+format: notebook
+minutes: 15
+tasks: ["predict:same", A, B]
+goal: >-
+  Play thirty untrained copies of the Phase 5 plan's network greedily through one race and count how many do the same thing on every lap. Then give "how varied is this policy" a number, the entropy of the actions it picks, and compare the plan's seed with a random policy and a simple rule.
+environment: >-
+  no race simulator: observation vectors of the plan's shape (19 numbers in [0, 1]), fed to the plan's DuelingDQN architecture, untrained.
+hints:
+  - "TODO 1: np.bincount(actions, minlength=6), then the largest count divided by the total. TODO 2: the same counts divided by the total give p; keep the non-zero entries; the entropy is -(p * log p).sum()."
+  - "Check the extremes first: one action repeated gives entropy 0, six actions equally often give log 6 = 1.79."
+  - "If Part A's check says your count is low, check that modal_share returns 1.0 (a float) for a list where every entry is the same: the cell counts networks with np.isclose(share, 1.0)."

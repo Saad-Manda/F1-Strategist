@@ -1,0 +1,14 @@
+id: p35-02
+title: Backward induction, two ways
+page: phase-3.5-dp-oracle-prerequisites/02-backward-induction.html
+format: pytest
+minutes: 20
+files: [replacement.py]
+goal: >-
+  First fill a value table by hand, for the page's toy race with new numbers. Then implement backward induction for a different problem and prove that it finds the same answer as trying every possible plan.
+environment: >-
+  machine replacement, the textbook keep-or-replace problem: an ageing machine, six years, one decision a year. It has the same structure as a pit stop and none of the same words.
+hints:
+  - "Task 1 is the model: two cases, each returning (cost, next age). Task 2 is page 02's recursion with `year` in place of the lap: a terminal row of zeros, then two nested loops, years going backward and ages going over reachable_ages(year, start_age)."
+  - "Task 2: inside the loops, call step(age, action) for each of the two actions and add V[(year + 1, next_age)] to the cost it returns. Keep the smaller total as V[(year, age)] and the action that produced it as policy[(year, age)]. The terminal row needs every age from 0 to start_age + horizon, because the last year's lookups land there."
+  - "Task 2: V = {(horizon + 1, a): 0.0 for a in range(0, start_age + horizon + 1)}; for year in range(horizon, 0, -1): for age in reachable_ages(year, start_age): ... Compare with `<` and try KEEP first, so that KEEP wins a tie. Task 3: age = start_age; each year, action = policy[(year, age)]; cost, age = step(age, action)."

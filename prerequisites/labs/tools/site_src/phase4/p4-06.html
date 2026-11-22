@@ -1,0 +1,45 @@
+<!-- page: phase-4-q-learning-prerequisites/06-the-binning-bug.html | title: Which laps share a cell? | format: widget | minutes: 10 | scripts: widgets/binexplorer.js -->
+        <p class="lab-goal">The page argues that 10 tyre-age bins erase the pit decision. Here you see which laps collide at any bin count, and then price the fix.</p>
+
+        <div class="lab-part">
+          <h3>1 · The window, bin by bin</h3>
+          <p>Tyre ages 18 to 39, coloured by the bin each falls in (the colour alternates from one bin to the next). The outlined ages, 25 to 32, are the page's example: an 8-lap window around an optimal pit lap of 27, every lap in it within a second of the best. Two ages with the same colour and no boundary between them are one table cell: the agent cannot treat them differently.</p>
+          <div class="widget" data-widget="binexplorer"></div>
+          <div class="lab-q" data-type="num" data-answer="2" data-tol="0" data-explain="Ages 25–29 are one cell and 30–32 another. Inside each, “pit now” and “pit next lap” are the same table entry." data-nudge="Set the slider to 10 and count the groups listed under the chart.">
+            <label>With the plan's original <strong>10</strong> bins, how many bins do the window's 8 laps fall into? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0" data-explain="Two-lap bins. Most laps still share a cell with one neighbour, but the window is now five decisions and not two." data-nudge="Set the slider to 25.">
+            <label>With <strong>25</strong> bins (2 laps each)? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="6" data-tol="0" data-explain="1.25 laps per bin: six cells for eight laps, so two pairs of neighbours still collide." data-nudge="Set the slider to 40.">
+            <label>With <strong>40</strong> bins? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="A bin narrower than one lap can never hold two whole-lap ages, so 50 bins over 50 laps always works. Below that it depends on where the bin edges happen to fall: 47 and 49 separate this window, 48 does not." data-nudge="Slide from 44 up to 50 and watch the count go up and down.">
+            <span class="lab-prompt">Slide upward from 44. What is true about giving every lap in the window its own bin?</span>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="a"> It first happens at 40 bins and holds for every count above.</label>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="b"> It never happens with fewer than 60 bins.</label>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="c"> It is guaranteed from 50 bins up. Below 50 it sometimes happens, depending on where the edges fall.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · What the fix costs</h3>
+          <p>Page 05's product with the original scheme was <code>12 × 5 × 10 × 3 × 3 × 2 × 8 × 2 = 172,800</code> states. Change only the tyre-age factor.</p>
+          <div class="lab-q" data-type="num" data-answer="691200" data-tol="0" data-explain="Four times the original, because one factor went from 10 to 40." data-nudge="12 × 5 × 40 × 3 × 3 × 2 × 8 × 2.">
+            <label>States with <strong>40</strong> tyre-age bins &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="33.2" data-tol="0.3" data-explain="691,200 × 6 × 8 bytes. A few tens of megabytes, and the table is a defaultdict, so only visited states are ever stored." data-nudge="Six actions per state, eight bytes per number, a million bytes per MB.">
+            <label>Size of the full table at 6 actions and 8 bytes per value &nbsp; <input type="text" inputmode="decimal"> MB</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Memory was never the limit. The real cost of finer bins is the one lab p4-05 measured: more cells need more races to fill. That is a reason to make the bins fine only where the decision is sensitive, near the cliff." data-nudge="Lab p4-05, Part C.">
+            <span class="lab-prompt">So what is the real cost of finer tyre-age bins?</span>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="a"> Memory: the table no longer fits.</label>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="b"> Experience: four times as many cells to visit with the same number of races.</label>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="c"> Nothing: finer is always better.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 10 bins: 2 (ages 25–29 and 30–32). 25 bins: 5. 40 bins: 6. Every lap has its own bin for certain only from 50 bins up; 47 and 49 happen to work for this window and 48 does not.</p>
+          <p><strong>2.</strong> 12 × 5 × 40 × 3 × 3 × 2 × 8 × 2 = 691,200 states; × 6 × 8 bytes = 33.2 MB. The cost that matters is experience, not memory.</p>
+        </details>

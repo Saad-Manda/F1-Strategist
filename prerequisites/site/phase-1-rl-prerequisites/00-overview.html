@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · Overview — Phase 1 RL fundamentals · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="1/00">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 1 · Overview</p>
+      <h1>Phase 1 RL Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to read and build <code>phase-1-gym-environment.md</code> with no prior reinforcement-learning background. No later-phase material.</p>
+
+      <h2>Why this project is an RL problem at all</h2>
+      <p>An F1 race strategist makes a sequence of decisions — stay out, or pit for a given tyre — under uncertainty (weather, safety cars, rivals) with a single, measurable goal: minimize total race time. That is exactly the shape of problem reinforcement learning is built for: an <strong>agent</strong> that repeatedly observes a <strong>state</strong>, picks an <strong>action</strong>, and receives a <strong>reward</strong>, with the goal of maximizing total reward over time. Supervised learning has no answer to "what should I do next, given that today's action changes tomorrow's options" — that sequential, consequence-carrying structure is what makes this an RL problem and not a classification problem.</p>
+
+      <p>This exists because Phase 1 is "the intellectual heart of the project" — it defines the simulator every future agent trains inside. A mistake here (a wrong reward, a leaky observation, a masking bug) silently corrupts every phase that follows.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>Phase 1 builds an environment. It does not train an agent — no Q-learning, no neural networks, no policies. So this doc set teaches exactly two things in depth: the math that defines what an environment <em>is</em> (an MDP), and the software contract (Gymnasium) that <code>f1_strategy_env.py</code> must implement. Everything below is in service of one or the other. Algorithm training (Phases 4, 5, 9) is a different set of prerequisites for a different day — nothing about it is covered here, even in preview.</p>
+      </div>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

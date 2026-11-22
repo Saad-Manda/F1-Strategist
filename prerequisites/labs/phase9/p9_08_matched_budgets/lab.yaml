@@ -1,0 +1,14 @@
+id: p9-08
+title: Matched budgets
+page: phase-9-ppo-prerequisites/08-unfair-comparison.html
+format: notebook
+minutes: 15
+tasks: [read, "predict:margin", B, C]
+goal: >-
+  First the budget arithmetic by hand, with new numbers. Then two learners on the toy race, an off-policy table learner and an on-policy PPO, each scored exactly at checkpoints along the way. Compare them the way the real plan's protocol would, then at matched experience, and see how much of the first answer was the budget talking. Last, what one final checkpoint of a noisy learner is worth as a summary.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race, learned by labs/labkit/qtable.py (the p4-cap learner) and labs/labkit/minipg.py (this phase's mini PPO), three seeds each, every checkpoint scored against the exact optimum. Training takes about a minute and a half.
+hints:
+  - "TODO 1: a curve is a list of (steps, gap) pairs in increasing order of steps; return the gap of the last checkpoint at or before the budget. TODO 2: the mean of the gaps whose steps lie between lo and hi, both included."
+  - "TODO 1: return [g for s, g in curve if s <= steps][-1]. TODO 2: return float(np.mean([g for s, g in curve if lo <= s <= hi]))."
+  - "The unfair comparison puts PPO at 40,000 steps and Q at 5,000: about 24 s apart. Averaged over 30,000 to 40,000 steps for both, they are about 6 s apart. Q's single checkpoints in that window run from about 1 s to about 30 s."

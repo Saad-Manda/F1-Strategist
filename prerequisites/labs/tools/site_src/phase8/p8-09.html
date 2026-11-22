@@ -1,0 +1,65 @@
+<!-- page: phase-8-self-play-prerequisites/09-this-project-formalized.html | title: Parameters, pages, lines | format: quiz | minutes: 10 -->
+        <p class="lab-goal">Put each of the plan's pool parameters next to the page that explains it, do the recency arithmetic for the real pool sizes, and find the lines of <code>F1PettingZooEnv</code> that repeat earlier findings.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which page explains each parameter?</h3>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The share of samples drawn from the newest 20% of the pool: page 03's recency rule." data-nudge="Which page derives 7% and 0.75%?">
+            <label><code>recency_bias = 0.7</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The window over past snapshots. The capstone measured what a window costs: a uniform pool that never forgets is exactly fictitious play (exploitability 0.006 after 1,000 rounds), while the plan's rule with a window of 50 stays near 0.38." data-nudge="Eviction is part of the pool's design.">
+            <label><code>max_pool_size = 50</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p05" data-explain="With a snapshot every 1,000 episodes, the seed is the pool's only entry for episodes 0 to 999: every opponent in that time is the untrained network of page 05, if the n = 1 crash is fixed first." data-nudge="How long is the seed alone in the pool?">
+            <label><code>checkpoint_freq = 1000</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · The arithmetic at the real sizes</h3>
+          <p>A full pool, <strong>n = 50</strong>. Give percentages.</p>
+          <div class="lab-q" data-type="num" data-answer="7" data-tol="0.05" data-explain="cut = 40, so 10 recent checkpoints share 70%: 7% each." data-nudge="cut = int(0.8 × 50).">
+            <label>Each recent checkpoint, % &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.75" data-tol="0.01" data-explain="40 older checkpoints share 30%: 0.75% each." data-nudge="30% over the 40 older ones.">
+            <label>Each older checkpoint, % &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="9.333" data-tol="0.02" data-explain="7 / 0.75 = 9.33. At n = 12 the same rule gives 7 : 1." data-nudge="Divide the two.">
+            <label>The ratio, recent to older &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="cut = max(1, int(0.8)) = 1 and checkpoints[1:] is empty, so the 0.7 branch calls np.random.choice([]) and raises ValueError: 691 of 1,000 calls in the measurement. The pool holds one entry for the first 1,000 episodes." data-nudge="Lab p8-03's first test.">
+            <span class="lab-prompt">And at n = 1, the pool the plan trains against first?</span>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="a"> 100% to the one checkpoint, as you would want</label>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="b"> 70% to the one checkpoint and 30% to nothing</label>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="c"> about seven calls in ten raise ValueError</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · The env, line by line</h3>
+          <div class="lab-q" data-type="num" data-answer="16" data-tol="0" data-explain="N_MULTI_OBS = 19 is &quot;16 base + 3 multi-car features&quot;: the single-car observation plus _extend_obs's gap ahead, gap behind and position." data-nudge="Read the comment next to N_MULTI_OBS.">
+            <label>The observation is 19 numbers. How many of them come from the single-car env? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The plan writes obs_dim=19 in three places (two in the trainer, one in the analysis). Change the observation and they silently disagree with the env. Read it once from env.observation_space(agent).shape[0]." data-nudge="Where does the true size live?">
+            <span class="lab-prompt"><code>DuelingDoubleDQNAgent(obs_dim=19)</code> appears in three places. What should they use instead?</span>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="a"> a module constant OBS_DIM = 19</label>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="b"> the env's own observation_space(agent).shape[0]</label>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="c"> nothing: 19 cannot change</label>
+          </div>
+          <p>One line of <code>step()</code> builds the per-lap reward: <code>base_reward = -lap_times[agent] - dirty_air</code>.</p>
+          <div class="lab-q" data-type="select" data-answer="e3" data-explain="The dirty-air penalty is subtracted from the reward but never from the lap time, so total times, positions and the final order never see it: audit E3, again." data-nudge="Does dirty air change anyone's total time?">
+            <label>The <code>- dirty_air</code> term repeats…<br><select>
+              <option value="">choose…</option><option value="e3">E3: dirty air in the reward but not in the lap time</option><option value="c">Finding C: an uncentred reward</option><option value="none">neither</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="c" data-explain="The raw negative lap time, a large negative number every lap, with no offset: Finding C, again. Phase 9's labs measured what that does to a policy-gradient learner, and the bias it gives DQN's early Q estimates is the same one." data-nudge="What is the reward of an average lap?">
+            <label>The <code>-lap_times[agent]</code> term repeats…<br><select>
+              <option value="">choose…</option><option value="e3">E3: dirty air in the reward but not in the lap time</option><option value="c">Finding C: an uncentred reward</option><option value="none">neither</option>
+            </select></label>
+          </div>
+        </div>

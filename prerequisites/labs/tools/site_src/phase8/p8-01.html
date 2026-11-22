@@ -1,0 +1,28 @@
+<!-- page: phase-8-self-play-prerequisites/01-non-stationarity-revisited.html | title: warm-up | format: paper | minutes: 5 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · which paradigm is it?</h3>
+          <p>Each set-up below trains four cars. Name the paradigm from the page above.</p>
+          <div class="lab-q" data-type="select" data-answer="il" data-explain="Four networks, four buffers, no shared anything: each car's &quot;environment&quot; includes the other three cars, so it changes whenever they learn." data-nudge="Count the networks.">
+            <label>Each car has its own DQN and its own replay buffer. Nothing is shared.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="ps" data-explain="One set of weights, trained on everyone's experience. It only makes sense because the cars are interchangeable." data-nudge="One network, four cars.">
+            <label>One network picks every car's action from that car's own observation, and all four cars' transitions go into one buffer.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="ctde" data-explain="The critic sees the joint state, but only while training; at race time each policy acts on its own observation." data-nudge="What does each part see, and when?">
+            <label>During training, a critic sees all four cars' observations and actions. In the race, each car's policy sees only its own 19 numbers.<br><select>
+              <option value="">choose…</option><option value="il">independent learners</option><option value="ps">parameter sharing</option><option value="ctde">centralised training, decentralised execution</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="A transition is (observation, action, reward, next observation). Which opponent policy produced the reward is not in it. Replayed after the opponent has changed, an old transition teaches the value of an action against an opponent who no longer exists. The notebook measures this: the replayed learner's error is about eight times the fresh one's." data-nudge="Write out what one transition stores.">
+            <span class="lab-prompt">An independent learner's replay buffer is full of transitions from when its rival pitted early. The rival now pits late. Why are the old transitions misleading?</span>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="a"> they are older, and DQN weights old transitions less</label>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="b"> a transition does not record which rival policy produced its reward, so the old rewards are mixed in as if they still held</label>
+            <label class="lab-opt"><input type="radio" name="p801-replay" value="c"> they are not misleading: the reward of an action does not depend on the rival</label>
+          </div>
+        </div>
+
+        <h3>Then, in code</h3>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · State discretization — Phase 4 Q-learning · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="4/05">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 4 · Page 05 of 09 — Foundations</p>
+      <h1>State Discretization: The General Tradeoff</h1>
+      <p class="dek">A Q-table is a dictionary. Dictionaries need hashable, finite keys. The 16-dimensional observation this project's environment hands out is neither — so something has to convert it into one first.</p>
+
+      <h2>Why tabular methods need a finite table</h2>
+      <p><code>Q(s, a)</code> as used on <a class="xref" href="01-from-equation-to-update-rule.html">pages 1</a>–<a class="xref" href="04-sarsa-on-policy.html">4</a> was written as if <code>s</code> were simply a label — <code>s1</code>, <code>s2</code>, and so on. In code, <code>self.Q</code> is a dictionary (or a <code>defaultdict</code>, <a class="xref" href="08-this-project-formalized.html">page 8</a>'s choice) keyed by <code>s</code> directly, which means <code>s</code> has to be something a dictionary can use as a key: hashable, and drawn from a finite (or at least enumerable) set. The environment's real observation is a 16-dimensional <code>float32</code> vector — normalized lap count, tire age, track temperature, and more, each one a continuous number. Two observations that are almost, but not quite, identical would hash to two different dictionary keys and never share a Q-value, which defeats the entire point of a table: generalizing across situations that are effectively the same.</p>
+      <p><strong>Binning</strong> (equivalently, <strong>discretization</strong>) solves this by converting each continuous feature into a small number of discrete buckets — "tire age between 20 and 25 laps" instead of "tire age is exactly 22.7 laps" — so that nearby observations collapse onto the same table entry and a lookup table becomes possible at all.</p>
+
+      <h2>The tradeoff, stated generally</h2>
+      <p>Binning is a lossy compression of the state, and the compression ratio is a real design choice with real consequences in both directions:</p>
+      <ul>
+        <li><strong>Too few bins</strong> — genuinely different situations collapse into the same table entry. This isn't a training problem that more episodes or a better learning rate can fix: the agent <em>literally cannot represent</em> a different action for two situations sharing one bin, no matter how well trained the table is. <a class="xref" href="06-the-binning-bug.html">Page 6</a> works through exactly this failure for the real plan's first-drafted binning scheme.</li>
+        <li><strong>Too many bins</strong> — the table becomes too sparse to learn from in any reasonable number of episodes. Every cell needs to be visited many times before its Q-value estimate means anything (<a class="xref" href="02-q-learning-derived.html">page 2</a>'s hand-run showed a single visit only moves an estimate a fraction of the way toward the truth); split the same amount of experience across ten times as many cells, and each cell gets roughly a tenth as many visits, most of which still won't be enough to say anything useful.</li>
+      </ul>
+      <p>There's no bin count that dissolves this tension — only a choice of where along it to sit, informed by which of the two failure modes is more costly for the specific decision the table needs to make. This is precisely the tension the real plan's Definition of Done exists to catch, and precisely why Phase 5 exists at all: function approximation (a neural network standing in for the table) sidesteps the tradeoff entirely by generalizing across similar continuous states without needing to bucket them first — named here as the eventual resolution, not developed further; that's Phase 5's own prerequisites' job.</p>
+
+      <h2>Worked arithmetic: how many states does a binning scheme actually produce?</h2>
+      <p>The same kind of back-of-envelope arithmetic <a class="xref" href="../phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html">Phase 3.5 page 6</a> used to compute its 726,000-state DP enumeration applies here — with a different meaning. Phase 3.5's number was an <em>exact enumeration</em>: every state the DP oracle would ever need to solve for. This number is an <em>approximation budget</em>: how many distinct table entries a chosen binning scheme could ever produce, most of which won't be visited often (or at all) during a finite training run.</p>
+      <p>The real plan bins the 16-dim observation into eight discrete dimensions:</p>
+      <blockquote class="eq">laps_remaining   → 12 bins
+tire_compound    →  5 bins   (already discrete: SOFT, MEDIUM, HARD, INTER, WET)
+tire_age         → 10 bins
+weather_regime   →  3 bins   (DRY, DAMP, WET)
+track_temp       →  3 bins
+safety_car       →  2 bins   (active / not)
+compounds_used   →  8 bins   (2³ combinations of 3 dry compounds tried so far)
+mandatory_pit    →  2 bins   (yes / no)
+
+total states = 12 × 5 × 10 × 3 × 3 × 2 × 8 × 2 = 172,800</blockquote>
+
+      <div class="note grounded">
+        <div class="tag">A figure that has been corrected</div>
+        <p>An earlier draft of <code>phase-4-q-learning-sarsa.md</code> stated this product as 518,400. Multiplying the eight bin counts gives 172,800, and the plan now says so. The lesson stands: a state count is arithmetic, and it is worth redoing by hand before any capacity planning leans on it. At 172,800 states the full table is <code>172,800 × 6 × 8</code> bytes, about 8.3 MB, which shows that memory was never the binding constraint on this scheme's coarseness.</p>
+      </div>
+
+      <p>The shape of the exercise is the same one <a class="xref" href="../phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html">Phase 3.5 page 6</a> modeled: multiply the enumerated ranges of every state dimension together, and treat the result as a budget to be spent deliberately — coarse where a decision doesn't hinge on the distinction, fine where it does. <a class="xref" href="06-the-binning-bug.html">Page 6</a> shows exactly what happens when one dimension of that budget is spent too coarsely.</p>
+
+      <section class="lab" id="lab" data-lab-id="p4-05" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p4-05 · Notebook · about 20 min</span>
+        <h2>How many bins?</h2>
+        <p class="lab-goal">You will write a binning function and a learner that keeps one value per bin, then measure both failures this page describes on one problem, too few bins and too many, and find that the best count moves with the training budget.</p>
+        <p><strong>Environment:</strong> the 1000-state random walk with state aggregation (Sutton &amp; Barto, Example 9.1).</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p4-05</code></div>
+          <div><span>Check</span><code>python -m labs check p4-05</code></div>
+          <div><span>Hint</span><code>python -m labs hint p4-05</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase4/p4_05_discretization/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase4/p4_05_discretization/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: shift the state so it starts at 0, scale it by n_groups / 1000 using whole-number division, and cap the result at n_groups - 1. TODO 2: two nested loops, episodes outside and steps inside, with page 01&#x27;s update applied to a bin.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: (state - 1) * n_groups // WALK_STATES. TODO 2: inside the step loop, call envs.walk_step, build the target (the reward alone when done, otherwise reward plus the value of the next state&#x27;s bin), and move the current state&#x27;s bin toward it by alpha times the difference.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 2: values = np.zeros(n_groups); for each episode: state, done = WALK_START, False; while not done: next_state, reward, done = envs.walk_step(state, rng); target = reward if done else reward + values[group_of(next_state, n_groups)]; g = group_of(state, n_groups); values[g] += alpha * (target - values[g]); state = next_state.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

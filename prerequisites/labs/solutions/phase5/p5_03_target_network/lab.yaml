@@ -1,0 +1,14 @@
+id: p5-03
+title: Chasing your own target
+page: phase-5-dqn-prerequisites/03-target-network.html
+format: notebook
+minutes: 20
+tasks: [updates, halving, "predict:target-moves", B, train, "predict:three-ways", C]
+goal: >-
+  First use the slider to see how slowly a soft-updated copy follows. Then write the soft and hard updates, watch one gradient step move a target that the trained network computes, and train the same network three ways on a problem where leaving the target network out is not a small mistake.
+environment: >-
+  a 20-state chain with −1 per step and no discount, learned by a network of two hidden layers of 32 units.
+hints:
+  - "TODO 1 loops over the two networks' parameters in pairs and changes the target's in place; wrap it in torch.no_grad() so PyTorch does not record it for a backward pass. TODO 2 is one line. TODO 3 is one line inside a no_grad block: the reward is -1 on every step."
+  - "TODO 1: with torch.no_grad(): for t, o in zip(target.parameters(), online.parameters()): t.mul_(1 - tau).add_(tau * o). TODO 3: the next states are s + 1, and done is 1 where s is the last state."
+  - "TODO 2: target.load_state_dict(online.state_dict()). TODO 3: with torch.no_grad(): goal = -1.0 + (1.0 - done) * target_net(encode(s + 1)).squeeze(1)."

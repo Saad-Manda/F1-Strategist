@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · Overview — Phase 3.5 DP oracle · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="3.5/00">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 3.5 · Overview</p>
+      <h1>Phase 3.5 DP Oracle Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to read and build the exact optimality oracle described in <code>phase-3.5-dp-oracle.md</code>, assuming you already have Phase 1's prerequisites and nothing more.</p>
+
+      <h2>Why this phase exists, and why it isn't "more RL"</h2>
+      <p>Every phase before this one either builds the world (Phase 1) or acts in it reactively (Phase 2's dashboard, Phase 3's hand-written rules). Phase 3.5 does something different: it <strong>computes</strong> the optimal strategy for the single-car race, exactly, by exhaustively working out the consequence of every decision in every reachable situation. Nothing is learned from trial and error here — there is no exploration, no Q-table being nudged toward a target, no gradient step. Given the transition model and reward function Phase 1 already built, the optimal policy is computed directly, once, and cached.</p>
+
+      <p>That distinction — <strong>planning</strong> (compute the answer from a known model) versus <strong>learning</strong> (estimate the answer from experience) — is the single idea this whole doc set exists to teach. Phases 4, 5, and 9 all learn. Phase 3.5 plans. It is worth being precise about which is which, because the oracle's entire value as an evaluation tool depends on it being the *exact* answer, not an approximation competing with the agents it's meant to judge.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>Phase 3.5 builds an evaluator, not an agent. So this doc set teaches exactly two things in depth: <strong>backward induction</strong> (the algorithm that makes exact solving tractable for a finite-horizon MDP) and <strong>Markov chains</strong> (the tool the oracle's weather model needs). Nothing about Q-learning, TD updates, exploration, or neural networks is covered here, even in preview — that material belongs to Phase 4 and 5's own prerequisites, and this doc set assumes none of it.</p>
+      </div>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

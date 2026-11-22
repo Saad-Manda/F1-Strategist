@@ -1,0 +1,14 @@
+id: p5-08
+title: Speed limits
+page: phase-5-dqn-prerequisites/08-reward-scale-trap.html
+format: notebook
+minutes: 20
+tasks: [limits, "predict:distance", B, C]
+goal: >-
+  You will write two of page 08's safeguards, the Huber slope and gradient-norm clipping, and check them against PyTorch. Then you measure what the three safeguards together cost a fresh network sent to −4,940 instead of −250, and read four flat reward curves the way page 08 says to: by the scale of the network's outputs.
+environment: >-
+  a fresh network fitted to a constant target with the real agent's loss, clipping and optimizer settings; then four logged training runs.
+hints:
+  - "TODO 1 is one call to np.clip. TODO 2: the norm runs over every entry of every array together, so sum the squares array by array and take one square root at the end. Then one scale factor for all of them. TODO 3: compare each run's average Q-value with -250, and look at where it is going."
+  - "TODO 2: norm = sqrt(sum of np.sum(g ** 2) over the arrays); scale = min(1, max_norm / norm); return [g * scale for g in grads], norm. TODO 3: near zero and not moving; moving toward -250; past -250 and still going; at -250."
+  - "TODO 3: run 1 broken, run 2 travelling, run 3 runaway, run 4 differences."

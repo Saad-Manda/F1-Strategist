@@ -1,0 +1,14 @@
+id: p9-07
+title: Test the claim
+page: phase-9-ppo-prerequisites/07-pickling-and-subprocvecenv.html
+format: pytest
+minutes: 20
+files: [vec.py, claim_1_plain_lambda.py, claim_2_sb3_lambda.py, claim_3_no_guard.py]
+goal: >-
+  An audit finding said the plan's SubprocVecEnv with a lambda cannot run on this machine. Put it to the test: predict and then run three small scripts under spawn, Windows' only start method. Then write a vectorised toy race that works under spawn and with plain pickle too, and time the two kinds of VecEnv on an environment this cheap.
+environment: >-
+  the toy race as a masked Gymnasium environment (labs/labkit/racegym.py), in Stable-Baselines3's DummyVecEnv and SubprocVecEnv. Every script forces the spawn start method, so the results are the same on Windows, Linux and macOS. The check takes about a minute.
+hints:
+  - "Task 1: plain multiprocessing uses the standard pickle module; Stable-Baselines3 wraps every factory in a CloudpickleWrapper. Which of the two can serialise a lambda? For the third script: under spawn, each worker starts a fresh Python that imports your main script. What does that import run, if nothing is guarded?"
+  - "Task 2: env = TinyRaceEnv(); env.reset(seed=seed); return ActionMasker(env, mask_fn). In make_vec: factories = [functools.partial(make_env, seed + i) for i in range(n_envs)], then DummyVecEnv(factories) or SubprocVecEnv(factories, start_method='spawn'). Task 3: time.perf_counter() before and after the loop."
+  - "OUTCOMES = {'claim_1_plain_lambda': 'PicklingError', 'claim_2_sb3_lambda': 'works', 'claim_3_no_guard': 'RuntimeError'}. The third one is the real Windows trap: the worker re-runs the unguarded module-level code, tries to start workers of its own, and Python stops each worker with 'An attempt has been made to start a new process before the current process has finished its bootstrapping phase'. The main script is left waiting for workers that have died, and hangs: the error is printed, but the run never ends on its own."

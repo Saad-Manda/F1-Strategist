@@ -1,0 +1,14 @@
+id: p9-cap
+title: Policy gradient on the toy race
+page: phase-9-ppo-prerequisites/09-build-it-yourself.html
+format: pytest
+minutes: 90
+files: [toy_pg.py, report.ipynb]
+goal: >-
+  This page is the brief. You build a policy-gradient learner for the toy race in seven checked stages: a table policy over the legal actions, REINFORCE, GAE and a critic, one destructive update, the clip that prevents it, a small PPO, and the clip's real job when each batch is reused ten times. Every stage is measured exactly against the race's optimum, and your learners must reproduce the reference's numbers seed for seed. The report then puts the four learners side by side, watches the ratio overshoot the clip, and trains Stable-Baselines3's MaskablePPO on the same race with and without reward centring.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race of the earlier capstones, quiet (no safety car, dry), with its exact optimum of 224.49 s as the ruler. About an hour and a half; the full check takes about a minute and a half, the report about six minutes.
+hints:
+  - "Read the header of toy_pg.py, then the given run_race and train_ppo: they show the order in which your functions are called. Stages 1 to 5 are short functions with the rule in the docstring; stage 6 is the epoch loop of ppo_update, described step by step in its docstring; stage 7 has no code of its own. Check one stage at a time with `python -m labs check p9-cap N`."
+  - "Stage 1: z = np.where(mask, logits, -np.inf); subtract z[mask].max(); exponentiate and normalise. log_grad: g = -masked_probs(...); g[action] += 1; return np.where(mask, g, 0.0). Stage 5: ratio = masked_probs(logits, mask)[action] / p_old; return logits unchanged if clip and ((A > 0 and ratio >= 1 + eps) or (A < 0 and ratio <= 1 - eps)); otherwise logits + step * ratio * A * log_grad(...)."
+  - "Stage 6: used = (advs - advs.mean()) / (advs.std() + 1e-8); for _ in range(epochs): for i in rng.permutation(len(batch)): b = batch[i]; theta[b['key']] = clipped_step(row(theta, b['key']), b['mask'], b['action'], used[i], b['p_old'], eps, alpha, clip); critic_update(V, b['key'], b['ret'], v_lr). A 'matches the reference' failure with everything else green is almost always the order: logits first, then the critic, for each sample."

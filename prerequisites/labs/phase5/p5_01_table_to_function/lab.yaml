@@ -1,0 +1,14 @@
+id: p5-01
+title: One update, many states
+page: phase-5-dqn-prerequisites/01-table-to-function.html
+format: notebook
+minutes: 15
+tasks: [update, "predict:spread", A, learning, "predict:few-walks", B, C]
+goal: >-
+  You will write one gradient step for a small network, make one update with it and one with a table, and see what moved. Then you measure what the network's sharing buys when data is scarce, and what it costs when the data all comes from one place.
+environment: >-
+  the 1000-state random walk from lab p4-05 (Sutton &amp; Barto, Example 9.1), with a network of two hidden layers of 32 units.
+hints:
+  - "TODO 1 is page 02's four steps in four lines: forward pass, loss, backward pass, update. The targets arrive as a list or array, so turn them into a tensor before subtracting. TODO 2 is one line inside the walk loop, after the table's update."
+  - "TODO 1: predictions = net(features(states)).squeeze(1); loss = ((predictions - torch.as_tensor(np.asarray(targets, dtype=np.float32))) ** 2).mean(); then zero_grad, backward, step. TODO 2: every visited state gets the same target, the walk's final reward."
+  - "TODO 1 ends with: optimizer.zero_grad(); loss.backward(); optimizer.step(); return loss.item(). TODO 2: net_update(net, optimizer, visited, [final_reward] * len(visited))."

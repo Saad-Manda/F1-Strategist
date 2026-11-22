@@ -1,0 +1,14 @@
+id: p8-cap
+title: The pit-timing duel
+page: phase-8-self-play-prerequisites/08-build-it-yourself.html
+format: pytest
+minutes: 90
+files: [duel_selfplay.py, report.ipynb]
+goal: >-
+  This page is the brief. Two equal cars, one stop each, and the question is who stops first. In seven checked stages you build the game-theory side of self-play on this duel: its payoff (and proof that the cached matrix is honest), best responses and the latest-only loop that cycles, fictitious play, a checkpoint pool of best responses that turns out to be fictitious play when it never forgets, the Phase 8 plan's own pool rule, which does not settle, the pit-delta histogram the plan wants to read, and page 07's null test on it. Every stage is exact. The report then trains closed-loop self-play learners on the same duel, sixteen runs, and shows how far one seed's histogram is from the answer.
+environment: >-
+  an F1-flavoured mini: labkit.duel's two-car race with blocking on or off, on tyres with a real undercut window (labs/labkit/pitgame.py). About an hour and a half; the full check takes a few seconds, the report about six minutes.
+hints:
+  - "Read the header of duel_selfplay.py first: the follower is the ROW player and maximises, the leader the COLUMN player and minimises the same matrix. Check one stage at a time with `python -m labs check p8-cap N`. Stage 1 is pitgame.race plus the payoff rule in the docstring; a best response to a mixture is a matrix-vector argmax (row) or argmin (column)."
+  - "Order matters in stages 2 to 4: the follower moves first and the leader replies to the follower's NEW choice, both in latest_only and in fictitious_play. For pool_play, write it as fictitious play where 'the counts' are a list of laps and 'the frequencies' are pool_mix(list); a pool entry is a lap index, not a network. With recency_bias None and max_size None it must match fictitious play exactly."
+  - "pool_mix: n = len(pool); if recency_bias is None or n == 1, every entry gets 1/n; otherwise cut = max(1, int(0.8 * n)) and entries k >= cut get recency_bias / (n - cut), the others (1 - recency_bias) / cut; then np.add.at(mix, pool, weights). Stage 7: real = mean(f == l); null = [mean(f == rng.permutation(l)) for each shuffle]; p = (1 + count(|null - null.mean()| >= |real - null.mean()|)) / (shuffles + 1)."

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Experience replay — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/04">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 04 of 11 — Two instabilities, part two</p>
+      <h1>Experience Replay</h1>
+      <p class="dek">A target network fixes the moving-target problem. It does nothing about a second, separate instability: training on transitions in the order they happened.</p>
+
+      <h2>Why in-order training data is a problem, even with a stable target</h2>
+      <p>Consecutive laps within one episode are highly correlated — similar tyre age, similar fuel load, the same track and weather. Training a gradient-descent step (<a class="xref" href="02-neural-networks-primer.html">page 02</a>) on a sequence of near-identical inputs is close to training on the same example over and over: the well-known assumption behind gradient descent's convergence behaviour is that training examples are drawn independently from a stable distribution ("i.i.d." — independent and identically distributed). A stream of transitions from one continuous race violates that assumption directly, regardless of whether the target is stable (<a class="xref" href="03-target-network.html">page 03</a>) or not — this is a problem with the <em>data</em>, not the target.</p>
+      <p>Concretely: if the last 20 gradient steps were all computed from laps 30–50 of the same race, the network has effectively been told "the world looks like late-race, high tyre age" 20 times in a row. Its weights drift to fit that narrow slice well, at the expense of whatever they'd learned about early-race states — not because early-race states got harder, but because nothing about them has been seen in a while. This is the same class of problem as <a class="xref" href="03-target-network.html">page 03</a>'s, from the other side: <a class="xref" href="03-target-network.html">page 03</a> was about the target drifting under the network being trained; this is about the network drifting because of what it's being shown, moment to moment.</p>
+
+      <h2>The fix: store, then sample</h2>
+      <p>Instead of training on the transition that just happened, store every transition <code>(s, a, r, s', done)</code> in a buffer as it's experienced, and train on a randomly sampled mini-batch drawn from the <em>whole</em> buffer. This buys two distinct things, worth naming separately because <a class="xref" href="07-prioritized-replay.html">page 07</a> revisits both:</p>
+      <ul>
+        <li><strong>Breaking temporal correlation</strong> — a random sample from a buffer holding thousands of transitions from many different points in many different races looks far closer to i.i.d. than the raw stream of one race's laps in order.</li>
+        <li><strong>Sample efficiency</strong> — each transition, once stored, can be sampled and trained on many times over its life in the buffer, instead of being used for exactly one gradient step and discarded, getting more learning signal out of the same amount of environment interaction.</li>
+      </ul>
+
+      <h2>A minimal replay buffer</h2>
+      <p>As a baseline idea, before <a class="xref" href="07-prioritized-replay.html">page 07</a> complicates it: fixed capacity; once full, the oldest transition is overwritten by the newest (a ring buffer, FIFO); sampling draws a batch uniformly at random from whatever is currently stored. Nothing about "which transitions are more useful to revisit" enters yet — every stored transition is equally likely to be picked, regardless of how surprising or routine it was.</p>
+
+      <div class="note generic">
+        <div class="tag">Not all transitions are equally worth replaying</div>
+        <p>Uniform sampling treats a routine "stay out, nothing changes" transition exactly the same as a rare, strategically decisive pit-stop transition — even though the buffer will hold vastly more of the former than the latter simply because "stay out" is the correct action on most laps. Named here, developed fully on <a class="xref" href="07-prioritized-replay.html">page 07</a> once the dueling architecture (<a class="xref" href="05-dueling-architecture.html">page 05</a>) and Double DQN (<a class="xref" href="06-double-dqn.html">page 06</a>) have given the target network something more refined to compute, and once there's a concrete number — how rare pit transitions actually are in this project's races — to make the problem specific rather than abstract.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p5-04" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p5-04 · Code + tests · about 15 min</span>
+        <h2>A ring buffer, and what it does to a batch</h2>
+        <p class="lab-goal">You will build page 04's minimal replay buffer: fixed capacity, the oldest overwritten first, uniform sampling. Then you measure what it is for. Thirty-two laps taken in the order they were driven are strongly correlated, each one nearly a copy of the last. The same number of laps sampled from the buffer are not.</p>
+        <p><strong>Environment:</strong> a stream of 300 toy races of 20 laps, each with one pit stop on a random lap.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-04</code></div>
+          <div><span>Check</span><code>python -m labs check p5-04</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-04</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_04_replay/replay.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_04_replay/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1: push writes into one slot and moves next_slot on; the % operator wraps it back to 0. count goes up by one per push until it reaches capacity. Task 2: pick the slot numbers first, then look them up. Task 3 is one call to np.corrcoef.</p></details>
+        <details><summary>Hint 2</summary><p>Task 1: self.slots[self.next_slot] = transition; self.next_slot = (self.next_slot + 1) % self.capacity; self.count = min(self.count + 1, self.capacity). Task 2: self.rng.integers(self.count, size=n) gives n slot numbers among the filled ones.</p></details>
+        <details><summary>Hint 3</summary><p>Task 2: return [self.slots[i] for i in self.rng.integers(self.count, size=n)]. Task 3: values = np.asarray(values, dtype=float); return float(np.corrcoef(values[:-1], values[1:])[0, 1]).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

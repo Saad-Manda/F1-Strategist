@@ -1,0 +1,14 @@
+id: p35-04
+title: Fit a chain, sample a chain
+page: phase-3.5-dp-oracle-prerequisites/04-markov-chains.html
+format: notebook
+minutes: 20
+tasks: [fit, sample, "predict:data", C]
+goal: >-
+  You will fit a transition matrix by counting, sample new sequences from a matrix, and then measure how wrong a fit from three short sequences is, next to a fit from three hundred.
+environment: >-
+  the Land of Oz weather chain (Kemeny &amp; Snell), where it never stays nice two days running.
+hints:
+  - "TODO 1: build a counts matrix of zeros. For each sequence, walk over its consecutive pairs (zip(sequence[:-1], sequence[1:]) gives them) and add 1 to counts[today, tomorrow]. Doing this one sequence at a time is what keeps pairs from crossing a boundary."
+  - "TODO 1: then go row by row. If the row's total is above zero, divide the row by its total; otherwise fill it with 1 / n_states. TODO 2: keep a list that starts as [start] and append one draw at a time until it is long enough."
+  - "TODO 1: fitted = np.full((n, n), 1 / n); for i in range(n): if counts[i].sum() > 0: fitted[i] = counts[i] / counts[i].sum(). TODO 2: trace.append(int(rng.choice(len(P), p=P[trace[-1]]))) inside `while len(trace) < length`."

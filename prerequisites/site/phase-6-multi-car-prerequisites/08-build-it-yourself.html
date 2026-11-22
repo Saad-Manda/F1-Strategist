@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · Build it yourself — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/08">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 08 of 10 — Building it yourself</p>
+      <h1>Build It Yourself: A Toy Blocking Race With Shaped Rewards</h1>
+      <p class="dek">Five stages: a toy race that reproduces <a class="xref" href="05-position-and-blocking.html">page 5</a>'s failure for real, the one-line fix, a toy overtake model, a reward-shaping comparison built to make ad-hoc shaping visibly fail, and a bug you plant on purpose.</p>
+
+      <p>Every name below (<code>TinyPaddockRace</code>, <code>ToyCar</code>, <code>try_pass</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match <code>f1_multi_env.py</code>, <code>RivalState</code>, or <code>attempt_overtake</code>. The point, as with every toy build in this project's prerequisite sets, is to arrive at the same <em>shape</em> of solution independently, so the real pseudocode in <a class="xref" href="10-reading-the-plan.html">page 10</a> reads as familiar structure rather than new material. The lab at the end of this page builds the same five ideas again on the toy race with a scripted rival; this page is its brief, and the snippets are a last-resort hint.</p>
+
+      <h2>Stage 0 — a toy race, deliberately built without any blocking rule</h2>
+      <p>Two cars, a fixed number of ticks, each with a per-tick pace the reader scripts directly (no compound or tyre model: that is not what this page is teaching). Each car's time this tick is just its own pace.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>class ToyCar:
+    def __init__(self, name, pace_schedule, start=0.0):
+        self.name = name
+        self.pace_schedule = pace_schedule   # list of per-tick pace, one entry per tick
+        self.total_time = start
+
+    def tick_pace(self, t):
+        return self.pace_schedule[t]
+
+
+class TinyPaddockRace:
+    """No blocking rule yet — every car's time this tick is just its own pace."""
+    def __init__(self, cars):
+        self.cars = cars
+
+    def run(self, n_ticks):
+        for t in range(n_ticks):
+            for car in self.cars:
+                car.total_time += car.tick_pace(t)
+
+    def standings(self):
+        return sorted(self.cars, key=lambda c: c.total_time)</code></pre></details>
+
+      <h2>Stage 1 — reproduce page 5's diagnosis: timing stops mattering without blocking</h2>
+      <p>Script one car (<code>FAST</code>, 4.5 per tick) to be consistently quicker than another (<code>SLOW</code>, 5.0 per tick), and model a "pit" as one tick with a fixed 20-second penalty added to <code>FAST</code>'s schedule. Run it twice, pitting early and pitting late, and check whether <em>when</em> it pits changes the final gap.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>def make_schedule(base_pace, n_ticks, pit_tick=None, pit_penalty=20.0):
+    sched = [base_pace] * n_ticks
+    if pit_tick is not None:
+        sched[pit_tick] += pit_penalty
+    return sched
+
+n_ticks = 30
+for pit_tick in (5, 25):
+    slow = ToyCar("SLOW", make_schedule(5.0, n_ticks))
+    fast = ToyCar("FAST", make_schedule(4.5, n_ticks, pit_tick=pit_tick))
+    TinyPaddockRace([slow, fast]).run(n_ticks)
+    print(pit_tick, fast.total_time - slow.total_time)
+# 5 5.0
+# 25 5.0</code></pre></details>
+      <p>Both runs land on the same gap, 5.0: thirty ticks at 0.5 faster gains 15, the stop costs 20, and the pit tick only decides <em>where</em> the 20 is paid. "Pitting first when you're faster" and "just being faster" are the same number here: page 5's conclusion, verified by running it.</p>
+
+      <h2>Stage 2 — add the blocking constraint and rerun the identical scripts</h2>
+      <p><a class="xref" href="05-position-and-blocking.html">Page 05</a>'s fix, transplanted into the toy: order the cars by time, and a car less than <code>FOLLOW_GAP</code> behind the car ahead cannot be faster than it this tick.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>FOLLOW_GAP = 1.0
+
+class BlockingPaddockRace(TinyPaddockRace):
+    def run(self, n_ticks):
+        for t in range(n_ticks):
+            paces = {c.name: c.tick_pace(t) for c in self.cars}
+            ordered = sorted(self.cars, key=lambda c: c.total_time)   # stable: a tie keeps list order
+            for ahead, car in zip(ordered, ordered[1:]):
+                if car.total_time - ahead.total_time &lt; FOLLOW_GAP:
+                    paces[car.name] = max(paces[car.name], paces[ahead.name])
+            for car in self.cars:
+                car.total_time += paces[car.name]
+# with BlockingPaddockRace in place of TinyPaddockRace above:
+# 5 7.5
+# 25 17.5</code></pre></details>
+      <p>Now the two runs land on <em>different</em> gaps, 7.5 and 17.5. Look at why. Both cars start at 0, the tie puts <code>SLOW</code> first (it comes first in the list), and <code>FAST</code> is less than a second behind it: from the very first tick <code>FAST</code> is held to <code>SLOW</code>'s 5.0. It never builds a lead. It stays stuck until its stop drops it far enough back to run free, so every tick before the stop is a tick at the slower car's pace. The final gap is <code>5 + 0.5 × pit_tick</code>, and the best stop is the earliest one.</p>
+      <p>That is the new thing the blocking line created: a pit stop now does two jobs. It costs 20 seconds, and it gets you out of traffic. The second job is the one an undercut uses, and it did not exist one stage ago. (The p6-05 widget on <a class="xref" href="05-position-and-blocking.html">page 05</a> draws exactly these two cars.)</p>
+
+      <h2>Stage 3 — a toy overtake model as the only way out of blocking</h2>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>import numpy as np
+
+def try_pass(pace_advantage, rng, base_rate=0.4):
+    """Simplified stand-in for page 4's sigmoid — a flat rate scaled by advantage."""
+    if pace_advantage &lt;= 0:
+        return False
+    prob = min(0.95, base_rate + 0.3 * pace_advantage)
+    return rng.random() &lt; prob
+
+def ticks_stuck(pace_gap, n_trials=500, max_ticks=40):
+    rng = np.random.default_rng(0)
+    counts = []
+    for _ in range(n_trials):
+        stuck = 0
+        while stuck &lt; max_ticks and not try_pass(pace_gap, rng):
+            stuck += 1
+        counts.append(stuck)
+    return np.mean(counts)
+
+print(ticks_stuck(0.8), ticks_stuck(0.0))</code></pre></details>
+      <p>Wire <code>try_pass</code> into <code>BlockingPaddockRace</code> so a trailing car within <code>FOLLOW_GAP</code> gets one attempt per tick and, if it succeeds, is exempt from the cap that tick. Run many seeds: a faster car trapped behind a slower one gets clear after about 0.6 failed ticks on average, while a car with no pace advantage never gets an attempt at all and stays stuck for the whole 40 ticks. Page 4's model, grounded in code that ran.</p>
+
+      <h2>Stage 4 — reward shaping, on a scenario built to make ad-hoc shaping fail</h2>
+      <p>A one-decision toy: from <code>START</code> choose <code>RISKY</code> or <code>SAFE</code>; each leads to a middle state and then to <code>END</code>, where the episode stops. The first step pays the true reward, the second pays nothing. A dense <em>proxy</em> pays something different on the first step, the way <a class="xref" href="02-credit-assignment.html">page 02</a>'s stand-ins do. Everything is deterministic, so the returns can be written down instead of learned.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>PROXY = {"RISKY": +6.0, "SAFE": +1.0}           # the dense stand-in: RISKY looks better
+
+# Φ on every state. END is where the episode stops, so its potential is 0.
+PHI = {"START": 0.0, "RISKY_MID": -1.0, "SAFE_MID": 2.0, "END": 0.0}
+
+def shaped_return(choice, true, phi, gamma=1.0):
+    mid = f"{choice}_MID"
+    step1 = true[choice] + gamma * phi[mid] - phi["START"]
+    step2 = 0.0 + gamma * phi["END"] - phi[mid]
+    return step1 + step2
+
+def best(scores):
+    return max(scores, key=scores.get)
+
+for true in ({"RISKY": -10.0, "SAFE": -4.0}, {"RISKY": -4.0, "SAFE": -5.0}):
+    print("true best:", best(true),
+          "| proxy best:", best(PROXY),
+          "| shaped best:", best({c: shaped_return(c, true, PHI) for c in true}))
+# true best: SAFE | proxy best: RISKY | shaped best: SAFE
+# true best: RISKY | proxy best: RISKY | shaped best: RISKY</code></pre></details>
+      <p>The proxy picks <code>RISKY</code> whatever the true rewards are: it is answering a different question. The shaped returns equal the true ones exactly, because the middle potential is added on one step and taken back on the next, and both routes end at the same <code>END</code> with potential 0. Swap which choice is truly better and the shaped choice follows it.</p>
+      <div class="note grounded">
+        <div class="tag">The condition that makes this work</div>
+        <p>An earlier version of this page put the potentials on two <em>different</em> end states (<code>RISKY_DONE = −1</code>, <code>SAFE_DONE = 2</code>) and stopped there. That looks like the same formula, but it is not safe: page 03's leftover term <code>Φ(end) − Φ(start)</code> then differs by route, and it simply adds 3 in favour of <code>SAFE</code>. With the true rewards swapped (RISKY −4, SAFE −5) that version still picks <code>SAFE</code>. Every state where an episode can stop needs the same potential, conventionally 0. <a class="xref" href="03-potential-based-shaping.html">Page 03</a> now says so, and the p6-03 lab tests it exactly.</p>
+      </div>
+
+      <h2>Stage 5 — catch the leak: plant E5's bug on purpose</h2>
+      <p>Reproduce the real plan's mistake: a reward branch that <em>claims</em> to be potential-based shaping but is a flat bonus for being in the better spot, with no Φ difference anywhere.</p>
+      <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
+      <pre><code>def mislabeled_return(choice, true):
+    """Looks like shaping. Is not: a flat bonus, no Φ(s') − Φ(s) anywhere."""
+    return true[choice] + (0.5 if choice == "SAFE" else 0.0)
+
+close = {"RISKY": -4.0, "SAFE": -4.3}             # RISKY truly better, by 0.3
+print(best(close),
+      best({c: shaped_return(c, close, PHI) for c in close}),
+      best({c: mislabeled_return(c, close) for c in close}))
+# RISKY RISKY SAFE</code></pre></details>
+      <p>When the true gap is smaller than the bonus, the mislabelled version flips the answer; the real Φ-difference version, with its zero at the end, cannot, however the potentials are tuned. Page 03's theorem stops being a fact taken on faith and becomes something you broke and then compared against code that could not be broken the same way. The capstone does the same on the toy race, where the plan's flat bonus pays for every lap spent ahead.</p>
+
+      <section class="lab" id="lab" data-lab-id="p6-cap" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p6-cap · Code + tests · about 90 min</span>
+        <h2>Two-car duel race</h2>
+        <p class="lab-goal">This page is the brief. You build the toy race with a rival on track in seven checked stages: two cars that each count a lap exactly once, an observation that can tell leading from trailing, a wake that slows the car instead of the score, being held up, passing, four reward designs, and a check that tells a safe shaping from an unsafe one. Every stage is compared lap for lap with a reference race on the same dice. The report then draws the undercut window and ranks every pit plan under each reward design.</p>
+        <p><strong>Environment:</strong> an F1-flavoured mini: the 20-lap toy race of the earlier capstones with a scripted rival, 0.3 s a lap slower, starting 0.3 s ahead and stopping on lap 9. No training anywhere: plans are compared exactly, on shared seeds. About an hour and a half; the report runs in under a minute.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p6-cap</code></div>
+          <div><span>Check</span><code>python -m labs check p6-cap</code></div>
+          <div><span>Stage</span><code>python -m labs check p6-cap 1</code></div>
+          <div><span>Hint</span><code>python -m labs hint p6-cap</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase6/p6_cap_duel_race/duel_race.py</code>, <code>labs/phase6/p6_cap_duel_race/report.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase6/p6_cap_duel_race/</code>.</p>
+        <details><summary>Hint 1</summary><p>Read the header of duel_race.py, then the given step(): it shows the order in which your functions are called each lap. Stage 1 is two short functions; advance() is the ONLY place time is added. Stage 2 reads order off self.time. Stages 3 to 5 each find the car behind the same way: the one with more accumulated time (on a tie, the rival counts as ahead). Check one stage at a time with `python -m labs check p6-cap N`.</p></details>
+        <details><summary>Hint 2</summary><p>Stage 3: times[tail] += wake_loss(self.time[tail] - self.time[lead]), on a copy of the list. Stage 4: times[tail] = max(times[tail], times[lead]). Stage 5: if u &lt; pass_chance(times[tail] - times[lead]): the passer&#x27;s lap becomes min(its time, self.time[lead] + times[lead] - AFTER_PASS - self.time[tail]); return times, tail. Stage 6 &#x27;potential&#x27;: prev_phi starts at potential(race[&#x27;start_gap&#x27;] &lt; 0, False); each lap phi = potential(race[&#x27;ahead&#x27;][i], i == H - 1); add phi - prev_phi.</p></details>
+        <details><summary>Hint 3</summary><p>Stage 6 &#x27;gap_change&#x27;: prev = 0.0; for each lap, gap = race[&#x27;agent_time&#x27;][i] - race[&#x27;rival_time&#x27;][i]; append -(gap - prev); prev = gap. Stage 7: diff = plan_returns(plans, kind, seeds) - plan_returns(plans, base, seeds); return bool(diff.max() - diff.min() &lt;= tol). A stage-5 mismatch with the reference that starts on one lap only is usually the pass: the passer&#x27;s time must be computed from both cars&#x27; totals BEFORE this lap is added.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

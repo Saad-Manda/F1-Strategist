@@ -1,0 +1,14 @@
+id: p8-03
+title: The checkpoint pool
+page: phase-8-self-play-prerequisites/03-checkpoint-pool.html
+format: pytest
+minutes: 20
+files: [pool.py]
+goal: >-
+  Build page 03's recency-biased pool so that it works at every size, starting with the size the real plan's pool has for its first thousand episodes: one checkpoint, where the plan's own rule raises an error seven times in ten. Then the arithmetic page 03 works for fifty checkpoints, eviction, and loading each opponent once instead of once per episode.
+environment: >-
+  no environment: a pool of checkpoint names and a loader function, exactly the shape of the plan's CheckpointPool.
+hints:
+  - "Start from slices(): cut = max(1, int(0.8 * n)); recent = entries[cut:], older = entries[:cut]. Then ask what entries[1:] is when n = 1. probabilities() and sample() both need the same guard: if the recent slice is empty, everything comes from the older slice."
+  - "probabilities(): if not recent, every entry gets 1 / len(older). Otherwise recency_bias / len(recent) on each recent entry and (1 - recency_bias) / len(older) on each older one. sample(): if recent and rng.random() < recency_bias, draw from recent; otherwise from older. Use rng.integers, never np.random."
+  - "add(): append, then while len(entries) > max_size: pop(0) (and drop it from the cache). get(): if name not in self._cache: self._cache[name] = self.loader(name); return self._cache[name]."

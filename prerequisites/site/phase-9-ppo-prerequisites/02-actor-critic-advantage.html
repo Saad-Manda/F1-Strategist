@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Actor-critic &amp; advantage — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/02">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 02 of 11 — A little math</p>
+      <h1>Actor-Critic and the Advantage Function</h1>
+      <p class="dek">Fixing REINFORCE's variance problem without changing what its gradient estimator is aiming at.</p>
+
+      <h2>Baselines don't change the target, only the noise</h2>
+      <p><a class="xref" href="01-policy-gradients-reinforce.html">Page 01</a> ended with a real limitation: the raw return <code>G</code> in <code>∇_θ log π_θ(a|s) · G</code> is a noisy training signal. The general fix: subtract any <strong>state-dependent baseline</strong> <code>b(s)</code> from <code>G</code> before scaling the log-gradient by it. This doesn't change the expected gradient at all — the correction term itself has expectation exactly zero:</p>
+      <blockquote class="eq">E_a~π[ ∇_θ log π_θ(a|s) · b(s) ] = b(s) · E_a~π[ ∇_θ log π_θ(a|s) ]
+                                = b(s) · ∇_θ Σ_a π_θ(a|s)
+                                = b(s) · ∇_θ (1) = 0</blockquote>
+      <p>The middle step uses the same log-derivative identity as <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a> in reverse (<code>∇_θ log π · π = ∇_θ π</code>), and the last step uses the fact that a probability distribution always sums to 1 regardless of <code>θ</code>, so its gradient is exactly zero. Because <code>b(s)</code> doesn't depend on which action was sampled, subtracting it changes nothing about where the gradient points on average — only how much it varies from one sampled trajectory to the next, and a well-chosen baseline can cut that variance sharply.</p>
+
+      <h2>The natural baseline: the state-value function</h2>
+      <p>The obvious choice of <code>b(s)</code> is <code>V(s)</code> — "how good is this state on average, regardless of which action gets taken from here." This is a second function that has to be learned alongside the policy: the <strong>critic</strong>. The policy being improved is the <strong>actor</strong>. The critic is trained with the same TD/Bellman machinery already assumed as background from Phase 4/5 — bootstrapped value learning — just repurposed here as a variance-reduction tool for a policy gradient, rather than as the thing an agent acts on directly by taking its argmax.</p>
+
+      <h2>The advantage function</h2>
+      <p>Subtracting <code>V(s)</code> from <code>Q(s,a)</code> (rather than from the sampled return directly) gives exactly idea.md's stated concept:</p>
+      <blockquote class="eq">A(s,a) = Q(s,a) − V(s)</blockquote>
+      <p>"How much better was taking action <code>a</code> in state <code>s</code>, compared to the state's own average outcome." Substituting the advantage in for the raw return in <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>'s gradient gives the actor-critic policy gradient:</p>
+      <blockquote class="eq">∇_θ J(θ) = E_π [ ∇_θ log π_θ(a|s) · A(s,a) ]</blockquote>
+      <p>The intuition sharpens directly: push up the log-probability of actions with positive advantage (better than average for that state), push down actions with negative advantage — rather than chasing the raw, noisy magnitude of <code>G</code>, which says nothing on its own about whether a given action was actually a <em>good choice</em> relative to the alternatives available in that state.</p>
+
+      <h2>A hand-worked comparison: advantage vs. raw return</h2>
+      <p>Two trajectories pass through the same state <code>s</code>. In the first, action <code>a1</code> is taken and the episode returns <code>G = 8</code>. In the second, action <code>a2</code> is taken and the episode returns <code>G = 2</code>. Suppose the critic has learned <code>V(s) = 5</code>.</p>
+      <blockquote class="eq">Raw-return update (<a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>):
+  a1: push log π(a1|s) up,  scaled by  G = +8   (positive push)
+  a2: push log π(a2|s) up,  scaled by  G = +2   (also a positive push — just smaller)
+
+Advantage update (this page):
+  A(s,a1) = 8 − 5 = +3   →  push log π(a1|s) UP
+  A(s,a2) = 2 − 5 = −3   →  push log π(a2|s) DOWN</blockquote>
+      <p>The raw-return version pushes <em>both</em> actions' probabilities up — it never actually says a2 was a comparatively bad choice for this state, only that it was somewhat less good than a1. The advantage version correctly identifies that a2 underperformed this state's average and pushes its probability down, a qualitatively sharper and more useful training signal than a magnitude difference in an all-positive update.</p>
+
+      <div class="note generic">
+        <div class="tag">What's still missing</div>
+        <p>Nothing here has said <em>how</em> to estimate <code>Q(s,a)</code> (or the advantage directly) from a single rollout — only that doing so beats using the raw return. There's more than one way to estimate it, and the choice trades off bias against variance exactly like Phase 4/5's n-step-vs-Monte-Carlo TD tradeoff (assumed background) generalizes. <a class="xref" href="03-generalized-advantage-estimation.html">Page 03</a> works through the specific estimator Stable-Baselines3 actually uses.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p9-02" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p9-02 · Notebook · about 20 min</span>
+        <h2>What a baseline buys</h2>
+        <p class="lab-goal">Page 02 claims a baseline leaves the gradient's average alone and shrinks its noise. Measure both halves on the corridor, prove the first one exactly with arithmetic, then learn the baseline as you go. Last, the case that matters for a race whose rewards are minus lap times: what a baseline does when every reward sits far from zero.</p>
+        <p><strong>Environment:</strong> the short corridor with switched actions from p9-01, and a two-armed bandit (rewards N(1, 2) and N(0, 0.5)) with a constant added to every reward.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-02</code></div>
+          <div><span>Check</span><code>python -m labs check p9-02</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-02</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_02_baseline/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_02_baseline/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1 is p9-01&#x27;s episode gradient with G_t − b in place of G_t. TODO 2: sum over the actions of pi(a) times the log-gradient of a, times b; it should come out at zero for any logits. TODO 3 moves w a fraction beta of the way towards each G_t, inside the same loop that adds to the gradient.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 2: sum(p[a] * log_softmax_grad(z, a) * b for a in range(len(z))). TODO 3: g += dlog * (G_t - w); w += beta * (G_t - w). Use w as it is before the update when you form G_t − w.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 4: advantage = reward - (baseline if use_baseline else 0.0); z += alpha * advantage * grad; then baseline += critic_lr * (reward - baseline) whether or not it is used, so the two runs differ only in the update.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Code walkthrough — Phase 3.5 DP oracle · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="3.5/07">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 3.5 · Page 07 of 07 — Grounding</p>
+      <h1>Annotated Code Walkthrough</h1>
+      <p class="dek"><code>src/evaluation/dp_oracle.py</code>, <code>src/env/weather_markov.py</code>, and <code>scripts/run_dp_oracle.py</code>, read by dependency order: state enumeration first, then the recursion itself, then the two things that wrap it for evaluation.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>dp_oracle.py</code>, <code>weather_markov.py</code>, <code>run_dp_oracle.py</code> and <code>test_dp_oracle.py</code> do not exist in the repository yet: only Phase 0 of the project is implemented. Read this page as a guide to what those files will contain and in what order to write them, per <code>phase-3.5-dp-oracle.md</code>.</p>
+      </div>
+
+      <p>This page does not reproduce the real code — by now you've built an equivalent structure yourself across <a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s five stages, and every piece named below should map onto something you already wrote in your own words. Treat it as labels for a shape you already know.</p>
+
+      <h2><code>src/evaluation/dp_oracle.py</code></h2>
+      <p>Reading order within the file, and what each piece is <em>for</em>:</p>
+      <ul>
+        <li><strong><code>DPState</code></strong> — the frozen dataclass from <a class="xref" href="06-this-project-as-dp.html">page 6</a>. Indexed into a flat NumPy array via strides rather than kept as a dict of tuples (<a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s toy dicts were fine at a few hundred states; 726,000 states need the flat-array layout to stay fast). <code>np.full(n_states, -np.inf, dtype=np.float64)</code> is the whole value table, one array.</li>
+        <li><strong>The reachability pass</strong> — a forward sweep from the race's actual start state, run once before solving, marking which of the 726,000 candidate states can ever actually occur (<code>tyre_age &lt;= lap</code>, a fitted compound implies a bit in <code>used_mask</code>, and so on). This is <a class="xref" href="06-this-project-as-dp.html">page 6</a>'s 5–10× pruning number, made concrete: the backward pass below only ever touches states this sweep marked reachable.</li>
+        <li><strong>The backward-induction loop</strong> — structurally identical to <a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s stage-4 solver: <code>V[T+1, ·] = 0</code> (plus the two-compound terminal penalty where the rule is unmet, mirroring stage 3's mandatory-service rule), then for each lap from <code>T</code> down to 1, for each reachable state, for each action the (shared) mask permits, compute <code>cost + E[V(s')]</code> and keep the minimum. <code>γ = 1.0</code>, matching the environment — the same justification <a class="xref" href="../phase-1-rl-prerequisites/02-markov-decision-processes.html">Phase 1 pages 2</a> and <a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">3</a> gave for the live environment applies unchanged here.</li>
+        <li><strong>The expected-immediate-cost step</strong> — calls <code>dynamics.compute_lap_time(..., rng=None)</code> and <code>dynamics.compute_pit_loss(...)</code> directly, never a reimplementation. <a class="xref" href="03-stochastic-transitions.html">Page 3</a>'s zero-noise argument is <em>why</em> this call is exact rather than an approximation; <a class="xref" href="06-this-project-as-dp.html">page 6</a>'s "why one shared implementation matters" section is why it has to be this exact function, not an equivalent-looking one.</li>
+        <li><strong>Action validity</strong> — imported from <code>dynamics.compute_action_mask</code>, the same function <code>F1StrategyEnv.action_masks()</code> calls. Never restated locally — <a class="xref" href="06-this-project-as-dp.html">page 6</a> explains why a second, independently-written mask would be close to invisible as a bug.</li>
+        <li><strong><code>DPOraclePolicy</code></strong> — wraps the solved table behind <code>act(obs, action_mask) -&gt; int</code>, the same interface every other agent implements, so <code>evaluate.py</code>'s paired-seed harness (Phase 3) runs it with no special-casing.</li>
+      </ul>
+
+      <h2><code>src/env/weather_markov.py</code></h2>
+      <ul>
+        <li><strong>Fitting</strong> — <a class="xref" href="04-markov-chains.html">page 4</a>'s counting-and-normalizing procedure, applied per circuit to every historical weather template Phase 0.5 extracted for that circuit: tally observed regime-to-regime transitions, divide each row by its total. The zero-row fallback <a class="xref" href="04-markov-chains.html">page 4</a> mentioned (uniform row when a state was never observed as a starting point) is handled here, not left to crash on a division by zero.</li>
+        <li><strong>Fit-quality reporting</strong> — per-transition counts and a held-out log-likelihood, alongside the fitted matrix. This exists so a thin data sample for a given circuit is visible and reported honestly, rather than silently producing a confident-looking matrix from too little evidence (<a class="xref" href="04-markov-chains.html">page 4</a>'s closing note).</li>
+        <li><strong>Sampling</strong> — <a class="xref" href="04-markov-chains.html">page 4</a>'s cumulative-draw procedure, used both by Oracle B's expectation step and by <code>F1StrategyEnv</code> itself when <code>weather_mode="markov"</code>, so the environment and the oracle draw from the identical fitted chain.</li>
+      </ul>
+
+      <h2><code>scripts/run_dp_oracle.py</code></h2>
+      <p>The driver: solve every circuit (both oracle modes), cache each solved policy to <code>data/processed/{circuit}/dp_policy.npz</code>, and report the per-circuit solve time against the plan's under-10-seconds target. Re-run whenever <code>dynamics.py</code> or the calibration changes underneath it — a stale cached policy solved against an older version of the physics is exactly the kind of silent drift <a class="xref" href="06-this-project-as-dp.html">page 6</a> warns about, just at the level of a cache file instead of a second implementation.</p>
+
+      <h2>What the test suite is actually checking</h2>
+      <p>Each test in <code>tests/test_dp_oracle.py</code> targets one specific way this phase could go wrong — reading it alongside the implementation is, in effect, a list of every failure mode this page has already walked through:</p>
+      <ul>
+        <li><strong><code>test_oracle_value_matches_rollout</code></strong> — <a class="xref" href="06-this-project-as-dp.html">page 6</a>'s <code>V[s_0]</code>-vs-rollout check, made concrete: agreement within a small multiple of the noise standard error over 500 episodes.</li>
+        <li><strong><code>test_dp_action_mask_matches_env</code></strong> — for 1,000 sampled reachable states, the DP's mask equals <code>env.action_masks()</code> exactly. This is the automated version of <a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s stage-3 sanity habit.</li>
+        <li><strong><code>test_oracle_no_absurd_exploit</code></strong> — <a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s stage-5 exercise, for real: the oracle's race time must land within 15% of the best hand-computed 1-stop plan. By some distance the highest-value test in the file — it's the thing that would have caught "the agent learned to pit every lap because a warmup penalty has the wrong sign" before three days get spent blaming a learning algorithm for a bug in the model it was faithfully optimizing against.</li>
+        <li><strong><code>test_oracle_a_dominates_oracle_b</code></strong> — a correctness check on both oracles at once: perfect foresight can never be worse than the achievable version, by <a class="xref" href="06-this-project-as-dp.html">page 6</a>'s own definition of the two.</li>
+        <li><strong><code>test_oracle_respects_two_compound_rule</code></strong> / <strong><code>test_oracle_pit_count_plausible</code></strong> — the mandatory-service constraint (<a class="xref" href="05-build-a-toy-solver.html">page 5</a>'s stage 3, for real) actually binds, and the resulting strategy makes a plausible number of stops (1–3 on a dry circuit, never 0, never more than 4).</li>
+      </ul>
+
+      <section class="lab" id="lab" data-lab-id="p35-07" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p35-07 · In page · about 10 min</span>
+        <h2>What each test defends</h2>
+        <p class="lab-goal">Each planned test exists because of one specific way the oracle could be wrong. Match them up, then decide what three symptoms point to.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which test catches it?</h3>
+          <div class="lab-q" data-type="select" data-answer="exploit" data-explain="The oracle would pit on every lap and report a race far faster than any sensible plan. Only a comparison with a hand-reasoned baseline shows that." data-nudge="The solver itself is working perfectly here. What is wrong is the model.">
+            <label>The warm-up penalty in <code>dynamics.py</code> has the wrong sign, so a fresh tyre is faster on its out-lap than it should be. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="mask" data-explain="Two mask implementations that each look right and disagree in one corner. Comparing them state by state is the only direct check." data-nudge="Which test compares the oracle's idea of “legal” with the environment's?">
+            <label>The oracle's own copy of the legality rules allows PIT_WET in DAMP conditions; the environment does not. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rollout" data-explain="The table's value would be computed with the wrong weights, so it would no longer match what happens when the policy is actually driven." data-nudge="The model is right and the mask is right. The expectation is wrong. What does that make disagree?">
+            <label>The expectation over the safety car uses the hazard where it should use the continue probability. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="dominates" data-explain="Knowing the future can never make an exact solver slower. If it does, one of the two oracles is solving the wrong problem." data-nudge="This one is a relationship between the two oracles.">
+            <label>On one circuit, the oracle that knows the whole race's weather reports a slower expected time than the one that knows only the current regime. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rule" data-explain="Without the terminal penalty or the forced stop, a dry race on one compound looks legal to the solver." data-nudge="Which test is about the mandatory-service constraint actually binding?">
+            <label>The terminal condition is plain zero everywhere, with nothing added where the two-compound rule is unmet. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reading the files</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The noise is additive with mean zero, so the expected lap time is the noise-free lap time exactly. Page 03 has the two-line argument." data-nudge="Page 03, “Why compute_lap_time(noise=0) is exact”.">
+            <span class="lab-prompt">The oracle calls <code>compute_lap_time(..., rng=None)</code>, with no noise. That is</span>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="a"> an approximation, accepted because the noise is small.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="b"> exact, because the noise is added on and averages to zero.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="c"> a bug the rollout test is there to catch.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="A cached policy solved against older physics is silent drift, the same failure as a second implementation, one step removed." data-nudge="What does the cached policy depend on?">
+            <span class="lab-prompt">When must <code>run_dp_oracle.py</code> be run again?</span>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="a"> Before every evaluation of every agent.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="b"> Only when a new circuit is added.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="c"> Whenever <code>dynamics.py</code> or the calibration changes.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="It keeps the backward pass off states that cannot occur, which is most of them, and it stops values being reported for impossible states." data-nudge="Page 06 gave the size of the saving.">
+            <span class="lab-prompt">What is the reachability pass for?</span>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="a"> Speed, and not reporting values for states that can never happen.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="b"> Correctness: without it the optimal value at the start state would be wrong.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="c"> Exploration: it finds states the agent has not tried yet.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> Wrong-sign warm-up: <code>test_oracle_no_absurd_exploit</code>. Disagreeing mask: <code>test_dp_action_mask_matches_env</code>. Wrong expectation weights: <code>test_oracle_value_matches_rollout</code>. Foresight slower than no foresight: <code>test_oracle_a_dominates_oracle_b</code>. Missing terminal penalty: <code>test_oracle_respects_two_compound_rule</code>.</p>
+          <p><strong>2.</strong> Exact, because the noise is additive and zero-mean. Re-run when the physics or calibration changes. The reachability pass is for speed and for not reporting impossible states; the value at the start state does not depend on it.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

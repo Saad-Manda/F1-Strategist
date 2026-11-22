@@ -1,0 +1,41 @@
+<!-- page: phase-3.5-dp-oracle-prerequisites/02-backward-induction.html | title: warm-up | format: paper | minutes: 8 -->
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's race with new numbers</h3>
+          <p>The same 4-lap race as the worked example, with a gentler tyre and a cheaper stop: <code>lap_time(age) = 10 + 2·(age − 1)</code> and <code>pit_loss = 5</code>. Everything else is unchanged: <code>STAY</code> costs <code>lap_time(age)</code> and the tyre is one lap older; <code>PIT</code> costs <code>lap_time(age) + 5</code> and the next lap is on a tyre of age 1. Fill the table from lap 4 backward. Lap 4 is done for you: nobody pits on the last lap, so <code>V₄(age)</code> is <code>10, 12, 14, 16</code> for ages 1 to 4.</p>
+          <div class="lab-q" data-type="num" data-answer="29" data-tol="0.01" data-explain="STAY: 14 + V₄(4) = 30. PIT: 14 + 5 + V₄(1) = 29. Pitting wins by 1." data-nudge="Compute both totals. STAY leads to age 4 on lap 4, PIT leads to age 1.">
+            <label><code>V₃(age 3)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="26" data-tol="0.01" data-explain="STAY: 12 + V₄(3) = 26. PIT: 17 + V₄(1) = 27. Staying wins." data-nudge="STAY: lap_time(2) + V₄(3). PIT: lap_time(2) + 5 + V₄(1).">
+            <label><code>V₃(age 2)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="22" data-tol="0.01" data-explain="STAY: 10 + V₄(2) = 22. PIT: 15 + V₄(1) = 25.">
+            <label><code>V₃(age 1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="39" data-tol="0.01" data-explain="STAY: 12 + V₃(3) = 41. PIT: 17 + V₃(1) = 39. This is the stop." data-nudge="Use the V₃ values you just computed, not V₄.">
+            <label><code>V₂(age 2)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="36" data-tol="0.01" data-explain="STAY: 10 + V₃(2) = 36. PIT: 15 + V₃(1) = 37.">
+            <label><code>V₂(age 1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="49" data-tol="0.01" data-explain="STAY: 10 + V₂(2) = 49. PIT: 15 + V₂(1) = 51. The whole race, solved without simulating it." data-nudge="Only age 1 is possible on lap 1. STAY leads to V₂(2).">
+            <label><code>V₁(age 1)</code>, the best possible race time &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="choice" data-answer="2" data-explain="Lap 1 stays (age becomes 2), lap 2 pits, laps 3 and 4 stay: 10 + 17 + 10 + 12 = 49." data-nudge="Walk forward from lap 1, age 1, taking the cheaper action each time and following where it leads.">
+            <span class="lab-prompt">On which lap does the optimal race pit?</span>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="1"> lap 1</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="2"> lap 2</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="3"> lap 3</label>
+            <label class="lab-opt"><input type="radio" name="p3502-lap" value="0"> it never pits</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3" data-tol="0.01" data-explain="Never pitting costs 10 + 12 + 14 + 16 = 52. With a tyre that wears this gently the stop is worth 3, where the page's harsher tyre made it worth 6." data-nudge="Add up the four lap times with no stop, then subtract V₁(1).">
+            <label>How much time does that stop save over never pitting? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>Lap 3.</strong> Age 1: STAY 10 + 12 = 22, PIT 15 + 10 = 25. Age 2: STAY 12 + 14 = 26, PIT 17 + 10 = 27. Age 3: STAY 14 + 16 = 30, PIT 19 + 10 = 29.</p>
+          <p><strong>Lap 2.</strong> Age 1: STAY 10 + 26 = 36, PIT 15 + 22 = 37. Age 2: STAY 12 + 29 = 41, PIT 17 + 22 = 39.</p>
+          <p><strong>Lap 1.</strong> STAY 10 + 39 = 49, PIT 15 + 36 = 51. So V₁(1) = 49: stay, pit on lap 2, stay, stay. Never pitting costs 52.</p>
+        </details>
+
+        <h3>Then, in code</h3>

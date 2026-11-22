@@ -1,0 +1,18 @@
+<!-- page: phase-6-multi-car-prerequisites/06-bug-ledger.html | title: warm-up | format: quiz | minutes: 5 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · what the plan's tests can see</h3>
+          <p>The plan lists five tests: positions are 1 to N, the dirty-air formula at two gaps, the observation shape, and a rival's tyre age resetting on its pit lap.</p>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Each of the five checks a quantity that the bugs leave well-formed: positions are still a permutation, the formula is still right, the shape is still 19, and the tyre age still resets. Your code lab ends with this as a passing test: the plan's position test, run against all three bugs." data-nudge="For each bug, name the quantity it corrupts. Does any of the five tests look at that quantity?">
+            <label>How many of the three bugs E1, E2, E3 does at least one of those five tests catch? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="total" data-explain="E1 corrupts accumulated time. The pit-lap test reads tire_age only.">
+            <label><code>test_rival_uses_configured_pit_laps</code> would catch E1 if it also checked which field?<br><select>
+              <option value="">choose…</option>
+              <option value="age">tire_age</option>
+              <option value="total">total_time</option>
+              <option value="pos">current_position</option>
+            </select></label>
+          </div>
+        </div>
+
+        <h3>Then, in code</h3>

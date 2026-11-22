@@ -1,0 +1,14 @@
+id: p9-03
+title: GAE, backwards
+page: phase-9-ppo-prerequisites/03-generalized-advantage-estimation.html
+format: pytest
+minutes: 20
+files: [gae.py]
+goal: >-
+  First the page's trajectory by hand at a new λ. Then page 03's estimator as code, over a buffer that can hold more than one episode: the next value for every step, the residuals, and the backward pass. The tests check the page's numbers, the two extremes of λ, the two ways an episode can end, and finally your advantages against Stable-Baselines3's own, on the same buffer.
+environment: >-
+  no environment: rollout buffers given as arrays, including the four-step trajectory of page 03, and SB3's RolloutBuffer for the last test.
+hints:
+  - "next_values has four cases; get the ending ones first. A terminated step bootstraps from 0, a truncated one from final_values[t]. Otherwise the next step's value, unless the buffer has run out, which is what last_value is for. The backward pass carries one number from the end towards the start, and an episode end cuts the carry."
+  - "td_residuals is one numpy line: rewards + gamma * next_vals - values. In gae: if ends[t]: carry = 0.0; then carry = deltas[t] + gamma * lam * carry; adv[t] = carry."
+  - "If only test_agrees_with_stable_baselines3 fails: SB3 marks the START of each episode (episode_starts), you mark the END. A step t is followed by a new episode exactly when ends[t] is True, which is how the test builds SB3's buffer."

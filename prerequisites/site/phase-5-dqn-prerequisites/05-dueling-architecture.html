@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · The dueling architecture — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/05">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 05 of 11 — What the real agent adds, part one</p>
+      <h1>The Dueling Architecture: Separating "How Good Is This Spot" from "Which Move Helps"</h1>
+      <p class="dek">On this problem, one action is correct on roughly 85% of laps. A network that must learn six independent numbers per state is solving a harder problem than it needs to.</p>
+
+      <h2>The motivating observation</h2>
+      <p>In this project's races, "stay out" is the correct action on roughly <strong>85% of laps</strong> — the real plan's own estimate. A single shared output head, predicting <code>Q(s,a)</code> for all six actions from the same trunk with no further structure, still has to learn a genuinely separate number for every one of those six actions at every state, even though five of them are usually near-identical, low-value alternatives to the one action that actually matters at that moment.</p>
+
+      <h2>Value/advantage decomposition</h2>
+      <p>Split the question "how good is action <code>a</code> at state <code>s</code>" into two smaller questions:</p>
+      <ul>
+        <li><strong><code>V(s)</code></strong> — how good is it to be in this state at all, regardless of which action gets taken next.</li>
+        <li><strong><code>A(s,a)</code></strong> — how much better or worse is this specific action than the state's average action.</li>
+      </ul>
+      <p>Combined: <code>Q(s,a) = V(s) + A(s,a)</code>. Why this helps concretely for this problem: <code>V(s)</code> can absorb "it's lap 15, tyres are fine, this is generally a fine spot to be in" <em>once</em>, shared across all six actions, while <code>A(s,a)</code> only has to capture the much smaller signal "...and pitting right now specifically would be a mistake." The large, mostly action-independent part of the answer and the small, action-specific correction are learned by two different parts of the network, instead of one head having to learn their sum from scratch, independently, for each of six actions.</p>
+
+      <h2>The identifiability problem</h2>
+      <p><code>Q(s,a) = V(s) + A(s,a)</code> has no unique solution for <code>V</code> and <code>A</code> given only <code>Q</code>. Adding any constant <code>c</code> to <code>V(s)</code> and subtracting the same <code>c</code> from every <code>A(s,a)</code> at that state leaves every <code>Q(s,a)</code> unchanged:</p>
+      <blockquote class="eq">Suppose the true Q-values at some state are Q = [-2, -5, -3]  (3 actions)
+
+Decomposition A:  V = 0,   A = [-2, -5, -3]      →  V + A = [-2, -5, -3]  ✓
+Decomposition B:  V = -10, A = [8, 5, 7]         →  V + A = [-2, -5, -3]  ✓
+
+Both decompositions produce identical Q. Nothing in the sum alone can tell them apart.</blockquote>
+      <p>A network trained only on the resulting <code>Q</code> could put an arbitrary, unconstrained shifting constant into either stream — <code>V</code> could drift toward <code>+1,000,000</code> and <code>A</code> toward <code>−1,000,002</code> and the loss would never notice, since the loss only ever sees the sum.</p>
+
+      <h2>The fix: pin the advantage stream's mean to zero</h2>
+      <p>Replace the plain sum with <code>Q(s,a) = V(s) + (A(s,a) − mean_a A(s,·))</code>. Subtracting the mean of <code>A(s,·)</code> forces <code>mean_a A(s,·) = 0</code> to hold by construction, which removes the shifting degeneracy: exactly one decomposition now satisfies both "sums to the right <code>Q</code>" and "the advantage stream's mean is zero" — neither decomposition above satisfies that second requirement as it stands (<code>mean([-2, -5, -3]) ≈ −3.33</code> and <code>mean([8, 5, 7]) ≈ 6.67</code>, and neither is zero), so apply the subtraction to each and see where it lands:</p>
+      <blockquote class="eq">Decomposition A, mean-subtracted:
+  A' = A - mean(A) = [-2, -5, -3] - (-10/3) = [-2+3.33, -5+3.33, -3+3.33] = [1.33, -1.67, 0.33]
+  V' = V + mean(A) = 0 + (-10/3) = -3.33
+  Check: V' + A' = [-3.33+1.33, -3.33-1.67, -3.33+0.33] = [-2, -5, -3]  ✓, and mean(A') = 0  ✓
+
+Decomposition B, mean-subtracted:
+  A' = A - mean(A) = [8, 5, 7] - 6.67 = [1.33, -1.67, 0.33]
+  V' = V + mean(A) = -10 + 6.67 = -3.33
+  Check: same V' and A' as decomposition A — the mean-subtraction collapses every
+  degenerate decomposition onto the same unique one.</blockquote>
+      <p>Both starting decompositions land on the <em>same</em> <code>(V', A')</code> once the mean is subtracted — the formula makes the split unique, no matter what arbitrary constant a not-yet-converged network happened to put into <code>V</code> versus <code>A</code>.</p>
+
+      <h2>Architecture: two heads on a shared trunk</h2>
+      <p>Matched to the real <code>DuelingDQN</code>: the shared trunk from <a class="xref" href="02-neural-networks-primer.html">page 02</a> (<code>Linear(16→128) → ReLU → Linear(128→128) → ReLU</code>) feeds two separate small heads — a <strong>value stream</strong> (<code>Linear(128→64) → ReLU → Linear(64→1)</code>, producing the single scalar <code>V(s)</code>) and an <strong>advantage stream</strong> (<code>Linear(128→64) → ReLU → Linear(64→6)</code>, producing one scalar per action, <code>A(s,·)</code>). The two streams' outputs are combined by this page's formula to produce the six <code>Q(s,a)</code> values the rest of the agent uses exactly as before. This is the first place the primer's forward-pass mechanics (<a class="xref" href="02-neural-networks-primer.html">page 02</a>) get used on something DQN-specific rather than a toy example — everything about how each linear layer and ReLU computes its output is unchanged; only the fact that there are now two output heads sharing one trunk is new.</p>
+
+      <section class="lab" id="lab" data-lab-id="p5-05" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p5-05 · Code + tests · about 15 min</span>
+        <h2>Two heads, one answer</h2>
+        <p class="lab-goal">First split a new set of Q-values by hand and combine a network's two outputs. Then write the split, the combining line and a small two-headed network, with tests that check the property page 05 is about: once the mean is subtracted, shifting the advantages changes nothing, and moving value from one head to the other is no longer free.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, on paper · a new state</h3>
+          <p>A state with three actions has true Q-values <code>Q = [−6, −2, −4]</code>. A half-trained network happens to hold the decomposition <code>V = 5</code>, <code>A = [−11, −7, −9]</code>, which adds up correctly.</p>
+          <div class="lab-q" data-type="num" data-answer="-9" data-tol="0.001" data-explain="(−11 − 7 − 9) / 3 = −9. Not zero, so this split is one of the infinitely many degenerate ones." data-nudge="The mean of the three advantages.">
+            <label>The mean of that <code>A</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-4" data-tol="0.001" data-explain="V′ = V + mean(A) = 5 − 9 = −4, which is also the mean of Q. In the mean-zero split, V is always the average of the state's Q-values." data-nudge="V′ = V + mean(A).">
+            <label>The mean-subtracted <code>V′</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2" data-tol="0.001" data-explain="A′ = A − mean(A) = [−11 + 9, −7 + 9, −9 + 9] = [−2, 2, 0]. Action 1 is 2 better than the state's average." data-nudge="A′ = A − mean(A), for the second action.">
+            <label><code>A′</code> for action 1 (the middle one) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>Combining a network's outputs</h3>
+          <p>A network's two heads output <code>V = 1</code> and <code>A = [3, 5, 1]</code>. It computes <code>Q = V + (A − mean(A))</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="3" data-tol="0.001" data-explain="mean(A) = 3, so Q = 1 + [0, 2, −2] = [1, 3, −1], and Q for action 1 is 3." data-nudge="First the mean of A, then V + A[1] − mean(A).">
+            <label><code>Q</code> for action 1 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3" data-tol="0.001" data-explain="Unchanged. Adding 10 to every advantage adds 10 to their mean too, and the subtraction takes it straight back out." data-nudge="A becomes [13, 15, 11]. Recompute its mean, then Q.">
+            <label>The advantage head drifts: every <code>A</code> goes up by 10, <code>V</code> stays 1. Now <code>Q</code> for action 1? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="13" data-tol="0.001" data-explain="V = 11, A = [−7, −5, −9] with mean −7, so Q = 11 + [0, 2, −2] and Q[1] = 13. Under a plain sum V + A this trade would leave Q at 3, which is exactly why the plain sum cannot pin the split down. With the mean subtracted, it can." data-nudge="Back to V = 1, A = [3, 5, 1]. Now V becomes 11 and A becomes [−7, −5, −9].">
+            <label>Instead, 10 moves from the advantages into the value: <code>V = 11</code>, every <code>A</code> down by 10. Now <code>Q</code> for action 1? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>Split.</strong> mean(A) = −9; V′ = 5 − 9 = −4; A′ = [−2, 2, 0]. Check: −4 + [−2, 2, 0] = [−6, −2, −4].</p>
+          <p><strong>Combine.</strong> mean([3, 5, 1]) = 3, Q = [1, 3, −1]. Shifting every A by 10 leaves Q alone. Moving 10 from A into V raises every Q by 10. A plain sum would treat the two the other way round: shifting A alone would change Q, and the trade between V and A would not. The code lab tests both.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> plain tensors, then a network with a shared body and two heads.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-05</code></div>
+          <div><span>Check</span><code>python -m labs check p5-05</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-05</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_05_dueling/dueling.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_05_dueling/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1 is two lines: V is the mean of the Q-values, and A is what is left. Task 2 is one line; the only thing to get right is which dimension the mean runs over. Task 3: three layers&#x27; worth of nn.Linear in __init__, and forward runs the body once and feeds the same output to both heads.</p></details>
+        <details><summary>Hint 2</summary><p>Task 2: advantage.mean(dim=-1, keepdim=True) is the mean over each row&#x27;s actions, shaped (B, 1) so it subtracts from every column. Task 3: self.body = nn.Sequential(nn.Linear(n_obs, width), nn.ReLU(), nn.Linear(width, width), nn.ReLU()).</p></details>
+        <details><summary>Hint 3</summary><p>Task 2: return value + advantage - advantage.mean(dim=-1, keepdim=True). Task 3 forward: h = self.body(obs); return combine(self.value_head(h), self.advantage_head(h)).</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

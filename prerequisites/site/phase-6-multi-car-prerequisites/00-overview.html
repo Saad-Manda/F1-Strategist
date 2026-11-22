@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · Overview — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/00">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Overview</p>
+      <h1>Phase 6 Multi-Car Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to build the multi-car environment and rule-based rivals described in <code>phase-6-multi-car-rivals.md</code>, assuming you already have the Phase 1, Phase 3.5, Phase 4, and Phase 5 prerequisite sets and nothing more.</p>
+
+      <h2>Why this phase is different from everything before it</h2>
+      <p>Every phase through Phase 5 had exactly one car on track. The state, the reward, and the very notion of "doing well" were all about that one car's own race — a faster lap was always simply better, no matter what anyone else on track was doing. Phase 6 is the first time another agent's behavior enters the picture at all, even though that other agent is a fixed script, not something learning alongside the RL agent. That single change — one more car existing, with its own pace and its own pit stops, sharing the same track — turns out to touch the state, the reward, and the dynamics all at once, and each of those three gets its own trouble spot in this set.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>This set teaches exactly what <code>phase-6-multi-car-rivals.md</code> needs: the multi-car state extension (gaps to the cars ahead and behind, race position), the reward-shaping problem that a "finish as high as possible" goal creates instead of "go as fast as possible," potential-based shaping as the principled version of that shaping, a probabilistic overtaking and dirty-air model, and — because the phase's own audit found something serious enough to teach directly rather than leave buried in a plan — the finding that the plan's pseudocode, as written, has no way for the undercut to ever emerge, plus the six smaller bugs that ship alongside that design gap. It does not cover self-play, PettingZoo, or anything else from Phase 8/9, beyond one deliberate exception: a short dedicated page on non-stationarity, scoped tightly to <em>why fixed-script rivals sidestep it</em>, since the real plan names that as the reason this phase is the sensible step before Phase 8.</p>
+      </div>
+
+      <div class="note grounded">
+        <div class="tag">Read this before anything else</div>
+        <p>This set is unusual among the five built so far. The code it eventually points to — <code>f1_multi_env.py</code>, <code>rival.py</code>, <code>overtaking.py</code> — does not exist in <code>src/</code> yet, because Phase 6 hasn't been implemented. <a class="xref" href="09-this-project-formalized.html">Pages 9</a> and <a class="xref" href="10-reading-the-plan.html">10</a> read the <em>plan's own pseudocode</em>, not a real, running file, and part of what they teach is the project's own audit findings against that pseudocode: a design gap serious enough that, unfixed, this phase's most interesting goal (undercut/overcut strategy) literally cannot happen, plus six smaller bugs. Reading a plan critically, before a single line of it is implemented, is itself the skill this set is trying to build alongside the RL content.</p>
+      </div>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

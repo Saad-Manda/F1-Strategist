@@ -1,0 +1,14 @@
+id: p1-cap
+title: Toy race environment
+page: phase-1-rl-prerequisites/05-building-the-environment.html
+format: pytest
+minutes: 90
+files: [toy_race.py, report.ipynb]
+goal: >-
+  This page is the brief. You will build the toy race environment it describes in ten checked stages, from the observation vector to action masking and reward centring, then use your own environment to find the best pit lap and to see the pit-lap ordering bug for yourself.
+environment: >-
+  an F1-flavoured mini: a 20-lap race, two compounds, weather, a sampled safety car. About an hour and a half.
+hints:
+  - "Order of work: stage 1 is the two TODOs inside ToyRaceEnv (__init__ and _get_obs). Stages 2 to 5 are small pure functions at the top of the file and do not depend on the class. Stage 6 is toy_warmup plus step(). Check one stage at a time with `python -m labs check p1-cap N`."
+  - "Stage 6: write step() in two halves, exactly as its docstring lays out. Save the compound and age into local variables BEFORE calling apply_action, compute lap_time from the current self._compound and self._age, and only then update them. Stage 7 adds one `if self._sc_now():` branch around the timing half; the bookkeeping half does not change."
+  - "Stage 3: over = max(0, age - cliff_age); cliff = min(severity * over**2, cap). Stage 7's sampler: keep a boolean `active`, and on each lap set active = rng.random() < (SC_CONTINUE if active else SC_HAZARD). Stage 8: start from np.array([True, True, True]) and switch entries off in the order the docstring lists. The collapsed reference snippets on page 05 show the same shapes with different numbers."

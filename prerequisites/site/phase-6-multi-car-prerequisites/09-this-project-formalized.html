@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · This project, formalized — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/09">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 09 of 10 — Project-specific implementation</p>
+      <h1>This Project, Formalized</h1>
+      <p class="dek">Everything above, re-derived using nothing but the real plan's own shapes, configs, and recorded strategies.</p>
+
+      <h2>The real 19-dimensional observation</h2>
+      <p><code>N_OBS_MULTI = N_OBS_SINGLE + N_NEW_FEATURES = 16 + 3 = 19</code>, matching <a class="xref" href="01-multi-car-mdp.html">page 01</a> feature-by-feature: Phase 1's 16-dimensional single-car observation, plus <code>gap_to_car_ahead</code> (normalized by a 60s cap), <code>gap_to_car_behind</code> (same normalization), and <code>position_normalized</code> (<code>position / n_cars</code>).</p>
+      <div class="note grounded">
+        <div class="tag">Consequence for the DQN checkpoint</div>
+        <p><code>DuelingDQN</code>'s first <code>Linear</code> layer is sized for a 16-wide input (<a class="xref" href="../phase-5-dqn-prerequisites/05-dueling-architecture.html">Phase 5 page 05</a>). A Phase 6 agent needs a freshly constructed network with a 19-wide input layer — <code>DuelingDoubleDQNAgent(obs_dim=19)</code> — not a reload of any single-car checkpoint. This is a Definition-of-Done item in the real plan, not an implementation detail left implicit.</p>
+      </div>
+
+      <h2>The three <code>reward_type</code> configs</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th><code>reward_type</code></th><th>Formula (as written in the plan)</th><th>Category (<a class="xref" href="02-credit-assignment.html">pages 02</a>–<a class="xref" href="03-potential-based-shaping.html">03</a>)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">lap_time_plus_position</td><td><code>(base_reward − dirty_air)</code>, plus <code>position_bonus_scale × (n_total − position)</code> only on the terminal step</td><td>Dense true signal + a one-time terminal nudge — the mildest of the three</td></tr>
+            <tr><td class="mono">gap_change</td><td><code>−(curr_gap − prev_gap)</code>, gap to the leader, every step; <code>0</code> during a safety car</td><td>Dense, but with <code>γ = 1</code> it adds up to exactly <code>−(final gap to the leader)</code>, including through a safety car: the final margin, delivered lap by lap (<a class="xref" href="02-credit-assignment.html">page 02</a>)</td></tr>
+            <tr><td class="mono">potential_shaping</td><td>As written: <code>base_reward − dirty_air + (1/n_total if pos_norm &lt; 1.0 else 0)</code></td><td><strong>Not</strong> actually potential-based shaping — this is <a class="xref" href="06-bug-ledger.html">page 06</a>'s finding E5. It's a flat bonus, not a <code>Φ(s′) − Φ(s)</code> difference, despite the name.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>That last row is worth sitting with: the plan's own code for the reward design meant to be the "principled" one, per <a class="xref" href="03-potential-based-shaping.html">page 03</a>'s theorem, is the one design in the table that hasn't earned that theorem's guarantee yet. Fixing it means storing <code>self._prev_potential</code> and computing the real difference with <code>Φ(s) = -position_normalized</code>, exactly as <a class="xref" href="03-potential-based-shaping.html">pages 03</a> and <a class="xref" href="06-bug-ledger.html">06</a> worked through.</p>
+
+      <h2>Five fixed rival strategies</h2>
+      <p><code>build_rival_strategies</code> cycles through five pre-defined plans — each just a starting compound and a list of <code>(pit_lap, new_compound)</code> pairs, decided before the race and never adapted: a classic one-stop (MEDIUM → HARD), an aggressive two-stop (SOFT → MEDIUM → HARD), a conservative plan (HARD → MEDIUM), an early one-stop (SOFT → HARD), and a staggered two-stop (MEDIUM → SOFT → HARD). None of them read any information about the agent's own choices — the concrete instantiation of <a class="xref" href="07-non-stationarity.html">page 07</a>'s "stationary opponent": from the agent's point of view these five scripts are exactly as fixed and unreactive as the weather trace or the safety-car process.</p>
+
+      <h2>Definition-of-Done items that exist because of pages 05–06</h2>
+      <p>Several of the real plan's Definition-of-Done checkboxes are there specifically because of the design gap and bugs this set spent three pages on, not because they're generic "does the feature work" checks:</p>
+      <ul>
+        <li><strong>Blocking-model test</strong> (<a class="xref" href="05-position-and-blocking.html">page 05</a>) — a demonstrably faster car stuck behind a slower one gains no time until an overtake succeeds. Without this test passing, none of the rest of Phase 6's racing content means what it's supposed to.</li>
+        <li><strong>Overtaking-changes-positions test</strong> (<a class="xref" href="05-position-and-blocking.html">page 05</a>) — positions differ between a run with overtaking enabled and one with it disabled. This is the direct check that E2 (<a class="xref" href="06-bug-ledger.html">page 06</a>) is actually fixed, not just that <code>attempt_overtake</code> runs without crashing.</li>
+        <li><strong>Exact-once rival accumulation</strong> (<a class="xref" href="06-bug-ledger.html">page 06</a>, E1) — a regression test that each rival's <code>total_time</code> only ever increases by one lap's worth of time per tick.</li>
+        <li><strong>Dirty air reaches lap time</strong> (<a class="xref" href="06-bug-ledger.html">page 06</a>, E3) — checking the penalty shows up in <code>_agent_total_time</code>, not only in the reward.</li>
+        <li><strong>Shaped-vs-unshaped optimum agreement</strong> (<a class="xref" href="03-potential-based-shaping.html">page 03</a> and <a class="xref" href="06-bug-ledger.html">page 06</a>, E5) — a test confirming the fixed <code>potential_shaping</code> and the unshaped reward agree on the optimal policy for a small fixed scenario, the same kind of check stage 4 of <a class="xref" href="08-build-it-yourself.html">page 08</a> just ran by hand. It also needs <code>Φ = 0</code> on the final step, which the plan does not say: without it the leftover potential is a finishing-position bonus (<a class="xref" href="03-potential-based-shaping.html">page 03</a>).</li>
+      </ul>
+
+      <section class="lab" id="lab" data-lab-id="p6-09" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p6-09 · In page · about 10 min</span>
+        <h2>Tag, compute, match</h2>
+        <p class="lab-goal">Put the page's three reward configs and five Definition-of-Done items next to the findings they answer, and do two pieces of arithmetic the plan's own code implies.</p>
+
+        <div class="lab-part">
+          <h3>1 · What each reward_type really is</h3>
+          <div class="lab-q" data-type="select" data-answer="dense" data-explain="−lap_time every lap is the honest signal; the position bonus arrives once, at the end.">
+            <label><code>lap_time_plus_position</code><br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="margin" data-explain="With the gap reset to 0 and γ = 1 the rewards telescope to minus the final gap to the best rival. It is dense, but what it adds up to is the final margin (the capstone's stage 6 test, and the report's straight line).">
+            <label><code>gap_change</code><br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="adhoc" data-explain="As written it adds 1/n_total every lap the agent is not last: E5.">
+            <label><code>potential_shaping</code>, as the plan writes it<br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Two numbers the plan's code implies</h3>
+          <div class="lab-q" data-type="num" data-answer="-3.2" data-tol="0.01" data-explain="The changes telescope: the sum is −(final gap − starting gap) = −(3.2 − 0) = −3.2, however the gap moved in between." data-nudge="The plan starts _prev_gap_to_leader at 0. What is left after every lap's change cancels the next one's start?">
+            <label>A race ends with the agent 3.2 s behind the best rival. What do its <code>gap_change</code> rewards add up to? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.4" data-tol="0.01" data-explain="Without the zero, the leftover term ends with Φ(s_T) = −position/5. P2 leaves −0.4, P4 leaves −0.8: P2 gets 0.4 more, a finishing bonus nobody asked for. Five cars, so 0.2 per place." data-nudge="Leftover = Φ(final) − Φ(start), with Φ = −position / 5. Compare the two finishes.">
+            <label><code>potential_shaping</code> with E5 fixed but Φ <em>not</em> set to 0 at the finish, five cars: how much more return does a P2 finish get than a P4 finish? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Which finding does each Definition-of-Done item guard?</h3>
+          <div class="lab-q" data-type="select" data-answer="e4" data-explain="Page 05's missing model.">
+            <label>"A faster car stuck behind a slower one gains no time until an overtake succeeds"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e2" data-explain="If a pass can never change positions, the overtaking code is dead.">
+            <label>"Positions differ between a run with overtaking enabled and one with it disabled"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e1" data-explain="The regression test for the second accumulation in step().">
+            <label>"Rival total_time accumulates exactly once per lap"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e3" data-explain="The reward must agree with the dynamics.">
+            <label>"Dirty air is applied to lap time, not only to reward"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e5" data-explain="And, as the previous section showed, it also needs Φ = 0 at the finish to pass.">
+            <label>"The shaped and unshaped optima agree on a small fixed scenario"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Each is a fixed pit_laps / pit_compounds plan chosen before the race: page 07's stationary opponent." data-nudge="Look at what RivalState.advance_lap reads.">
+            <label>How many of <code>build_rival_strategies</code>'s five scripts read anything about the agent? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>lap_time_plus_position is the dense signal plus a finishing bonus; gap_change telescopes to the final margin; potential_shaping as written is ad-hoc (E5). gap_change sums to −3.2. The unzeroed potential gives P2 0.4 more than P4. DoD items: blocking E4, overtaking-changes-positions E2, exact-once E1, dirty air in lap time E3, shaped/unshaped agreement E5. No rival script reads the agent.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

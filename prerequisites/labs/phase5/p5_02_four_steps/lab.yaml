@@ -1,0 +1,14 @@
+id: p5-02
+title: The four steps, written out
+page: phase-5-dqn-prerequisites/02-neural-networks-primer.html
+format: notebook
+minutes: 20
+tasks: [forward, backward, train, "predict:starts", C, D]
+goal: >-
+  First run a forward pass and three gradients by hand on new numbers. Then write the forward and backward pass in NumPy for a whole batch, check every gradient against PyTorch's autograd, and train the network with your own gradient descent. Training turns up something the page did not need to mention: whether a small network learns can depend on where it starts.
+environment: >-
+  the page's 2-2-1 network, trained on y = |x₁ − x₂|, which it can represent exactly.
+hints:
+  - "TODO 1: X has one row per example, so the first layer is X @ W1.T. TODO 2 follows the five lines in the cell, in order; each one uses the line before it. TODO 3 is two lines, one per weight matrix."
+  - "TODO 2: dy = 2 * (y - targets) / len(X); dW2 = h.T @ dy; dh = np.outer(dy, W2). The ReLU line multiplies dh by (h_pre > 0), which is 1 where the unit was active and 0 where it was not."
+  - "TODO 2 ends with dh_pre = dh * (h_pre > 0) and dW1 = dh_pre.T @ X. TODO 3: W1 = W1 - lr * dW1 and W2 = W2 - lr * dW2."

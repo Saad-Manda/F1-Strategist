@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Reading the plan's code — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/11">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 11 of 11 — Reading the plan critically</p>
+      <h1>Reading the Implementation Plan's Code</h1>
+      <p class="dek">A reading guide, not a reproduction — <code>phase-9-ppo-sb3.md</code>'s pseudocode, not a built file in <code>src/</code>.</p>
+
+      <p>Phase 9 hasn't been implemented yet, and part of what this page teaches is reading a plan critically before trusting its pseudocode — including where the plan depends on a third-party library's documented behavior rather than anything checkable in this repo. <code>src/agents/ppo_agent.py</code>, <code>src/env/sb3_wrapper.py</code>, and <code>configs/ppo.yaml</code> are all still just proposals in the plan file.</p>
+
+      <h2>Reading order</h2>
+      <ol>
+        <li><code>src/env/sb3_wrapper.py</code> first — where <a class="xref" href="07-pickling-and-subprocvecenv.html">page 07</a>'s fix belongs, and where the choice of <code>n_envs</code> and <code>DummyVecEnv</code> vs. <code>SubprocVecEnv</code> is made.</li>
+        <li><code>configs/ppo.yaml</code> next — <a class="xref" href="03-generalized-advantage-estimation.html">page 03</a>/04/10's parameter mapping, and the missing <code>gae_lambda</code> key.</li>
+        <li><code>src/agents/ppo_agent.py</code>'s <code>train_ppo</code> — the <code>.learn()</code> call <a class="xref" href="06-stable-baselines3-api.html">page 06</a> described generically, now with real arguments.</li>
+        <li><code>scripts/compare_dqn_ppo.py</code> last — where <a class="xref" href="08-unfair-comparison.html">page 08</a>'s budget-matching fix and Finding D's eval-mode fix both need to have already landed before this script's output means anything at all.</li>
+      </ol>
+
+      <h2>Where each fix belongs — so you don't go looking in the wrong file</h2>
+      <ul>
+        <li><strong>J1, as corrected on <a class="xref" href="07-pickling-and-subprocvecenv.html">page 07</a></strong>, has two parts in two places. The choice of <code>DummyVecEnv</code> (and, as a habit, a named mask function) is inside <code>make_vec_masked_envs</code>, in <code>sb3_wrapper.py</code>. If <code>SubprocVecEnv</code> stays, the <code>if __name__ == "__main__":</code> guard goes in the script that starts training, because that is the module <code>spawn</code> re-imports; nothing in <code>sb3_wrapper.py</code> can add it.</li>
+        <li><strong>J2's fix</strong> (<a class="xref" href="08-unfair-comparison.html">page 08</a>) is either in <code>configs/ppo.yaml</code>'s <code>total_timesteps</code> (to explicitly match DQN's ~260k steps) or in the comparison notebook's plotting code (to put both learning curves on a shared environment-step x-axis) — not inside <code>ppo_agent.py</code> itself, which is not where a training-budget mismatch would be fixed.</li>
+        <li><strong>Finding D's fix</strong> (<a class="xref" href="10-this-project-formalized.html">page 10</a>) is in the custom <code>DuelingDoubleDQNAgent</code>/<code>QLearningAgent</code> files from earlier phases, not in anything Phase 9 introduces — <code>PPOAgent</code> is already correct.</li>
+      </ul>
+
+      <h2>What the Definition-of-Done checklist would and wouldn't catch</h2>
+      <p>In the same spirit as <a class="xref" href="../phase-4-q-learning-prerequisites/09-code-walkthrough.html">Phase 4 page 09</a>, <a class="xref" href="../phase-5-dqn-prerequisites/11-code-walkthrough.html">Phase 5 page 11</a>, <a class="xref" href="../phase-6-multi-car-prerequisites/10-reading-the-plan.html">Phase 6 page 10</a>, and <a class="xref" href="../phase-8-self-play-prerequisites/10-reading-the-plan.html">Phase 8 page 10</a>'s test-by-test walkthroughs:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>DoD item</th><th>What it catches</th><th>What it doesn't</th></tr></thead>
+          <tbody>
+            <tr><td><code>MaskablePPO</code> trains for 2M timesteps without crashing</td><td>An environment or wrapper that's broken outright, and on this machine a training script without a <code>__main__</code> guard (<a class="xref" href="07-pickling-and-subprocvecenv.html">page 07</a>). Not the plan's lambda: SB3 ships it with cloudpickle and it runs</td><td>Whether 2M is a fair budget relative to DQN at all — J2 again</td></tr>
+            <tr><td><code>PPOAgent.select_action()</code> respects action masks during evaluation</td><td>A masking regression in the wrapper or the model call</td><td>Anything about the training-budget mismatch, or DQN's own eval-mode bug</td></tr>
+            <tr><td>Comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick</td><td>Evaluation-time luck across scenario draws (Phase 3, assumed background)</td><td>Training-time confounds — this item can pass cleanly on top of an unfixed J2, and the number it reports would still be uninterpretable</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The payoff of this page: a checklist item can be perfectly well-specified and pass exactly as written, and still be answering a different question than the one it looks like it's answering — because the thing that would make its answer meaningful lives in a fix the checklist itself never names.</p>
+
+      <section class="lab" id="lab" data-lab-id="p9-11" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p9-11 · In page · about 10 min</span>
+        <h2>What catches what</h2>
+        <p class="lab-goal">For each Definition-of-Done item, decide which of the four findings it would catch: J1 as corrected on page 07 (no <code>__main__</code> guard), J2 (the unmatched budget), J3 (the uncentred reward) and D (DQN evaluated with ε on). Then put each fix in its file.</p>
+
+        <div class="lab-part">
+          <h3>1 · What each item catches</h3>
+          <div class="lab-q" data-type="select" data-answer="j1" data-explain="Without the guard, each SubprocVecEnv worker re-imports the training script under spawn and the run stops with a RuntimeError, or hangs (p9-07, claim 3). An uncentred reward, an unmatched budget and an ε left on all train without crashing.">
+            <label>"MaskablePPO trains for 2M timesteps without crashing"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It checks PPO's masking, which is already correct. D is a bug in the DQN agents' evaluation, not in PPOAgent.">
+            <label>"PPOAgent.select_action() respects action masks during evaluation"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It passes as long as the comparison runs. An unfixed J2, J3 or D changes the numbers it reports, and an uncentred PPO would show a gap near 38 s, but nothing in the item says what number counts as a failure.">
+            <label>"Comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="SB3 wraps each environment factory in CloudpickleWrapper, and cloudpickle serialises lambdas by value. The plan's lambda works (p9-07, claim 2). What the first item would catch is a missing __main__ guard: under spawn, the workers re-import the script that started them.">
+            <span class="lab-prompt">Would "trains for 2M timesteps without crashing" have caught the lambda the audit's J1 originally pointed at?</span>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="a"> yes: the lambda cannot be pickled, so the workers never start</label>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="b"> there is nothing to catch: SB3 pickles the lambda with cloudpickle and it works</label>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="c"> only on Linux, where the start method is fork</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Where each fix goes</h3>
+          <div class="lab-q" data-type="select" data-answer="script" data-explain="The guard belongs in the module that is run, because that is what spawn re-imports. No change inside the wrapper can add it.">
+            <label>The <code>if __name__ == "__main__":</code> guard<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="wrapper" data-explain="make_vec_masked_envs chooses the vector class. On an environment this cheap DummyVecEnv stepped about 14 times faster (41,468 against 3,010 steps per second, p9-07) and needs no guard.">
+            <label>Using <code>DummyVecEnv</code> instead of <code>SubprocVecEnv</code><br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="config" data-explain="Either set total_timesteps to DQN's step count, or read both learners at matched step budgets in the notebook. Re-plotting against steps without matching the budgets does not change the ranking (p9-08 warm-up).">
+            <label>Matching the training budgets<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="agents" data-explain="PPOAgent already predicts deterministically. The agents that still branch on ε at evaluation are the earlier ones.">
+            <label>Turning exploration off at evaluation<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Answers</summary>
+          <p>The crash item catches J1 as corrected, the missing guard, and nothing else. The masking item and the comparison item catch none of the four. The plan's lambda needed no fix. The guard goes in the training script, <code>DummyVecEnv</code> in <code>sb3_wrapper.py</code>, the budget in <code>ppo.yaml</code> or the notebook, and the evaluation fix in the Phase 4/5 agents.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

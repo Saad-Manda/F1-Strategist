@@ -1,0 +1,14 @@
+id: p4-02
+title: The Q-learning update, two ways
+page: phase-4-q-learning-prerequisites/02-q-learning-derived.html
+format: pytest
+minutes: 15
+files: [q_update.py]
+goal: >-
+  First run four updates by hand, on the page's toy with a different sequence of transitions. Then write the update as two small functions and reproduce the page's table exactly, including the two cases that are easy to get wrong: the last transition of an episode, and a next state where some actions are illegal.
+environment: >-
+  the page's own three-state toy.
+hints:
+  - "Task 1 has two cases. If `done`, return the reward and look at nothing else. Otherwise you need the largest of a few table cells: the cells Q[next_state, a] for each a in legal_next, and only those."
+  - "Task 1: max(Q[next_state, a] for a in legal_next) gives the largest legal next value. Task 2 is three lines: compute the target with td_target, subtract the current cell to get delta, add alpha * delta to the cell."
+  - "Task 2: delta = td_target(Q, reward, next_state, done, legal_next, gamma) - Q[state, action]; Q[state, action] += alpha * delta; return float(delta)."

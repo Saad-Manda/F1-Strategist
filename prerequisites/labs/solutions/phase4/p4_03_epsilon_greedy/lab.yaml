@@ -1,0 +1,14 @@
+id: p4-03
+title: Decay and masking
+page: phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html
+format: notebook
+minutes: 20
+tasks: [selection, schedule, floor, "predict:decay", C, D]
+goal: >-
+  You will implement masked ε-greedy and the linear decay schedule, work out when the real plan's schedule reaches its floor, find out how fast ε can fall before an agent locks onto the wrong choice, and reproduce this page's masked-versus-unmasked table by experiment.
+environment: >-
+  the 10-armed bandit testbed (Sutton &amp; Barto, chapter 2): no states, only the question of how much to explore.
+hints:
+  - "TODO 1: np.flatnonzero(legal) gives the indices of the legal actions. Explore by handing those indices to rng.choice. Exploit by taking an argmax that cannot land on an illegal action. TODO 2 is the page's formula, one line."
+  - "TODO 1: for the greedy branch, make a copy of q in which every illegal entry is -inf (np.where(legal, q, -np.inf)), then np.argmax it. TODO 3: the floor is reached after decay_steps steps; divide by the number of steps in a race."
+  - "TODO 1: if rng.random() < epsilon: return int(rng.choice(np.flatnonzero(legal))); return int(np.argmax(np.where(legal, q, -np.inf))). TODO 2: return max(end, start - step * (start - end) / decay_steps). TODO 3: 500000 / 52."

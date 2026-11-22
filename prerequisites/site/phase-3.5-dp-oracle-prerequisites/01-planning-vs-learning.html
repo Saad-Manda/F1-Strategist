@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Planning vs. learning — Phase 3.5 DP oracle · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="3.5/01">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 3.5 · Page 01 of 07 — Foundations</p>
+      <h1>Planning vs. Learning</h1>
+      <p class="dek">Phase 4 will estimate a good policy from thousands of simulated races. Phase 3.5 computes the optimal one directly, from the model alone, without playing a single episode to learn from.</p>
+
+      <h2>Two ways to solve an MDP</h2>
+      <p><a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Page 1</a> of the Phase 1 prerequisites established the RL loop: an agent observes a state, acts, receives a reward, and repeats — learning, over many such interactions, which actions tend to pay off. That framing quietly assumes the agent does <em>not</em> know the transition function or reward function in advance; it has to find out by trying things and observing what happens. Every algorithm downstream of Phase 1 in this project's plan — Q-learning, SARSA, DQN, PPO — is built around that assumption. They are all <strong>model-free</strong> methods: they never see <code>P(s'|s,a)</code> written down anywhere. They infer good behaviour from samples.</p>
+      <p>But this project's MDP isn't actually unknown. <code>dynamics.py</code> <em>is</em> the transition function, in closed form, and the reward is simply <code>-lap_time</code>. Nothing about how a lap plays out is hidden from the person who wrote the simulator. When the model is fully known like this, a different family of methods becomes available: <strong>planning</strong> — compute the optimal policy directly from the model, with no trial and error, no exploration, and no sampling error. <strong>Dynamic programming</strong> is the classic planning method, and it's what Phase 3.5 builds.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Learning (Phases 4, 5, 9)</th><th>Planning (Phase 3.5)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Needs the model?</td><td>No — learns from sampled <code>(s,a,r,s')</code> transitions</td><td>Yes — needs <code>P</code> and <code>R</code> written down explicitly</td></tr>
+            <tr><td class="mono">Exploration?</td><td>Yes — epsilon-greedy, has to try things to find out what's good</td><td>None — every consequence is already computable</td></tr>
+            <tr><td class="mono">Answer quality</td><td>Approximate, improves with more training</td><td>Exact, for the model as written</td></tr>
+            <tr><td class="mono">What can go wrong</td><td>Slow convergence, reward hacking, unstable training</td><td>Only: the model itself is wrong, or the state space is too large to enumerate</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>Because Phase 3.5's oracle uses the exact same <code>dynamics.compute_lap_time</code> function the live environment and every learning agent train against, its answer isn't a competing model of the world — it's the provably best possible play <em>within the world the agents already live in</em>. That's what makes "optimality gap" a meaningful number rather than a comparison between two different simulators.</p>
+      </div>
+
+      <h2>Why "exact" is possible here at all</h2>
+      <p>Solving an MDP exactly by exhaustively considering every state is, in general, hopeless — most interesting MDPs have astronomically large or continuous state spaces (imagine trying to enumerate every possible pixel-frame of an Atari game). Exact solving is a <em>size</em> argument, not a different kind of intelligence: it works exactly when the number of distinct situations the agent can be in is small enough to fit in memory and iterate over in reasonable time.</p>
+      <p>This project's single-car race state is unusually small for a reason worth naming explicitly: every feature in it was chosen, back in Phase 1, to be a <em>compact, discretizable summary</em> — lap number, which of five compounds is fitted, tyre age in laps, a three-bit used-compound mask, whether a safety car is active, which of three weather regimes is in effect. None of that is an accident of convenience; it's the direct payoff of Phase 1's insistence on a minimal, disciplined state (<a class="xref" href="../phase-1-rl-prerequisites/02-markov-decision-processes.html">page 2</a> of the Phase 1 prerequisites' "sufficient statistic" argument). A state design bloated with continuous, high-precision features would have made this phase impossible.</p>
+
+      <div class="note grounded">
+        <div class="tag">This project</div>
+        <p>Multiplying out <code>lap × compound × tyre_age × used_mask × sc_active × weather</code> gives roughly <strong>55 × 5 × 55 × 8 × 2 × 3 ≈ 726,000</strong> states, times 6 actions. A modern laptop can fill a value table of that size, for every lap of a race, in well under a second using NumPy array operations — <a class="xref" href="02-backward-induction.html">page 2</a> works through exactly why. Most of those 726,000 combinations are actually unreachable (a tyre can't be older than the number of laps run so far, and the used-mask is implied by which compounds could plausibly have been fitted) — a reachability pass typically cuts the real work by another 5–10×.</p>
+      </div>
+
+      <h2>What planning buys that learning can't</h2>
+      <p>The headline reason this phase exists is evaluation. "My RL agent beat the rule-based baseline I also wrote" is a comparison against a strawman of your own construction — the baseline's weaknesses are exactly the weaknesses you happened to think of. "My RL agent came within 0.4 seconds of the provably optimal strategy, and here's exactly where the remaining time is lost" is a claim about the ceiling of the problem itself, independent of anyone's cleverness in writing rules.</p>
+      <p>There's a second, quieter benefit: an exact solver is also the strongest possible test of the simulator. If backward induction — which cannot make a mistake, only report the true optimum of the model as written — discovers a policy that saves an implausible amount of time, that isn't a strategic insight. It's a bug in <code>dynamics.py</code>, found before an RL agent spent three days learning to exploit it and getting blamed for "not really understanding strategy." <a class="xref" href="06-this-project-as-dp.html">Page 6</a> returns to this as the single highest-value test in the whole DP oracle test suite.</p>
+
+      <div class="note generic">
+        <div class="tag">One discipline to hold onto now</div>
+        <p>The oracle computes an answer; it must never <em>teach</em> one. Training an RL agent to imitate the DP policy's actions is a legitimate technique in its own right (imitation learning), but it is a different project from what Phases 4, 5, and 9 are trying to demonstrate — that an agent can discover good strategy from experience, without being shown the answer first. The oracle's role for the rest of this project is strictly evaluator, never teacher.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p35-01" data-lab-format="widget">
+        <span class="lab-kicker">Lab p35-01 · In page · about 10 min</span>
+        <h2>What makes exact solving possible</h2>
+        <p class="lab-goal">The page says exact solving is "a size argument". Here you do the sizing yourself, find what breaks it, and then sort five methods into planning and learning.</p>
+
+        <div class="lab-part">
+          <h3>1 · Count the states</h3>
+          <p>The calculator starts with the real design's six features and how many values each can take. Change any number, or tick a feature to add it.</p>
+          <div class="widget" data-widget="statespace"></div>
+          <div class="lab-q" data-type="num" data-answer="726000" data-tol="0" data-explain="55 × 5 × 55 × 8 × 2 × 3. Times six actions and eight bytes, about 35 MB." data-nudge="Press “Reset to the real design” and read the number of states.">
+            <label>How many states does the real design have, before any pruning? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1540" data-tol="0" data-explain="1 + 2 + … + 55 = 55 × 56 / 2. Just over half of the 3,025 combinations, so this one rule alone removes almost half of the table." data-nudge="On lap 1 there is 1 possible age, on lap 2 there are 2, and so on up to lap 55. Add them up.">
+            <label>A tyre cannot be older than the number of laps run. Of the 55 × 55 = 3,025 combinations of lap and tyre age, how many can actually occur? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Find what breaks it</h3>
+          <p>Reset the calculator, then try each change below on its own.</p>
+          <div class="lab-q stack" data-type="choice" data-answer="d" data-explain="Doubling the laps and tyre ages multiplies the count by 4. Adding weather states or compounds multiplies it by less than 2. One continuous quantity cut into fine steps multiplies it by hundreds, and a second one would do so again." data-nudge="Try each one in the calculator and compare the memory figures.">
+            <span class="lab-prompt">Which single change does the most damage?</span>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="a"> A race twice as long: 110 laps, and tyre ages up to 110.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="b"> Five weather states in place of three.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="c"> Eight compounds in place of five.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="d"> Tracking the fuel load to the nearest 0.1 kg.</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="20.9" data-tol="0.3" data-explain="436 million states. Add the fuel load as well and the table needs terabytes. This is why Phase 1 kept continuous quantities out of the state wherever a count of laps would do." data-nudge="Reset, tick only the gap feature, and read the size in GB.">
+            <label>With the real design plus the gap to the car ahead (to 0.1 s), how many GB does the table need? &nbsp; <input type="text" inputmode="decimal"> GB</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Planning or learning?</h3>
+          <p>For each method, pick the family it belongs to. The test is the page's: does it need the model written down, or does it work from sampled experience?</p>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="It reads costs and next states straight from the model. Nothing is sampled.">
+            <label>Backward induction over the race's states &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="learn" data-explain="It never sees the transition function. It adjusts estimates from transitions it has experienced.">
+            <label>Q-learning &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="Slow, but still planning: every plan is scored with the known lap-time formula. It is the check the next lab uses." data-nudge="Does it need to try anything out to learn what a lap costs?">
+            <label>Scoring every possible sequence of pit decisions with the lap-time formula and keeping the best &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="learn" data-explain="A network in place of a table changes how the estimates are stored. They are still learned from experience.">
+            <label>DQN &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="Value iteration sweeps the Bellman equation over a known model until the values settle. It is the method this page's oracle would need if races had no fixed length." data-nudge="The page's note on Sutton & Barto chapter 4 covers this one.">
+            <label>Value iteration with a known transition function &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 55 × 5 × 55 × 8 × 2 × 3 = 726,000 states. Reachable (lap, age) pairs: 1 + 2 + … + 55 = 1,540 of 3,025.</p>
+          <p><strong>2.</strong> Twice the laps: × 4. Five weather states: × 5/3. Eight compounds: × 8/5. Fuel to 0.1 kg: × 1,101. The fuel load does the most damage by far. With the gap feature alone: 726,000 × 601 = 436,326,000 states, × 6 actions × 8 bytes ≈ 20.9 GB.</p>
+          <p><strong>3.</strong> Planning: backward induction, scoring every sequence with the formula, value iteration. Learning: Q-learning, DQN.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/widgets/statespace.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

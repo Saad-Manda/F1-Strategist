@@ -1,0 +1,14 @@
+id: p35-cap
+title: Toy race solver
+page: phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html
+format: pytest
+minutes: 90
+files: [toy_solver.py, report.ipynb]
+goal: >-
+  This page is the brief. You will solve the toy race from the Phase 1 capstone exactly, in five checked stages: no randomness, then a safety car, then the rules, then changing weather, then the sanity check that catches a broken model. A report notebook then uses your solver to draw the optimal policy and to price perfect foresight.
+environment: >-
+  an F1-flavoured mini: the 20-lap, two-compound race of the Phase 1 capstone, handed to you as a model you can query. About an hour and a half.
+hints:
+  - "Read the CONVENTIONS block at the top of toy_solver.py before anything else. Every stage has the same skeleton: a terminal row of zeros, laps going backward, a loop for each entry of the state, and inside it a comparison of cost + next value over the actions. Each stage adds one entry to the state and changes one thing in the comparison. Check one stage at a time with `python -m labs check p35-cap N`."
+  - "Stage 1: next_c, next_age = model.next_tyre(c, age, action); total = model.cost(lap, c, age, action) + V[(lap + 1, next_c, next_age)]. Stage 2: copy stage 1, add `for sc in (0, 1)`, pass DRY and sc to model.cost, and replace the single next value with p * V[(..., 1)] + (1 - p) * V[(..., 0)] where p = model.sc_prob(sc). Stage 3: loop used_both over (False, True), take actions from model.legal_actions(lap, c, DRY, used_both), and carry next_used = used_both or (next_c != c) into the next state's key."
+  - "Stage 4: expect_next is a double loop: for next_sc, p1 in ((0, 1 - p_sc), (1, p_sc)): for next_w, p2 in ((DRY, pw[DRY]), (WET, pw[WET])): total += p1 * p2 * V[(lap + 1, c, age, next_sc, used, next_w)]. Mind the order of the key: (lap, compound, age, sc, used_both, weather). Stage 5: best_one_stop_time is two nested loops, pit lap outside and lap inside; looks_absurd is one comparison. The collapsed reference snippets on page 05 show the same shapes on a smaller race."

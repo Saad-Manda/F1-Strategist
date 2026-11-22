@@ -1,0 +1,14 @@
+id: p9-02
+title: What a baseline buys
+page: phase-9-ppo-prerequisites/02-actor-critic-advantage.html
+format: notebook
+minutes: 20
+tasks: [A, B, C, "predict:offset", D]
+goal: >-
+  Page 02 claims a baseline leaves the gradient's average alone and shrinks its noise. Measure both halves on the corridor, prove the first one exactly with arithmetic, then learn the baseline as you go. Last, the case that matters for a race whose rewards are minus lap times: what a baseline does when every reward sits far from zero.
+environment: >-
+  the short corridor with switched actions from p9-01, and a two-armed bandit (rewards N(1, 2) and N(0, 0.5)) with a constant added to every reward.
+hints:
+  - "TODO 1 is p9-01's episode gradient with G_t − b in place of G_t. TODO 2: sum over the actions of pi(a) times the log-gradient of a, times b; it should come out at zero for any logits. TODO 3 moves w a fraction beta of the way towards each G_t, inside the same loop that adds to the gradient."
+  - "TODO 2: sum(p[a] * log_softmax_grad(z, a) * b for a in range(len(z))). TODO 3: g += dlog * (G_t - w); w += beta * (G_t - w). Use w as it is before the update when you form G_t − w."
+  - "TODO 4: advantage = reward - (baseline if use_baseline else 0.0); z += alpha * advantage * grad; then baseline += critic_lr * (reward - baseline) whether or not it is used, so the two runs differ only in the update."

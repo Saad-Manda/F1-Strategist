@@ -1,0 +1,14 @@
+id: p9-01
+title: The log-gradient trick
+page: phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html
+format: notebook
+minutes: 20
+tasks: [grad, reinforce, "predict:fixed", C]
+goal: >-
+  Write the softmax log-gradient and check it against finite differences, then build REINFORCE on a corridor where every fixed choice of action loops forever, and watch it find the one probability that works. Last, a prediction: what is the best a policy that always picks the same action can do here?
+environment: >-
+  the short corridor with switched actions (Sutton &amp; Barto, Example 13.1): four cells, −1 per step, the middle cell's actions reversed, and nothing in the observation that tells the cells apart.
+hints:
+  - "TODO 1: subtract the largest logit before exponentiating, then divide by the sum. TODO 2 is page 01's formula: start from minus the probabilities and add 1 at the action taken. TODO 3: for one episode, the returns-to-go G_t are a reversed cumulative sum of the rewards; each step contributes G_t times d log pi(a_t) / d theta."
+  - "TODO 2: g = -softmax(z); g[a] += 1; return g. In the corridor the policy's two logits are (0, theta), so d log pi(right) / d theta = 1 - p and d log pi(left) / d theta = -p, where p = corridor.p_right(theta)."
+  - "TODO 3: G = np.cumsum(rewards[::-1])[::-1]; return sum(((1 - p) if a == corridor.RIGHT else -p) * g for (cell, a, r), g in zip(ep, G)). Compute p once, at the theta the episode was played with."

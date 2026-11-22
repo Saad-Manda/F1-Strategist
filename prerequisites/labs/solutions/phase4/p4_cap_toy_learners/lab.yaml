@@ -1,0 +1,14 @@
+id: p4-cap
+title: Toy race learners
+page: phase-4-q-learning-prerequisites/07-build-it-yourself.html
+format: pytest
+minutes: 90
+files: [toy_learners.py, report.ipynb]
+goal: >-
+  This page is the brief. You will build an off-policy and an on-policy table learner for the toy race in six checked stages, and measure both against the exact optimum the Phase 3.5 capstone computed. Along the way you meet the pending-action mechanic and the leak it allows, find out what evaluating with exploration left on costs, and see what reward centring does to a table that starts at zero.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race, with its exact optimum as the ruler. About an hour and a half.
+hints:
+  - "Read the header of toy_learners.py first: what a state is, what the table holds, what `legal` looks like. Stages 1 to 4 are short methods and each docstring states the rule to implement. Stage 5 is the longest: it is the training loop, and its docstring lists the five things to do on every lap in order. Stage 6 has no code of its own; it trains what you built. Check one stage at a time with `python -m labs check p4-cap N`."
+  - "Stage 1: max(legal, key=lambda a: (values[a], -a)) is the best legal action with ties going to the lowest number. Stage 2: the target is reward + max(self.table[next_state][a] for a in legal_next), or the reward alone when done. Stage 3: in learn(), self.pending = super().act(next_state, legal_next) and the target uses self.table[next_state][self.pending]; in act(), hand the pending action out and clear it. Use super().act so the pending check is not triggered while choosing."
+  - "Stage 4: self.pending = None. Stage 5: keep compound, age, sc, used_both as local variables; build `state` from them at the top of each lap and overwrite them with the next_ values at the bottom. Compute lap_time before calling model.next_tyre. Stage 6 failing with stages 1-5 green usually means learn() is not being reached (check `train=True` is passed through) or the reward has the wrong sign."

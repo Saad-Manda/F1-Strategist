@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Code walkthrough — Phase 1 RL fundamentals · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="1/07">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 1 · Page 07 of 07 — Grounding</p>
+      <h1>Annotated Code Walkthrough</h1>
+      <p class="dek"><code>dynamics.py</code> and <code>f1_strategy_env.py</code>, read by dependency order rather than top to bottom: pure functions first, then the class that composes them.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>dynamics.py</code>, <code>f1_strategy_env.py</code> and <code>test_env.py</code> do not exist in <code>src/</code> yet: only Phase 0 of the project is implemented. Read this page as a guide to what those files will contain and in what order to write them, per <code>phase-1-gym-environment.md</code>.</p>
+      </div>
+
+      <p>This page does not reproduce any of that code — by this point you've already built an equivalent structure yourself in <a class="xref" href="05-building-the-environment.html">page 5</a>'s toy stages, and every function named below should map onto a stage you already wrote in your own words. Treat this page as a set of labels for a shape you already know, not as a substitute for opening the real files.</p>
+
+      <h2><code>dynamics.py</code> — pure functions only, and why</h2>
+      <p>Every function in this file takes its inputs explicitly (<code>compound</code>, <code>tyre_age</code>, <code>params</code>, ...) and returns a value with no side effects and no reference to any class state. This is a deliberate constraint, not an accident of style: three different consumers — the live environment, human-written baseline strategies, and the Phase 3.5 dynamic-programming oracle — all need to call <em>the same physics</em> with different inputs at different times. A pure function is trivially safe to share: call it with the same arguments from anywhere, get the same answer, no hidden state to keep synchronized. A method on a stateful class would tie the physics to one particular environment instance, making it awkward or unsafe for the DP oracle — which needs to evaluate lap times for hypothetical states the live environment was never actually in — to reuse.</p>
+
+      <p>Reading order within the file, and what each function is <em>for</em>:</p>
+      <ul>
+        <li><strong><code>compound_pace_offset</code></strong> — the fixed, compound-level pace difference. What makes compound choice a real decision rather than noise.</li>
+        <li><strong><code>tyre_degradation</code></strong> — piecewise: linear up to <code>cliff_age</code>, then a capped quadratic beyond it. The cap (<code>cliff_cap</code>) is as important as the cliff shape — an earlier, uncapped version let one very old tyre's degradation swamp every other signal in the reward.</li>
+        <li><strong><code>out_lap_warmup</code></strong> — derived entirely from <code>tyre_age</code> (no second counter), decaying from full penalty at <code>tyre_age == 1</code> to zero by <code>tyre_age == 3</code>.</li>
+        <li><strong><code>fuel_effect</code></strong> — linear in <code>laps_remaining</code>; the car gets faster as the race burns fuel.</li>
+        <li><strong><code>weather_compound_penalty</code></strong> — a lookup table keyed by (weather, compound): the physical cost of running the wrong tyre for the conditions.</li>
+        <li><strong><code>compute_lap_time</code></strong> — composes all of the above, with an explicit branch for safety car / VSC laps and an <code>rng</code> parameter that, when <code>None</code>, returns the <em>exact</em> expected lap time rather than a sampled one — required by the DP oracle.</li>
+        <li><strong><code>compute_pit_loss</code></strong> — the time cost of a pit stop, discounted under SC/VSC because the whole field is circulating slowly anyway.</li>
+        <li><strong><code>compute_action_mask</code></strong> — the five-rule mask from <a class="xref" href="06-this-project-as-mdp.html">page 6</a>, as one shared function.</li>
+      </ul>
+
+      <h2><code>f1_strategy_env.py</code> — the stateful Gymnasium wrapper</h2>
+      <p>The class holds exactly the state a race actually has — current lap, fitted compound, tyre age, which compounds have been used, the sampled weather scenario and safety-car trace for this episode — and every method is a thin layer that reads that state, calls into <code>dynamics.py</code> for any actual physics, and writes the result back.</p>
+      <ul>
+        <li><strong><code>__init__</code></strong> — loads <code>calibration.json</code>, builds <code>observation_space</code> (<code>Box(16,)</code>) and <code>action_space</code> (<code>Discrete(6)</code>). No episode state is created here — that's <code>reset()</code>'s job.</li>
+        <li><strong><code>reset()</code></strong> — samples a new weather scenario and safety-car trace independently, sets <code>tyre_age = 1</code> for the starting tyre (lap 1 <em>is</em> the out-lap — cars start on tyres fitted on the grid), and honours <code>options={"starting_compound": ...}</code> and the curriculum hook.</li>
+        <li><strong><code>step()</code></strong> — the order-of-operations rule from <a class="xref" href="06-this-project-as-mdp.html">page 6</a> lives here: compute this lap's time on the <em>current</em> (old) tyre first, add pit loss if pitting, <em>then</em> switch the fitted compound and reset <code>tyre_age</code> to 0.</li>
+        <li><strong><code>_get_obs()</code></strong> — assembles the 16-dim vector from current state, and asserts both the shape and the <code>[0, 1]</code> bounds every single call, not just in tests — a cheap habit that catches a normalization bug the moment it's introduced.</li>
+        <li><strong><code>action_masks()</code></strong> — delegates to <code>dynamics.compute_action_mask</code>; deliberately does not reimplement any rule locally.</li>
+        <li><strong><code>_get_info()</code></strong> — returns the <strong>public contract</strong> dictionary. <code>info.get(...)</code> in Python returns <code>None</code> rather than raising when a key is missing, so a <em>renamed</em> key breaks every downstream phase silently, with no exception to point at the bug. Adding new keys is always safe; renaming or removing one is a breaking change.</li>
+      </ul>
+
+      <h2>What "≥10 tests" in <code>test_env.py</code> are actually checking</h2>
+      <p>The test list in the plan isn't an arbitrary coverage quota — each test targets one specific way the implementation could plausibly go wrong, most tied directly to a design decision covered on this page or <a class="xref" href="06-this-project-as-mdp.html">page 6</a>:</p>
+      <ul>
+        <li><strong><code>test_return_equals_negative_race_time</code></strong> — the core identity from <a class="xref" href="03-value-functions-bellman.html">page 3</a> (return = −total race time) actually holds in code, not just on paper.</li>
+        <li><strong><code>test_pit_lap_runs_on_old_tyre</code></strong> — the pit-lap ordering rule above wasn't silently inverted.</li>
+        <li><strong><code>test_sc_timing_is_not_memorizable</code></strong> — safety cars are genuinely re-sampled per episode, not accidentally replayed (<a class="xref" href="01-rl-fundamentals.html">page 1</a>'s reward-hacking concern).</li>
+        <li><strong><code>test_cliff_is_capped</code></strong> — the degradation cap actually caps, rather than only capping the quadratic term while some other path still lets values blow up.</li>
+        <li><strong><code>test_action_mask_forces_pit_near_end</code> / <code>test_two_compound_rule_violation_penalty</code></strong> — the mask and the backstop penalty each do their half of the two-compound rule correctly.</li>
+      </ul>
+      <p>Reading the test file alongside the implementation file is, in effect, reading a list of "here is every way an earlier draft of this plan was found to be wrong" — worth treating as required reading, not optional verification.</p>
+
+      <section class="lab" id="lab" data-lab-id="p1-07" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p1-07 · In page · about 10 min</span>
+        <h2>What each test defends</h2>
+        <p class="lab-goal">The page says the test list is “every way an earlier draft of this plan was found to be wrong”. Check that you can read it that way.</p>
+
+        <div class="lab-part">
+          <h3>1 · Match each planned test to the bug it would catch</h3>
+          <div class="lab-q" data-type="select" data-answer="order" data-explain="The pit-lap ordering rule: time the lap on the old tyre, then fit the new one.">
+            <label><code>test_pit_lap_runs_on_old_tyre</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="replay" data-explain="Fresh sampling per episode, so there is no answer key to memorise.">
+            <label><code>test_sc_timing_is_not_memorizable</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="cap" data-explain="The cap on the cliff term, checked on every path that could let it grow.">
+            <label><code>test_cliff_is_capped</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="sum" data-explain="Page 3's identity, return = −total race time, checked in code.">
+            <label><code>test_return_equals_negative_race_time</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rule" data-explain="The mask's half of the two-compound rule; the −500 penalty is the backstop behind it.">
+            <label><code>test_action_mask_forces_pit_near_end</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Pure function, or method that needs episode state?</h3>
+          <div class="lab-q" data-type="multi" data-answer="a,b,c" data-explain="Everything in dynamics.py takes its inputs explicitly. step(), reset() and _get_obs() read or write the state of one particular race." data-nudge="Which of these live in dynamics.py, and which on the environment class?">
+            <span class="lab-prompt">Tick the ones that are pure functions.</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> <code>compute_lap_time</code></label>
+            <label class="lab-opt"><input type="checkbox" value="b"> <code>tyre_degradation</code></label>
+            <label class="lab-opt"><input type="checkbox" value="c"> <code>compute_action_mask</code></label>
+            <label class="lab-opt"><input type="checkbox" value="d"> <code>step()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="e"> <code>reset()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="f"> <code>_get_obs()</code></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="A pure function can be asked about any state, including ones no live race has visited, and three callers can share it without keeping anything in sync." data-nudge="Think about what the oracle has to evaluate that a running environment never does.">
+            <span class="lab-prompt">Why does the DP oracle in particular need the physics to be pure functions?</span>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="a"> Pure functions run faster than methods.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="b"> It has to evaluate lap times for hypothetical states the live environment was never actually in.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="c"> Gymnasium's <code>check_env</code> rejects environments whose physics is written as methods.</label>
+          </div>
+        </div>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

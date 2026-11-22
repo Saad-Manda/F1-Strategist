@@ -1,0 +1,14 @@
+id: p6-cap
+title: Two-car duel race
+page: phase-6-multi-car-prerequisites/08-build-it-yourself.html
+format: pytest
+minutes: 90
+files: [duel_race.py, report.ipynb]
+goal: >-
+  This page is the brief. You build the toy race with a rival on track in seven checked stages: two cars that each count a lap exactly once, an observation that can tell leading from trailing, a wake that slows the car instead of the score, being held up, passing, four reward designs, and a check that tells a safe shaping from an unsafe one. Every stage is compared lap for lap with a reference race on the same dice. The report then draws the undercut window and ranks every pit plan under each reward design.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race of the earlier capstones with a scripted rival, 0.3 s a lap slower, starting 0.3 s ahead and stopping on lap 9. No training anywhere: plans are compared exactly, on shared seeds. About an hour and a half; the report runs in under a minute.
+hints:
+  - "Read the header of duel_race.py, then the given step(): it shows the order in which your functions are called each lap. Stage 1 is two short functions; advance() is the ONLY place time is added. Stage 2 reads order off self.time. Stages 3 to 5 each find the car behind the same way: the one with more accumulated time (on a tie, the rival counts as ahead). Check one stage at a time with `python -m labs check p6-cap N`."
+  - "Stage 3: times[tail] += wake_loss(self.time[tail] - self.time[lead]), on a copy of the list. Stage 4: times[tail] = max(times[tail], times[lead]). Stage 5: if u < pass_chance(times[tail] - times[lead]): the passer's lap becomes min(its time, self.time[lead] + times[lead] - AFTER_PASS - self.time[tail]); return times, tail. Stage 6 'potential': prev_phi starts at potential(race['start_gap'] < 0, False); each lap phi = potential(race['ahead'][i], i == H - 1); add phi - prev_phi."
+  - "Stage 6 'gap_change': prev = 0.0; for each lap, gap = race['agent_time'][i] - race['rival_time'][i]; append -(gap - prev); prev = gap. Stage 7: diff = plan_returns(plans, kind, seeds) - plan_returns(plans, base, seeds); return bool(diff.max() - diff.min() <= tol). A stage-5 mismatch with the reference that starts on one lap only is usually the pass: the passer's time must be computed from both cars' totals BEFORE this lap is added."

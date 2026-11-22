@@ -1,0 +1,14 @@
+id: p6-06
+title: The bug ledger
+page: phase-6-multi-car-prerequisites/06-bug-ledger.html
+format: pytest
+minutes: 20
+files: [ledger.py, mini_race.py]
+goal: >-
+  Write the three tests the plan is missing, one for each of page 06's dynamics bugs: a rival's lap counted twice, a pass that is written and then overwritten, and a wake loss charged to the reward instead of the car. Your tests are graded the way mutation testing grades a test suite: each must pass on a correct race and fail on a race that carries only its own bug.
+environment: >-
+  a three-car mini race written in the plan's shape (mini_race.py, given), with each bug available as a switch.
+hints:
+  - "Each bug corrupts one quantity, so each test watches one invariant. E1: how much a car's total_time grows on one lap, against the lap time it drove. E2: whether a race can finish differently with passing switched on and off. E3: the reward, against how much the agent's total_time actually grew. Read mini_race.py first: Car.drive_lap and race.step show exactly where each bug sits."
+  - "E1: step the race lap by lap, remember every car's total_time before each step, and assert each grew by its last_lap_time. E3: the same loop for the agent alone, asserting reward == -(growth). E2: the same seed with make_race(passing=True, seed=s) and make_race(passing=False, seed=s), both driven with mini_race.run, then compare .order()."
+  - "E2: for seed in range(20): build both races, run both, and return as soon as their orders differ; after the loop, raise AssertionError('passing never changed a race'). One seed is not enough: on a seed where no pass succeeds, a correct race also finishes the same either way."

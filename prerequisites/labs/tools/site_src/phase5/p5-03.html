@@ -1,0 +1,30 @@
+<!-- page: phase-5-dqn-prerequisites/03-target-network.html | title: warm-up | format: widget | minutes: 6 | scripts: widgets/polyak.js -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · how slowly is "slowly"?</h3>
+          <p>The online network jumps once and then holds still. After every update the target network closes a fraction <code>τ</code> of the gap that is left. Drag <code>τ</code>. The readout converts updates into laps and races with the real agent's settings: one update every 4 laps, 52 laps a race.</p>
+          <div class="widget" data-widget="polyak"></div>
+          <div class="lab-q" data-type="num" data-answer="69" data-tol="0" data-explain="ln 0.5 / ln 0.99 = 68.97, so update 69 is the first with half the gap closed. Doubling τ from the real 0.005 roughly halves the 139." data-nudge="Set τ to 0.010 and read the update number.">
+            <label>At <code>τ = 0.010</code>, after which update is half the gap closed? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5.3" data-tol="0.1" data-explain="69 updates × 4 laps = 276 laps, which is 5.3 races of 52." data-nudge="Same setting: read the number of races.">
+            <label>…and how many 52-lap races is that? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.052" data-tol="0.004" data-explain="One race is 13 updates. Solving (1 − τ)¹³ = 0.5 gives τ = 1 − 0.5^(1/13) = 0.052. That is ten times the real agent's τ: the real target network is meant to lag by about eleven races, not one." data-nudge="A race is 52 / 4 = 13 updates. Move τ until half the gap closes at update 13 or just before.">
+            <label>Which <code>τ</code> closes half the gap in about one race? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.67" data-tol="0.05" data-explain="0.995¹⁰⁰⁰ = 0.0067. After 1,000 updates, about 77 races, a jump in the online network has been almost completely absorbed." data-nudge="(1 − τ)ⁿ with τ = 0.005 and n = 1000, as a percentage.">
+            <label>At <code>τ = 0.005</code>, what percentage of the gap is still open after 1,000 updates? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The dashed line: nothing happens to the target for 138 updates, then it all happens at once. Every target computed just after the copy changes together. The soft update gets to the same place without that jump." data-nudge="Compare the solid and dashed lines at the moment of the copy.">
+            <span class="lab-prompt">A hard copy every 139 updates and a soft update at τ = 0.005 both close half a gap in about 139 updates. Which one makes every target jump at the same moment?</span>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="a"> the soft update</label>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="b"> the hard copy</label>
+            <label class="lab-opt"><input type="radio" name="p503-jump" value="c"> neither: they are the same thing</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Half-life in updates: n = ln 0.5 / ln(1 − τ). At τ = 0.01, n = 68.97, so update 69; 276 laps; 5.3 races. One race (13 updates) needs τ = 1 − 0.5^(1/13) ≈ 0.052. At τ = 0.005 after 1,000 updates, 0.995¹⁰⁰⁰ ≈ 0.67% of the gap is left. The hard copy is the one that jumps.</p>
+        </details>
+
+        <h3>Then, in code</h3>

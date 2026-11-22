@@ -1,0 +1,55 @@
+<!-- page: phase-3.5-dp-oracle-prerequisites/01-planning-vs-learning.html | title: What makes exact solving possible | format: widget | minutes: 10 | scripts: widgets/statespace.js -->
+        <p class="lab-goal">The page says exact solving is "a size argument". Here you do the sizing yourself, find what breaks it, and then sort five methods into planning and learning.</p>
+
+        <div class="lab-part">
+          <h3>1 · Count the states</h3>
+          <p>The calculator starts with the real design's six features and how many values each can take. Change any number, or tick a feature to add it.</p>
+          <div class="widget" data-widget="statespace"></div>
+          <div class="lab-q" data-type="num" data-answer="726000" data-tol="0" data-explain="55 × 5 × 55 × 8 × 2 × 3. Times six actions and eight bytes, about 35 MB." data-nudge="Press “Reset to the real design” and read the number of states.">
+            <label>How many states does the real design have, before any pruning? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1540" data-tol="0" data-explain="1 + 2 + … + 55 = 55 × 56 / 2. Just over half of the 3,025 combinations, so this one rule alone removes almost half of the table." data-nudge="On lap 1 there is 1 possible age, on lap 2 there are 2, and so on up to lap 55. Add them up.">
+            <label>A tyre cannot be older than the number of laps run. Of the 55 × 55 = 3,025 combinations of lap and tyre age, how many can actually occur? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Find what breaks it</h3>
+          <p>Reset the calculator, then try each change below on its own.</p>
+          <div class="lab-q stack" data-type="choice" data-answer="d" data-explain="Doubling the laps and tyre ages multiplies the count by 4. Adding weather states or compounds multiplies it by less than 2. One continuous quantity cut into fine steps multiplies it by hundreds, and a second one would do so again." data-nudge="Try each one in the calculator and compare the memory figures.">
+            <span class="lab-prompt">Which single change does the most damage?</span>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="a"> A race twice as long: 110 laps, and tyre ages up to 110.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="b"> Five weather states in place of three.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="c"> Eight compounds in place of five.</label>
+            <label class="lab-opt"><input type="radio" name="p3501-break" value="d"> Tracking the fuel load to the nearest 0.1 kg.</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="20.9" data-tol="0.3" data-explain="436 million states. Add the fuel load as well and the table needs terabytes. This is why Phase 1 kept continuous quantities out of the state wherever a count of laps would do." data-nudge="Reset, tick only the gap feature, and read the size in GB.">
+            <label>With the real design plus the gap to the car ahead (to 0.1 s), how many GB does the table need? &nbsp; <input type="text" inputmode="decimal"> GB</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Planning or learning?</h3>
+          <p>For each method, pick the family it belongs to. The test is the page's: does it need the model written down, or does it work from sampled experience?</p>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="It reads costs and next states straight from the model. Nothing is sampled.">
+            <label>Backward induction over the race's states &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="learn" data-explain="It never sees the transition function. It adjusts estimates from transitions it has experienced.">
+            <label>Q-learning &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="Slow, but still planning: every plan is scored with the known lap-time formula. It is the check the next lab uses." data-nudge="Does it need to try anything out to learn what a lap costs?">
+            <label>Scoring every possible sequence of pit decisions with the lap-time formula and keeping the best &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="learn" data-explain="A network in place of a table changes how the estimates are stored. They are still learned from experience.">
+            <label>DQN &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="plan" data-explain="Value iteration sweeps the Bellman equation over a known model until the values settle. It is the method this page's oracle would need if races had no fixed length." data-nudge="The page's note on Sutton & Barto chapter 4 covers this one.">
+            <label>Value iteration with a known transition function &nbsp; <select><option value="">choose…</option><option value="plan">planning</option><option value="learn">learning</option></select></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 55 × 5 × 55 × 8 × 2 × 3 = 726,000 states. Reachable (lap, age) pairs: 1 + 2 + … + 55 = 1,540 of 3,025.</p>
+          <p><strong>2.</strong> Twice the laps: × 4. Five weather states: × 5/3. Eight compounds: × 8/5. Fuel to 0.1 kg: × 1,101. The fuel load does the most damage by far. With the gap feature alone: 726,000 × 601 = 436,326,000 states, × 6 actions × 8 bytes ≈ 20.9 GB.</p>
+          <p><strong>3.</strong> Planning: backward induction, scoring every sequence with the formula, value iteration. Learning: Q-learning, DQN.</p>
+        </details>

@@ -1,0 +1,26 @@
+<!-- page: phase-6-multi-car-prerequisites/03-potential-based-shaping.html | title: warm-up | format: paper | minutes: 6 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · the chain with a new potential</h3>
+          <p>The page's chain, same rewards (A→B −3, B→C −1, A→C −10), γ = 1, now with <code>Φ(A) = 3</code>, <code>Φ(B) = 4</code>, <code>Φ(C) = 0</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="-7" data-tol="0.01" data-explain="F(A,B) = 4 − 3 = 1 and F(B,C) = 0 − 4 = −4. Shaped: (−3 + 1) + (−1 − 4) = −7." data-nudge="Work out F(A,B) and F(B,C) first.">
+            <label>Shaped return via B &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-13" data-tol="0.01" data-explain="F(A,C) = 0 − 3 = −3, so −10 − 3 = −13. Via B still wins by 6: both routes shifted by −Φ(A) = −3." data-nudge="F(A,C) = Φ(C) − Φ(A).">
+            <label>Shaped return direct &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now change one thing. The direct route no longer ends at C but at a different terminal state C′, and C′ is given a potential of <strong>6</strong>, kept as it is at the end. Via B still ends at C (potential 0).</p>
+          <div class="lab-q" data-type="num" data-answer="-7" data-tol="0.01" data-explain="F(A,C′) = 6 − 3 = 3, so the direct route is now −10 + 3 = −7: level with the route via B." data-nudge="F(A,C′) = Φ(C′) − Φ(A), with Φ(C′) = 6.">
+            <label>Shaped return direct, ending at C′ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The leftover of the telescoping sum is Φ(end) − Φ(start). With both ends at 0 it is the same −Φ(A) for every route. With one end at 6, the routes that end there gain 6 that the others do not. The ranking moved: a 6-point lead became a tie, and a potential of 7 would have reversed it. Every state that can end an episode needs the same potential, conventionally 0.">
+            <span class="lab-prompt">Is the ranking still safe?</span>
+            <label class="lab-opt"><input type="radio" name="p603-trap" value="a"> yes: it is still a potential difference, so the theorem applies</label>
+            <label class="lab-opt"><input type="radio" name="p603-trap" value="b"> no: the routes now end with different potentials, and the leftover term differs between them</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Shaping terms: F(A,B) = 1, F(B,C) = −4, F(A,C) = −3. Returns: via B −7, direct −13, a gap of 6 as before. With the direct route ending at C′ (Φ = 6): F(A,C′) = 3, return −7, a tie. The theorem needs every ending to have the same potential.</p>
+        </details>
+
+        <h3>Then, in code</h3>

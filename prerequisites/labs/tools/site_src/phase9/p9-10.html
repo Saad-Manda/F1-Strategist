@@ -1,0 +1,49 @@
+<!-- page: phase-9-ppo-prerequisites/10-this-project-formalized.html | title: Keys, pages, numbers | format: quiz | minutes: 10 -->
+        <p class="lab-goal">Put each key of <code>configs/ppo.yaml</code> next to the page that explains it, then answer three questions the config raises, each settled by a measurement in this phase's labs.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which page explains each key?</h3>
+          <div class="lab-q" data-type="select" data-answer="p04" data-explain="ε of the clipped objective, the band [0.8, 1.2].">
+            <label><code>clip_range: 0.2</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p06" data-explain="256 steps × 4 environments = 1,024 transitions per update, cut into minibatches of 64 and passed over n_epochs times.">
+            <label><code>n_steps</code>, <code>batch_size</code>, <code>n_epochs</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p10" data-explain="The entropy bonus is new on page 10. The capstone report measured it on the toy race: it did not reliably cure the early learners' stall (gaps of 0.9 to 9.6 s across settings and seeds).">
+            <label><code>ent_coef: 0.01</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The key is missing, so SB3's default 0.95 is used: the λ of page 03, chosen by nobody.">
+            <label><code>gae_lambda</code>, absent from the file<br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Three questions the config raises</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="1,024 / 96 is not a whole number. Plain PPO warns about it once at construction; MaskablePPO says nothing at all, and both quietly train on a short last minibatch (measured in p9-06 part E: one warning against zero, minibatches of 64 and 36 for a buffer of 100). Only a test or a read of the code would catch it.">
+            <span class="lab-prompt">Someone changes <code>batch_size</code> to 96 with n_steps 256 and 4 environments. What does <code>MaskablePPO</code> do?</span>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="a"> raises an error when the model is built</label>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="b"> prints a warning, then trains</label>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="c"> says nothing, and trains with a short last minibatch</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.6" data-tol="0.01" data-explain="0.05 × 52 = 2.6 random actions per race, any of which can be a pit stop nobody chose. PPO's deterministic predict has none (Finding D)." data-nudge="Each lap, a 5% chance of a random action.">
+            <label>A DQN agent is evaluated with ε = 0.05 still on, over a 52-lap race. How many random actions does it take per race, on average? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Page 02 explains the mechanism: advantages are returns minus a baseline, and a value head that starts near 0 must fit returns near −4,700 before its baseline is any use. Page 10 says that with γ = 1 this is Finding C again, fixed by the same reward offset. p9-02 part D showed it on the bandit, and the capstone report on the toy race: MaskablePPO reached 0.00 s with the reward centred and 38.48 s, no learning at all, without.">
+            <span class="lab-prompt">Which page explains why reward centring matters for PPO on this project?</span>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="a"> page 02 only: it is a baseline question</label>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="b"> page 10 only: it is a config question</label>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="c"> both: page 02 for the mechanism, page 10 for where it bites in this config</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Answers</summary>
+          <p><code>clip_range</code> → 04; <code>n_steps</code>, <code>batch_size</code>, <code>n_epochs</code> → 06; <code>ent_coef</code> → 10 and the capstone report; the missing <code>gae_lambda</code> → 03. A batch of 96 gets silence from MaskablePPO. ε = 0.05 over 52 laps is 2.6 random actions per race. Centring needs both pages 02 and 10.</p>
+        </details>

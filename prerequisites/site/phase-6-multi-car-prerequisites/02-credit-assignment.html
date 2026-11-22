@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Credit assignment — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/02">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 02 of 10 — Foundations</p>
+      <h1>What "Doing Well" Even Means Now</h1>
+      <p class="dek">Phase 1's reward was the cleanest one this project will ever have. Phase 6 forces a tradeoff <code>docs/idea.md</code> warned about from the very first page.</p>
+
+      <h2>The reward Phase 1 through 5 had</h2>
+      <p><code>-lap_time</code>, every step. Summed over an episode, this equals <code>-total_race_time</code> exactly — the dense, per-step reward literally <em>is</em> the true objective, not a proxy standing in for it. There was never any question of whether the reward measured the right thing; the only open questions were about learning it well.</p>
+
+      <h2>What the equivalent reward for "race well" would be</h2>
+      <p>If the goal shifts from "go as fast as possible" to "finish as high as possible relative to rivals," the equally honest reward is final position. It exists, and it's exactly what the agent should care about — but it's <strong>sparse</strong>: known only once, on the terminal step of the episode, after hundreds of per-lap decisions have already been made. Every lap in between contributes to that eventual position, but none of them get told, in the moment, whether the choice just made helped or hurt.</p>
+
+      <h2>The credit-assignment problem</h2>
+      <p>When a reward arrives many steps after the decisions that caused it, the learning signal has to somehow apportion credit backward across every intervening step — did lap 14's early pit help or hurt the eventual P3 finish, as opposed to lap 31's tyre choice, or lap 40's overtake attempt? TD learning (Phase 4) already does a version of this through bootstrapping, propagating value backward one step at a time. But a reward that's exactly zero for fifty consecutive steps and then one number at the very end gives that machinery very little to work with per update, compared to Phase 1 through 5's fully dense <code>-lap_time</code>, which supplied a learning signal on <em>every single lap</em>.</p>
+
+      <h2>Dense proxies, and their own failure mode</h2>
+      <p>The obvious fix is a denser proxy reward — something computable every lap that's correlated with the true sparse goal. The real plan offers two, and they sit at different points on a real tradeoff:</p>
+      <ul>
+        <li><strong><code>lap_time_plus_position</code></strong> — the familiar dense <code>-lap_time</code> every lap, plus a one-time terminal bonus scaled by final position (<code>position_bonus_scale = 20.0</code> seconds-equivalent per position). This is still mostly the honest per-lap signal, with a shaped nudge toward caring about position layered on top only at the end.</li>
+        <li><strong><code>gap_change</code></strong> — a reward every lap for closing the gap to the leader (or car ahead). Dense every step, unlike the terminal-only bonus above — but it's a <em>proxy</em> for the real goal, not the goal itself.</li>
+      </ul>
+      <p>The real plan names a risk for <code>gap_change</code>: that an agent rewarded for closing gaps every lap will push its tyres for a short-term gain and pay for it in a slower final stint. Check that against the arithmetic first. The plan's reward is the lap's change in the gap, <code>−(curr_gap − prev_gap)</code>, starting from 0. Add those up over a race with <code>γ = 1</code> and every lap's change cancels the next lap's start: the total is exactly <code>−(final gap)</code>. (That stays true through a safety car, because the plan skips the reward on those laps but still updates <code>prev_gap</code>, so the next lap's change picks up what was skipped.) A gap closed now and lost later earns nothing overall. What <code>gap_change</code> rewards is the final margin to the leader, delivered in instalments: a <em>different objective</em> from race time, not a short-sighted version of it. The real risk is the general one, and it still applies: an agent may chase the margin to one car at a cost to everything else, and with <code>γ &lt; 1</code> the early instalments count for more than the late ones, so the sum stops being exact. This is the general shape of <strong>reward hacking</strong> (sometimes called Goodhart's-law-style optimization): once a proxy stands in for the real objective, the fastest way to raise the proxy's number isn't always the same as the best way to achieve the thing the proxy was supposed to measure.</p>
+
+      <div class="note generic">
+        <div class="tag">Not a hypothetical</div>
+        <p><code>docs/idea.md</code>'s own "common pitfalls" section names this as the #1 RL debugging trap, project-wide: <em>a rising learning curve isn't proof of anything by itself</em>, because the agent may be exploiting a flaw in the reward function rather than learning good strategy. <code>gap_change</code> is Phase 6's most concrete, plannable instance of exactly that risk — which is precisely why it's worth training deliberately rather than avoiding it out of caution.</p>
+      </div>
+
+      <h2>Why the real plan trains three designs instead of choosing one</h2>
+      <p>Given this tradeoff, the real plan doesn't try to reason its way to the single best reward design up front. It trains all three — <code>lap_time_plus_position</code>, <code>gap_change</code>, and a third design, <code>potential_shaping</code> (<a class="xref" href="03-potential-based-shaping.html">page 03</a>) — and compares what each one actually produces: does <code>gap_change</code> lead to different pit timing (checkable via average tyre age at pit stops)? Does one converge faster than the others? Which produces the best actual race outcome? This is presented in the real plan as good practice — try the tradeoff empirically and report what happened — not as a gap where the plan should have just picked one.</p>
+
+      <section class="lab" id="lab" data-lab-id="p6-02" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p6-02 · Notebook · about 20 min</span>
+        <h2>Sparse, dense, and farmed</h2>
+        <p class="lab-goal">Two measurements of page 02's argument. First, how many more steps a learner needs when the only reward comes at the end, and how that grows with the length of the episode. Then a helpful bonus on the way, turned up until the agent stops finishing and starts farming it, with a one-line formula for where that happens.</p>
+        <p><strong>Environment:</strong> a 1-D corridor of 5 to 40 cells, learned by tabular Q-learning; and a 5×5 grid with a goal worth +10 and a bonus tile that comes back three steps after it is taken.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p6-02</code></div>
+          <div><span>Check</span><code>python -m labs check p6-02</code></div>
+          <div><span>Hint</span><code>python -m labs hint p6-02</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase6/p6_02_credit/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase6/p6_02_credit/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1 is the Phase 4 update with one branch: when the step ended the episode, the target is just r. TODO 2: find every index holding the largest value and let rng choose one. TODO 3 is a geometric series with ratio gamma^period; TODO 4 solves loop_value(b) = goal for b.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: target = r if done else r + gamma * Q[s2].max(); Q[s, a] += alpha * (target - Q[s, a]). TODO 2: return int(rng.choice(np.flatnonzero(q_row == q_row.max()))).</p></details>
+        <details><summary>Hint 3</summary><p>TODO 3: return b / (1 - gamma ** period). TODO 4: return goal * (1 - gamma ** period), which is 1.855 at gamma = 0.95.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

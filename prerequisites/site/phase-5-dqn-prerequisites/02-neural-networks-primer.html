@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Neural networks primer — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/02">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Page 02 of 11 — Foundations</p>
+      <h1>Neural Networks in Four Steps: Forward Pass, Loss, Backward Pass, Update</h1>
+      <p class="dek">Scoped tightly to what <code>DuelingDQN.forward()</code> and its training step actually do. No convolutions, no architecture survey, no loss functions this project doesn't use.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope note</div>
+        <p>This page teaches exactly four mechanics — a layer's forward computation, a loss, backpropagation, and a gradient-descent step — at the depth needed to read and trust <code>dqn_agent.py</code>. It is not a general deep-learning introduction, and it stops as soon as those four mechanics are covered.</p>
+      </div>
+
+      <h2>A layer as a function</h2>
+      <p>A linear layer computes <code>y = Wx + b</code>: a matrix multiply of the input vector <code>x</code> by a weight matrix <code>W</code>, plus a bias vector <code>b</code>. On its own this is just an affine function — stacking several of them would collapse back into one big affine function, which can't represent anything more expressive than a straight line through the input space. A <strong>nonlinearity</strong> after each linear layer is what prevents that collapse; this project uses <strong>ReLU</strong>, <code>max(0, y)</code>, applied elementwise.</p>
+      <p>Traced to the real network's exact shape (<code>Linear(16→128) → ReLU → Linear(128→128) → ReLU</code>, the shared trunk of <code>DuelingDQN</code>): the <code>16</code> is Phase 1's normalized observation vector's dimension — nothing new is being invented here, this is the same 16 numbers <a class="xref" href="../phase-4-q-learning-prerequisites/08-this-project-formalized.html">Phase 4 page 08</a>'s discretization used, just fed to a different kind of consumer. The <code>128</code> hidden width is a design choice, not derived from anything; it just needs to be large enough for the network to represent the function it's trying to learn without being so large that it trains slower than necessary on a state space this small.</p>
+
+      <h2>Worked forward pass on a tiny network</h2>
+      <p>A network far smaller than the real one, small enough to run by hand: 2 inputs, 1 hidden layer of 2 units with ReLU, 1 output, no bias terms (to keep the arithmetic short):</p>
+      <blockquote class="eq">W1 = [[ 1.0, -1.0],      x = [2.0, 1.0]
+      [0.5,  0.5]]
+
+h_pre = W1 · x = [1.0(2.0) + (-1.0)(1.0),  0.5(2.0) + 0.5(1.0)]
+              = [2.0 - 1.0,  1.0 + 0.5]
+              = [1.0, 1.5]
+
+h = ReLU(h_pre) = [max(0, 1.0), max(0, 1.5)] = [1.0, 1.5]
+
+W2 = [2.0, -1.0]     (output layer, 2 -> 1)
+
+y = W2 · h = 2.0(1.0) + (-1.0)(1.5) = 2.0 - 1.5 = 0.5</blockquote>
+      <p>Every step above is exactly what <code>self.trunk(x)</code> followed by one output head does in the real network, just at a size that fits on paper: a matrix multiply, a ReLU that zeroes out any negative pre-activation (here, nothing needed zeroing — both pre-activations happened to be positive), and a second matrix multiply into the output.</p>
+
+      <h2>Loss: how wrong is the prediction, as one number</h2>
+      <p>Given a prediction <code>ŷ</code> and a target <code>y*</code>, a loss function collapses "how wrong" into a single scalar to minimize. Mean-squared error: <code>L = (ŷ − y*)²</code>. The real agent uses <strong>smooth L1 / Huber loss</strong> instead — quadratic for small errors, linear beyond <code>|error| = 1</code> — for reasons <a class="xref" href="08-reward-scale-trap.html">page 08</a> covers once there's a concrete number to explain. For now, either one plays the same role: a differentiable scalar that's small when the prediction is close and large when it isn't.</p>
+      <p>DQN's specific case (developed fully on <a class="xref" href="03-target-network.html">page 03</a> and after): <code>ŷ = Q(s,a;θ)</code>, the network's current prediction; <code>y* = target</code>, the Bellman-derived TD target. The loss is exactly "how far is the current Q-value estimate from where the Bellman equation says it should be" — the same quantity Phase 4's <code>δ</code> measured, now expressed as a loss to be minimized by gradient descent rather than a nudge applied by hand to one table cell.</p>
+
+      <h2>Backpropagation, at the level this project needs</h2>
+      <p>Backpropagation computes <code>∂L/∂θ</code> for every weight in <code>θ</code> — how much, and in which direction, nudging that one weight would change the loss — by applying the chain rule layer by layer, working backward from the output. This page states that fact and works one small piece of it by hand; it does not derive the full chain-rule proof for an arbitrary network, which the real project never needs to do since PyTorch's autograd computes it automatically.</p>
+      <p>One weight's gradient, worked on the tiny network above: take <code>W2</code>'s first entry (the weight connecting hidden unit 1 to the output), currently <code>2.0</code>. If the loss is <code>L = (y − y*)²</code> with <code>y* = 0</code> (target) and <code>y = 0.5</code> (this network's output, computed above):</p>
+      <blockquote class="eq">∂L/∂y = 2(y - y*) = 2(0.5 - 0) = 1.0
+∂y/∂W2[0] = h[0] = 1.0        (y = W2[0]·h[0] + W2[1]·h[1], so ∂y/∂W2[0] = h[0])
+∂L/∂W2[0] = ∂L/∂y · ∂y/∂W2[0] = 1.0 · 1.0 = 1.0</blockquote>
+      <p>Read directly: increasing <code>W2[0]</code> by a small amount would increase the loss (the gradient is positive), so a gradient-descent step should <em>decrease</em> <code>W2[0]</code> a little. That single number, <code>1.0</code>, is exactly the kind of quantity backpropagation computes for every one of <code>θ</code>'s entries — this page only carries the chain rule back one layer; the real network's trunk has several more, each contributing one more application of the same rule.</p>
+
+      <h2>Gradient descent: the same nudge, computed automatically</h2>
+      <p>The update rule: <code>θ ← θ − lr · ∂L/∂θ</code>, applied to every entry of <code>θ</code> at once. This is worth reading side by side with Phase 4's tabular update, because it is <em>the same idea</em>, not a different one:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tabular (Phase 4)</th><th>Function approximation (this page)</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Q(s,a) ← Q(s,a) + α·δ</td><td class="mono">θ ← θ − lr·∂L/∂θ</td></tr>
+            <tr><td>One number, one table cell</td><td>Every entry of a (possibly large) weight vector</td></tr>
+            <tr><td><code>δ</code>: how wrong the current cell's estimate is</td><td><code>∂L/∂θ</code>: how wrong the current prediction is, and how each weight contributed to that</td></tr>
+            <tr><td><code>α</code>: how far one sampled transition can move one cell</td><td><code>lr</code>: how far one sampled transition (via its gradient) can move every weight</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>This is the page's payoff line, and it's worth carrying forward explicitly: DQN is not a different learning idea from Phase 4's Q-learning. It is the exact same "nudge toward a Bellman-derived target" update rule, with the table cell replaced by a gradient step on a shared function. Every technique from <a class="xref" href="03-target-network.html">page 03</a> onward exists to make that gradient step trainable in practice, not to change what it's trying to accomplish.</p>
+
+      <h2>Adam, named but not derived</h2>
+      <p>Plain gradient descent uses the same step size (<code>lr</code>) for every weight, every step. <strong>Adam</strong> is an optimizer that adapts the effective step size per-parameter based on that parameter's recent gradient history, converging faster and more reliably in practice for the kind of noisy, mini-batch gradients this project computes. Nothing here derives Adam's update rule — it's enough to recognize <code>torch.optim.Adam(self.online_net.parameters(), lr=lr)</code> in the code walkthrough (<a class="xref" href="11-code-walkthrough.html">page 11</a>) as "gradient descent, with a per-parameter adaptive step size," and to know that <code>lr</code> still means the same thing it meant in the table above — the base step size Adam adapts around.</p>
+
+      <section class="lab" id="lab" data-lab-id="p5-02" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p5-02 · Notebook · about 20 min</span>
+        <h2>The four steps, written out</h2>
+        <p class="lab-goal">First run a forward pass and three gradients by hand on new numbers. Then write the forward and backward pass in NumPy for a whole batch, check every gradient against PyTorch's autograd, and train the network with your own gradient descent. Training turns up something the page did not need to mention: whether a small network learns can depend on where it starts.</p>
+
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's network, new numbers</h3>
+          <p>Same shape as the worked example (2 inputs, 2 hidden ReLU units, 1 output, no biases), with these weights and this input:</p>
+          <pre><code>W1 = [[1.0, -1.0],      x = [1.0, 3.0]      W2 = [1.0, 0.5]      target y* = 1.0
+      [0.5,  1.0]]</code></pre>
+          <div class="lab-q" data-type="num" data-answer="-2" data-tol="0.001" data-explain="1.0(1.0) + (−1.0)(3.0) = −2. This time a pre-activation is negative." data-nudge="Row 0 of W1 times x: 1.0 × 1.0 + (−1.0) × 3.0.">
+            <label>Forward · <code>h_pre[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.001" data-explain="ReLU(−2) = 0. Hidden unit 0 is switched off for this input." data-nudge="ReLU(z) = max(0, z).">
+            <label>Forward · <code>h[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1.75" data-tol="0.001" data-explain="h = [0, 3.5], so y = 1.0(0) + 0.5(3.5) = 1.75." data-nudge="h_pre[1] = 0.5(1.0) + 1.0(3.0) = 3.5, which ReLU leaves alone. Then y = W2 · h.">
+            <label>Forward · output <code>y</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5625" data-tol="0.001" data-explain="(1.75 − 1.0)² = 0.75² = 0.5625." data-nudge="L = (y − y*)².">
+            <label>Loss · <code>L = (y − y*)²</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>Backward · three gradients and one step</h3>
+          <p>Start from <code>∂L/∂y = 2(y − y*)</code>, then apply the chain rule as the page did.</p>
+          <div class="lab-q" data-type="num" data-answer="5.25" data-tol="0.001" data-explain="∂L/∂y = 2(0.75) = 1.5, and ∂y/∂W2[1] = h[1] = 3.5, so 1.5 × 3.5 = 5.25." data-nudge="∂L/∂W2[1] = ∂L/∂y × h[1].">
+            <label><code>∂L/∂W2[1]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0.001" data-explain="∂y/∂W2[0] = h[0] = 0. A weight leaving a switched-off unit gets no gradient: changing it would not change y for this input." data-nudge="The same rule as the last question, with h[0].">
+            <label><code>∂L/∂W2[0]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.25" data-tol="0.001" data-explain="One layer further back: ∂L/∂y × W2[1] × ReLU′(3.5) × x[1] = 1.5 × 0.5 × 1 × 3.0 = 2.25. ReLU′ is 1 where the unit is active." data-nudge="Four factors: ∂L/∂y, the weight from unit 1 to the output, ReLU′ at unit 1 (it is active), and the input that W1[1][1] multiplies.">
+            <label><code>∂L/∂W1[1][1]</code> (row 1, column 1) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.025" data-tol="0.0005" data-explain="0.5 − 0.1 × 5.25 = −0.025. The positive gradient said a larger W2[1] means a larger loss, so the step lowers it." data-nudge="θ ← θ − lr · ∂L/∂θ with lr = 0.1.">
+            <label>One gradient-descent step with <code>lr = 0.1</code>: the new <code>W2[1]</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>Forward.</strong> h_pre = [1 − 3, 0.5 + 3] = [−2, 3.5]; h = [0, 3.5]; y = 0 + 0.5 × 3.5 = 1.75; L = 0.75² = 0.5625.</p>
+          <p><strong>Backward.</strong> ∂L/∂y = 1.5. ∂L/∂W2 = 1.5 × h = [0, 5.25]. Row 0 of ∂L/∂W1 is all zero, because unit 0 is inactive and ReLU passes no gradient back through it. Row 1 is 1.5 × 0.5 × x = [0.75, 2.25].</p>
+          <p><strong>Step.</strong> W2[1] = 0.5 − 0.525 = −0.025. The zeros are worth carrying into the code lab: a weight leaving an inactive unit gets no gradient from that example, and a unit that is inactive on every input gets none at all.</p>
+        </details>
+
+        <h3>Then, in code</h3>
+        <p><strong>Environment:</strong> the page's 2-2-1 network, trained on y = |x₁ − x₂|, which it can represent exactly.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p5-02</code></div>
+          <div><span>Check</span><code>python -m labs check p5-02</code></div>
+          <div><span>Hint</span><code>python -m labs hint p5-02</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase5/p5_02_four_steps/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase5/p5_02_four_steps/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: X has one row per example, so the first layer is X @ W1.T. TODO 2 follows the five lines in the cell, in order; each one uses the line before it. TODO 3 is two lines, one per weight matrix.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 2: dy = 2 * (y - targets) / len(X); dW2 = h.T @ dy; dh = np.outer(dy, W2). The ReLU line multiplies dh by (h_pre &gt; 0), which is 1 where the unit was active and 0 where it was not.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 2 ends with dh_pre = dh * (h_pre &gt; 0) and dW1 = dh_pre.T @ X. TODO 3: W1 = W1 - lr * dW1 and W2 = W2 - lr * dW2.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

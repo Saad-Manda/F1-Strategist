@@ -1,0 +1,14 @@
+id: p5-05
+title: Two heads, one answer
+page: phase-5-dqn-prerequisites/05-dueling-architecture.html
+format: pytest
+minutes: 15
+files: [dueling.py]
+goal: >-
+  First split a new set of Q-values by hand and combine a network's two outputs. Then write the split, the combining line and a small two-headed network, with tests that check the property page 05 is about: once the mean is subtracted, shifting the advantages changes nothing, and moving value from one head to the other is no longer free.
+environment: >-
+  plain tensors, then a network with a shared body and two heads.
+hints:
+  - "Task 1 is two lines: V is the mean of the Q-values, and A is what is left. Task 2 is one line; the only thing to get right is which dimension the mean runs over. Task 3: three layers' worth of nn.Linear in __init__, and forward runs the body once and feeds the same output to both heads."
+  - "Task 2: advantage.mean(dim=-1, keepdim=True) is the mean over each row's actions, shaped (B, 1) so it subtracts from every column. Task 3: self.body = nn.Sequential(nn.Linear(n_obs, width), nn.ReLU(), nn.Linear(width, width), nn.ReLU())."
+  - "Task 2: return value + advantage - advantage.mean(dim=-1, keepdim=True). Task 3 forward: h = self.body(obs); return combine(self.value_head(h), self.advantage_head(h))."

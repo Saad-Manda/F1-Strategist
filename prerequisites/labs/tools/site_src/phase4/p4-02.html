@@ -1,0 +1,27 @@
+<!-- page: phase-4-q-learning-prerequisites/02-q-learning-derived.html | title: warm-up | format: paper | minutes: 6 -->
+        <div class="lab-part">
+          <h3>Warm-up, on paper · the page's toy, a different four transitions</h3>
+          <p>Same toy as the worked example, same settings (<code>α = 0.5</code>, <code>γ = 1</code>, every cell starting at <code>0</code>), but the transitions arrive in this order. Enter the value of the updated cell after each one.</p>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.001" data-explain="Terminal: target −2, δ = −2, cell 0 + 0.5(−2)." data-nudge="The transition ends the episode, so the target is the reward alone.">
+            <label>1 · <code>(s2, a1, r = −2, terminal)</code> → <code>Q(s2, a1)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.5" data-tol="0.001" data-explain="Target −1 + max(Q(s2,a0), Q(s2,a1)) = −1 + max(0, −1) = −1. The max picks the untouched cell." data-nudge="Q(s2, a1) is now −1 and Q(s2, a0) is still 0. Which does max pick?">
+            <label>2 · <code>(s1, a0, r = −1, next = s2)</code> → <code>Q(s1, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.5" data-tol="0.001" data-explain="Terminal: target −1, cell 0 + 0.5(−1).">
+            <label>3 · <code>(s2, a0, r = −1, terminal)</code> → <code>Q(s2, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-1.5" data-tol="0.001" data-explain="−1 + max(−0.5, −1) = −1.5. Both cells of s2 have now been visited, so the max is no longer an untouched zero." data-nudge="Q(s2, a0) = −0.5 and Q(s2, a1) = −1.">
+            <label>4 · <code>(s1, a0, r = −1, next = s2)</code>: the <strong>target</strong> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-1" data-tol="0.001" data-explain="δ = −1.5 − (−0.5) = −1, so the cell moves from −0.5 to −1.0. The page's order left this cell at −0.75 after its second visit: same transitions for s1, different order overall, different table." data-nudge="δ = target − current value, and the current value is −0.5.">
+            <label>4 · … and the new <code>Q(s1, a0)</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p><strong>1.</strong> Q(s2,a1) = 0 + 0.5(−2 − 0) = −1. <strong>2.</strong> Target −1 + max(0, −1) = −1; Q(s1,a0) = −0.5. <strong>3.</strong> Q(s2,a0) = 0 + 0.5(−1) = −0.5. <strong>4.</strong> Target −1 + max(−0.5, −1) = −1.5; δ = −1; Q(s1,a0) = −0.5 + 0.5(−1) = −1.0.</p>
+          <p>The true value is Q*(s1,a0) = −2. After two visits this order has reached −1.0 and the page's order −0.75, because here the cells of s2 were corrected before s1 looked at them the second time.</p>
+        </details>
+
+        <h3>Then, in code</h3>

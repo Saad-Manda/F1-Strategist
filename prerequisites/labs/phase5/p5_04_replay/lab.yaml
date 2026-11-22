@@ -1,0 +1,14 @@
+id: p5-04
+title: A ring buffer, and what it does to a batch
+page: phase-5-dqn-prerequisites/04-experience-replay.html
+format: pytest
+minutes: 15
+files: [replay.py]
+goal: >-
+  You will build page 04's minimal replay buffer: fixed capacity, the oldest overwritten first, uniform sampling. Then you measure what it is for. Thirty-two laps taken in the order they were driven are strongly correlated, each one nearly a copy of the last. The same number of laps sampled from the buffer are not.
+environment: >-
+  a stream of 300 toy races of 20 laps, each with one pit stop on a random lap.
+hints:
+  - "Task 1: push writes into one slot and moves next_slot on; the % operator wraps it back to 0. count goes up by one per push until it reaches capacity. Task 2: pick the slot numbers first, then look them up. Task 3 is one call to np.corrcoef."
+  - "Task 1: self.slots[self.next_slot] = transition; self.next_slot = (self.next_slot + 1) % self.capacity; self.count = min(self.count + 1, self.capacity). Task 2: self.rng.integers(self.count, size=n) gives n slot numbers among the filled ones."
+  - "Task 2: return [self.slots[i] for i in self.rng.integers(self.count, size=n)]. Task 3: values = np.asarray(values, dtype=float); return float(np.corrcoef(values[:-1], values[1:])[0, 1])."

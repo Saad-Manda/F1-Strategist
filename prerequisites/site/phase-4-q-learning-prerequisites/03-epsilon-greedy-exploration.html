@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Exploration: ε-greedy — Phase 4 Q-learning · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="4/03">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 4 · Page 03 of 09 — Foundations</p>
+      <h1>Exploration: ε-Greedy</h1>
+      <p class="dek">Nothing said so far explains how the agent decides what to actually do. ε-greedy is the simplest answer that works, and it resolves the exploration/exploitation tradeoff <a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Phase 1 page 1</a> only named.</p>
+
+      <h2>Why greedy-only fails</h2>
+      <p>An agent that always takes whatever action its current Q-table says is best can get permanently stuck on a mediocre policy — not because the table is wrong in some abstract sense, but because it never tries the action that would have revealed something better. If an early, still-unreliable estimate happens to rank a mediocre pit lap above the genuinely optimal one, a purely greedy agent will keep confirming its own mistaken belief forever: it only ever revisits the action it already prefers, so the estimate for the better action never gets the chance to improve. This is the exploration/exploitation tradeoff named on <a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Phase 1 page 1</a> — <em>exploit</em> what looks best so far, or <em>explore</em> to find out whether something else is actually better — resolved concretely here for the first time.</p>
+
+      <h2>ε-greedy, defined</h2>
+      <blockquote class="eq">with probability ε:      act uniformly at random, among LEGAL actions
+with probability 1 − ε:  act greedily — argmax Q(s, ·), among LEGAL actions</blockquote>
+      <p>"Among legal actions" matters in both branches, tying back to the action mask introduced in the Phase 1 and Phase 3.5 sets: a random draw has to be restricted to actions that are actually available in the current state, and the greedy argmax has to ignore illegal actions' Q-values entirely (masked out, typically by setting them to <code>−∞</code> before taking the max) rather than accidentally selecting one just because its untrained Q-value happens to look high.</p>
+
+      <h2>Linear decay, worked with the real plan's numbers</h2>
+      <p>A fixed <code>ε</code> never stops exploring as much as it did on day one, which wastes training time once the agent already knows roughly what's good. The real plan decays <code>ε</code> linearly from <code>ε_start = 1.0</code> (pure exploration at the very start of training) down to a floor <code>ε_end = 0.05</code> (never fully greedy — always a small chance of trying something else) over <code>decay_steps = 500,000</code> environment steps:</p>
+      <blockquote class="eq">ε_t = max( ε_end,  ε_start − t · (ε_start − ε_end) / decay_steps )
+
+per-step decrement = (1.0 − 0.05) / 500,000 = 0.95 / 500,000 = 1.9 × 10⁻⁶</blockquote>
+      <p>A race at this project's reference circuit is 52 laps, so 52 steps. 500,000 steps at 52 steps per race is <code>500,000 / 52 ≈ 9,615</code> races before ε reaches its floor, out of the real plan's 10,000-race training run. So with these numbers the agent is still decaying its exploration for 96% of training, and spends only the last few hundred races at the 5% floor. The plan's config comment describes the same setting as "~5K eps", which would be true of a 100-lap race. The design the comment has in mind, exploring for about the first half of the run and refining for the second, needs <code>decay_steps</code> near <code>5,000 × 52 = 260,000</code>. This is worth settling before training, and lab p4-03 below shows what each choice costs.</p>
+
+      <div class="note grounded">
+        <div class="tag">Common pitfall</div>
+        <p>Decaying <code>ε</code> too fast locks in whatever policy the table happened to prefer early, before enough states have been visited to trust it — the exact same failure mode as the greedy-only case above, just delayed rather than avoided. If a trained agent's learning curve flattens early at a mediocre level, checking whether <code>epsilon_decay_steps</code> was too small relative to the total training budget is one of the first things worth trying, ahead of anything more exotic (this is also why the real plan's risk table names "increase <code>epsilon_decay_steps</code> to 1M" as a mitigation for premature convergence).</p>
+      </div>
+
+      <h2>Why masking has to apply inside exploration, not just at evaluation time</h2>
+      <p>It's tempting to think of the action mask as something that only matters for the greedy branch — after all, isn't a random exploratory action supposed to be random? The problem is that "random over all 6 actions" wastes exploration budget on moves that are illegal in the current state and get rejected or corrupt training, when only a handful of those 6 are actually legal here (say, only one valid pit compound is available because the mandatory-service rule restricts choices, or every pit action is illegal on the parade lap). Masking has to narrow the random draw itself to the legal set, not just filter the final choice afterward.</p>
+      <p>A concrete comparison makes the cost precise. Suppose 6 actions total, of which exactly 3 are legal in some state, and exactly one of those 3 is the useful pit action the agent needs to discover. Over 10 exploratory visits to that state, the chance of trying that one useful action at least once:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Exploration scheme</th><th>P(pick the useful action), one draw</th><th>P(tried at least once in 10 draws)</th></tr></thead>
+          <tbody>
+            <tr><td>Unmasked — random over all 6 actions</td><td class="mono">1/6 ≈ 0.167</td><td class="mono">1 − (5/6)¹⁰ ≈ 0.838</td></tr>
+            <tr><td>Masked — random over the 3 legal actions</td><td class="mono">1/3 ≈ 0.333</td><td class="mono">1 − (2/3)¹⁰ ≈ 0.983</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Both numbers look reasonably high over 10 draws, but the gap compounds badly at states that are visited rarely (exactly the coarse-table cells <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a> and 6 worry about) or where more than one of the 6 actions is illegal — a state with only 2 legal actions out of 6 more than doubles the masked scheme's per-draw hit rate over the unmasked one. Masking inside exploration isn't a correctness nicety; it's what makes the exploration budget actually land on the decisions the agent needs to learn.</p>
+
+      <section class="lab" id="lab" data-lab-id="p4-03" data-lab-format="notebook">
+        <span class="lab-kicker">Lab p4-03 · Notebook · about 20 min</span>
+        <h2>Decay and masking</h2>
+        <p class="lab-goal">You will implement masked ε-greedy and the linear decay schedule, work out when the real plan's schedule reaches its floor, find out how fast ε can fall before an agent locks onto the wrong choice, and reproduce this page's masked-versus-unmasked table by experiment.</p>
+        <p><strong>Environment:</strong> the 10-armed bandit testbed (Sutton &amp; Barto, chapter 2): no states, only the question of how much to explore.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p4-03</code></div>
+          <div><span>Check</span><code>python -m labs check p4-03</code></div>
+          <div><span>Hint</span><code>python -m labs hint p4-03</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase4/p4_03_epsilon_greedy/lab.ipynb</code>. Reference solution, for afterwards: <code>labs/solutions/phase4/p4_03_epsilon_greedy/</code>.</p>
+        <details><summary>Hint 1</summary><p>TODO 1: np.flatnonzero(legal) gives the indices of the legal actions. Explore by handing those indices to rng.choice. Exploit by taking an argmax that cannot land on an illegal action. TODO 2 is the page&#x27;s formula, one line.</p></details>
+        <details><summary>Hint 2</summary><p>TODO 1: for the greedy branch, make a copy of q in which every illegal entry is -inf (np.where(legal, q, -np.inf)), then np.argmax it. TODO 3: the floor is reached after decay_steps steps; divide by the number of steps in a race.</p></details>
+        <details><summary>Hint 3</summary><p>TODO 1: if rng.random() &lt; epsilon: return int(rng.choice(np.flatnonzero(legal))); return int(np.argmax(np.where(legal, q, -np.inf))). TODO 2: return max(end, start - step * (start - end) / decay_steps). TODO 3: 500000 / 52.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

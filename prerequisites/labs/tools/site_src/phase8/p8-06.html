@@ -1,0 +1,36 @@
+<!-- page: phase-8-self-play-prerequisites/06-blocking-model-dependency.html | title: Where the undercut comes from | format: quiz | minutes: 10 -->
+        <p class="lab-goal">Five questions on why the headline result depends on blocking, answered with the capstone's pit-timing duel (two equal cars, the follower 0.5 s behind, one stop each) and the plan's own files.</p>
+
+        <div class="lab-part">
+          <h3>1 · What blocking changes</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="Measured on the duel's payoff matrix: with blocking off, the follower's best stop is lap 8 against every one of the leader's 17 possible laps, and the leader's is lap 8 against every follower lap. Each car runs its own solo-optimal race, because the other car cannot cost it time. With blocking on, the best reply moves with the rival: laps 4, 5 and 6 against a leader stopping on 6, 7 and 8." data-nudge="If the cars run through each other, what can the rival's stop do to your lap times?">
+            <span class="lab-prompt">With blocking off, does the follower's best stop lap depend on when the leader stops?</span>
+            <label class="lab-opt"><input type="radio" name="p806-br" value="a"> no: lap 8 is its best reply to every leader lap</label>
+            <label class="lab-opt"><input type="radio" name="p806-br" value="b"> yes: it stops a lap or two before the leader, to undercut</label>
+            <label class="lab-opt"><input type="radio" name="p806-br" value="c"> yes: it stops a lap after the leader, to overcut</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0.001" data-explain="Both stop on lap 8 at the equilibrium, so every pit delta is 0: the histogram is one bar, and nothing about it is strategic. With blocking on, the equilibrium puts 0.11 at 0, 0.61 on the follower-first side and 0.28 on the other (capstone stage 6)." data-nudge="Both cars, the same lap, every race.">
+            <label>With blocking off, what fraction of pit deltas (follower's stop lap − leader's) is 0 at the equilibrium? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Where the rule has to go</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="F1PettingZooEnv builds one F1StrategyEnv per car, steps each on its own, adds up each car's own lap times and sorts the totals. No car's lap time ever depends on another car. attempt_overtake is imported and never called." data-nudge="Read F1PettingZooEnv.reset and step in the plan: what does self._envs hold?">
+            <span class="lab-prompt">Does the plan's <code>F1PettingZooEnv</code> run its cars through Phase 6's <code>F1MultiCarEnv</code>?</span>
+            <label class="lab-opt"><input type="radio" name="p806-mc" value="a"> yes: it wraps F1MultiCarEnv in the Parallel API</label>
+            <label class="lab-opt"><input type="radio" name="p806-mc" value="b"> no: it runs one independent single-car env per car and sorts their total times</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Adding the rule to Phase 6's F1MultiCarEnv is still needed for Phase 6, but this env never calls it. Either the rule goes into F1PettingZooEnv.step, where one car's lap time can be capped by the car ahead, or the env is rebuilt on F1MultiCarEnv so it inherits the rule." data-nudge="Which file computes the lap times that Phase 8's agents are rewarded on?">
+            <span class="lab-prompt">So, where must the blocking rule go for Phase 8's training to feel it?</span>
+            <label class="lab-opt"><input type="radio" name="p806-where" value="a"> only in Phase 6's F1MultiCarEnv: Phase 8 inherits it</label>
+            <label class="lab-opt"><input type="radio" name="p806-where" value="b"> in CheckpointPool, so opponents are sampled with blocking in mind</label>
+            <label class="lab-opt"><input type="radio" name="p806-where" value="c"> in F1PettingZooEnv.step, or the env is rebuilt on F1MultiCarEnv</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="The plan's Risks table, as it stands, says the out-lap warm-up is not the likely cause and to check the blocking model first. &quot;Increase checkpoint frequency&quot; belongs to a different row, training collapse." data-nudge="Read the &quot;Undercut doesn't emerge&quot; row itself.">
+            <span class="lab-prompt">The plan's Risks row "Undercut doesn't emerge": what does it tell you to do?</span>
+            <label class="lab-opt"><input type="radio" name="p806-risk" value="a"> increase the checkpoint frequency to every 500 episodes</label>
+            <label class="lab-opt"><input type="radio" name="p806-risk" value="b"> tune the out-lap warm-up penalty</label>
+            <label class="lab-opt"><input type="radio" name="p806-risk" value="c"> check the blocking model first</label>
+          </div>
+        </div>

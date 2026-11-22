@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · The binning bug — Phase 4 Q-learning · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="4/06">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 4 · Page 06 of 09 — An audit finding, read before you code</p>
+      <h1>The Binning Bug: When Coarseness Erases the Decision</h1>
+      <p class="dek">A binning scheme that runs without error and produces a plausible-sized table is not the same thing as a binning scheme that can represent the optimal policy. This page exists because the real plan's first draft got this wrong, and the fix has to land in <code>discretize_obs</code> before anything else in Phase 4 can be trusted.</p>
+
+      <div class="note grounded">
+        <div class="tag">Audit finding, quoted directly from the real plan</div>
+        <p><code>phase-4-q-learning-sarsa.md</code> flags its own Step 1: <em>"The binning below is too coarse to represent the decision... The agent is structurally prevented from representing the optimum, and no amount of training fixes that."</em> This page exists to make sure that warning is understood before <code>discretize_obs</code> gets written, not discovered afterward from a confusing learning curve.</p>
+      </div>
+
+      <h2>The concrete numbers</h2>
+      <p>The real plan's <code>tire_age</code> dimension gets <strong>10 bins</strong> over a normalization capped at 50 laps of tire age — one bin per 5 laps:</p>
+      <blockquote class="eq">tire_age_bin = min( int(normalized_age × 10), 9 )     # normalized_age = age / 50
+
+bin 0: ages 0–5      bin 1: ages 5–10     bin 2: ages 10–15    ...
+bin 5: ages 25–30     bin 6: ages 30–35    ...</blockquote>
+
+      <h2>Why that's fatal, connected directly to Phase 3.5's own numbers</h2>
+      <p>This isn't an abstract concern — it can be checked directly against numbers this project has already validated. Phase 0.5's non-degeneracy check requires the 1-second-optimal pit window (the range of laps within one second of the exact optimal pit lap, as computed by the Phase 3.5 DP oracle) to be <strong>≤12 laps wide</strong>, and the Phase 0 audit actually measured windows of <strong>5–10 laps</strong>. A 5-lap-wide <code>tire_age</code> bin is frequently <em>narrower than the entire optimal window is wide</em> — meaning two laps the oracle considers meaningfully different can land in the very same table cell.</p>
+      <p>Concretely: suppose the DP oracle's exact optimal pit lap for some scenario is lap 27, with the 1-second-optimal window running from roughly lap 25 to lap 32 (an 8-lap window, well within the measured 5–10 lap range). Consider two candidate pit laps inside that window, lap 27 and lap 31, both close to optimal but four laps apart:</p>
+      <blockquote class="eq">tire age at lap 27  ≈ 27  →  normalized ≈ 0.54  →  int(0.54 × 10) = 5   →  bin 5
+tire age at lap 31  ≈ 31  →  normalized ≈ 0.62  →  int(0.62 × 10) = 6   →  bin 6</blockquote>
+      <p>Those two happen to land in adjacent bins here — but shift the same window four laps earlier (optimal lap 23, candidates lap 23 and lap 27) and both fall inside bin 4 (ages 20–25) and bin 5 (ages 25–30) respectively only by luck of where the window sits relative to a bin edge; shift it by two laps instead of four (candidates lap 27 and lap 29, both well inside a typical 5–10 lap window) and both round into <strong>the same bin 5</strong> (ages 25–30). The table then has no cell in which "pit now" and "wait 2–4 more laps" are different entries — <code>Q(state_with_bin5, PIT)</code> is a single number that has to simultaneously represent the value of pitting at lap 27 <em>and</em> the value of pitting at lap 29, even though the DP oracle can tell these apart and the real cost of picking wrong is real seconds of race time.</p>
+      <p>This is not underfitting. More training episodes, a better learning rate, a longer epsilon decay — none of it helps, because the representation itself has a ceiling: two states that are genuinely different, with genuinely different optimal actions, are mapped to the same dictionary key before the agent ever sees them. No update rule can recover information the state representation already discarded.</p>
+
+      <h2>The fix the real plan adopts</h2>
+      <p>Use <strong>1–2 lap resolution on <code>tire_age</code> (25–50 bins)</strong>, non-uniform if convenient — fine-grained near the cliff, where the decision is genuinely sensitive to a lap or two either way, coarser far from it, where nothing close to the boundary is at stake and a wider bin costs nothing in decision quality.</p>
+      <p>The natural objection is that finer binning means a bigger table, but <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a> already computed the actual cost: even the deliberately coarse original scheme comes to roughly 172,800 states (a few megabytes as a float64 table). Widening <code>tire_age</code> from 10 bins to, say, 40 bins multiplies the total by 4×, landing well under 100 MB either way — and because <code>self.Q</code> is a <code>defaultdict</code> (<a class="xref" href="08-this-project-formalized.html">page 8</a>), memory is only ever allocated for states that are actually <em>visited</em> during training, not for the full enumerated space. The aggressive coarseness was never buying back meaningful memory savings; it was only costing the ability to represent the optimum.</p>
+
+      <h2>The general lesson</h2>
+      <p>Echoing <a class="xref" href="../phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html">Phase 3.5 page 5</a>'s own discipline — a clean pipeline isn't a validated pipeline — a binning scheme that runs without error and produces a plausible-sized table is not the same thing as a binning scheme that <em>can represent</em> the optimal policy. The two properties are independent: a scheme can be perfectly bug-free, produce a sensible-looking state count, train without crashing, and still be structurally incapable of distinguishing the decisions that matter.</p>
+      <div class="note grounded">
+        <div class="tag">The concrete test this motivates</div>
+        <p><code>discretize_obs</code> must map the Phase 3.5 DP oracle's optimal pit lap, and its immediate neighboring laps, to <strong>distinct</strong> bins. If it doesn't, Phase 4 isn't measuring the algorithm's ability to learn a good policy — it's measuring the discretization's inability to represent one, and the optimality gap it eventually reports against Oracle B is meaningless regardless of how well Q-learning or SARSA converges on top of it. This test belongs early in <code>tests/test_agents.py</code>, run before any learning-curve result is trusted, in the same spirit as Phase 3.5's <code>test_oracle_no_absurd_exploit</code> sanity check.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p4-06" data-lab-format="widget">
+        <span class="lab-kicker">Lab p4-06 · In page · about 10 min</span>
+        <h2>Which laps share a cell?</h2>
+        <p class="lab-goal">The page argues that 10 tyre-age bins erase the pit decision. Here you see which laps collide at any bin count, and then price the fix.</p>
+
+        <div class="lab-part">
+          <h3>1 · The window, bin by bin</h3>
+          <p>Tyre ages 18 to 39, coloured by the bin each falls in (the colour alternates from one bin to the next). The outlined ages, 25 to 32, are the page's example: an 8-lap window around an optimal pit lap of 27, every lap in it within a second of the best. Two ages with the same colour and no boundary between them are one table cell: the agent cannot treat them differently.</p>
+          <div class="widget" data-widget="binexplorer"></div>
+          <div class="lab-q" data-type="num" data-answer="2" data-tol="0" data-explain="Ages 25–29 are one cell and 30–32 another. Inside each, “pit now” and “pit next lap” are the same table entry." data-nudge="Set the slider to 10 and count the groups listed under the chart.">
+            <label>With the plan's original <strong>10</strong> bins, how many bins do the window's 8 laps fall into? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0" data-explain="Two-lap bins. Most laps still share a cell with one neighbour, but the window is now five decisions and not two." data-nudge="Set the slider to 25.">
+            <label>With <strong>25</strong> bins (2 laps each)? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="6" data-tol="0" data-explain="1.25 laps per bin: six cells for eight laps, so two pairs of neighbours still collide." data-nudge="Set the slider to 40.">
+            <label>With <strong>40</strong> bins? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="A bin narrower than one lap can never hold two whole-lap ages, so 50 bins over 50 laps always works. Below that it depends on where the bin edges happen to fall: 47 and 49 separate this window, 48 does not." data-nudge="Slide from 44 up to 50 and watch the count go up and down.">
+            <span class="lab-prompt">Slide upward from 44. What is true about giving every lap in the window its own bin?</span>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="a"> It first happens at 40 bins and holds for every count above.</label>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="b"> It never happens with fewer than 60 bins.</label>
+            <label class="lab-opt"><input type="radio" name="p406-own" value="c"> It is guaranteed from 50 bins up. Below 50 it sometimes happens, depending on where the edges fall.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · What the fix costs</h3>
+          <p>Page 05's product with the original scheme was <code>12 × 5 × 10 × 3 × 3 × 2 × 8 × 2 = 172,800</code> states. Change only the tyre-age factor.</p>
+          <div class="lab-q" data-type="num" data-answer="691200" data-tol="0" data-explain="Four times the original, because one factor went from 10 to 40." data-nudge="12 × 5 × 40 × 3 × 3 × 2 × 8 × 2.">
+            <label>States with <strong>40</strong> tyre-age bins &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="33.2" data-tol="0.3" data-explain="691,200 × 6 × 8 bytes. A few tens of megabytes, and the table is a defaultdict, so only visited states are ever stored." data-nudge="Six actions per state, eight bytes per number, a million bytes per MB.">
+            <label>Size of the full table at 6 actions and 8 bytes per value &nbsp; <input type="text" inputmode="decimal"> MB</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Memory was never the limit. The real cost of finer bins is the one lab p4-05 measured: more cells need more races to fill. That is a reason to make the bins fine only where the decision is sensitive, near the cliff." data-nudge="Lab p4-05, Part C.">
+            <span class="lab-prompt">So what is the real cost of finer tyre-age bins?</span>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="a"> Memory: the table no longer fits.</label>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="b"> Experience: four times as many cells to visit with the same number of races.</label>
+            <label class="lab-opt"><input type="radio" name="p406-cost" value="c"> Nothing: finer is always better.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 10 bins: 2 (ages 25–29 and 30–32). 25 bins: 5. 40 bins: 6. Every lap has its own bin for certain only from 50 bins up; 47 and 49 happen to work for this window and 48 does not.</p>
+          <p><strong>2.</strong> 12 × 5 × 40 × 3 × 3 × 2 × 8 × 2 = 691,200 states; × 6 × 8 bytes = 33.2 MB. The cost that matters is experience, not memory.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/widgets/binexplorer.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

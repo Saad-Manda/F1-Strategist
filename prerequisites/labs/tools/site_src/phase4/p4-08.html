@@ -1,0 +1,68 @@
+<!-- page: phase-4-q-learning-prerequisites/08-this-project-formalized.html | title: Decode, count, and measure the gap | format: quiz | minutes: 10 -->
+        <p class="lab-goal">Three hand calculations on this page's three arguments: what key an observation becomes, how many random actions an "evaluated" agent takes, and how far a table cell has to travel.</p>
+
+        <div class="lab-part">
+          <h3>1 · From observation to table key</h3>
+          <p>An observation arrives with these values. Decode it with the table above, using <strong>25</strong> tyre-age bins.</p>
+          <div class="table-wrap"><table><tbody>
+            <tr><td class="mono">obs[0]</td><td class="mono">0.6538</td><td>laps remaining, normalized</td></tr>
+            <tr><td class="mono">obs[1–5]</td><td class="mono">0, 1, 0, 0, 0</td><td>compound one-hot</td></tr>
+            <tr><td class="mono">obs[6]</td><td class="mono">0.36</td><td>tyre age, normalized (18 laps of a 50-lap cap)</td></tr>
+            <tr><td class="mono">obs[7–9]</td><td class="mono">1, 0, 0</td><td>weather one-hot</td></tr>
+            <tr><td class="mono">obs[10]</td><td class="mono">0.55</td><td>track temperature, normalized</td></tr>
+            <tr><td class="mono">obs[11]</td><td class="mono">0</td><td>safety car</td></tr>
+            <tr><td class="mono">obs[12–14]</td><td class="mono">1, 1, 0</td><td>compounds used: SOFT, MEDIUM, HARD</td></tr>
+            <tr><td class="mono">obs[15]</td><td class="mono">0</td><td>mandatory pit needed</td></tr>
+          </tbody></table></div>
+          <div class="lab-q" data-type="num" data-answer="7" data-tol="0" data-explain="int(0.6538 × 12) = int(7.85) = 7." data-nudge="min(int(obs[0] × 12), 11). int() drops the fraction.">
+            <label><code>laps_remaining</code> bin &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="9" data-tol="0" data-explain="int(0.36 × 25) = 9: a bin that holds ages 18 and 19 only." data-nudge="min(int(obs[6] × 25), 24).">
+            <label><code>tire_age</code> bin, with 25 bins &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3" data-tol="0" data-explain="int(0.36 × 10) = 3: a bin shared by ages 15 to 19. This is the coarseness page 06 is about." data-nudge="The same formula with 10 in place of 25.">
+            <label>The same tyre age under the original <strong>10</strong> bins &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="6" data-tol="0" data-explain="used_s × 4 + used_m × 2 + used_h = 4 + 2 + 0." data-nudge="A three-bit number: SOFT is worth 4, MEDIUM 2, HARD 1.">
+            <label><code>compounds_used</code> value &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0" data-explain="argmax of the one-hot (0, 1, 0, 0, 0): index 1, MEDIUM. No binning decision was needed.">
+            <label><code>tire_compound</code> index &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Random actions in an "evaluated" race</h3>
+          <p>The page computed <code>0.05 × 52 ≈ 2.6</code> random actions per race at the trained floor.</p>
+          <div class="lab-q" data-type="num" data-answer="6.9" data-tol="0.3" data-explain="0.95⁵². Fewer than one evaluated race in fourteen is the agent's real policy from start to finish." data-nudge="Each lap escapes a random draw with probability 0.95, and there are 52 laps.">
+            <label>At <code>ε = 0.05</code>, what percentage of 52-lap races contain <strong>no</strong> random action at all? &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1.04" data-tol="0.02" data-explain="0.02 × 52. A lower floor reduces the problem and does not remove it. Only switching exploration off for evaluation does." data-nudge="ε times the number of laps.">
+            <label>If the floor were lowered to <code>ε = 0.02</code>, how many random actions per race, on average? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · How far a cell has to travel</h3>
+          <div class="lab-q" data-type="num" data-answer="-4940" data-tol="1" data-explain="52 laps at −95. The page rounds this to −5,000." data-nudge="Per-lap reward times the number of laps, with γ = 1.">
+            <label>With rewards of about <code>−95</code> per lap over 52 laps, the value of a state at the start of the race is about &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-260" data-tol="1" data-explain="52 laps at −5. A nineteenth of the distance from a cell that starts at 0." data-nudge="The same sum with the centred per-lap reward.">
+            <label>With <code>reward_offset="base_pace"</code> and rewards of about <code>−5</code> per lap &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="22" data-tol="0" data-explain="0.9ⁿ ≤ 0.1 first holds at n = 22. And that assumes a perfect target every time: in practice the target is itself a cell that is still travelling, so the real number is much larger." data-nudge="Each visit leaves 90% of the remaining gap. How many visits until at most 10% is left?">
+            <label>At <code>α = 0.1</code> and with a perfect target on every visit, how many visits does a cell need to close 90% of its gap? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="It says the learner found something better than a fixed rule. It does not say how much of the available improvement it found. That is what the gap to Oracle B measures." data-nudge="Reread the page's last section.">
+            <span class="lab-prompt">A trained agent beats the threshold baseline on 61 of 100 seeds. What does that establish?</span>
+            <label class="lab-opt"><input type="radio" name="p408-gap" value="a"> That the agent is close to optimal.</label>
+            <label class="lab-opt"><input type="radio" name="p408-gap" value="b"> That it learned something, and nothing about how much is left to learn.</label>
+            <label class="lab-opt"><input type="radio" name="p408-gap" value="c"> That the baseline was implemented incorrectly.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> laps_remaining: int(7.85) = 7. tire_age: int(0.36 × 25) = 9, or int(3.6) = 3 under 10 bins. compounds_used: 4 + 2 + 0 = 6. tire_compound: 1. The full key is (7, 1, 9, 0, 1, 0, 6, 0).</p>
+          <p><strong>2.</strong> 0.95⁵² = 6.9%. 0.02 × 52 = 1.04.</p>
+          <p><strong>3.</strong> −95 × 52 = −4,940. −5 × 52 = −260. 0.9²¹ = 0.109 and 0.9²² = 0.098, so 22 visits.</p>
+        </details>

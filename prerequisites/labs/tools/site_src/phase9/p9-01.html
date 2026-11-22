@@ -1,0 +1,46 @@
+<!-- page: phase-9-ppo-prerequisites/01-policy-gradients-reinforce.html | title: warm-up | format: paper | minutes: 8 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · one REINFORCE step by hand</h3>
+          <p>Three actions with logits <code>z = (0.5, 0, −1)</code>. The <strong>middle</strong> action is sampled, the return from that step is <code>G = −3</code>, and the step size is <code>α = 0.2</code>. Give each answer to four decimals (±0.005 is accepted).</p>
+          <div class="lab-q" data-type="num" data-answer="0.5465" data-tol="0.005" data-explain="e^0.5 = 1.6487, e^0 = 1, e^−1 = 0.3679; the sum is 3.0166, and 1.6487 / 3.0166 = 0.5465." data-nudge="Exponentiate each logit, then divide by the sum of all three.">
+            <label>π(first) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.3315" data-tol="0.005" data-explain="1 / 3.0166 = 0.3315." data-nudge="Same sum underneath, e^0 = 1 on top.">
+            <label>π(middle) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.1220" data-tol="0.005" data-explain="0.3679 / 3.0166 = 0.1220. The three add up to 1." data-nudge="Or 1 minus the other two.">
+            <label>π(last) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>The gradient of log π(middle) with respect to the logits is the one-hot vector of the sampled action minus the probabilities.</p>
+          <div class="lab-q" data-type="num" data-answer="-0.5465" data-tol="0.005" data-explain="0 − 0.5465." data-nudge="The first action was not sampled: 0 minus its probability.">
+            <label>∂ log π(middle) / ∂z₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.6685" data-tol="0.005" data-explain="1 − 0.3315." data-nudge="The sampled action: 1 minus its probability.">
+            <label>∂ log π(middle) / ∂z₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.1220" data-tol="0.005" data-explain="0 − 0.1220. The three components add up to 0: adding the same number to every logit changes no probability." data-nudge="0 minus its probability.">
+            <label>∂ log π(middle) / ∂z₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <p>Now the update <code>z ← z + α · G · ∇ log π(middle)</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="0.8279" data-tol="0.005" data-explain="0.5 + 0.2 × (−3) × (−0.5465) = 0.5 + 0.3279." data-nudge="α · G = −0.6. Multiply that by the first gradient component and add.">
+            <label>new z₁ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.4011" data-tol="0.005" data-explain="0 + (−0.6) × 0.6685." data-nudge="α · G = −0.6, times 0.6685.">
+            <label>new z₂ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="-0.9268" data-tol="0.005" data-explain="−1 + (−0.6) × (−0.1220) = −1 + 0.0732." data-nudge="α · G = −0.6, times −0.1220, added to −1.">
+            <label>new z₃ &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="G is negative, so the step goes against the log-gradient. The sampled action loses probability, and the other two gain in proportion to how likely they already were. This is the sign flip of the page: with every return negative, as in a race, every sampled action is pushed down, and only a baseline (page 02) tells a good negative return from a bad one.">
+            <span class="lab-prompt">What did the update do to the action that was taken?</span>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="a"> made it more likely: it was the action the agent chose</label>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="b"> made it less likely: its return was negative</label>
+            <label class="lab-opt"><input type="radio" name="p901-sign" value="c"> left it alone: only the actions not taken move</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>Probabilities 0.5465, 0.3315, 0.1220. Log-gradient of the middle action: (−0.5465, 0.6685, −0.1220), which adds up to 0. With α · G = −0.6 the new logits are (0.8279, −0.4011, −0.9268): the middle action drops from 0.33 to about 0.21.</p>
+        </details>
+
+        <h3>Then, in code</h3>

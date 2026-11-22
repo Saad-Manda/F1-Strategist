@@ -1,0 +1,55 @@
+<!-- page: phase-6-multi-car-prerequisites/04-overtaking-dirty-air.html | title: How likely is the pass? | format: widget | minutes: 15 | scripts: widgets/overtake.js -->
+        <p class="lab-goal">The page's two formulas as curves you can move, then four hand calculations with new numbers, and the one steepness that would make the plan's docstring true.</p>
+
+        <div class="lab-part">
+          <h3>1 · The curves</h3>
+          <p>Left: the wake loss against the gap. Right: the chance of a pass against how much faster the attacker is this lap, for the steepness <code>k</code> in <code>1 / (1 + exp(k·(pace_delta + 0.5)))</code>. The plan's code uses <code>k = 5</code>. The grey dots are what its docstring claims.</p>
+          <div class="widget" data-widget="overtake"></div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · By hand, with new numbers</h3>
+          <div class="lab-q" data-type="num" data-answer="0.4" data-tol="0.005" data-explain="0.5 × (1.5 − 0.3) / 1.5 = 0.5 × 0.8 = 0.4 s." data-nudge="0.5 × (1.5 − gap) / 1.5.">
+            <label>Wake loss at a gap of 0.3 s, seconds &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.1" data-tol="0.005" data-explain="0.5 × 0.3 / 1.5 = 0.1 s." data-nudge="The same formula at 1.2 s.">
+            <label>Wake loss at a gap of 1.2 s &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="81.8" data-tol="0.3" data-explain="pace_delta = −0.8, exponent 5 × (−0.3) = −1.5, e^−1.5 = 0.223, 1 / 1.223 = 0.818." data-nudge="Exponent 5 × (−0.8 + 0.5).">
+            <label>Pass chance at 0.8 s faster, first lap in range (k = 5), in % &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="95" data-tol="0.1" data-explain="The follow bonus is min(0.1 × 3, 0.2) = 0.2, so 0.818 + 0.2 = 1.018, and the cap brings it to 0.95. Following longer cannot make a pass certain." data-nudge="Add min(0.1 × laps, 0.2), then apply the 0.95 cap.">
+            <label>…after 3 laps following, in % &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Which curve was the docstring describing?</h3>
+          <p>The page showed that <code>k = 5</code> gives 92.4% at 1.0 s, not the claimed 80%. Move the slider until the curve passes through the 80% dot, then confirm it with algebra: solve <code>1 / (1 + e^(−0.5k)) = 0.8</code>.</p>
+          <div class="lab-q" data-type="num" data-answer="2.77" data-tol="0.03" data-explain="1 + e^(−0.5k) = 1.25, so e^(−0.5k) = 0.25 and k = 2·ln 4 = 2.77." data-nudge="Rearrange to e^(−0.5k) = 0.25.">
+            <label><code>k</code> &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="94.1" data-tol="0.3" data-explain="At 1.5 s faster the exponent is −2.77, e^−2.77 = 0.0625, and 1 / 1.0625 = 0.941. The docstring's 95% is that curve, rounded. The comment and the code describe two different curves; the comment's is the gentler one." data-nudge="Exponent k × (−1.5 + 0.5) = −k.">
+            <label>With that <code>k</code>, the chance at 1.5 s faster, in % &nbsp; <input type="text" inputmode="decimal"> %</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Reading the model</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="In this set's model (and the capstone) a car's time this lap includes its wake loss: −0.3 + 0.4 = +0.1 s slower, so pace_delta ≥ 0 and there is no attempt. The wake does more than slow the car down: it can take away the pace advantage that would have earned an attempt.">
+            <span class="lab-prompt">A car 0.3 s a lap faster on its own sits 0.3 s behind, inside the wake. Its lap time is taken to include the wake loss. How likely is a pass this lap?</span>
+            <label class="lab-opt"><input type="radio" name="p604-wake" value="a"> about 27%: it is 0.3 s faster</label>
+            <label class="lab-opt"><input type="radio" name="p604-wake" value="b"> zero: with the wake loss it is not faster at all</label>
+            <label class="lab-opt"><input type="radio" name="p604-wake" value="c"> 95%: the cap</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The attempt gap decides who may try. The sigmoid's steepness (or its 0.5 offset) decides how often a try succeeds, without changing who may try.">
+            <span class="lab-prompt">You want passing to be harder without changing which cars may attempt it. Which constant do you change?</span>
+            <label class="lab-opt"><input type="radio" name="p604-hard" value="a"> <code>OVERTAKE_ATTEMPT_GAP</code></label>
+            <label class="lab-opt"><input type="radio" name="p604-hard" value="b"> the sigmoid's steepness or offset</label>
+            <label class="lab-opt"><input type="radio" name="p604-hard" value="c"> <code>DIRTY_AIR_MAX_GAP</code></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>Wake: 0.4 s at 0.3 s, 0.1 s at 1.2 s. Pass at 0.8 s faster: 1 / (1 + e^−1.5) = 81.8%; with three laps following, 81.8% + 20% capped to 95%. The docstring's 80% at 1.0 s needs k = 2 ln 4 = 2.77, which gives 94.1% at 1.5 s. A 0.3 s faster car in a 0.4 s wake is not faster this lap, so it gets no attempt. Steepness changes how often, the attempt gap changes who.</p>
+        </details>

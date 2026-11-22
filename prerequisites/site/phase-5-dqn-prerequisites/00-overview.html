@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00 · Overview — Phase 5 DQN · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="5/00">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 5 · Overview</p>
+      <h1>Phase 5 Dueling Double DQN Prerequisites</h1>
+      <p class="dek">Everything — and only what — you need to build the Dueling Double DQN agent with prioritized experience replay described in <code>phase-5-dueling-double-dqn.md</code>, assuming you already have the Phase 1, Phase 3.5, and Phase 4 prerequisite sets and nothing more.</p>
+
+      <h2>Why this phase is different from the one before it</h2>
+      <p><a class="xref" href="../phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html">Phase 4 page 05</a> already named the wall tabular methods hit: a Q-table needs a <em>finite</em> number of discrete states, and no binning scheme is fine enough to represent the optimal policy without exploding past what a fixed training budget can visit. <a class="xref" href="../phase-4-q-learning-prerequisites/06-the-binning-bug.html">Phase 4 page 06</a> then showed that wall isn't hypothetical — the real plan's first <code>tire_age</code> binning scheme was coarse enough to erase the exact decision the DP oracle could tell apart.</p>
+      <p>Phase 5 doesn't fix the binning. It removes the table. <code>Q(s,a)</code> stops being a lookup and becomes a function <code>Q(s,a;θ)</code> that a neural network computes — so two states that would never have shared a table cell can still be recognized as "similar" and share what's been learned about them. Everything else carries over unchanged: the Bellman target, the TD-error idea, even the ε-greedy exploration schedule from <a class="xref" href="../phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Phase 4 page 03</a>. Only <em>how the number gets stored and updated</em> changes, and this set exists to make that change concrete rather than magical.</p>
+
+      <div class="note generic">
+        <div class="tag">Scope, precisely</div>
+        <p>This set teaches value-based deep RL exactly as the real plan uses it: a small MLP replacing the Q-table, the two instabilities that come with training a network online (a moving target, correlated data) and their standard fixes (a target network, an experience replay buffer), and the three specific techniques the real agent layers on top — the dueling architecture, Double DQN, and prioritized experience replay (PER) — plus the reward-scale trap the project's own audit already flags as the most likely reason this phase looks broken when it isn't. It does not cover multi-car states, rival modeling, self-play, or anything from Phase 6 onward, even as a preview, and it does not turn into a general deep-learning course — the neural-network primer on <a class="xref" href="02-neural-networks-primer.html">page 02</a> covers exactly the mechanics DQN needs and stops there.</p>
+      </div>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

@@ -44,3 +44,6 @@ data/checkpoints/
 .antigravity
 ANTIGRAVITY.md
 PRD.md
+
+# Lab progress (per learner)
+prerequisites/labs/.progress.json

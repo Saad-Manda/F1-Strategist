@@ -1,0 +1,26 @@
+<!-- page: phase-9-ppo-prerequisites/08-unfair-comparison.html | title: warm-up | format: paper | minutes: 6 -->
+        <div class="lab-part">
+          <h3>Warm-up, in the page · the same mistake with new numbers</h3>
+          <p>A DQN config trains for <strong>3,000 episodes</strong> of a <strong>57-lap</strong> race. The PPO config next to it says <code>total_timesteps: 1_500_000</code>, with the comment "same budget as DQN".</p>
+          <div class="lab-q" data-type="num" data-answer="171000" data-tol="1" data-explain="3,000 × 57 = 171,000 environment steps: one step per lap." data-nudge="One step is one lap.">
+            <label>DQN's budget in environment steps &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="8.77" data-tol="0.02" data-explain="1,500,000 / 171,000 = 8.77: PPO sees almost nine times as much experience." data-nudge="PPO's steps divided by DQN's.">
+            <label>How many times more experience PPO gets &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="26316" data-tol="1" data-explain="1,500,000 / 57 = 26,315.8, so about 26,316 races. An honest comment would say about 26,000 episodes, or the budget would be 171,000." data-nudge="Steps divided by laps per race.">
+            <label>The number of episodes the comment should have said (nearest whole race) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Every episode is exactly 57 steps, so steps = 57 × episodes for both learners. Changing the x-axis from episodes to steps stretches both curves by the same factor: whatever was ahead at episode n is ahead at step 57n. The axis does not fix the comparison. What fixes it is reading both at the same point on it, the matched budget.">
+            <span class="lab-prompt">Both learners are re-plotted against environment steps instead of episodes. Can that change which curve is ahead at a given point?</span>
+            <label class="lab-opt"><input type="radio" name="p908-axis" value="a"> yes: PPO collects steps in batches, so its curve shifts relative to DQN's</label>
+            <label class="lab-opt"><input type="radio" name="p908-axis" value="b"> no: every episode has the same length, so the new axis is the old one times 57 for both</label>
+            <label class="lab-opt"><input type="radio" name="p908-axis" value="c"> yes, if the two use different discount factors</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution for the warm-up</summary>
+          <p>171,000 steps against 1,500,000: a factor of 8.77, and 1,500,000 steps is about 26,316 races. With fixed-length episodes a step axis is a rescaled episode axis, so the choice of axis cannot reorder the curves. Only reading both at the same budget can.</p>
+        </details>
+
+        <h3>Then, in code</h3>

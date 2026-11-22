@@ -1,0 +1,46 @@
+<!-- page: phase-4-q-learning-prerequisites/09-code-walkthrough.html | title: What the tests catch and miss | format: quiz | minutes: 10 -->
+        <p class="lab-goal">The plan lists three new tests. For each failure below, decide which of them would go red, or whether none would.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which test catches it?</h3>
+          <div class="lab-q" data-type="select" data-answer="update" data-explain="The cell would be the same before and after, which is exactly what this test compares.">
+            <label>A typo makes <code>update()</code> compute the target and never write it to the table. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="random" data-explain="A learner that maximises race time prefers a pit stop on every lap, and finishes behind an agent that acts at random. This is the one test that trains an agent end to end and looks at the result." data-nudge="Which test runs the whole pipeline and compares race times?">
+            <label>The reward reaches the agent with the wrong sign, <code>+lap_time</code>, so it learns to make races as slow as possible. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="Everything runs and the curve looks plausible. The table simply has no cell in which lap 27 and lap 29 differ. Only a test on discretize_obs itself, the one page 06 asks for, would see it." data-nudge="Would any of the three notice that two different laps share a key?">
+            <label><code>tire_age</code> is cut into 10 bins, so the oracle's optimal pit lap and its neighbours share a table key. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="Read the test in the plan: it does the decay arithmetic itself, inside the test, and never calls update(). It would pass with the decay lines deleted from the agent." data-nudge="Open the plan and look at what test_epsilon_decays actually calls.">
+            <label>The two lines that lower <code>epsilon</code> are deleted from <code>update()</code>, so the agent explores at 100% forever. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="No test runs an evaluation twice on one seed and compares the races, which is the check the plan's Risks table asks for." data-nudge="Do any of the three look at how a trained agent is evaluated?">
+            <label>Evaluation runs with <code>ε = 0.05</code> still on, so every reported race time includes a few random actions. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="None of the three tests uses SARSAAgent at all." data-nudge="Which agent class do the three tests construct?">
+            <label>A race is cut short, and <code>SARSAAgent</code>'s pre-committed action is used as the first move of the next race. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reading the files</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="An illegal action's cell is never updated, so it sits at its starting value of 0 while real values are large and negative. An unmasked max would pick it every time." data-nudge="What value does a never-visited cell hold, next to cells near −250?">
+            <span class="lab-prompt">In <code>update()</code>, why must the next state's illegal actions be set to <code>−inf</code> <em>before</em> the max?</span>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="a"> Their cells are never trained and still hold 0, which is higher than every real value.</label>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="b"> NumPy cannot take the max of an array that has untrained entries.</label>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="c"> It makes the update faster.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="It is deliberately weak: it shows the pieces are connected, not that the agent is good. Passing it says nothing about the gap to the oracle." data-nudge="The page calls it a smoke test.">
+            <span class="lab-prompt">What does a pass of <code>test_trained_q_agent_beats_random</code> show?</span>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="a"> That the agent has learned a good pit strategy.</label>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="b"> That the agent beats the threshold baseline.</label>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="c"> That environment, discretization, update and exploration are wired together and something is being learned.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> The no-op update: <code>test_q_learning_update_changes_q_values</code>. The wrong-sign reward: <code>test_trained_q_agent_beats_random</code>. The other four are caught by none of the three: the coarse bins, the deleted decay (the planned test repeats the arithmetic itself and never calls <code>update()</code>), evaluation with exploration on, and the SARSA leak.</p>
+          <p>Four tests would close those gaps: distinct keys for the optimal pit lap and its neighbours; <code>epsilon</code> lower after real calls to <code>update()</code>; two evaluation runs on one seed giving identical races; and a pre-committed action not surviving a <code>reset()</code>.</p>
+          <p><strong>2.</strong> Untrained cells hold 0 and would win every max. The beats-random test is a smoke test of the wiring.</p>
+        </details>

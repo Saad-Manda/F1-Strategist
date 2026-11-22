@@ -1,0 +1,52 @@
+<!-- page: phase-6-multi-car-prerequisites/05-position-and-blocking.html | title: Stuck behind | format: widget | minutes: 15 | scripts: widgets/blocking.js -->
+        <p class="lab-goal">Page 08's two constant-pace cars, drawn: FAST laps in 4.5 s, SLOW in 5.0 s, a pit stop costs FAST 20 s, 30 ticks. Switch the page's one line on and off and watch what pit timing is worth.</p>
+
+        <div class="lab-part">
+          <h3>1 · Without the blocking line</h3>
+          <p>Untick "blocking line on". Before you move the pit slider, predict, then check.</p>
+          <div class="widget" data-widget="blocking"></div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0.01" data-explain="30 ticks × 0.5 s faster = 15 s gained, minus the 20 s stop: FAST finishes 5 s behind, wherever the stop is. The pit tick only moves where the 20 s is paid, never how much." data-nudge="Level start, blocking off: read the final gap for pit tick 5.">
+            <label>Final gap with the stop on tick 5, seconds &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0.01" data-explain="The same 5 s. Without blocking, position is a readout of total time, and total time does not care when the stop happens." data-nudge="Now tick 25.">
+            <label>…with the stop on tick 25 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · With it</h3>
+          <p>Tick "blocking line on" again. The cars start level.</p>
+          <div class="lab-q" data-type="num" data-answer="7.5" data-tol="0.01" data-explain="FAST is held to 5.0 s for ticks 0 to 4, then stops and rejoins far enough back to run free." data-nudge="Pit tick 5, level start.">
+            <label>Final gap with the stop on tick 5 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="17.5" data-tol="0.01" data-explain="Twenty-five ticks held up at 5.0 s cost 12.5 s compared with running free." data-nudge="Pit tick 25.">
+            <label>…with the stop on tick 25 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Both cars start at 0. The tie counts SLOW as ahead, FAST is less than 1 s behind, so the line caps FAST at SLOW's pace from the very first tick. FAST never builds a lead; it is stuck until its stop drops it far enough back to run free.">
+            <span class="lab-prompt">Why does the stop's timing matter now?</span>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="a"> pitting early lets FAST build a lead before SLOW closes in</label>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="b"> FAST is stuck behind SLOW from tick 0, and every tick until the stop is a tick at SLOW's pace</label>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="c"> the stop costs more when it is made later</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="Tick 0: the stop drops FAST 19.5 s back and it never catches up to within 1 s again, so it runs free for the whole race: 5.0 s, the no-blocking result." data-nudge="Slide the pit tick to find the smallest final gap.">
+            <label>Which pit tick gives the smallest final gap? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5" data-tol="0.01" data-explain="Gap = 5 + 0.5 × tick. Each tick spent stuck behind SLOW costs exactly FAST's 0.5 s pace advantage." data-nudge="Compare the final gaps of two neighbouring ticks.">
+            <label>How much does each tick of delay cost, seconds? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · What it means</h3>
+          <p>With the line in place a pit stop does two things: it costs 20 s, and it gets you out of traffic. That second job, which did not exist a moment ago, is what an undercut uses.</p>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Without the line nothing ever holds a car back, so a pass has nothing to release it from: the overtaking model can change no lap time. That is why the plan's attempt_overtake is decorative even before bug E2.">
+            <span class="lab-prompt">In a race without the blocking line, what can a successful overtake change?</span>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="a"> the passer's next lap time</label>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="b"> the final position</label>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="c"> nothing: nothing was holding the car back</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>No blocking: 30 × 0.5 − 20 = −5, so FAST finishes 5.0 s behind for any pit tick. Blocking, level start: FAST is held to SLOW's pace from tick 0 until its stop, so the gap is 5 + 0.5 × tick: 7.5 at tick 5, 17.5 at tick 25, smallest (5.0) at tick 0. A pass with no blocking has nothing to release a car from.</p>
+        </details>

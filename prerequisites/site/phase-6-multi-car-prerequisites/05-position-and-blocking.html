@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Position vs. the undercut — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/05">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 6 · Page 05 of 10 — The central design gap</p>
+      <h1>Why "Position = Sorted by Time" Kills the Undercut</h1>
+      <p class="dek">Not a bug in the usual sense — a missing model that quietly makes this phase's most interesting goal impossible, no matter how long training runs.</p>
+
+      <h2>The undercut, as real F1 strategy</h2>
+      <p>A driver pits <em>before</em> a rival running comparable pace. Fresh tyres let them post much faster out-laps than the rival — still on old, worn tyres — can respond to in time. By the time the rival reacts and pits too, the undercutting driver has converted a pit stop into real track position. This only works because of one specific fact about real racing: the rival <strong>cannot simply drive around</strong> the pitted car once it rejoins the track. Track position, once lost in traffic, is genuinely hard to get back — that difficulty is the entire reason the undercut is a strategy worth timing carefully, rather than just an incidental side effect of pitting.</p>
+
+      <h2>What the plan's pseudocode actually computes</h2>
+      <p>Every position in the plan's <code>_update_positions()</code> is recomputed each lap by sorting every car's cumulative <code>total_time</code>, ascending. Walk through what that implies directly: if nothing in the model prevents a faster car from instantly passing a slower one — if position is <em>purely</em> a readout of who has accumulated less time — then there is no separate value to timing a pit stop relative to a rival's. "Pit early while you're faster" and "just be faster" become the same statement, because being ahead or behind on track never costs or saves any time on its own. The model has no notion of being <em>stuck</em>.</p>
+
+      <div class="note grounded">
+        <div class="tag">Why this makes attempt_overtake pointless even before any bug</div>
+        <p>An overtake model only has something to <em>do</em> if there's a state — being stuck behind a car you can't get past — that succeeding releases you from. Without a constraint that holds a faster car to a slower one's pace, no car in this simulation is ever stuck behind anything. There is nothing for an overtake to overcome, independent of whether <code>attempt_overtake</code>'s own bookkeeping is correct (<a class="xref" href="06-bug-ledger.html">page 06</a> covers a bug in that bookkeeping too, but fixing that bug alone would not fix this).</p>
+      </div>
+
+      <h2>The fix: one line that turns position into a resource</h2>
+      <p>Add a blocking constraint to the multi-car lap-time model — a car close behind another, that hasn't successfully overtaken it, is held to at best the pace of the car ahead plus the dirty-air cost from <a class="xref" href="04-overtaking-dirty-air.html">page 04</a>:</p>
+      <blockquote class="eq">if gap_to_car_ahead &lt; OVERTAKE_ATTEMPT_GAP and not overtake_succeeded:
+    lap_time = max(own_lap_time, car_ahead_lap_time + dirty_air_penalty(gap))</blockquote>
+      <p>That single line is the entire difference between a race where position is just a scoreboard reading of accumulated time, and a race where being behind has a real, ongoing cost that only an overtake can end. With it in place, <code>attempt_overtake</code> finally has a job: it's the mechanism that releases a car from the pace cap this line imposes. Positions still ultimately follow from cumulative time — nothing about how position is <em>computed</em> changes — but now the lap times feeding into that computation depend on who's stuck behind whom, which is exactly the missing ingredient the undercut needs to exist at all.</p>
+
+      <h2>Traced forward: why this blocks Phase 8, not just Phase 6</h2>
+      <p>Phase 8's headline Definition of Done is a bimodal undercut/overcut pit-timing histogram emerging from training — pit-lap choices clustering around "just before a rival" and "just after," arising on their own rather than being explicitly programmed. That emergence is unreachable without this fix, for the same reason stated above: an agent cannot learn to exploit a track-position advantage that its simulator doesn't actually grant for being ahead. Phase 8's own Risks table, written before this gap was found, misdiagnoses the eventual symptom (undercut/overcut not appearing) as a possible bug in the out-lap warmup penalty. The warmup penalty is implemented correctly — the missing piece was always here, one phase earlier, in whether position carries any cost or benefit of its own.</p>
+
+      <div class="note generic">
+        <div class="tag">The general shape of this kind of gap</div>
+        <p>This isn't an off-by-one or a typo — it's a case where a system was built with all the visible pieces of a mechanism (overtaking probabilities, dirty air, position tracking) but missing the one structural constraint that makes those pieces interact meaningfully. Worth recognizing the shape: individually-reasonable components can add up to nothing, if the piece connecting them to consequence is never added. A test proving a faster car stuck behind a slower one gains no time until it overtakes is the concrete way to confirm this constraint actually exists, rather than assuming its presence from the existence of the surrounding pieces.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p6-05" data-lab-format="widget">
+        <span class="lab-kicker">Lab p6-05 · In page · about 15 min</span>
+        <h2>Stuck behind</h2>
+        <p class="lab-goal">Page 08's two constant-pace cars, drawn: FAST laps in 4.5 s, SLOW in 5.0 s, a pit stop costs FAST 20 s, 30 ticks. Switch the page's one line on and off and watch what pit timing is worth.</p>
+
+        <div class="lab-part">
+          <h3>1 · Without the blocking line</h3>
+          <p>Untick "blocking line on". Before you move the pit slider, predict, then check.</p>
+          <div class="widget" data-widget="blocking"></div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0.01" data-explain="30 ticks × 0.5 s faster = 15 s gained, minus the 20 s stop: FAST finishes 5 s behind, wherever the stop is. The pit tick only moves where the 20 s is paid, never how much." data-nudge="Level start, blocking off: read the final gap for pit tick 5.">
+            <label>Final gap with the stop on tick 5, seconds &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="5" data-tol="0.01" data-explain="The same 5 s. Without blocking, position is a readout of total time, and total time does not care when the stop happens." data-nudge="Now tick 25.">
+            <label>…with the stop on tick 25 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · With it</h3>
+          <p>Tick "blocking line on" again. The cars start level.</p>
+          <div class="lab-q" data-type="num" data-answer="7.5" data-tol="0.01" data-explain="FAST is held to 5.0 s for ticks 0 to 4, then stops and rejoins far enough back to run free." data-nudge="Pit tick 5, level start.">
+            <label>Final gap with the stop on tick 5 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="17.5" data-tol="0.01" data-explain="Twenty-five ticks held up at 5.0 s cost 12.5 s compared with running free." data-nudge="Pit tick 25.">
+            <label>…with the stop on tick 25 &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Both cars start at 0. The tie counts SLOW as ahead, FAST is less than 1 s behind, so the line caps FAST at SLOW's pace from the very first tick. FAST never builds a lead; it is stuck until its stop drops it far enough back to run free.">
+            <span class="lab-prompt">Why does the stop's timing matter now?</span>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="a"> pitting early lets FAST build a lead before SLOW closes in</label>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="b"> FAST is stuck behind SLOW from tick 0, and every tick until the stop is a tick at SLOW's pace</label>
+            <label class="lab-opt"><input type="radio" name="p605-why" value="c"> the stop costs more when it is made later</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="Tick 0: the stop drops FAST 19.5 s back and it never catches up to within 1 s again, so it runs free for the whole race: 5.0 s, the no-blocking result." data-nudge="Slide the pit tick to find the smallest final gap.">
+            <label>Which pit tick gives the smallest final gap? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.5" data-tol="0.01" data-explain="Gap = 5 + 0.5 × tick. Each tick spent stuck behind SLOW costs exactly FAST's 0.5 s pace advantage." data-nudge="Compare the final gaps of two neighbouring ticks.">
+            <label>How much does each tick of delay cost, seconds? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · What it means</h3>
+          <p>With the line in place a pit stop does two things: it costs 20 s, and it gets you out of traffic. That second job, which did not exist a moment ago, is what an undercut uses.</p>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Without the line nothing ever holds a car back, so a pass has nothing to release it from: the overtaking model can change no lap time. That is why the plan's attempt_overtake is decorative even before bug E2.">
+            <span class="lab-prompt">In a race without the blocking line, what can a successful overtake change?</span>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="a"> the passer's next lap time</label>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="b"> the final position</label>
+            <label class="lab-opt"><input type="radio" name="p605-ot" value="c"> nothing: nothing was holding the car back</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>No blocking: 30 × 0.5 − 20 = −5, so FAST finishes 5.0 s behind for any pit tick. Blocking, level start: FAST is held to SLOW's pace from tick 0 until its stop, so the gap is 5 + 0.5 × tick: 7.5 at tick 5, 17.5 at tick 25, smallest (5.0) at tick 0. A pass with no blocking has nothing to release a car from.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/widgets/blocking.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

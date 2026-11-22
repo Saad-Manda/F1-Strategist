@@ -1,0 +1,14 @@
+id: p9-05
+title: Loud and quiet
+page: phase-9-ppo-prerequisites/05-build-vs-buy.html
+format: pytest
+minutes: 20
+files: [detectors.py, run_variants.py]
+goal: >-
+  Page 05's argument, measured. The same small PPO, trained five ways on the toy race: one correct, one with a loud bug, three with the quiet bugs the page lists. First you judge them the way a training log lets you, by their curves alone, and then see how far each really ended from the optimum. Then you write the three small tests that catch the quiet ones, each graded against its own bug.
+environment: >-
+  an F1-flavoured mini: the 20-lap toy race, learned by the table-policy PPO in labs/labkit/minipg.py and scored exactly against the race's optimum. The given script runs in under a minute.
+hints:
+  - "Task 1: a loud bug is one whose curve does not improve, or gets worse. Look at the first block of 200 races against the last. Only one variant gets slower. Task 2: each detector checks one identity from the pages. Page 04: the ratio is 1 only before the policy has moved. Page 03: at λ = 1, γ = 1, GAE equals G − V. Page 05: standardised means mean 0, standard deviation 1."
+  - "ratio_moves: np.concatenate(trace['ratios'][1:]) and test whether any entry is more than 1e-9 from 1. gae_matches_returns: adv = trace['advantage_fn'](rewards, values, 1.0); G = np.cumsum(rewards[::-1])[::-1]; compare adv with G - values. advantages_standardised: the mean and std of trace['used_advantages']."
+  - "LOUD = {'sign'} and QUIET = the other three. The run with --gaps shows why: the quiet three improve from about 245–260 s to about 234–237 s, which looks like learning, and still end 9 to 12 s from the optimum. The correct one ends 1.9 s away. The sign flip is the only curve that gets worse."

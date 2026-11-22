@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Why build vs. buy — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/05">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc">
+      <p class="eyebrow">Phase 9 · Page 05 of 11 — Conceptual</p>
+      <h1>Why Build vs. Buy: PPO's Hidden Implementation Subtleties</h1>
+      <p class="dek">The project's portfolio-framing point, made concrete: knowing when to reach for a library is itself a skill worth being able to explain.</p>
+
+      <h2>The contrast with what came before</h2>
+      <p>Phase 4 and Phase 5 built Q-learning and DQN from scratch, and that was the right call. Their update rules — the TD target, the Bellman backup, the target-network sync — are a handful of lines each, and they're easy to unit-test in isolation: does one update move a Q-value in the right direction, by roughly the right amount, given a known reward and a known next-state value? Getting one of these pieces slightly wrong also tends to fail <em>loudly</em> — visible divergence, Q-values that are obviously nonsensical, a learning curve that flatlines at a clearly wrong level. Loud failures are exactly the kind that are cheap to catch by testing and inspection.</p>
+
+      <h2>Why PPO is different in kind, not just longer</h2>
+      <p>Walk back through <a class="xref" href="01-policy-gradients-reinforce.html">pages 01</a>–<a class="xref" href="04-ppo-clipped-objective.html">04</a> and ask, for each piece, what happens if it's implemented slightly wrong:</p>
+      <ul>
+        <li><strong>GAE's recursive computation</strong> (<a class="xref" href="03-generalized-advantage-estimation.html">page 03</a>) sums residuals backward across an entire rollout buffer. An off-by-one in that backward pass — using the wrong terminal value, or misaligning which residual belongs to which timestep — silently biases every advantage estimate in the batch. Nothing crashes. The training curve just looks a bit worse than it should, indefinitely.</li>
+        <li><strong>Advantage normalization</strong> — standardizing the batch of advantage estimates to zero mean and unit variance before using them in the clipped objective — is never mentioned in the core equations on <a class="xref" href="04-ppo-clipped-objective.html">page 04</a>, yet is present in essentially every working PPO implementation, including SB3's. Omitting it doesn't produce an error. It quietly hurts sample efficiency and can make <code>clip_range</code> behave differently than intended, because the clip's effect (<a class="xref" href="04-ppo-clipped-objective.html">page 04</a>) depends on the scale of <code>A_t</code>.</li>
+        <li><strong>Correct reuse of old log-probabilities</strong> across <code>n_epochs</code> (<a class="xref" href="04-ppo-clipped-objective.html">page 04</a>) — the ratio <code>r_t(θ)</code> is only correct if <code>π_θ_old(a_t|s_t)</code> is genuinely the probability under the policy that collected the batch, cached once, not accidentally recomputed against a policy that's already been updated partway through the epoch loop. A subtle bug here doesn't crash; it just makes the clip bind at the wrong points.</li>
+        <li><strong>Orthogonal weight initialization</strong> for the policy and value networks is empirically important for policy-gradient stability but appears nowhere in the objective's math on <a class="xref" href="01-policy-gradients-reinforce.html">pages 01</a>–<a class="xref" href="04-ppo-clipped-objective.html">04</a> — it's a detail that papers assume and implementations quietly rely on.</li>
+      </ul>
+
+      <h2>The general principle</h2>
+      <p>An algorithm is a good build-from-scratch candidate when its failure modes are <strong>loud</strong> — wrong answers, crashes, visibly non-converging curves — because loud failures are cheap to catch by inspection and testing, which is exactly what Phase 4 and 5's from-scratch implementations were. An algorithm is a good <strong>buy</strong> (well-tested library) candidate when its failure modes are <strong>quiet</strong> — a training curve that looks like it's working but is, say, 20% less sample-efficient than it should be, with no error message or obviously wrong number to point at. Quiet failures are exactly the hardest kind to catch by inspection alone, and a widely-used, heavily-scrutinized implementation is precisely what has already had that class of bug shaken out by the accumulated experience of thousands of other users hitting the same subtle mistakes first.</p>
+
+      <div class="note grounded">
+        <div class="tag">This is the README material, not just theory</div>
+        <p>The real plan's own stated goal is explicit about this: training PPO via <code>stable-baselines3</code> "validates the custom implementation, demonstrates knowledge of production-grade RL libraries," and the plan calls out "knowing <em>when</em> to build from scratch versus when to reach for a battle-tested library" as itself a judgment call worth making explicit. This page's argument — the loud-vs-quiet failure distinction above, applied concretely to GAE, advantage normalization, and log-probability reuse — is the content of that README section, not a separate piece of theory to file away.</p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p9-05" data-lab-format="pytest">
+        <span class="lab-kicker">Lab p9-05 · Code + tests · about 20 min</span>
+        <h2>Loud and quiet</h2>
+        <p class="lab-goal">Page 05's argument, measured. The same small PPO, trained five ways on the toy race: one correct, one with a loud bug, three with the quiet bugs the page lists. First you judge them the way a training log lets you, by their curves alone, and then see how far each really ended from the optimum. Then you write the three small tests that catch the quiet ones, each graded against its own bug.</p>
+        <p><strong>Environment:</strong> an F1-flavoured mini: the 20-lap toy race, learned by the table-policy PPO in labs/labkit/minipg.py and scored exactly against the race's optimum. The given script runs in under a minute.</p>
+        <div class="lab-cmds">
+          <div><span>Open</span><code>python -m labs open p9-05</code></div>
+          <div><span>Check</span><code>python -m labs check p9-05</code></div>
+          <div><span>Hint</span><code>python -m labs hint p9-05</code></div>
+        </div>
+        <p class="lab-files">Run the commands from inside the <code>prerequisites/</code> folder. Files: <code>labs/phase9/p9_05_loud_and_quiet/detectors.py</code>, <code>labs/phase9/p9_05_loud_and_quiet/run_variants.py</code>. Reference solution, for afterwards: <code>labs/solutions/phase9/p9_05_loud_and_quiet/</code>.</p>
+        <details><summary>Hint 1</summary><p>Task 1: a loud bug is one whose curve does not improve, or gets worse. Look at the first block of 200 races against the last. Only one variant gets slower. Task 2: each detector checks one identity from the pages. Page 04: the ratio is 1 only before the policy has moved. Page 03: at λ = 1, γ = 1, GAE equals G − V. Page 05: standardised means mean 0, standard deviation 1.</p></details>
+        <details><summary>Hint 2</summary><p>ratio_moves: np.concatenate(trace[&#x27;ratios&#x27;][1:]) and test whether any entry is more than 1e-9 from 1. gae_matches_returns: adv = trace[&#x27;advantage_fn&#x27;](rewards, values, 1.0); G = np.cumsum(rewards[::-1])[::-1]; compare adv with G - values. advantages_standardised: the mean and std of trace[&#x27;used_advantages&#x27;].</p></details>
+        <details><summary>Hint 3</summary><p>LOUD = {&#x27;sign&#x27;} and QUIET = the other three. The run with --gaps shows why: the quiet three improve from about 245–260 s to about 234–237 s, which looks like learning, and still end 9 to 12 s from the optimum. The correct one ends 1.9 s away. The sign flip is the only curve that gets worse.</p></details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>
