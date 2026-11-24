@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 .venv/
 venv/
-ENV/
+/ENV/
 *.egg-info/
 build/
 dist/
@@ -39,8 +39,3 @@ data/checkpoints/
 *.njsproj
 *.sln
 *.swp
-
-# Antigravity Workspace Plans & Temporary Scripts
-.antigravity
-ANTIGRAVITY.md
-PRD.md
