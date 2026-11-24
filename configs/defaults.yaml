@@ -15,19 +15,19 @@ calibration:
       SOFT: 0.0
       MEDIUM: 0.0
       HARD: 0.0
-      INTER: 4.0
+      INTERMEDIATE: 4.0
       WET: 10.0
     DAMP:
       SOFT: 6.0
       MEDIUM: 4.0
       HARD: 3.0
-      INTER: 0.0
+      INTERMEDIATE: 0.0
       WET: 2.5
     WET:
       SOFT: 15.0
       MEDIUM: 12.0
       HARD: 10.0
-      INTER: 3.0
+      INTERMEDIATE: 3.0
       WET: 0.0
 
   fitting:

@@ -15,6 +15,9 @@ htmlcov/
 
 # F1 Data Cache (Do not check in raw FastF1 downloads)
 data/raw/
+data/backup/
+data/interim/
+data/processed/*/dp_policy.npz
 
 # Node / React
 node_modules/
