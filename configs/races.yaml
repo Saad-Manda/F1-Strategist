@@ -1,0 +1,132 @@
+# Every race the project uses. Roles:
+#   fit             used for fitting and tuning (2021-2024)
+#   holdout         2025, never used for fitting, priors or thresholds (D25)
+#   conditions_only weather and track status only, not lap times
+#   frequency_only  counts as a wet race, has no usable laps
+
+holdout_years: [2025]     # D25
+last_allowed_year: 2025   # 2026 is kept for the transfer check (D23)
+
+races:
+  - {id: 2021_sakhir, circuit: sakhir, year: 2021, source: fastf1, event: Bahrain Grand Prix, role: fit}
+  - {id: 2021_imola, circuit: imola, year: 2021, source: fastf1, event: Emilia Romagna Grand Prix, role: fit}
+  - {id: 2021_portimao, circuit: portimao, year: 2021, source: fastf1, event: Portuguese Grand Prix, role: fit}
+  - {id: 2021_barcelona, circuit: barcelona, year: 2021, source: fastf1, event: Spanish Grand Prix, role: fit}
+  - {id: 2021_monaco, circuit: monaco, year: 2021, source: fastf1, event: Monaco Grand Prix, role: fit}
+  - {id: 2021_baku, circuit: baku, year: 2021, source: fastf1, event: Azerbaijan Grand Prix, role: fit}
+  - {id: 2021_le_castellet, circuit: le_castellet, year: 2021, source: fastf1, event: French Grand Prix, role: fit}
+  - {id: 2021_spielberg_styria, circuit: spielberg, year: 2021, source: fastf1, event: Styrian Grand Prix, role: fit}
+  - {id: 2021_spielberg, circuit: spielberg, year: 2021, source: fastf1, event: Austrian Grand Prix, role: fit}
+  - {id: 2021_silverstone, circuit: silverstone, year: 2021, source: fastf1, event: British Grand Prix, role: fit}
+  - {id: 2021_budapest, circuit: budapest, year: 2021, source: fastf1, event: Hungarian Grand Prix, role: conditions_only}
+  - {id: 2021_spa, circuit: spa, year: 2021, source: fastf1, event: Belgian Grand Prix, role: frequency_only}
+  - {id: 2021_zandvoort, circuit: zandvoort, year: 2021, source: fastf1, event: Dutch Grand Prix, role: fit}
+  - {id: 2021_monza, circuit: monza, year: 2021, source: fastf1, event: Italian Grand Prix, role: fit}
+  - {id: 2021_sochi, circuit: sochi, year: 2021, source: fastf1, event: Russian Grand Prix, role: fit}
+  - {id: 2021_istanbul, circuit: istanbul, year: 2021, source: fastf1, event: Turkish Grand Prix, role: fit}
+  - {id: 2021_austin, circuit: austin, year: 2021, source: fastf1, event: United States Grand Prix, role: fit}
+  - {id: 2021_mexico_city, circuit: mexico_city, year: 2021, source: fastf1, event: Mexico City Grand Prix, role: fit}
+  - {id: 2021_sao_paulo, circuit: sao_paulo, year: 2021, source: fastf1, event: São Paulo Grand Prix, role: fit}
+  - {id: 2021_lusail, circuit: lusail, year: 2021, source: fastf1, event: Qatar Grand Prix, role: fit}
+  - {id: 2021_jeddah, circuit: jeddah, year: 2021, source: fastf1, event: Saudi Arabian Grand Prix, role: fit}
+  - {id: 2021_yas_island, circuit: yas_island, year: 2021, source: fastf1, event: Abu Dhabi Grand Prix, role: fit}
+  - {id: 2022_sakhir, circuit: sakhir, year: 2022, source: fastf1, event: Bahrain Grand Prix, role: fit}
+  - {id: 2022_jeddah, circuit: jeddah, year: 2022, source: fastf1, event: Saudi Arabian Grand Prix, role: fit}
+  - {id: 2022_melbourne, circuit: melbourne, year: 2022, source: fastf1, event: Australian Grand Prix, role: fit}
+  - {id: 2022_imola, circuit: imola, year: 2022, source: fastf1, event: Emilia Romagna Grand Prix, role: fit}
+  - {id: 2022_miami, circuit: miami, year: 2022, source: fastf1, event: Miami Grand Prix, role: fit}
+  - {id: 2022_barcelona, circuit: barcelona, year: 2022, source: fastf1, event: Spanish Grand Prix, role: fit}
+  - {id: 2022_monaco, circuit: monaco, year: 2022, source: fastf1, event: Monaco Grand Prix, role: fit}
+  - {id: 2022_baku, circuit: baku, year: 2022, source: fastf1, event: Azerbaijan Grand Prix, role: fit}
+  - {id: 2022_montreal, circuit: montreal, year: 2022, source: fastf1, event: Canadian Grand Prix, role: fit}
+  - {id: 2022_silverstone, circuit: silverstone, year: 2022, source: fastf1, event: British Grand Prix, role: fit}
+  - {id: 2022_spielberg, circuit: spielberg, year: 2022, source: fastf1, event: Austrian Grand Prix, role: fit}
+  - {id: 2022_le_castellet, circuit: le_castellet, year: 2022, source: fastf1, event: French Grand Prix, role: fit}
+  - {id: 2022_budapest, circuit: budapest, year: 2022, source: fastf1, event: Hungarian Grand Prix, role: fit}
+  - {id: 2022_spa, circuit: spa, year: 2022, source: fastf1, event: Belgian Grand Prix, role: fit}
+  - {id: 2022_zandvoort, circuit: zandvoort, year: 2022, source: fastf1, event: Dutch Grand Prix, role: fit}
+  - {id: 2022_monza, circuit: monza, year: 2022, source: fastf1, event: Italian Grand Prix, role: fit}
+  - {id: 2022_marina_bay, circuit: marina_bay, year: 2022, source: fastf1, event: Singapore Grand Prix, role: fit}
+  - {id: 2022_suzuka, circuit: suzuka, year: 2022, source: fastf1, event: Japanese Grand Prix, role: fit}
+  - {id: 2022_austin, circuit: austin, year: 2022, source: fastf1, event: United States Grand Prix, role: fit}
+  - {id: 2022_mexico_city, circuit: mexico_city, year: 2022, source: fastf1, event: Mexico City Grand Prix, role: fit}
+  - {id: 2022_sao_paulo, circuit: sao_paulo, year: 2022, source: fastf1, event: São Paulo Grand Prix, role: fit}
+  - {id: 2022_yas_island, circuit: yas_island, year: 2022, source: fastf1, event: Abu Dhabi Grand Prix, role: fit}
+  - {id: 2023_jeddah, circuit: jeddah, year: 2023, source: openf1, session_key: 7779, role: fit}
+  - {id: 2023_melbourne, circuit: melbourne, year: 2023, source: openf1, session_key: 7787, role: fit}
+  - {id: 2023_sakhir, circuit: sakhir, year: 2023, source: openf1, session_key: 7953, role: fit}
+  - {id: 2023_baku, circuit: baku, year: 2023, source: openf1, session_key: 9070, role: fit}
+  - {id: 2023_miami, circuit: miami, year: 2023, source: openf1, session_key: 9078, role: fit}
+  - {id: 2023_monaco, circuit: monaco, year: 2023, source: openf1, session_key: 9094, role: fit}
+  - {id: 2023_barcelona, circuit: barcelona, year: 2023, source: openf1, session_key: 9102, role: fit}
+  - {id: 2023_montreal, circuit: montreal, year: 2023, source: openf1, session_key: 9110, role: fit}
+  - {id: 2023_spielberg, circuit: spielberg, year: 2023, source: openf1, session_key: 9118, role: fit}
+  - {id: 2023_silverstone, circuit: silverstone, year: 2023, source: fastf1, event: British Grand Prix, role: fit}
+  - {id: 2023_budapest, circuit: budapest, year: 2023, source: openf1, session_key: 9133, role: fit}
+  - {id: 2023_spa, circuit: spa, year: 2023, source: fastf1, event: Belgian Grand Prix, role: fit}
+  - {id: 2023_zandvoort, circuit: zandvoort, year: 2023, source: openf1, session_key: 9149, role: fit}
+  - {id: 2023_monza, circuit: monza, year: 2023, source: fastf1, event: Italian Grand Prix, role: fit}
+  - {id: 2023_marina_bay, circuit: marina_bay, year: 2023, source: openf1, session_key: 9165, role: fit}
+  - {id: 2023_suzuka, circuit: suzuka, year: 2023, source: openf1, session_key: 9173, role: fit}
+  - {id: 2023_mexico_city, circuit: mexico_city, year: 2023, source: openf1, session_key: 9181, role: fit}
+  - {id: 2023_las_vegas, circuit: las_vegas, year: 2023, source: openf1, session_key: 9189, role: fit}
+  - {id: 2023_yas_island, circuit: yas_island, year: 2023, source: openf1, session_key: 9197, role: fit}
+  - {id: 2023_sao_paulo, circuit: sao_paulo, year: 2023, source: openf1, session_key: 9205, role: fit}
+  - {id: 2023_austin, circuit: austin, year: 2023, source: openf1, session_key: 9213, role: fit}
+  - {id: 2023_lusail, circuit: lusail, year: 2023, source: openf1, session_key: 9221, role: fit}
+  - {id: 2024_sakhir, circuit: sakhir, year: 2024, source: openf1, session_key: 9472, role: fit}
+  - {id: 2024_jeddah, circuit: jeddah, year: 2024, source: openf1, session_key: 9480, role: fit}
+  - {id: 2024_melbourne, circuit: melbourne, year: 2024, source: openf1, session_key: 9488, role: fit}
+  - {id: 2024_suzuka, circuit: suzuka, year: 2024, source: openf1, session_key: 9496, role: fit}
+  - {id: 2024_miami, circuit: miami, year: 2024, source: openf1, session_key: 9507, role: fit}
+  - {id: 2024_imola, circuit: imola, year: 2024, source: openf1, session_key: 9515, role: fit}
+  - {id: 2024_monaco, circuit: monaco, year: 2024, source: openf1, session_key: 9523, role: fit}
+  - {id: 2024_montreal, circuit: montreal, year: 2024, source: openf1, session_key: 9531, role: fit}
+  - {id: 2024_barcelona, circuit: barcelona, year: 2024, source: openf1, session_key: 9539, role: fit}
+  - {id: 2024_spielberg, circuit: spielberg, year: 2024, source: openf1, session_key: 9550, role: fit}
+  - {id: 2024_silverstone, circuit: silverstone, year: 2024, source: openf1, session_key: 9558, role: fit}
+  - {id: 2024_budapest, circuit: budapest, year: 2024, source: openf1, session_key: 9566, role: fit}
+  - {id: 2024_spa, circuit: spa, year: 2024, source: openf1, session_key: 9574, role: fit}
+  - {id: 2024_zandvoort, circuit: zandvoort, year: 2024, source: openf1, session_key: 9582, role: fit}
+  - {id: 2024_monza, circuit: monza, year: 2024, source: openf1, session_key: 9590, role: fit}
+  - {id: 2024_baku, circuit: baku, year: 2024, source: openf1, session_key: 9598, role: fit}
+  - {id: 2024_marina_bay, circuit: marina_bay, year: 2024, source: openf1, session_key: 9606, role: fit}
+  - {id: 2024_austin, circuit: austin, year: 2024, source: openf1, session_key: 9617, role: fit}
+  - {id: 2024_mexico_city, circuit: mexico_city, year: 2024, source: openf1, session_key: 9625, role: fit}
+  - {id: 2024_sao_paulo, circuit: sao_paulo, year: 2024, source: openf1, session_key: 9636, role: fit}
+  - {id: 2024_las_vegas, circuit: las_vegas, year: 2024, source: openf1, session_key: 9644, role: fit}
+  - {id: 2024_lusail, circuit: lusail, year: 2024, source: openf1, session_key: 9655, role: fit}
+  - {id: 2024_yas_island, circuit: yas_island, year: 2024, source: openf1, session_key: 9662, role: fit}
+  - {id: 2024_shanghai, circuit: shanghai, year: 2024, source: openf1, session_key: 9673, role: fit}
+  - {id: 2025_melbourne, circuit: melbourne, year: 2025, source: openf1, session_key: 9693, role: holdout}
+  - {id: 2025_yas_island, circuit: yas_island, year: 2025, source: openf1, session_key: 9839, role: holdout}
+  - {id: 2025_lusail, circuit: lusail, year: 2025, source: openf1, session_key: 9850, role: holdout}
+  - {id: 2025_las_vegas, circuit: las_vegas, year: 2025, source: openf1, session_key: 9858, role: holdout}
+  - {id: 2025_sao_paulo, circuit: sao_paulo, year: 2025, source: openf1, session_key: 9869, role: holdout}
+  - {id: 2025_mexico_city, circuit: mexico_city, year: 2025, source: openf1, session_key: 9877, role: holdout}
+  - {id: 2025_austin, circuit: austin, year: 2025, source: openf1, session_key: 9888, role: holdout}
+  - {id: 2025_marina_bay, circuit: marina_bay, year: 2025, source: openf1, session_key: 9896, role: holdout}
+  - {id: 2025_baku, circuit: baku, year: 2025, source: openf1, session_key: 9904, role: holdout}
+  - {id: 2025_monza, circuit: monza, year: 2025, source: openf1, session_key: 9912, role: holdout}
+  - {id: 2025_zandvoort, circuit: zandvoort, year: 2025, source: openf1, session_key: 9920, role: holdout}
+  - {id: 2025_budapest, circuit: budapest, year: 2025, source: openf1, session_key: 9928, role: holdout}
+  - {id: 2025_spa, circuit: spa, year: 2025, source: openf1, session_key: 9939, role: holdout, repairs: [opening_compound]}
+  - {id: 2025_silverstone, circuit: silverstone, year: 2025, source: openf1, session_key: 9947, role: holdout}
+  - {id: 2025_spielberg, circuit: spielberg, year: 2025, source: openf1, session_key: 9955, role: holdout}
+  - {id: 2025_montreal, circuit: montreal, year: 2025, source: openf1, session_key: 9963, role: holdout}
+  - {id: 2025_barcelona, circuit: barcelona, year: 2025, source: openf1, session_key: 9971, role: holdout}
+  - {id: 2025_monaco, circuit: monaco, year: 2025, source: openf1, session_key: 9979, role: holdout}
+  - {id: 2025_imola, circuit: imola, year: 2025, source: openf1, session_key: 9987, role: holdout}
+  - {id: 2025_shanghai, circuit: shanghai, year: 2025, source: openf1, session_key: 9998, role: holdout}
+  - {id: 2025_suzuka, circuit: suzuka, year: 2025, source: openf1, session_key: 10006, role: holdout}
+  - {id: 2025_sakhir, circuit: sakhir, year: 2025, source: openf1, session_key: 10014, role: holdout}
+  - {id: 2025_jeddah, circuit: jeddah, year: 2025, source: openf1, session_key: 10022, role: holdout}
+
+# The same races from the second source, to compare the two readers.
+cross_checks:
+  - {id: 2023_silverstone, circuit: silverstone, year: 2023, source: openf1, session_key: 9126, role: fit}
+  - {id: 2023_spa, circuit: spa, year: 2023, source: openf1, session_key: 9141, role: fit}
+  - {id: 2023_monza, circuit: monza, year: 2023, source: openf1, session_key: 9157, role: fit}
+
+excluded:
+  - {id: 2025_miami, reason: OpenF1 has 559 lap rows where about 1000 are expected}

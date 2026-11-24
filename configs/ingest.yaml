@@ -1,0 +1,16 @@
+# Stage 1: raw files -> data/interim/<race id>/*.parquet
+
+version: 1   # raise this when the output format changes, so every race is rebuilt
+
+paths:
+  raw: data/raw
+  interim: data/interim
+
+# A lap is accurate when its sectors add up to its lap time.
+sector_sum_tolerance_s: 0.01
+
+checks:
+  min_cars: 15
+  min_known_compound_share: 0.75
+  max_missing_lap_time_share: 0.20
+  max_suspect_label_share: 0.25
