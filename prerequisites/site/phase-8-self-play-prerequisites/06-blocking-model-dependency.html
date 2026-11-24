@@ -13,38 +13,56 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 06 of 10 — The load-bearing dependency</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 06 · The blocking dependency</p>
       <h1>The Blocking Rule Everything Here Depends On</h1>
-      <p class="dek">Restated from Phase 6, not re-derived — this is the point in the reading order where it stops being background and starts being the reason the rest of this phase can fail.</p>
+      <p class="dek">Phase 6's case, one phase later, at the point where it decides whether this phase's headline result can exist.</p>
 
-      <div class="note grounded">
-        <div class="tag">If you've read <a class="xref" href="../phase-6-multi-car-prerequisites/05-position-and-blocking.html">Phase 6 page 05</a>, the summary below is the whole of what's new here</div>
-        <p>Nothing in this page's argument is original to Phase 8 — it's a direct consequence of <a class="xref" href="../phase-6-multi-car-prerequisites/05-position-and-blocking.html">Phase 6 page 05</a> (assumed background), restated at the exact point it becomes load-bearing for <em>this</em> phase's own headline result, per the same discipline Phase 6's own set used for restating Phase 1 material rather than re-deriving it.</p>
-      </div>
+      <section class="cold-open" data-call="p8-06">
+        <p class="co-label">Your call · the duel without blocking</p>
+        <p class="co-moment">Switch blocking off in the duel: each car drives its own lap time, as in the plan's race. Solve the game as before and look at the histogram the plan wants, the follower's stop lap minus the leader's.</p>
+        <p class="co-ask">What share of the equilibrium's pit deltas is 0?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-06" value="a"> About 11%, as with blocking on.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-06" value="b"> All of them.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-06" value="c"> None: equal cars never stop together.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>The one-paragraph restatement</h2>
-      <p>Phase 6's plan-as-written computes every car's race position purely by sorting cumulative <code>total_time</code>, ascending — there is no constraint anywhere in the dynamics that a car following closely behind another is ever actually held up by it. Under that model, pitting before a rival gains exactly as much track position as pitting whenever you simply happen to be faster: there is nothing for "the timing of a pit stop relative to a rival's" to add on top of "being faster," because being ahead or behind on track never costs or saves any time purely by virtue of position. An undercut and "being faster" collapse into the same event.</p>
+      <p><a class="xref" href="../phase-6-multi-car-prerequisites/05-position-and-blocking.html">Phase 6's Case 5</a>: with position a sort of total times and nothing holding a car behind the one ahead, stopping before a rival gains nothing that being faster doesn't. Timing a stop against a rival's has no value of its own, and the rival's stop lap appears in none of your lap times.</p>
 
-      <h2>The mechanical consequence for self-play, spelled out</h2>
-      <p>Train 20,000 self-play episodes against a position model with no blocking constraint, and there is <strong>structurally no reward signal</strong> that could ever teach either learning agent that pitting <em>before</em> a rival — rather than merely pitting whenever faster — has any distinct value of its own. The real plan's headline Definition of Done — a bimodal pit-timing histogram, with peaks at small negative (undercut) and small positive (overcut) deltas relative to a rival's pit lap — cannot appear, no matter how well the self-play mechanics (<a class="xref" href="01-non-stationarity-revisited.html">pages 01</a>–<a class="xref" href="05-first-opponent-problem.html">05</a>) otherwise converge, because the simulated world contains no mechanism whose presence such a histogram could even be evidence of.</p>
+      <h2>What that means for self-play</h2>
+      <p>Train 20,000 self-play races in such a race and there is no reward signal that could teach either learner that stopping <em>before</em> a rival has value of its own. The plan's headline Definition of Done, a two-humped histogram of pit deltas with peaks a lap or two before (undercut) and after (overcut) the rival's stop, can't appear, however well pages 01 to 05's machinery converges: the race has no mechanism such a histogram could be evidence of.</p>
 
-      <h2>A misdiagnosis worth naming directly</h2>
-      <p>The real plan's Risks table now says this itself. Its "Undercut doesn't emerge" row reads: the out-lap warm-up penalty is <em>not</em> the likely cause; check the blocking model first. Two tempting fixes are still worth naming as misdiagnoses, because they are the ones a tired reader reaches for. More frequent checkpoints (the plan's remedy for a different row, "training collapse") and better recency tuning (<a class="xref" href="03-checkpoint-pool.html">page 03</a>) address <em>non-stationarity</em>: they change how good an opponent's learned policy is, not what the environment's dynamics make possible for either agent to learn in the first place. Tuning the out-lap warm-up changes how big an undercut <em>would</em> be, not whether one can exist. In the capstone's duel (<a class="xref" href="08-build-it-yourself.html">page 08</a>) the warm-up is part of the tyre model; across the 12 tyre settings tried in the build, blocking off gave a pure equilibrium with every pit delta 0 in every one. Neither fix touches the actual gap: a reward signal for "timing your pit relative to a rival" that does not structurally exist until the dynamics gain a blocking constraint.</p>
+      <section class="reveal closed" data-for="p8-06">
+        <p class="co-label">The reveal · the duel without blocking</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">All of them</b></div></div>
+        <div class="co-body">
+          <p>With blocking off, lap 8 is each car's best stop against every lap the other could choose: the cars can't cost each other time, so each runs its own race. The equilibrium is (8, 8), and every pit delta is 0. With blocking on, 0.11 sits at 0, 0.61 on the follower's undercut side and 0.28 on the overcut side.</p>
+          <p>Across the 12 tyre settings tried for the capstone, blocking off gave a pure equilibrium with every delta 0 every time. Blocking is the whole difference. Below, the duel with blocking off: every leader rule plays lap 8, and nothing you pick beats −1.025.</p>
+        </div>
+      </section>
 
-      <h2>The fix, restated</h2>
-      <blockquote class="eq">if gap_to_car_ahead &lt; OVERTAKE_ATTEMPT_GAP and not overtake_succeeded:
-    lap_time = max(own_lap_time, car_ahead_lap_time + dirty_air_penalty(gap))</blockquote>
-      <p>One line, in the lap-time model that Phase 8's cars actually race on. Once a trailing car within range of the car ahead is capped at that car's pace (plus the dirty-air cost) unless it has actually overtaken, being behind carries a real, ongoing cost that only an overtake ends. Pitting before a rival to force them into exactly that situation then becomes a strategy with something to gain, not merely a synonym for having a faster car.</p>
+      <div data-widget="pitwall" data-mode="duel" data-leader="eq" data-blocking="0" data-seed="4"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
       <div class="note grounded">
-        <div class="tag">Which file that is: not only Phase 6's</div>
-        <p>It is natural to read "add it to Phase 6" as the whole fix, and earlier versions of this page said so. But the plan's <code>F1PettingZooEnv</code> does not use Phase 6's <code>F1MultiCarEnv</code>. It builds one independent single-car <code>F1StrategyEnv</code> per car, steps each on its own, adds up each car's own lap times and sorts the totals. No car's lap time ever depends on another car's: <code>attempt_overtake</code> is imported and never called, and dirty air is subtracted from the reward but not from the lap time (audit E3, again). Adding the rule to <code>F1MultiCarEnv</code> is right for Phase 6 and changes nothing here. For Phase 8, the rule has to go into <code>F1PettingZooEnv.step</code>, or the env has to be rebuilt on <code>F1MultiCarEnv</code> so it inherits the rule.</p>
+        <div class="tag">Which file the rule goes in: not only Phase 6's</div>
+        <p>The plan's <code>F1PettingZooEnv</code> does not use Phase 6's <code>F1MultiCarEnv</code>. It builds one independent single-car <code>F1StrategyEnv</code> per car, steps each on its own, adds up each car's own lap times and sorts the totals. No car's lap time ever depends on another's: <code>attempt_overtake</code> is imported and never called, and dirty air is subtracted from the reward but not the lap time (audit E3, again). Adding the rule to <code>F1MultiCarEnv</code> is right for Phase 6 and changes nothing here. For Phase 8 it has to go into <code>F1PettingZooEnv.step</code>, or the env has to be rebuilt on <code>F1MultiCarEnv</code>.</p>
       </div>
 
-      <div class="note generic">
-        <div class="tag">Reading the real plan's own Prerequisites section correctly</div>
-        <p>The real plan lists "Phase 6 complete" as a prerequisite. Per this page's argument, that line should be read as "Phase 6 complete <em>and this blocking constraint added</em>," not merely "Phase 6's files exist and its own listed tests pass" — Phase 6's originally-listed tests, worked through on <a class="xref" href="../phase-6-multi-car-prerequisites/10-reading-the-plan.html">Phase 6 page 10</a> (assumed background), don't check for this constraint at all, so passing them is no evidence it's present. Confirm the blocking-model test from Phase 6's Definition of Done actually passes, and then that the same test passes on <code>F1PettingZooEnv</code> itself, before starting any of this phase's training runs.</p>
-      </div>
+      <h2>Two tempting fixes that miss</h2>
+      <p>The plan's Risks table now says the right thing: its "Undercut doesn't emerge" row says to check the blocking model first, not the out-lap warm-up. Two fixes are still tempting when the histogram stays flat. More frequent checkpoints and better recency tuning (page 03) address non-stationarity: they change how good the opponents are, not what the race lets anyone learn. Tuning the warm-up changes how big an undercut <em>would</em> be, not whether one can exist.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Reading the plan's prerequisite line<span class="dd-len">70 words</span></summary>
+        <div class="dd-body">
+          <p>The plan lists "Phase 6 complete" as a prerequisite. Read it as "Phase 6 complete and the blocking rule added, in the env Phase 8 races on". Phase 6's own listed tests don't check for the rule (<a class="xref" href="../phase-6-multi-car-prerequisites/09-back-to-the-plan.html">Phase 6 page 09</a>), so passing them is no evidence it exists. Run the stuck-car test from Phase 6's Definition of Done, then the same test on <code>F1PettingZooEnv</code>, before any training run here.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Root cause, second half</span><span>Found: in the plan's env no car's lap time depends on another's, so the histogram the run is for can only put every delta where each car's own best stop falls. In the duel with blocking off, all of it sits at 0. Next: whether the histogram would prove anything even with blocking.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-06" data-lab-format="quiz">
         <span class="lab-kicker">Lab p8-06 · In page · about 10 min</span>
@@ -95,6 +113,14 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/pitgame_data.js"></script>
+<script src="../assets/pitwall/pitgame.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/pitgameui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

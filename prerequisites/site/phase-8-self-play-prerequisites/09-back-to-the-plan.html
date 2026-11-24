@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Back to the plan — Phase 8 Self-play · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="8/09">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 09 · Back to the plan</p>
+      <h1>Back to the Plan</h1>
+      <p class="dek"><code>phase-8-self-play.md</code> against what you built: the env, the loop, the pool, what its checklist catches, and the verdict.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>src/env/f1_pettingzoo_env.py</code> and <code>src/agents/self_play_trainer.py</code> are not in the repository yet. This page reads the plan's pseudocode, as Phase 6's last page did.</p>
+      </div>
+
+      <section class="cold-open" data-call="p8-09">
+        <p class="co-label">Your call · the plan's first checklist item</p>
+        <p class="co-moment">The plan's Definition of Done opens with: “Self-play loop trains agent_0 while opponents are sampled from pool.”</p>
+        <p class="co-ask">How long does a run take to fail this item?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-09" value="a"> About 1,000 episodes, when the pool gets its second entry.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-09" value="b"> A few episodes: the first sample usually fails.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-09" value="c"> It doesn't: the loop is fine.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>The env and the loop</h2>
+      <p><code>F1PettingZooEnv</code> is page 04's Parallel API: <code>possible_agents = ["agent_0", …]</code>, a 19-number observation per agent (Phase 6's, recomputed per car by <code>_extend_obs</code>), and per-agent dicts from <code>reset()</code> and <code>step(actions)</code>. Two lines of its <code>step()</code> repeat earlier findings. <code>base_reward = -lap_times[agent] - dirty_air</code>: the first term is the raw, uncentred lap time (audit Finding C, which <a class="xref" href="../phase-9-ppo-prerequisites/00-overview.html">Phase 9</a> measures), and the second charges the wake to the reward but not the lap time (E3). And each car runs in its own <code>F1StrategyEnv</code>, so no car affects another (page 06).</p>
+      <p>The loop is page 01's independent learners: one <code>DuelingDoubleDQNAgent</code> as <code>agent_0</code>, the only one that stores, updates and decays ε; every other car is a frozen snapshot from the pool, re-drawn each episode, played greedily.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pool parameter</th><th>Value</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">recency_bias</td><td class="mono">0.7</td><td>Chance of drawing from the newest 20% (page 03)</td></tr>
+            <tr><td class="mono">max_pool_size</td><td class="mono">50</td><td>A sliding window: the oldest snapshot is evicted</td></tr>
+            <tr><td class="mono">checkpoint_freq</td><td class="mono">1,000 episodes</td><td>How often a snapshot is added, so the seed is alone for episodes 0 to 999</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Reading order</h2>
+      <p><strong><code>f1_pettingzoo_env.py</code>'s <code>step()</code> first</strong>: the reward, <code>_extend_obs</code>, and where page 06's rule has to go. <strong>Then <code>CheckpointPool</code></strong>, against pages 03 and 05: the parameters, the n = 1 slice, and what <code>pool.add(learner, episode=0)</code> seeds the pool with. <strong>Then <code>train_self_play</code></strong>, where two efficiency problems live: a fresh <code>F1PettingZooEnv</code> is built inside the episode loop, so 20,000 constructions each re-read <code>calibration.json</code> and <code>scenarios.parquet</code>, and opponents are reloaded from disk once per opponent per episode instead of cached by path. Neither gives wrong results; both make the run far slower than it needs to be.</p>
+
+      <section class="reveal closed" data-for="p8-09">
+        <p class="co-label">The reveal · the plan's first checklist item</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">A few episodes</b></div></div>
+        <div class="co-body">
+          <p>Each episode draws one opponent from a one-entry pool, and 70% of draws fail. Seven runs in ten die at episode 0, almost all within five, and none reaches episode 1,000.</p>
+          <p>So this item catches the crash in seconds, which makes it the one item that fails at once. Fix it first: nothing below it can be observed until the loop runs.</p>
+        </div>
+      </section>
+
+      <h2>What the checklist catches, and what it misses</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Catches</th><th>Misses</th></tr></thead>
+          <tbody>
+            <tr><td>"Self-play loop trains agent_0 while opponents are sampled from pool"</td><td>The n = 1 crash, within the first episodes</td><td>What is learned: a loop that runs can still train against a fixed first opponent, in a race where no car affects another</td></tr>
+            <tr><td>"Learner's mean finishing position &lt; random agent's"</td><td>A learner that learned nothing: a sanity floor from outside the loop</td><td>Any undercut: good tyre management alone clears it</td></tr>
+            <tr><td>"Checkpoint saved every 1000 episodes; pool max size = 50"</td><td>Wrong save frequency, unbounded growth, eviction bugs</td><td>The seed (page 05): a pool that saves and evicts correctly can still start from a fixed script</td></tr>
+            <tr><td>"Undercut/overcut emergence visible in pit timing distribution"</td><td>Nothing until page 06's rule is in the env Phase 8 races on</td><td>Even then: a null shuffled within races that share a scenario, several training seeds (9% to 78% on the duel), and a blocking-off run to compare. "Visible" alone can be met by a pattern that is evidence of nothing</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="case-file">
+        <p class="cf-label">Case 6 · the verdict</p>
+        <h2>A sampler that can't sample, in a race that can't show the result</h2>
+        <p><strong>Why does the run die?</strong> The pool sampler slices an empty "newest 20%" while the pool holds its one seed checkpoint, and <code>np.random.choice</code> fails on 70% of draws. The seed stays alone until episode 1,000, so no run gets there. <strong>Could its histogram be trusted if it lived?</strong> Not as planned. The seed opponent is a fixed script (23 of 30 untrained networks repeat one call). The env lets no car affect another, so the undercut the histogram looks for can't exist; in the duel with blocking off every delta is 0. And with blocking in, one run's histogram is weak evidence: a plain shuffle calls a shared safety car a reaction, and four seeds of one setup spread from 9% to 78%.</p>
+        <p><strong>What should the plan change?</strong> The prerequisites don't edit the plan; these go to whoever implements Phase 8.</p>
+        <p><strong>1. Make it run.</strong> In <code>CheckpointPool.sample</code>, a pool with no newest slice samples from what it has, with a test at n = 1. Seed the pool with a stochastic opponent or Phase 3's rule-based agents, not a greedy untrained network.</p>
+        <p><strong>2. Make the result possible.</strong> Put page 06's rule in <code>F1PettingZooEnv.step</code>, or build the env on <code>F1MultiCarEnv</code>, with the wake in the lap time (E3) and a centred reward (Finding C). Read the prerequisite "Phase 6 complete" as "and the stuck-car test passes on this env".</p>
+        <p><strong>3. Make the result evidence.</strong> Report the histogram beside a null shuffled only among races that share a scenario seed, beside a blocking-off run, and over several training seeds.</p>
+        <p>Also for the implementer: build the env once outside the episode loop, and cache opponents by checkpoint path.</p>
+        <p><button class="pw-btn go" type="button" data-close-case="8" data-label="Close Case 6">Close Case 6</button></p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p8-09" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p8-09 · In page · about 20 min</span>
+        <h2>Parameters, lines, and what catches what</h2>
+        <p class="lab-goal">Put each of the plan's pool parameters next to the page that explains it, do the recency arithmetic for the real pool sizes, find the lines of <code>F1PettingZooEnv</code> that repeat earlier findings, decide what each Definition-of-Done item catches and where each fix goes, and run the case against the plan.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which page explains each parameter?</h3>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The share of samples drawn from the newest 20% of the pool: page 03's recency rule." data-nudge="Which page derives 7% and 0.75%?">
+            <label><code>recency_bias = 0.7</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The window over past snapshots. The capstone measured what a window costs: a uniform pool that never forgets is exactly fictitious play (exploitability 0.006 after 1,000 rounds), while the plan's rule with a window of 50 stays near 0.38." data-nudge="Eviction is part of the pool's design.">
+            <label><code>max_pool_size = 50</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p05" data-explain="With a snapshot every 1,000 episodes, the seed is the pool's only entry for episodes 0 to 999: every opponent in that time is the untrained network of page 05, if the n = 1 crash is fixed first." data-nudge="How long is the seed alone in the pool?">
+            <label><code>checkpoint_freq = 1000</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, the checkpoint pool</option><option value="p05">page 05, the first opponent</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · The arithmetic at the real sizes</h3>
+          <p>A full pool, <strong>n = 50</strong>. Give percentages.</p>
+          <div class="lab-q" data-type="num" data-answer="7" data-tol="0.05" data-explain="cut = 40, so 10 recent checkpoints share 70%: 7% each." data-nudge="cut = int(0.8 × 50).">
+            <label>Each recent checkpoint, % &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.75" data-tol="0.01" data-explain="40 older checkpoints share 30%: 0.75% each." data-nudge="30% over the 40 older ones.">
+            <label>Each older checkpoint, % &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="9.333" data-tol="0.02" data-explain="7 / 0.75 = 9.33. At n = 12 the same rule gives 7 : 1." data-nudge="Divide the two.">
+            <label>The ratio, recent to older &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="cut = max(1, int(0.8)) = 1 and checkpoints[1:] is empty, so the 0.7 branch calls np.random.choice([]) and raises ValueError: 691 of 1,000 calls in the measurement. The pool holds one entry for the first 1,000 episodes." data-nudge="Lab p8-03's first test.">
+            <span class="lab-prompt">And at n = 1, the pool the plan trains against first?</span>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="a"> 100% to the one checkpoint, as you would want</label>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="b"> 70% to the one checkpoint and 30% to nothing</label>
+            <label class="lab-opt"><input type="radio" name="p809-n1" value="c"> about seven calls in ten raise ValueError</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · The env, line by line</h3>
+          <div class="lab-q" data-type="num" data-answer="16" data-tol="0" data-explain="N_MULTI_OBS = 19 is &quot;16 base + 3 multi-car features&quot;: the single-car observation plus _extend_obs's gap ahead, gap behind and position." data-nudge="Read the comment next to N_MULTI_OBS.">
+            <label>The observation is 19 numbers. How many of them come from the single-car env? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The plan writes obs_dim=19 in three places (two in the trainer, one in the analysis). Change the observation and they silently disagree with the env. Read it once from env.observation_space(agent).shape[0]." data-nudge="Where does the true size live?">
+            <span class="lab-prompt"><code>DuelingDoubleDQNAgent(obs_dim=19)</code> appears in three places. What should they use instead?</span>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="a"> a module constant OBS_DIM = 19</label>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="b"> the env's own observation_space(agent).shape[0]</label>
+            <label class="lab-opt"><input type="radio" name="p809-obs" value="c"> nothing: 19 cannot change</label>
+          </div>
+          <p>One line of <code>step()</code> builds the per-lap reward: <code>base_reward = -lap_times[agent] - dirty_air</code>.</p>
+          <div class="lab-q" data-type="select" data-answer="e3" data-explain="The dirty-air penalty is subtracted from the reward but never from the lap time, so total times, positions and the final order never see it: audit E3, again." data-nudge="Does dirty air change anyone's total time?">
+            <label>The <code>- dirty_air</code> term repeats…<br><select>
+              <option value="">choose…</option><option value="e3">E3: dirty air in the reward but not in the lap time</option><option value="c">Finding C: an uncentred reward</option><option value="none">neither</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="c" data-explain="The raw negative lap time, a large negative number every lap, with no offset: Finding C, again. Phase 9's labs measured what that does to a policy-gradient learner, and the bias it gives DQN's early Q estimates is the same one." data-nudge="What is the reward of an average lap?">
+            <label>The <code>-lap_times[agent]</code> term repeats…<br><select>
+              <option value="">choose…</option><option value="e3">E3: dirty air in the reward but not in the lap time</option><option value="c">Finding C: an uncentred reward</option><option value="none">neither</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · What each item catches</h3>
+          <div class="lab-q" data-type="select" data-answer="s2" data-explain="Any training run catches S2, in seconds: the first episodes sample from a one-entry pool, and about seven calls in ten raise ValueError. Item I, S4 and S9 all train without complaint." data-nudge="Which of the four stops a run?">
+            <label>"Self-play loop trains agent_0 while opponents are sampled from pool"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It checks the save schedule and the eviction. A pool that saves and evicts correctly can still crash at n = 1 when sampled, and can still be seeded with a fixed policy." data-nudge="What does the item exercise: adding, or sampling?">
+            <label>"Checkpoint saved every 1000 episodes; pool max size = 50"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="A floor: a learner can beat a random agent on pace and tyre management alone, with or without interaction between cars, and whatever it trained against first." data-nudge="Could a learner pass it in a world where the cars never affect each other?">
+            <label>"After 20K episodes: learner's mean finishing position &lt; random agent's"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="s4" data-explain="It cannot pass while no car affects another: there is nothing to undercut. It is the item S4 blocks. With blocking off, the capstone's equilibrium puts every delta at 0." data-nudge="Which finding makes it unreachable?">
+            <label>"Undercut/overcut emergence visible in pit timing distribution (bimodal histogram)"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="multi" data-answer="seeds,strat,control" data-explain="Several seeds, because one run's histogram can be anything (the capstone report: the follower-first share ran from 0.09 to 0.78 across four seeds of one configuration). The stratified null, because cars that share a race's scenario look linked without reacting (lab p8-07). And a blocking-off run, because a shape that also appears without blocking is not evidence of strategy. A sharper picture of one run adds none of these." data-nudge="Three of the four make the item evidence; one only makes it prettier.">
+            <span class="lab-prompt">Once S4 is fixed, what does the histogram item still need before anyone reads a result off it? (Choose all that apply.)</span>
+            <label class="lab-opt"><input type="checkbox" value="seeds"> several training seeds, not one run</label>
+            <label class="lab-opt"><input type="checkbox" value="strat"> the null shuffled only within races that shared the same conditions</label>
+            <label class="lab-opt"><input type="checkbox" value="control"> the same training with blocking switched off, for comparison</label>
+            <label class="lab-opt"><input type="checkbox" value="bins"> finer histogram bins</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Where each fix goes</h3>
+          <div class="lab-q" data-type="select" data-answer="sample" data-explain="One guard at the top of sample(): a pool of one returns its only entry." data-nudge="Where is the crash raised?">
+            <label>The n = 1 guard<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="train" data-explain="pool.add(learner, episode=0) is in train_self_play. Seed with ε = 1 opponents or Phase 3's rule-based agents instead." data-nudge="Which line puts the untrained network in the pool?">
+            <label>The first opponent (item I)<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="pz" data-explain="F1PettingZooEnv sums independent single-car envs and never calls F1MultiCarEnv, so a fix in Phase 6's file does not reach it. The rule goes into this env's step (or the env is rebuilt on F1MultiCarEnv)." data-nudge="Which file computes the lap times Phase 8's agents race on?">
+            <label>The blocking rule, for Phase 8<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="pz" data-explain="base_reward = -lap_times[agent] - dirty_air is built in step(); centre it there." data-nudge="Where is base_reward computed?">
+            <label>The reward offset (Finding C)<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the plan</h3>
+          <div class="lab-q" data-type="num" data-answer="0.7" data-tol="0.01" data-explain="0.7: with one checkpoint, cut = max(1, int(0.8)) = 1, so checkpoints[1:] is empty, and every call that takes the 0.7 branch asks np.random.choice to pick from nothing. The run holds one checkpoint for its first 1,000 episodes, so it stops within its first few." data-nudge="Which slice does the 0.7 branch pick from when n = 1, and what is in it?">
+            <label>With one checkpoint in the pool, what fraction of the plan's <code>sample()</code> calls raise <code>ValueError</code>? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The shared safety car links the two cars' stops without either reacting to the other. Shuffling only among races with the same safety-car lap keeps that shared cause in every shuffle, so only a real reaction is left for the test to find: p = 0.67 on this data, and still p = 0.002 when a reaction is added." data-nudge="What did the two cars share in each race, besides each other?">
+            <span class="lab-prompt">In 2,000 races both cars stop under the same safety car, and neither reacts to the other. A plain shuffle test rejects at p = 0.002. What should be shuffled instead?</span>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="a"> the same pairs, with more shuffles</label>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="b"> the rival's stop laps, only among races with the same safety-car lap</label>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="c"> nothing: the test is right, the cars reacted</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.256" data-tol="0.002" data-explain="−0.513 − (−0.769) = 0.256, about 5 seconds of margin at 0.05 a second. The plan's pool weights its newest snapshots, which are still chasing, so the mixture it leaves can be beaten; the equilibrium can't." data-nudge="The best reply's payoff minus the equilibrium's value.">
+            <label>After 1,000 rounds of the duel, the plan's pool rule leaves the leader a mixture that lap 4 beats for −0.513. At the equilibrium the follower's best is −0.769. How much payoff does the plan's pool give away? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

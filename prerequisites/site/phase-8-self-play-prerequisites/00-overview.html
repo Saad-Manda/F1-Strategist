@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>00 · Overview — Phase 8 Self-play · F1 Prereqs</title>
+<title>00 · Case brief — Phase 8 Self-play · F1 Prereqs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -13,28 +13,44 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Overview</p>
-      <h1>Phase 8 Self-Play Prerequisites</h1>
-      <p class="dek">Everything — and only what — you need to build the multi-agent self-play training loop described in <code>phase-8-self-play.md</code>, assuming you already have the Phase 1, Phase 3.5, Phase 4, Phase 5, and Phase 6 prerequisite sets and nothing more.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Case brief</p>
+      <h1>The Run That Dies at Episode Zero</h1>
+      <p class="dek">Phase 8 trains the agent against copies of itself. First, start the plan's training run.</p>
 
-      <div class="note grounded">
-        <div class="tag">Read this before training anything</div>
-        <p>Phase 8's headline Definition of Done — a bimodal undercut/overcut pit-timing histogram emerging from training, without being explicitly programmed — <strong>cannot be reached yet</strong>. It depends on a design gap first found in Phase 6: Phase 6's plan-as-written computes race position purely by sorting cumulative time, with nothing that ever holds a trailing car up behind one it's following. This phase's own <code>F1PettingZooEnv</code> repeats the gap, because it never uses Phase 6's env: it runs one independent single-car env per car, so fixing Phase 6 alone does not reach it. <a class="xref" href="06-blocking-model-dependency.html">Page 06</a> of this set works through why that makes the undercut structurally impossible to learn, no matter how self-play is tuned. The real plan's Risks table points the right way (its "Undercut doesn't emerge" row says to check the blocking model first, not the out-lap warm-up), but the tempting fixes, more checkpoints and recency tuning, address a different problem. Check <a class="xref" href="06-blocking-model-dependency.html">page 06</a> before spending any training budget here.</p>
+      <p>The plan's self-play loop keeps a pool of past copies of the learner and draws each race's opponent from it with one rule: 70% of the time from the newest 20% of the pool, otherwise from the older 80%. Before the first race the pool gets one entry, the untrained learner, and the next entry arrives at episode 1,000. Below is that rule, line for line. Sample from a pool of one, then start the run a thousand times.</p>
+
+      <div data-widget="poolrule" data-n="1"><noscript><p>This widget needs JavaScript.</p></noscript></div>
+
+      <p>About seven calls in ten fail, and the run never sees episode 1,000. That is the first half of the case. The second half is what the run is for: a histogram of pit stops, the learner's stop lap minus its rival's, that should show undercuts and overcuts emerging from self-play. Suppose the crash is fixed. Would that histogram show what the plan says it shows?</p>
+
+      <div class="case-file">
+        <p class="cf-label">Case 6 · open</p>
+        <h2>Why does the run die, and could its histogram be trusted if it lived?</h2>
+        <p>The crash is the easy half to see and the easy half to fix. The harder half is everything between a fixed loop and a believable result: what the opponents are, what the race lets two cars do to each other, and what a pit-delta histogram can and can't prove. What should the plan change?</p>
+        <p>You will collect the evidence one page at a time:</p>
+        <ol class="cf-trail">
+          <li><div><a href="01-non-stationarity-revisited.html">Non-stationarity</a>: a learning opponent, and a duel that never settles.</div></li>
+          <li><div><a href="02-nash-and-fictitious-play.html">Nash and fictitious play</a>: what self-play is chasing, and how to reach it.</div></li>
+          <li><div><a href="03-checkpoint-pool.html">The checkpoint pool</a>: the plan's rule, what it costs, and the crash.</div></li>
+          <li><div><a href="04-pettingzoo-apis.html">PettingZoo</a>: two APIs, and which one the cars need.</div></li>
+          <li><div><a href="05-first-opponent-problem.html">The first opponent</a>: the pool's seed, and why it comes second.</div></li>
+          <li><div><a href="06-blocking-model-dependency.html">The blocking dependency</a>: a race where no car can affect another.</div></li>
+          <li><div><a href="07-is-it-bimodal.html">Is it bimodal?</a>: what a histogram can prove, and what it can't.</div></li>
+          <li><div><a href="08-build-it-yourself.html">The build</a>: you solve the pit-timing duel with no noise at all.</div></li>
+          <li><div><a href="09-back-to-the-plan.html">Back to the plan</a>: the real files, what the checklist catches, and the verdict.</div></li>
+        </ol>
       </div>
 
-      <h2>Why this phase is different from everything before it</h2>
-      <p>Every phase through Phase 6 had at most one <em>learning</em> agent in the world. Phase 6's rivals move and pit and race, but they follow a script decided in advance — from the agent's point of view they're no different from the weather trace or the safety-car process: part of a fixed, stationary environment. Phase 8 removes that shield on purpose. The agent's training opponents are now other copies of the same kind of learner, produced by earlier rounds of the very training process being run — which means the "environment," as far as any one agent's learning algorithm is concerned, is now something that changes while it's being learned about. That single shift touches almost everything Phase 4 and 5's theory quietly assumed.</p>
+      <h2>What changes in Phase 8</h2>
+      <p>Through Phase 6 at most one thing in the world was learning. Phase 6's rivals follow scripts, so to the agent they are part of a fixed environment, like the weather. Phase 8 removes that on purpose: the opponents are earlier copies of the learner, so the environment, from the learner's point of view, changes while it is learning about it. The Pit Wall's Duel mode is the game this set measures everything on: two equal cars, one stop each, and the question of who stops first.</p>
 
       <div class="note generic">
-        <div class="tag">Scope, precisely</div>
-        <p>This set teaches exactly what <code>phase-8-self-play.md</code> needs: why a learning opponent reintroduces non-stationarity in a way Phase 6's scripted rivals sidestepped, the game-theoretic target self-play is approximately chasing and why a checkpoint pool is a practical stand-in for it, PettingZoo's AEC and Parallel multi-agent environment APIs, the three MARL training paradigms and why independent learners is the deliberate simple choice here, and two audit findings taught as core content rather than footnotes — a degenerate first-opponent bug, and the Phase 6 blocking-model dependency above. It does not cover PPO, Stable-Baselines3, or anything else from Phase 9.</p>
+        <div class="tag">What Phase 8 does and does not do</div>
+        <p>This set covers what <code>phase-8-self-play.md</code> needs: why a learning opponent breaks stationarity, the game self-play is chasing and the checkpoint pool that stands in for it, PettingZoo's two multi-agent APIs, the three ways to organize multi-agent training, and the audit findings against the plan, taught as core content. It doesn't cover PPO or Stable-Baselines3, which belong to Phase 9. <code>f1_pettingzoo_env.py</code> and <code>self_play_trainer.py</code> are not in the repository yet, so the last page reads the plan's own pseudocode.</p>
       </div>
 
-      <div class="note generic">
-        <div class="tag">Read this before anything else</div>
-        <p>Like Phase 6's set was for its own phase, this one is unusual: the code it eventually points to — <code>f1_pettingzoo_env.py</code>, <code>self_play_trainer.py</code> — does not exist in <code>src/</code> yet, because Phase 8 hasn't been implemented. <a class="xref" href="09-this-project-formalized.html">Pages 9</a> and <a class="xref" href="10-reading-the-plan.html">10</a> read the <em>plan's own pseudocode</em>, not a real, running file, and part of what they teach is the project's own audit findings against that pseudocode — including the dependency above, which was found by reading the plan critically before a single episode of training ran.</p>
-      </div>
+      <p class="evidence"><span class="ev-tag">Case 6</span><span>Opened. The plan's pool sampler fails on about 70% of calls with one checkpoint, and the run holds one checkpoint until episode 1,000. Next: what a learning opponent does to the problem.</span></p>
 
       <div class="pagenav" id="pagenav"></div>
       <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
@@ -44,5 +60,8 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/widgets/poolrule.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
 </body>
 </html>

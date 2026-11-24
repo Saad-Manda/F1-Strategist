@@ -13,53 +13,77 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 1 · Page 01 of 07 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 1 · Page 01 · The loop</p>
       <h1>RL Fundamentals</h1>
-      <p class="dek">The agent–environment loop, the reward hypothesis, and the vocabulary every later page is built from.</p>
+      <p class="dek">What the agent is told on every lap, and what it never is.</p>
 
-      <h2>The agent–environment loop</h2>
-      <p>Reinforcement learning has one loop, repeated over and over:</p>
+      <section class="cold-open" data-call="p1-01">
+        <p class="co-label">Your call · lap 6 of 20</p>
+        <p class="co-moment">Safety car. You boxed for B two laps ago.</p>
+        <p class="co-ask">Behind the safety car a stop costs 1.6 s instead of 4. Do you box again, for A?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p1-01" value="a"> Box. A stop will not be this cheap again.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-01" value="b"> Stay out. Cheap or not, the stop buys tyres you do not need.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-01" value="c"> It cannot be called without knowing how long the safety car stays out.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>What is the agent told each lap?</h2>
+      <p>Reinforcement learning has one loop, and everything else is built on it:</p>
       <ol>
-        <li>The <strong>environment</strong> hands the <strong>agent</strong> an <strong>observation</strong> describing the current situation.</li>
-        <li>The agent chooses an <strong>action</strong>.</li>
-        <li>The environment applies that action, moves to a new situation, and hands back a <strong>reward</strong> (a single number saying how good that step was) plus the next observation.</li>
-        <li>Repeat until the episode ends.</li>
+        <li>The <strong>environment</strong> hands the <strong>agent</strong> an <strong>observation</strong>: the situation as the agent sees it.</li>
+        <li>The agent picks an <strong>action</strong>.</li>
+        <li>The environment applies it, moves on, and hands back a <strong>reward</strong> (one number for how good that step was) and the next observation.</li>
+        <li>Repeat until the <strong>episode</strong> ends.</li>
       </ol>
-      <p>Nothing else in RL is more than an elaboration of this loop. The agent's only job is to learn a <strong>policy</strong> — a rule for picking actions from observations — that makes the running total of rewards as large as possible.</p>
+      <p>On the Pit Wall, the observation is the panel: lap, tyre, tyre age, the flags. The action is one of the three buttons. The reward is minus the lap time, so a 10.5 s lap pays −10.5. The agent's job is to learn a <strong>policy</strong>, a rule from observation to action, that makes the total reward as large as possible.</p>
+      <p>Nobody tells the agent that A falls off a cliff after 6 laps or that a stop costs 4 s. It has to work the rules out from rewards. The real project is the same, only bigger: 16 numbers in, one of six calls out, <code>-lap_time</code> back.</p>
 
-      <div class="note generic">
-        <div class="tag">Generic example</div>
-        <p>In a video game, the observation might be the screen pixels, the action a joystick direction, and the reward the score delta. The agent never sees "the rules of the game" directly — it only ever sees observation → action → reward, over and over, and has to infer good behaviour from that alone.</p>
-      </div>
+      <h2>One lap's reward can point the wrong way</h2>
+      <p>Take the same safety car on lap 6, but this time you are still on the A tyres you started on: six laps old, at the cliff. Staying out pays −14.0 for the lap, since every lap behind the safety car takes 14 s. Boxing for B pays −15.6: the same 14 s plus the 1.6 s stop. On this lap's reward alone, staying out wins.</p>
+      <p>Over the rest of the race it loses. Counting laps 6 to 20, staying out costs 180.92 s on average and boxing 180.52 s. The stop pays for itself, but only later, in laps the lap-6 reward knows nothing about. Race #49 below has that safety car on lap 6. Play it once staying out on lap 6 and once boxing (<em>Same dice again</em> replays it), and compare the two totals at the flag.</p>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>The observation is a 16-number description of the race (laps remaining, tyre compound and age, weather, whether a safety car is out); the action is one of six choices (stay out, or pit for one of five compounds); the reward is the negative lap time. Nothing about "tyre degradation" or "the pit-loss penalty" is ever told to the agent directly — it has to discover, purely from rewards, that pitting for softs late in dry weather is a bad idea.</p>
-      </div>
+      <div data-widget="pitwall" data-mode="race" data-seed="49"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
 
-      <h2>The reward hypothesis</h2>
-      <p>RL rests on one assumption, sometimes called the <strong>reward hypothesis</strong>: any goal you care about can be expressed as maximizing the expected cumulative sum of a scalar reward signal. This is a real design constraint, not a footnote — if you can't collapse "what we want" into a single number per step, you don't have an RL problem yet, you have a reward-design problem to solve first.</p>
+      <section class="reveal closed" data-for="p1-01">
+        <p class="co-label">The reveal · lap 6</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Stay out, by 2.26 s</b></div></div>
+        <div class="co-body">
+          <p>On two-lap-old B, staying out costs 179.22 s over laps 6 to 20 on average, and boxing for A costs 181.48 s. The stop is cheap, but fresh tyres do not need replacing. On six-lap-old A, under the same safety car, the answer flips: box, by 0.40 s.</p>
+          <p>Same event, opposite calls. The right call depends on the whole situation, not on the safety car alone. And neither answer shows in the lap-6 reward, where staying out always looks 1.6 s better. That gap between one reward and the whole race is what the rest of Phase 1 is about.</p>
+        </div>
+      </section>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>This is exactly the tension Phase 1's "Reward design" section wrestles with. The obvious goal is "win the race," but the reward actually used is <code>-lap_time</code> on every single lap. The plan spends real effort proving that summing <code>-lap_time</code> over the whole race is mathematically identical to <code>-total_race_time</code> — with no shortcut left for the agent to exploit, like getting free reward by pitting during a safety car. You'll see this same proof step again in Phase 5's reward-shaping decisions.</p>
-      </div>
+      <h2>Can every goal be one number per lap?</h2>
+      <p>RL assumes so. The <strong>reward hypothesis</strong> says any goal can be written as maximising the expected sum of one number per step. If you cannot squeeze what you want into that number, you do not have an RL problem yet. You have a reward-design problem first.</p>
+      <p>The goal here is the shortest race, and the reward is <code>-lap_time</code> on every lap. Added up over a race, that is minus the race time, because the race time is the sum of the lap times, pit stops included. So the agent collects the most reward when, and only when, it finishes fastest. Phase 1's plan spends a section making sure there is no way to collect reward that is not real race time.</p>
 
-      <h2>Episodes, and episodic vs. continuing tasks</h2>
-      <p>An <strong>episode</strong> is one complete run of the loop from a starting situation to a natural ending. Some RL tasks never end (continuing tasks — e.g., a thermostat runs forever), but most have a clear boundary, and this project does too: one episode = one full race, from lap 1 to the chequered flag. Phase 1 fixes the episode length in advance, which is a <strong>fixed-length episode</strong>. This matters later because <code>terminated</code> (the race genuinely finished) and <code>truncated</code> (we cut it off early for some other reason) are different signals in Gymnasium, and Phase 1 explicitly sets <code>truncated = False</code> always — there's no artificial cutoff, the episode only ends when the race does.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Is a cheap safety-car stop a loophole?<span class="dd-len">70 words</span></summary>
+        <div class="dd-body">
+          <p>A loophole would be reward the agent can collect without going faster. The safety-car discount is not one: a stop behind the safety car loses less time in the real race too, so learning to pit there is learning real strategy. The sum of <code>-lap_time</code> equals <code>-total_race_time</code> however the agent gets there. That is the property the plan checks, and the same check comes back in Phase 5's reward-shaping decisions.</p>
+        </div>
+      </details>
 
-      <h2>Exploration vs. exploitation</h2>
-      <p>At any point the agent can either <strong>exploit</strong> — take the action it currently believes is best — or <strong>explore</strong> — try something else, to find out if it's actually better. Too much exploitation and the agent gets stuck on a mediocre strategy it found early and never questions again. Too much exploration and it never settles into using what it's learned. Balancing the two is a central, recurring problem across almost every RL algorithm. Phase 1 doesn't need a resolution to it — no algorithm is trained here — but it's worth naming because it's the reason the next section (fresh-sampled stochasticity) matters as much as it does: an environment an agent can memorize gives exploration nothing real to discover.</p>
+      <h2>Where does a race end?</h2>
+      <p>An <strong>episode</strong> is one run of the loop, start to finish. Some tasks never end (a thermostat); this one does. One episode is one race, lap 1 to the flag, a fixed length. Gymnasium has two end signals: <code>terminated</code> (the task finished) and <code>truncated</code> (cut off for an outside reason, such as a time limit). Phase 1 sets <code>truncated = False</code> always: the episode ends when the race does.</p>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>Phase 1 doesn't implement exploration itself — that's the agent's job, in Phases 3 onward — but it shapes how hard the problem is. The <strong>curriculum hook</strong> (<code>options={"curriculum": "dry_no_sc"}</code>) exists specifically to make early exploration easier: by restricting episodes to dry weather with no safety cars, the agent faces a smaller, less noisy version of the problem first. This is <strong>curriculum learning</strong> — start simple, increase difficulty once the easy version is solved.</p>
-      </div>
+      <h2>Try something new, or use what works?</h2>
+      <p>At every call the agent can <strong>exploit</strong>, taking the action it thinks is best, or <strong>explore</strong>, trying another to find out. Too much of the first and it stays stuck on its first decent strategy; too much of the second and it never uses what it learned. Phase 1 trains no agent, but it shapes how hard this is.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The curriculum hook: start with an easy race<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p><code>reset(options={"curriculum": "dry_no_sc"})</code> restricts a race to dry weather with no safety car. An agent can learn the basic pit window on that smaller, less noisy problem first and meet the hard version once the easy one is solved. This is <strong>curriculum learning</strong>. Exploration itself is the agent's job, from Phase 3 on; Phase 1 only provides the hook.</p>
+        </div>
+      </details>
 
-      <h2>Why stochasticity is sampled fresh, not replayed</h2>
-      <p>A subtler point Phase 1 is very deliberate about: safety cars are <strong>sampled from a hazard process every episode</strong>, not replayed from a fixed set of historical race templates. If only 3–4 fixed scenarios existed, and the agent's observation includes <code>laps_remaining</code>, the agent could simply memorize "an SC always arrives around lap 12 in scenario #2" — a lookup table dressed up as a policy, learning nothing generalizable. This failure mode has a name: <strong>reward hacking</strong> (or <strong>environment overfitting</strong>) — the agent finds a way to score well that exploits an accident of the environment's construction rather than solving the real problem.</p>
-      <p>Guarding against it is why the plan splits weather (replayed from real history, where variety is desirable) from safety cars (freshly sampled every episode, where memorization would be a bug).</p>
+      <h2>Why is the safety car rolled fresh every race?</h2>
+      <p>Press <em>Same dice again</em> on race #49 a few times. Once you know the safety car comes on lap 6, you can wait for it and look brilliant. You have memorised one race, not learned strategy. An agent trained on a handful of fixed races does the same: it sees <code>laps_remaining</code>, so it can learn "the safety car comes around lap 12 in race 2". A lookup table dressed as a policy.</p>
+      <p>That failure is called <strong>environment overfitting</strong>, a form of <strong>reward hacking</strong>: scoring well by exploiting how the environment was built, not by solving the problem. So the plan splits the two sources of chance. Weather is replayed from real races, where variety is the point. Safety cars are drawn fresh every episode from a hazard rate, where memorising them would be a bug. The Pit Wall's <em>New race</em> button does the same.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Each lap the agent gets an observation and a reward of minus the lap time, and summed over a race that is minus the race time. Nothing yet says what a situation is worth.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p1-01" data-lab-format="notebook">
         <span class="lab-kicker">Lab p1-01 · Notebook · about 15 min</span>
@@ -86,6 +110,10 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

@@ -13,15 +13,21 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 3.5 · Page 05 of 07 — Building it yourself</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Page 05 · The build</p>
       <h1>Build a Toy DP Solver, Step by Step</h1>
-      <p class="dek">Five stages, each adding one complication a plain backward-induction pass ignores — deterministic, then risky, then constrained, then doubly-random, then sanity-checked. Type each one in yourself; none of the names below match the real oracle on purpose.</p>
+      <p class="dek">You build the solver the Pit Wall's oracle runs, one complication at a time.</p>
 
-      <p>Every function and variable name here (<code>toy_backward_induction</code>, <code>sc_transition_prob</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match anything in <code>dp_oracle.py</code> or <code>weather_markov.py</code>. The goal, same as <a class="xref" href="../phase-1-rl-prerequisites/05-building-the-environment.html">Phase 1 page 5</a>, is to arrive at the same <em>shape</em> of solution independently, so the real files read as familiar structure rather than new material when <a class="xref" href="07-code-walkthrough.html">page 7</a> opens them.</p>
+      <div class="case-file">
+        <p class="cf-label">Capstone brief</p>
+        <h2>Five stages, one oracle</h2>
+        <p>Build it in <code>prerequisites/labs/phase35/p35_cap_toy_solver/toy_solver.py</code>, where every stage has checks. The race is the Phase 1 capstone's, which is the Pit Wall's: 20 laps, A and B, a 6% safety car, rain on request. When you finish, your solver's values match the oracle's on this site. The stages below say what each one adds and why. The code is collapsed on purpose and solves a smaller race with different numbers: open a snippet only when the hints have run out. The lab block is <a class="inline-link" href="#lab">at the end of this page</a>.</p>
+      </div>
 
-      <h2>Stage 1 — deterministic backward induction, verified against brute force</h2>
-      <p>Start with exactly <a class="xref" href="02-backward-induction.html">page 2</a>'s toy race: one tyre, <code>STAY</code>/<code>PIT</code>, no randomness. A dict keyed by <code>(lap, age)</code> stands in for the value table — small enough here that a NumPy array would be overkill:</p>
+      <p>Every name here (<code>toy_backward_induction</code>, <code>sc_transition_prob</code>) is invented and matches nothing in <code>dp_oracle.py</code> or <code>weather_markov.py</code>. As in Phase 1's build, the point is to reach the real files' shape on your own, so that <a class="xref" href="06-back-to-the-plan.html">page 06</a> reads as labels for something you already know.</p>
+
+      <h2>Stage 1 — no luck, checked against brute force</h2>
+      <p>Page 02's 4-lap race: one tyre, <code>STAY</code> or <code>PIT</code>, nothing random. A dict keyed by <code>(lap, age)</code> is the value table; at this size an array would be overkill.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>HORIZON = 4
 PIT_LOSS = 6.0
@@ -42,7 +48,7 @@ def toy_backward_induction(horizon: int):
                 V[(t, age)], policy[(t, age)] = pit_cost, "PIT"
     return V, policy</code></pre>
       </details>
-      <p>Before trusting it, verify it the way <code>test_oracle_value_matches_rollout</code> will later verify the real oracle: independently, by brute force, enumerate every one of the <code>2^HORIZON</code> possible action sequences and find the cheapest by direct simulation:</p>
+      <p>Before trusting it, check it the way the real oracle will be checked: by a method that shares none of its code. Try all 2<sup>4</sup> call sequences and keep the cheapest.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>from itertools import product
 
@@ -60,10 +66,10 @@ V, policy = toy_backward_induction(HORIZON)
 assert abs(V[(1, 1)] - brute_force_best(HORIZON)) &lt; 1e-9
 print(V[(1, 1)])   # should print 52.0 -- page 2's hand-computed answer, exactly</code></pre>
       </details>
-      <p>Getting <code>52.0</code> printed, matching <a class="xref" href="02-backward-induction.html">page 2</a>'s hand-worked table cell for cell, is the whole point of this stage: it's proof the code implements the same recursion you already verified by hand, not merely a plausible-looking piece of code that happens to run.</p>
+      <p>When it prints <code>52.0</code>, page 02's hand-worked answer, the code implements the recursion you checked by hand. Without the brute-force match, it is only code that runs.</p>
 
-      <h2>Stage 2 — a risk the agent can't control: the safety-car hazard</h2>
-      <p>Add the exact expectation machinery <a class="xref" href="03-stochastic-transitions.html">page 3</a> introduced, over a state that now includes <code>sc_active</code>. Only what's new is shown — the shell around it is the same backward pass:</p>
+      <h2>Stage 2 — a risk you cannot control: the safety car</h2>
+      <p>Add page 03's expectation, over a state that now includes <code>sc_active</code>. Only the new part is shown; the backward pass around it is unchanged.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>HAZARD = 0.2          # P(SC starts next lap | currently green)
 CONTINUE_PROB = 0.5   # P(SC continues next lap | currently under SC)
@@ -100,20 +106,42 @@ def toy_backward_induction_sc(horizon: int):
                     V[(t, age, sc)], policy[(t, age, sc)] = pit_cost, "PIT"
     return V, policy</code></pre>
       </details>
-      <p>Run it and compare <code>V_sc[(1, 1, 0)]</code> (starting green) against stage 1's deterministic <code>V[(1, 1)] = 52.0</code>. The stochastic version should come out <em>higher</em> — the mere possibility of a slow safety-car lap somewhere ahead makes the race provably more expensive in expectation, even though this particular race might never actually see one. That direction of change (never favourable, only ever costly or neutral) is worth confirming as a sanity property, not just an interesting number.</p>
 
-      <h2>Stage 3 — an action that isn't always legal</h2>
-      <p>Add a simple mandatory-service rule, echoing the real two-compound rule: the race must include at least one pit stop, enforced by forcing <code>PIT</code> on the final lap if none has happened yet. That requires one more piece of state, <code>has_pitted</code>, and a mask function consulted before comparing actions:</p>
+      <section class="cold-open" data-call="p35-05">
+        <p class="co-label">Your call · Stage 2, before you run it</p>
+        <p class="co-moment">On the Pit Wall's race, adding the 6% safety car takes the expected race time from 224.49 s to 231.92 s. Safety-car laps take 14 s.</p>
+        <p class="co-ask">Can the chance of a safety car ever make a situation cheaper than in the race without one?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p35-05" value="a"> No. Safety-car laps are slow, so the chance of one can only add time.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-05" value="b"> Yes, in a few situations late in the race, on badly worn tyres.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-05" value="c"> Yes, in most: stops under the safety car cost only 1.6 s.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <p>Run your stage 2 solver on the lab's race and compare it, situation by situation, with stage 1's. The start gets dearer. The direction is not a law, though, so do not write a test that assumes it.</p>
+
+      <section class="reveal closed" data-for="p35-05">
+        <p class="co-label">The reveal · Stage 2</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Yes, in 11 of 400</b></div></div>
+        <div class="co-body">
+          <p>Of the 400 green, dry situations the race can reach, 350 get dearer with a safety car possible and 11 get cheaper, all on lap 19 on worn tyres, by up to 0.06 s. A lap on B at 19 laps old takes 14.98 s, so a 14 s safety-car lap on lap 20 would be quicker. The start gets 7.43 s dearer.</p>
+          <p>So "a stochastic version can only cost time" is a fact about this race's start, not a sanity property of solvers. The checks worth writing are the ones that hold by construction: brute force agrees, a mask never helps (stage 3), the solver never loses to a simpler plan (stage 5).</p>
+        </div>
+      </section>
+
+      <h2>Stage 3 — a call that is not always legal</h2>
+      <p>Add a mandatory stop, in the spirit of the real two-compound rule: if the race reaches its last lap without one, <code>PIT</code> is forced. That needs one more piece of state, <code>has_pitted</code>, and a mask consulted before comparing calls.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>def toy_action_mask(t: int, horizon: int, has_pitted: bool) -> list[str]:
     if t == horizon and not has_pitted:
         return ["PIT"]              # STAY is illegal here
     return ["STAY", "PIT"]</code></pre>
       </details>
-      <p>Inside the backward pass, replace the fixed <code>("STAY", "PIT")</code> comparison with a loop over <code>toy_action_mask(t, horizon, has_pitted)</code>, and thread <code>has_pitted</code> through the state key and the transition (<code>has_pitted</code> becomes <code>True</code> forever once a <code>PIT</code> action is taken). Run it and confirm two things: first, that the policy at the final lap really is always <code>PIT</code> whenever the race arrives there with <code>has_pitted = False</code>; second, that <code>V[(1, 1, ...)]</code> under this rule is never <em>lower</em> than stage 2's unconstrained value for the same starting state — a mask can only remove options, never add value, so a rise (or no change) is the only legitimate outcome, and a mask that somehow makes the optimal race <em>cheaper</em> is a mask with a bug in it.</p>
+      <p>Loop over <code>toy_action_mask(t, horizon, has_pitted)</code> in place of the fixed pair, carry <code>has_pitted</code> in the state key, and set it for good once a <code>PIT</code> is taken. Then check two things. The last lap's policy is always <code>PIT</code> when <code>has_pitted</code> is false. And the start's value is never lower than stage 2's. A mask only removes options, so it can only add time or change nothing. A mask that makes the race cheaper has a bug.</p>
 
-      <h2>Stage 4 — a second, independently-random process</h2>
-      <p>Add weather, sampled from a small fitted Markov chain — reuse <a class="xref" href="04-markov-chains.html">page 4</a>'s own worked 3×3 matrix directly, so this stage is also a chance to confirm you can read a transition matrix back out as code:</p>
+      <h2>Stage 4 — a second, independent random process</h2>
+      <p>Add weather from a fitted chain. Use page 04's 3 × 3 example, which is also practice at reading a matrix back out as code:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>DRY, DAMP, WET = 0, 1, 2
 
@@ -124,7 +152,7 @@ WEATHER_P = {
 }
 WEATHER_PENALTY = {DRY: 0.0, DAMP: 1.5, WET: 4.0}   # added to lap_time</code></pre>
       </details>
-      <p>Weather and the safety car are treated as independent here (a simplification worth naming, not hiding), so the expectation over <em>both</em> next states is a double sum — weight each combination by the product of its two individual probabilities:</p>
+      <p>Weather and the safety car are treated as independent here, a simplification worth naming. The expectation becomes a double sum, each combination weighted by the product of its two chances:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>def expect_both(t, next_age, sc_now, w_now, V):
         p_sc = sc_transition_prob(sc_now)
@@ -134,10 +162,10 @@ WEATHER_PENALTY = {DRY: 0.0, DAMP: 1.5, WET: 4.0}   # added to lap_time</code></
                 total += p1 * p2 * V[(t + 1, next_age, sc_next, w_next)]
         return total</code></pre>
       </details>
-      <p>Wire this into stage 3's loop in place of the single-variable <code>expect()</code>, add <code>WEATHER_PENALTY[w]</code> into <code>this_lap</code> when <code>sc == 0</code>, and extend every state key and the terminal condition with a <code>w</code> component. Run it starting from <code>w = DRY</code> and from <code>w = WET</code> separately, and confirm the WET start produces a strictly higher <code>V[(1, 1, 0, w)]</code> — two independently-random exogenous processes, each contributing its own share of expected cost, exactly the composition Oracle B performs for real.</p>
+      <p>Use it in place of stage 3's <code>expect()</code>, add <code>WEATHER_PENALTY[w]</code> to the lap when the safety car is in, and give every state key and the terminal row a <code>w</code>. Solve from a DRY start and from a WET start: the WET start must cost more. Two random processes, each adding its share, is the composition Oracle B performs.</p>
 
-      <h2>Stage 5 — the sanity check, before you ever trust a DP answer again</h2>
-      <p>This is the habit the real <code>test_oracle_no_absurd_exploit</code> exists to enforce, built here in miniature first. A correct DP solver that is fed a <em>broken</em> cost model will confidently report an absurdly good "optimal" policy — because nothing about backward induction can tell the difference between "genuinely cheap" and "cheap because the model has a bug." The defence is an independent, hand-reasoned baseline to compare against:</p>
+      <h2>Stage 5 — check the answer before you believe it</h2>
+      <p>The real <code>test_oracle_no_absurd_exploit</code>, in miniature. A correct solver fed a broken cost model reports an absurdly good "optimal" race, because nothing in backward induction can tell "cheap" from "cheap because of a bug". The defence is a baseline you can reason about by hand:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab solves a different, larger race)</summary>
       <pre><code>def simulate_fixed_policy(pit_at_lap: int, horizon: int) -> float:
     """A simple, clearly-reasonable baseline: pit exactly once, at a fixed lap."""
@@ -157,9 +185,11 @@ dp_value = V[(1, 1, 0, DRY)]   # stage 4's solver, dry start, no SC
 assert dp_value &lt;= baseline + 1e-9          # DP can never be beaten by a simpler plan
 assert baseline - dp_value &lt; 0.25 * baseline  # ...but shouldn't beat it by an implausible margin either</code></pre>
       </details>
-      <p>The first assertion has to hold by construction — DP searches every policy, so nothing can beat it. The second is the interesting one: if the gap between the DP answer and a sensible fixed-lap baseline were huge (say, DP claiming a race can be won in half the time a reasonable human plan takes), that's not a strategic breakthrough, it's the signal that a cost term has the wrong sign or a state transition is wired backward somewhere upstream. Internalizing "check the DP answer against a baseline before believing it" here, on a solver you built and can fully audit in five minutes, is what makes the same check trustworthy later against a codebase with hundreds of lines you didn't write from scratch.</p>
+      <p>The first assertion holds by construction: the solver searches every policy, so a simpler plan cannot beat it. The second is the useful one. If the solver beats a sensible one-stop plan by a huge margin, that is not a breakthrough; a cost term has the wrong sign somewhere upstream. The capstone's report makes the stop gain 4 s and watches your solver pit on nearly every lap.</p>
 
-      <p>That's the full toy solver: deterministic backward induction, verified against brute force; a stochastic hazard with the expectation machinery from <a class="xref" href="03-stochastic-transitions.html">page 3</a>; an action mask; a second independent random process fit as a Markov chain from <a class="xref" href="04-markov-chains.html">page 4</a>; and the sanity-check discipline that catches a broken model before it catches you. <a class="xref" href="06-this-project-as-dp.html">Page 6</a> doesn't repeat any of this code — it names which piece of the real <code>dp_oracle.py</code> and <code>weather_markov.py</code> corresponds to which stage here.</p>
+      <p>That is the whole toy oracle: a backward pass checked against brute force, an expectation over a hazard, a mask, a second random process fitted as a chain, and the check that catches a broken model. <a class="xref" href="06-back-to-the-plan.html">Page 06</a> names the piece of the real files that matches each stage.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>You can build the oracle yourself, and check it three ways that do not depend on its own code. Next: how the real project uses it to judge agents, and the case's verdict.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p35-cap" data-lab-format="pytest">
         <span class="lab-kicker">Lab p35-cap · Code + tests · about 90 min</span>
@@ -187,6 +217,10 @@ assert baseline - dp_value &lt; 0.25 * baseline  # ...but shouldn't beat it by a
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

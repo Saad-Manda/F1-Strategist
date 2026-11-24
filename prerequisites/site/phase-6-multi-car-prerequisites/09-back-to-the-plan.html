@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Back to the plan — Phase 6 Multi-car · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="6/09">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 09 · Back to the plan</p>
+      <h1>Back to the Plan</h1>
+      <p class="dek"><code>phase-6-multi-car-rivals.md</code> against what you built: the real state, rewards and rivals, where the faults live, what the tests can see, and the verdict.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>src/env/f1_multi_env.py</code>, <code>rival.py</code> and <code>overtaking.py</code> are not in the repository yet. This page reads the pseudocode in the plan itself. Pages 05 and 06 found a missing rule and five bugs in it before a line was run, which is the reason to read a plan this way.</p>
+      </div>
+
+      <section class="cold-open" data-call="p6-09">
+        <p class="co-label">Your call · the plan's tests</p>
+        <p class="co-moment">The plan lists its own tests: positions sum correctly, the dirty-air penalty at zero gap and beyond the threshold, rivals use their configured pit laps, and the observation's shape.</p>
+        <p class="co-ask">In a race with no holding-up line at all, how many of them fail?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p6-09" value="a"> All of them.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-09" value="b"> Two: the dirty-air tests.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-09" value="c"> None.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>The state, the rewards and the rivals</h2>
+      <p>The observation is Phase 1's 16 numbers plus the three of page 01, <code>N_OBS_MULTI = 19</code>, so the agent is a fresh <code>DuelingDoubleDQNAgent(obs_dim=19)</code>, a Definition-of-Done item. The three reward designs:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th><code>reward_type</code></th><th>As written</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">lap_time_plus_position</td><td><code>base_reward − dirty_air</code>, plus <code>position_bonus_scale × (n_total − position)</code> on the last step</td><td>The dense true signal plus a finishing bonus (page 02)</td></tr>
+            <tr><td class="mono">gap_change</td><td><code>−(curr_gap − prev_gap)</code> to the leader, every lap; 0 under a safety car</td><td>With <code>γ = 1</code> it sums to minus the final gap to the leader (page 02)</td></tr>
+            <tr><td class="mono">potential_shaping</td><td><code>base_reward − dirty_air + (1/n_total if pos_norm &lt; 1.0 else 0)</code></td><td>A flat bonus, not potential-based shaping (page 06, E5)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>build_rival_strategies</code> cycles through five fixed plans: a classic one-stop (MEDIUM → HARD), an aggressive two-stop (SOFT → MEDIUM → HARD), a conservative plan (HARD → MEDIUM), an early one-stop (SOFT → HARD) and a staggered two-stop (MEDIUM → SOFT → HARD). None reads anything about the agent: page 07's stationary opponents.</p>
+
+      <h2>Reading order</h2>
+      <p><strong><code>rival.py</code> first.</strong> <code>RivalState.advance_lap</code> holds E1's double count. It also calls <code>compute_lap_time</code> with Phase 1's original five arguments; the revised contract dropped <code>laps_since_pit</code> and replaced <code>safety_car_active: bool</code> with <code>track_status: int</code>, so it won't run against the real dynamics until updated. Rivals should also call <code>compute_pit_loss(track_status, params)</code> rather than read <code>params["pit_loss"]</code>, or they pay full price for stops the agent gets at Phase 0.5's safety-car discount (E6d's other half).</p>
+      <p><strong>Then <code>overtaking.py</code></strong>, against page 04: <code>OVERTAKE_ATTEMPT_GAP = 1.0</code>, <code>DIRTY_AIR_MAX_GAP = 1.5</code>, <code>DIRTY_AIR_MAX_PENALTY = 0.5</code>, and the docstring's 80% and 95% that the formula doesn't give.</p>
+      <p><strong>Then <code>f1_multi_env.py</code>'s <code>step()</code></strong>, in page 06's order: E2, E3, E5, then E6a to E6d. Its lap-time computation has no holding-up line at all. Page 05's line belongs there, before the times are added to the totals, not in <code>_update_positions</code> and not as a comment.</p>
+
+      <section class="reveal closed" data-for="p6-09">
+        <p class="co-label">The reveal · the plan's tests</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">None</b></div></div>
+        <div class="co-body">
+          <p>Positions still form a valid order from P1 to P<i>n</i>; the dirty-air formula is right at both ends; rivals still pit on their laps; the observation is still 19 wide. Every one passes in a race where position costs nothing.</p>
+          <p>They test pieces, and the fault is in how the pieces connect. None asks the question page 05's test asks: does being stuck behind a car cost anything?</p>
+        </div>
+      </section>
+
+      <h2>What the plan's tests catch, and what they miss</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Test</th><th>Catches</th><th>Misses</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">test_multi_env_positions_sum_correctly</td><td>Each position from 1 to N assigned once</td><td>E1 and E2: both leave a valid order, the wrong one</td></tr>
+            <tr><td class="mono">test_dirty_air_penalty_at_zero_gap, …_beyond_threshold</td><td>Page 04's formula at its two ends</td><td>E3: the number is right and never reaches the lap time</td></tr>
+            <tr><td class="mono">test_rival_uses_configured_pit_laps</td><td>Tyre age resets on the scripted lap</td><td>E1: it reads <code>tire_age</code>, never <code>total_time</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The Definition of Done already gained entries because of pages 05 and 06: a faster car stuck behind a slower one gains no time until it passes (E4); positions differ with overtaking on and off (E2); each total grows by one lap per lap (E1); the wake shows up in <code>_agent_total_time</code> (E3); and the fixed <code>potential_shaping</code> agrees with the unshaped reward on a small scenario (E5), which also needs <code>Φ = 0</code> on the last step.</p>
+
+      <div class="case-file">
+        <p class="cf-label">Case 5 · the verdict</p>
+        <h2>Position was free, so timing was worthless</h2>
+        <p><strong>Why does stopping before the rival never gain anything?</strong> Because in the plan's race nothing holds a car behind the one ahead. Each car drives its own lap time, position is a sort of total times, and the rival's stop lap appears in none of your lap times. Your best stop is lap 8 against a rival stopping anywhere from lap 4 to 15, and every reward design in the plan agrees. The reward wasn't at fault and the race wasn't too small: the holding-up rule is missing, and two bugs (E2, E3) would keep position free even with it. Add the rule and the undercut is worth 3.83 s against a lap-9 rival, and your best stop follows the rival's.</p>
+        <p><strong>What should the plan change?</strong> The prerequisites don't edit the plan; these go to whoever implements Phase 6.</p>
+        <p><strong>1. Make position cost something.</strong> Add page 05's line to <code>f1_multi_env.py</code>'s lap-time computation, before accumulation. Put the wake in the lap time (E3), make a pass change time rather than a position counter (E2), and judge a pass on this lap's times (E6a).</p>
+        <p><strong>2. Test the consequence, not the parts.</strong> Keep the stuck-car test, and add one for the case: against a rival stopping on lap 9 and on lap 12, the best stop lap must differ. In a race without position it never does.</p>
+        <p><strong>3. Fix the bookkeeping and the reward.</strong> Count each rival lap once (E1), keep agent and rivals on one lap index (E6b), add <code>is_leader</code> (E6c), let rivals stop under the safety car with the same discount (E6d), bring <code>rival.py</code> up to Phase 1's revised signature, and compute a real <code>Φ</code> difference with <code>Φ = 0</code> at the finish (E5).</p>
+        <p>Also for Phase 8: its Risks table blames a missing undercut on the out-lap warmup penalty. The cause is here.</p>
+        <p><button class="pw-btn go" type="button" data-close-case="6" data-label="Close Case 5">Close Case 5</button></p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p6-09" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p6-09 · In page · about 20 min</span>
+        <h2>Tag, compute, and what the tests can see</h2>
+        <p class="lab-goal">Put the plan's three reward configs and five Definition-of-Done items next to the findings they answer, do two pieces of arithmetic its code implies, say what its tests can see, and run the case against the plan.</p>
+
+        <div class="lab-part">
+          <h3>1 · What each reward_type really is</h3>
+          <div class="lab-q" data-type="select" data-answer="dense" data-explain="−lap_time every lap is the honest signal; the position bonus arrives once, at the end.">
+            <label><code>lap_time_plus_position</code><br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="margin" data-explain="With the gap reset to 0 and γ = 1 the rewards telescope to minus the final gap to the best rival. It is dense, but what it adds up to is the final margin (the capstone's stage 6 test, and the report's straight line).">
+            <label><code>gap_change</code><br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="adhoc" data-explain="As written it adds 1/n_total every lap the agent is not last: E5.">
+            <label><code>potential_shaping</code>, as the plan writes it<br><select>
+              <option value="">choose…</option>
+              <option value="dense">the dense true signal, plus a one-off bonus at the finish</option>
+              <option value="margin">a finishing objective, spread over the laps so that it adds up exactly</option>
+              <option value="adhoc">ad-hoc shaping: a bonus that is not a potential difference</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Two numbers the plan's code implies</h3>
+          <div class="lab-q" data-type="num" data-answer="-3.2" data-tol="0.01" data-explain="The changes telescope: the sum is −(final gap − starting gap) = −(3.2 − 0) = −3.2, however the gap moved in between." data-nudge="The plan starts _prev_gap_to_leader at 0. What is left after every lap's change cancels the next one's start?">
+            <label>A race ends with the agent 3.2 s behind the best rival. What do its <code>gap_change</code> rewards add up to? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.4" data-tol="0.01" data-explain="Without the zero, the leftover term ends with Φ(s_T) = −position/5. P2 leaves −0.4, P4 leaves −0.8: P2 gets 0.4 more, a finishing bonus nobody asked for. Five cars, so 0.2 per place." data-nudge="Leftover = Φ(final) − Φ(start), with Φ = −position / 5. Compare the two finishes.">
+            <label><code>potential_shaping</code> with E5 fixed but Φ <em>not</em> set to 0 at the finish, five cars: how much more return does a P2 finish get than a P4 finish? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Which finding does each Definition-of-Done item guard?</h3>
+          <div class="lab-q" data-type="select" data-answer="e4" data-explain="Page 05's missing model.">
+            <label>"A faster car stuck behind a slower one gains no time until an overtake succeeds"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e2" data-explain="If a pass can never change positions, the overtaking code is dead.">
+            <label>"Positions differ between a run with overtaking enabled and one with it disabled"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e1" data-explain="The regression test for the second accumulation in step().">
+            <label>"Rival total_time accumulates exactly once per lap"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e3" data-explain="The reward must agree with the dynamics.">
+            <label>"Dirty air is applied to lap time, not only to reward"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="e5" data-explain="And, as the previous section showed, it also needs Φ = 0 at the finish to pass.">
+            <label>"The shaped and unshaped optima agree on a small fixed scenario"<br><select>
+              <option value="">choose…</option><option value="e1">E1 double-counted rival time</option><option value="e2">E2 overwritten overtake</option><option value="e3">E3 wake charged to the reward only</option><option value="e4">E4 no blocking model</option><option value="e5">E5 flat bonus called shaping</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Each is a fixed pit_laps / pit_compounds plan chosen before the race: page 07's stationary opponent." data-nudge="Look at what RivalState.advance_lap reads.">
+            <label>How many of <code>build_rival_strategies</code>'s five scripts read anything about the agent? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · The plan's five tests against E1 to E5</h3>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Positions stay a valid permutation under E1 and E2; the dirty-air formula is right under E3; the observation shape is unaffected by everything; the pit-lap test reads tire_age. E4 and E5 are about what the race and the reward mean, which none of the five tests ask." data-nudge="For each finding, which quantity goes wrong? Is it one of the quantities the five tests read?">
+            <label>How many of the five findings E1 to E5 is caught by at least one of the plan's five tests? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="The two dirty-air tests check the formula's output. E3 is about where that output goes: the number is right, it just never reaches the lap time.">
+            <span class="lab-prompt">Why do the two dirty-air tests pass with E3 present?</span>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="a"> they use the wrong constants</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="b"> E3 only appears under a safety car</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="c"> they test the penalty's value, and E3 is about the value never being applied to the car</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Reading order</h3>
+          <div class="lab-q" data-type="select" data-answer="rival" data-explain="RivalState.advance_lap still calls compute_lap_time with Phase 1's original arguments (laps_since_pit, safety_car_active), and reads params['pit_loss'] directly. It will not run against the revised dynamics module until that is fixed.">
+            <label>Which file has to be brought up to date with Phase 1's revised <code>compute_lap_time</code> before anything else can run?<br><select>
+              <option value="">choose…</option>
+              <option value="rival">rival.py</option>
+              <option value="overtaking">overtaking.py</option>
+              <option value="env">f1_multi_env.py</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The line caps a car's lap time, so it belongs where lap times are computed, before they are added to the totals. Positions are then read off the totals as before. As a comment or a post-processing step it changes nothing.">
+            <span class="lab-prompt">Where does page 05's blocking line belong?</span>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="a"> in f1_multi_env.py's lap-time computation, before the times are accumulated</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="b"> in _update_positions, after sorting</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="c"> in overtaking.py's attempt_overtake</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="With Φ = −position/n_cars kept at the finish, the leftover term is a bonus of 1/n_cars per place gained by the end. A plan that trades a little time for a better finish can now beat the unshaped optimum. Setting Φ = 0 on the last step makes the shift the same for every race, and the test passes.">
+            <span class="lab-prompt">The Definition of Done says the fixed potential_shaping and the unshaped reward must agree on the optimal policy. E5 is fixed (a real Φ(s′) − Φ(s)), but Φ is not set to 0 at the finish. Is the test guaranteed to pass?</span>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="a"> yes: it is now potential-based shaping</label>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="b"> no: the finishing potential depends on the finishing position, which works as a hidden position bonus</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the plan</h3>
+          <div class="lab-q" data-type="num" data-answer="224.79" data-tol="0.01" data-explain="224.79 s, the same as before. With blocking off each car drives its own lap time, so the rival's stop lap appears nowhere in yours: lap 8 is the best stop against every rival lap from 4 to 15." data-nudge="With blocking off, which of your lap times reads anything about the rival?">
+            <label>In the plan's race (blocking off) your best one-stop plan is lap 8, 224.79 s, against a rival stopping on lap 9. The rival moves its stop to lap 12. What is your best plan's time now, in seconds? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Only the holding-up line couples one car's lap time to the other's. E1 changes the rival's total, the place bonus changes the score, and neither touches your lap times." data-nudge="Which change makes one car's lap time depend on the other car?">
+            <span class="lab-prompt">Which single change to the plan's race makes the rival's stop lap change your best stop?</span>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="a"> fixing E1, so each rival lap is counted once</label>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="b"> adding the holding-up line, with passes that stick</label>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="c"> raising the place bonus from 20 to 100</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3.83" data-tol="0.01" data-explain="231.97 − 228.14 = 3.83 s, and the finish goes from P2 in every race to P1 in every race. In the plan's race the same two plans differ by 0.40 s the other way: lap 6 is just a worse lap to stop on." data-nudge="Time when covering on the rival's lap minus time when stopping three laps earlier.">
+            <label>Blocking on, the rival stops on lap 9. Stopping on lap 6 takes 228.14 s; stopping on lap 9 with it takes 231.97 s. How many seconds is the undercut worth? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p>lap_time_plus_position is the dense signal plus a finishing bonus; gap_change telescopes to the final margin; potential_shaping as written is ad-hoc (E5). gap_change sums to −3.2. The unzeroed potential gives P2 0.4 more than P4. DoD items: blocking E4, overtaking-changes-positions E2, exact-once E1, dirty air in lap time E3, shaped/unshaped agreement E5. No rival script reads the agent.</p>
+          <p><strong>4–5.</strong> None of E1 to E5 is caught by the plan's five tests. The dirty-air tests check the value, not where it goes. rival.py needs the revised signature first. The blocking line belongs where lap times are computed, before accumulation. Without Φ = 0 at the finish the agreement test is not guaranteed: the leftover term rewards finishing position.</p>
+          <p><strong>6.</strong> 224.79 s, unchanged; the holding-up line; 3.83 s.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pit Wall · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="pitwall">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">The Pit Wall</p>
+      <h1>Call the race</h1>
+      <p class="dek">Twenty laps, two tyre compounds, a safety car that turns up when it likes. You make one call per lap. At the flag you see what the oracle would have done with the same luck, and what was possible if you had known the luck in advance.</p>
+
+      <div data-widget="pitwall" data-mode="race" data-picker="1"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+
+      <p class="points-label" id="pw-best"></p>
+
+      <h2>The race</h2>
+      <p>This is the toy race that the capstones build, with the same numbers. A quick script checks the page against the Python version (<code>python -m labs.tools.pitwall_parity</code>). Every lap time and every oracle value agree to 1e-9.</p>
+      <ul>
+        <li><strong>Lap time.</strong> 10 s, plus tyre wear, plus fuel (0.03 s for every lap still to go), plus 1.2 s on a tyre's first lap and 0.5 s on its second while it warms up.</li>
+        <li><strong>Compound A</strong> is quick and fragile. It wears 0.05 s per lap and falls off a cliff after 6 laps: the loss grows with the square of the laps past the cliff, capped at 4 s.</li>
+        <li><strong>Compound B</strong> is 0.6 s slower and durable. It wears 0.02 s per lap, and its cliff comes after 11 laps and is gentler.</li>
+        <li><strong>A pit stop</strong> costs 4 s, and you leave on a fresh set.</li>
+        <li><strong>The safety car</strong> appears on any lap with probability 6%, and once out it stays another lap with probability 2/3. Laps behind it take 14 s, and a stop costs only 40% of the usual time (1.6 s).</li>
+        <li><strong>Rain</strong> (when you pick it) comes with 10% probability per lap and clears with 30%. It adds 6.0 s to a lap on A and 5.5 s on B. B is not allowed in the wet.</li>
+        <li><strong>The rules.</strong> In a dry race you must run both compounds. If you have not used B by lap 19, staying out is no longer an option. The buttons grey out an illegal call and say why.</li>
+      </ul>
+
+      <h2>Who you are racing</h2>
+      <p><strong>The oracle</strong> (purple) plays the best policy on average. It is solved exactly by working backwards from the flag over all 3,360 situations the race can be in, which is what Phase 3.5 builds. It sees the same safety car and weather you do, lap by lap, and no further. With luck you can beat it on a single race.</p>
+      <p><strong>Hindsight</strong> (also purple) knows the whole race in advance: when the safety car comes and when it rains. Nobody beats hindsight. The gap between the oracle and hindsight is the price of not knowing the future, and no amount of learning removes it.</p>
+      <p><strong>Oracle A</strong> (Oracle mode, rain only) knows this race's weather before lap 1 but not the safety car. It is the bound Phase 3.5 reports separately: no agent that sees only today's weather can reach it.</p>
+      <p><strong>You</strong>: green is a personal best, yellow is slower than your best. Finishing within one second of the oracle is worth championship points, once per mode.</p>
+
+      <h2>Modes</h2>
+      <p>The Pit Wall grows a mode with each phase of the course. Pick one above.</p>
+      <ul>
+        <li><strong>Race</strong> (Phase 1): you call it, with the race laid out as an MDP after the flag.</li>
+        <li><strong>Oracle</strong> (Phase 3.5): after each call the oracle gives its own and what yours cost on average. Tick <em>show the oracle's numbers</em> to see every call priced before you make it. At the flag your time is split into the expected race, the cost of your calls and luck. In the rain, Oracle A, which knew the weather, joins the result.</li>
+        <li><strong>Learner</strong> (Phase 4): below. Two Q-learners train on the race while you watch, one with a table cell per lap and one with the plan's 5-lap cells. The gap of each one's strategy to the oracle is computed from the model, with no sampling noise. A second script checks the learner against the Phase 4 capstone's own solution (<code>python -m labs.tools.pitwall_learner_parity</code>): the same tables to 1e-9.</li>
+      </ul>
+      <div data-widget="pitwall" data-mode="learner" data-tune="1"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+      <ul>
+        <li><strong>Replay</strong> (Phase 5): below. The Phase 5 capstone's DQN, trained in the labs and recorded on every state of the race, drives the same race twice: with exploration off, and with ε still on as the plan evaluates it. Random calls are ringed on its strip; random pit stops the network would not have made are in red. <em>Evaluate 1,000 races</em> gives the means and the exact expected times. The record is checked against Python by <code>python -m labs.tools.pitwall_replay_export check</code>.</li>
+      </ul>
+      <div data-widget="pitwall" data-mode="replay"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+      <ul>
+        <li><strong>Rival</strong> (Phase 6): below. A second car, 0.3 s a lap slower, starts 0.3 s ahead and stops for B on a lap you pick. With <em>blocking</em> off, each car drives its own lap time, as in the real plan's race. With it on, the car behind loses time in the other's wake, and within a second it is held up unless a pass succeeds. At the flag your time is compared with the best one- or two-stop plan on the same dice. The engine is a port of <code>labs/labkit/duel.py</code>, checked by <code>python -m labs.tools.pitwall_duel_parity</code>: every plan, blocking off and on, the same times to 1e-9. Only races with blocking on count for points.</li>
+      </ul>
+      <div data-widget="pitwall" data-mode="rival"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+      <ul>
+        <li><strong>Duel</strong> (Phase 8): below. The pit-timing duel of the Phase 8 labs: two equal cars, you 0.5 s behind, one stop each onto B on a lap from 2 to 18. Pick your lap; the leader picks by one of three rules: the equilibrium mix fictitious play finds, a best reply to your previous stop (latest-only self-play), or the mixture the plan's pool rule leaves after 1,000 rounds. Each round runs one race on one of the labs' 20 seeds of pass dice. The two 17 × 17 payoff matrices come from <code>labkit.pitgame</code>'s cache, and <code>python -m labs.tools.pitwall_duel_game_export check</code> rebuilds both here, race by race, to 1e-9. Ten rounds with blocking on, within 1 s of the best any follower can hold against that leader, count for points.</li>
+      </ul>
+      <div data-widget="pitwall" data-mode="duel"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+      <ul>
+        <li><strong>Training room</strong> (Phase 9): below. Learning runs on the quiet toy race (no safety car, dry, optimum 224.49 s), recorded by the labs and replayed here: nothing trains in your browser. Pick a learner (REINFORCE, actor-critic, the capstone's mini PPO at 4 or 10 epochs with or without the clip, or sb3-contrib's <code>MaskablePPO</code>), a reward (raw, −lap time, or centred, −(lap time − 10)) and a seed, and watch the exact gap to the optimum every 100 races, with the greedy plan, how random its calls still are, and the critic's value of lap 1. <code>python -m labs.tools.pitwall_training_export check</code> replays every recorded plan with this engine against the recorded gaps, to 1e-9, and re-trains three runs. A run that ends within 1 s of the optimum counts for points.</li>
+      </ul>
+      <div data-widget="pitwall" data-mode="training"><noscript><p>The Pit Wall needs JavaScript.</p></noscript></div>
+    </div>
+  </main>
+</div>
+<script src="assets/course.js"></script>
+<script src="assets/progress.js"></script>
+<script src="assets/nav.js"></script>
+<script src="assets/pitwall/engine.js"></script>
+<script src="assets/pitwall/oracle.js"></script>
+<script src="assets/pitwall/learner.js"></script>
+<script src="assets/pitwall/replay_policy.js"></script>
+<script src="assets/pitwall/replay.js"></script>
+<script src="assets/pitwall/duel.js"></script>
+<script src="assets/pitwall/pitgame_data.js"></script>
+<script src="assets/pitwall/pitgame.js"></script>
+<script src="assets/pitwall/training_data.js"></script>
+<script src="assets/pitwall/ui.js"></script>
+<script src="assets/pitwall/learnerui.js"></script>
+<script src="assets/pitwall/replayui.js"></script>
+<script src="assets/pitwall/rivalui.js"></script>
+<script src="assets/pitwall/pitgameui.js"></script>
+<script src="assets/pitwall/trainingui.js"></script>
+<script src="assets/labs.js"></script>
+<script>
+(function () {
+  var s; try { s = JSON.parse(localStorage.getItem("f1prereq.v1")) || {}; } catch (e) { s = {}; }
+  var best = (s.pitwall && s.pitwall.best) || {}, el = document.getElementById("pw-best"), parts = [];
+  [["race", "Race"], ["oracle", "Oracle"]].forEach(function (m) {
+    var b = best[m[0]];
+    if (b) parts.push(m[1] + " personal best: <b>" + b.time.toFixed(2) + " s</b>, " +
+      (b.gap <= 1 ? "within a second of the oracle (" : "") + (Math.abs(b.gap) < 0.005 ? "±" : b.gap > 0 ? "+" : "−") + Math.abs(b.gap).toFixed(2) + " s against it" + (b.gap <= 1 ? ")" : "") + ".");
+  });
+  var lb = best.learner;
+  if (lb) parts.push("Best learner: <b>+" + lb.gap.toFixed(2) + " s</b> from the oracle (" + lb.bins + " bins, " + lb.races + " races)" + (lb.gap <= 1 ? ", within a second" : "") + ".");
+  var rb = best.replay;
+  if (rb) parts.push("Best DQN evaluation: <b>+" + rb.gap.toFixed(2) + " s</b> from the oracle (ε " + rb.eps + ")" + (rb.gap <= 1 ? ", within a second" : "") + ".");
+  var vb = best.rival;
+  if (vb) parts.push("Best rival race: <b>" + vb.time.toFixed(2) + " s</b>, " + (vb.gap <= 1e-9 ? "level with or ahead of" : "+" + vb.gap.toFixed(2) + " s from") + " the best plan on its dice" + (vb.gap <= 1 ? ", within a second" : "") + ".");
+  var db = best.duel;
+  if (db) parts.push("Best duel session: <b>" + Math.max(0, db.gap).toFixed(1) + " s</b> from the best a follower can hold against " + ({ eq: "the equilibrium mix", latest: "the latest-only leader", pool: "the plan's pool" })[db.leader] + (db.gap <= 1 ? ", within a second" : "") + ".");
+  var tb = best.training;
+  if (tb) parts.push("Best training run: <b>+" + tb.gap.toFixed(2) + " s</b> from the optimum (" + ({ reinforce: "REINFORCE", ac: "actor-critic", ppo4: "mini PPO, 4 epochs", noclip4: "mini PPO, 4 epochs, no clip", ppo10: "mini PPO, 10 epochs", noclip10: "mini PPO, 10 epochs, no clip", sb3: "MaskablePPO" })[tb.learner] + ", " + ({ raw: "raw reward", centred: "centred reward", vecnorm: "raw reward through VecNormalize" })[tb.reward] + ", seed " + tb.seed + ")" + (tb.gap <= 1 ? ", within a second" : "") + ".");
+  if (el) el.innerHTML = parts.length ? parts.join("<br>") : "No race finished yet.";
+})();
+</script>
+</body>
+</html>

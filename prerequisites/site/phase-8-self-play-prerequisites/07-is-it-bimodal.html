@@ -13,49 +13,47 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 07 of 10 — Project-specific math</p>
-      <h1>Is It Really Bimodal? A Null Baseline for the Headline Result</h1>
-      <p class="dek">A histogram that looks bimodal and a histogram that <em>is</em> evidence of reactive strategy are not automatically the same thing.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 07 · Is it bimodal?</p>
+      <h1>Is It Really Bimodal?</h1>
+      <p class="dek">A histogram that looks two-humped and a histogram that is evidence of cars reacting to each other are not the same thing.</p>
 
-      <h2>The real plan's analysis, restated</h2>
-      <p>For every pit stop the trained agent makes, record the signed lap-gap to the nearest rival pit stop (agent's pit lap minus rival's pit lap), across many evaluation episodes. Plot a histogram of these deltas. Look for peaks at small negative deltas (the agent pits shortly before the rival — an undercut) and small positive deltas (shortly after — an overcut), with a dip near zero (pitting at the same time as the rival, which neither strategy actually is).</p>
+      <section class="cold-open" data-call="p8-07">
+        <p class="co-label">Your call · a shared safety car</p>
+        <p class="co-moment">2,000 synthetic races. Each car stops in its own window, and in half the races a safety car comes out and a car whose window is near it stops under it. Neither car ever reacts to the other. You test for a reaction by shuffling which race each rival stop is paired with.</p>
+        <p class="co-ask">What does the test say?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-07" value="a"> No reaction, correctly.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-07" value="b"> A reaction, at p = 0.002.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-07" value="c"> Nothing either way: too few races.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>Why "looks bimodal" is a weaker claim than it sounds</h2>
-      <p>Pit laps for <em>both</em> cars are already clustered near a handful of preferred stint lengths, independent of any interaction between them — Phase 0's calibration (assumed background) produces a preferred tyre window regardless of what any other car on track is doing. If both cars independently prefer pitting in, say, laps 18–22, then a good fraction of their pit-lap deltas will land near zero-ish values purely from two cars separately following similar schedules — with no dip at zero and no genuine bimodality required for that clustering to appear. A histogram that shows structure near small deltas is therefore <em>consistent with</em> reactive undercut/overcut behavior, but it does not, on its own, rule out "both cars just like similar lap windows."</p>
+      <h2>The plan's analysis</h2>
+      <p>For every stop the trained agent makes, record its lap minus the nearest rival stop's lap, over many evaluation races, and plot the histogram. Look for peaks at small negative deltas (undercuts) and small positive ones (overcuts), with a dip at 0.</p>
+      <p>"Looks bimodal" is weaker than it sounds. Both cars' stops cluster around preferred stint lengths anyway: the tyre model gives every car a window, whatever any other car does. Two cars that each like laps 18 to 22 put many deltas near zero with no reaction at all.</p>
 
-      <h2>A concrete null baseline: shuffle the pairing</h2>
-      <p>Take the exact same recorded lists — this agent's pit laps across all evaluation episodes, and the rival's pit laps across those same episodes — but break the real pairing between them: shuffle which episode's rival-pit-lap list each agent-pit-lap is compared against, so the agent's pit choice in episode 12 gets compared to the rival's pit lap from, say, episode 47 instead of its own actual race. Recompute the identical delta histogram on this shuffled, non-corresponding data.</p>
-      <blockquote class="eq">real_deltas    = [agent_pit_lap[i] − rival_pit_lap[i]  for i in all recorded pit-stop pairs]
+      <h2>A null: shuffle the pairing</h2>
+      <p>Keep the agent's stop laps and the rival's, but pair each agent stop with a rival stop from a random other race, and recompute the histogram. Real deltas come from cars that raced each other and could react; shuffled ones come from cars that never shared a race. A reaction should show as a deeper dip and taller near-zero peaks than the shuffle can produce. This is a <strong>permutation test</strong>: compare a statistic with the same statistic on data randomised to destroy only the link being tested.</p>
+      <blockquote class="eq">real_deltas    = [agent_lap[i] − rival_lap[i]          for each race i]
+shuffled_rival = permutation(rival_lap)
+null_deltas    = [agent_lap[i] − shuffled_rival[i]     for each race i]</blockquote>
 
-shuffled_rival = random.permutation(rival_pit_lap)     # same values, episodes reassigned at random
-null_deltas    = [agent_pit_lap[i] − shuffled_rival[i]  for i in all recorded pit-stop pairs]
+      <section class="reveal closed" data-for="p8-07">
+        <p class="co-label">The reveal · a shared safety car</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">A reaction, at p = 0.002</b></div></div>
+        <div class="co-body">
+          <p>Both cars stop on the same lap in 0.261 of races; the shuffle gives 0.093, and the test rejects. The cars look linked because they answered the same safety car. The shuffle broke that shared cause along with any reaction.</p>
+          <p>The fix: shuffle only among races with the same safety-car lap (or none). Within such a group the shared cause is the same for every race, so a shuffle breaks only the link between the cars. On the same data: null 0.258, p = 0.67, no rejection. With a real undercut-or-overcut reaction added, the stratified test still rejects at p = 0.002. In the real plan every car in a race shares its scenario, so this is the normal case: shuffle among races with the same scenario seed.</p>
+        </div>
+      </section>
 
-# real_deltas came from cars that actually raced each other and could react
-# null_deltas came from cars that never shared a race — any structure here
-# can only be an artifact of each side's own independent stint-length habits</blockquote>
-      <p>If <code>real_deltas</code> and <code>null_deltas</code> produce visibly similar histograms, the apparent bimodality is an artifact of independent stint-length preferences, not evidence either agent reacted to the other. A genuinely reactive undercut/overcut pattern should show <code>real_deltas</code> with a visibly <em>deeper</em> dip near zero and <em>taller</em> near-zero-offset peaks than <code>null_deltas</code> — a difference the shuffled data has no way to produce, since it was built specifically to destroy any real interaction while preserving each side's own marginal pit-timing habits.</p>
+      <h2>What the test can and can't show</h2>
+      <p>The shuffle answers one question: did one car's stop depend on the other's in the same race? It doesn't answer "is the histogram's shape strategic?". At a mixed equilibrium of plans fixed before the start, such as the duel's, each car's stop lap is an independent draw from its mixture. The delta histogram is strategic through and through, undercuts on one side, an overcut on the other, and a dip at 0, yet the shuffle reproduces it and the test doesn't reject (p = 0.93). The shape lives in each car's own distribution, which the shuffle keeps.</p>
+      <p>So the analysis needs both comparisons: the stratified shuffle for "did they react?", and the same training with blocking off for "does the shape need blocking?" (page 06). And both are read over several training seeds. On the duel, learners from four seeds of one configuration put anywhere from 9% to 78% of their stops on the undercut side, against an exact 61%.</p>
 
-      <div class="note generic">
-        <div class="tag">Naming the general technique</div>
-        <p>This is a <strong>permutation test</strong> by name: comparing an observed statistic (here, the shape of the delta histogram) against the same statistic recomputed under a randomized version of the data that destroys the specific relationship being tested for (here, the real pairing between an agent's race and its rival's race) is a standard, simple way to ask "could this pattern have happened by chance alone," without needing to assume any particular parametric distribution for pit-timing deltas. One technique, one paragraph — not a general course in hypothesis testing.</p>
-      </div>
-
-      <h2>When both cars answer the same thing: shuffle within matching races</h2>
-      <p>The shuffle breaks the pairing between an agent's stop and a rival's stop from the same race. That removes a reaction, if there is one, but it also removes everything else the two cars shared in that race: the same safety car, the same weather, the same scenario seed. In the real plan every car in a race shares its scenario, so this is the normal case, not an edge case.</p>
-      <p>A synthetic check (lab p8-07): 2,000 races, each car stops in its own window, and half the races have a safety car under which a car whose window is near it stops. Neither car ever reacts to the other. The share of races with both cars stopping on the same lap is 0.261; the shuffled null gives 0.093, and the test rejects (p = 0.002). The two cars look linked because they answered the same safety car.</p>
-      <p>The fix is to shuffle only among races that shared the same conditions: here, among races with the same safety-car lap (or none). Within such a group the shared cause is identical for every race, so a shuffle there breaks only the link between the two cars. On the same data: null 0.258, p = 0.67, no rejection. On data with a real undercut-or-overcut reaction added, the stratified test still rejects (p = 0.002). In the real project the groups are races with the same scenario seed, or, if every seed is unique, races binned by whatever the scenario sets that both cars respond to.</p>
-      <blockquote class="eq">for each shuffle:
-    for each group of races with the same safety-car lap:
-        permute the rival's stop laps among those races only
-    recompute the statistic</blockquote>
-
-      <h2>What the test can and cannot show</h2>
-      <p>The shuffle answers one question: <em>did one car's stop depend on the other's within the same race?</em> It does not answer "is the histogram's shape strategic?". The two come apart in a case that matters here. At a mixed equilibrium of plans fixed before the start, such as the capstone duel's (<a class="xref" href="08-build-it-yourself.html">page 08</a>), the two cars' stop laps are independent draws from their mixtures. The delta histogram is strategic through and through: undercuts on one side, an overcut on the other, a dip at 0. But shuffling the pairing reproduces it exactly, and the test does not reject (p = 0.93), because the shape lives in each car's own distribution, which the shuffle keeps.</p>
-      <p>So the analysis needs both comparisons. The stratified shuffle says whether the cars react to each other. The same training with blocking switched off says whether the shape needs blocking (<a class="xref" href="06-blocking-model-dependency.html">page 06</a>); in the duel, blocking off puts every delta at 0. And both are read over several training seeds, not one run. On the duel, learners from four seeds of the same configuration put anywhere from 9% to 78% of their stops on the undercut side (the capstone report).</p>
-
-      <h2>An addition to the Definition of Done, not a replacement</h2>
-      <p>The histogram itself stays — it's the intuitive, presentable result, and the real plan's Definition of Done is right to ask for it. The null-baseline comparison above is what turns "emergent undercut/overcut behavior" from an eyeballed claim into a defensible one: report both histograms side by side, and let the gap between them (or its absence) be the actual evidence, rather than the shape of the real histogram in isolation.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Even with blocking, one run's histogram proves little: a plain shuffle calls a shared safety car a reaction, a strategic shape can pass the shuffle, and four seeds of one setup spread from 9% to 78%. The histogram needs a stratified null, a blocking-off run and several seeds. Next: you solve the duel with no noise.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-07" data-lab-format="notebook">
         <span class="lab-kicker">Lab p8-07 · Notebook · about 20 min</span>
@@ -82,6 +80,7 @@ null_deltas    = [agent_pit_lap[i] − shuffled_rival[i]  for i in all recorded 
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

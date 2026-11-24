@@ -13,29 +13,54 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 04 of 11 — Two instabilities, part two</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 04 · Experience replay</p>
       <h1>Experience Replay</h1>
-      <p class="dek">A target network fixes the moving-target problem. It does nothing about a second, separate instability: training on transitions in the order they happened.</p>
+      <p class="dek">A target network stops the target running away. It does nothing about a second problem: training on laps in the order they happened.</p>
 
-      <h2>Why in-order training data is a problem, even with a stable target</h2>
-      <p>Consecutive laps within one episode are highly correlated — similar tyre age, similar fuel load, the same track and weather. Training a gradient-descent step (<a class="xref" href="02-neural-networks-primer.html">page 02</a>) on a sequence of near-identical inputs is close to training on the same example over and over: the well-known assumption behind gradient descent's convergence behaviour is that training examples are drawn independently from a stable distribution ("i.i.d." — independent and identically distributed). A stream of transitions from one continuous race violates that assumption directly, regardless of whether the target is stable (<a class="xref" href="03-target-network.html">page 03</a>) or not — this is a problem with the <em>data</em>, not the target.</p>
-      <p>Concretely: if the last 20 gradient steps were all computed from laps 30–50 of the same race, the network has effectively been told "the world looks like late-race, high tyre age" 20 times in a row. Its weights drift to fit that narrow slice well, at the expense of whatever they'd learned about early-race states — not because early-race states got harder, but because nothing about them has been seen in a while. This is the same class of problem as <a class="xref" href="03-target-network.html">page 03</a>'s, from the other side: <a class="xref" href="03-target-network.html">page 03</a> was about the target drifting under the network being trained; this is about the network drifting because of what it's being shown, moment to moment.</p>
+      <section class="cold-open" data-call="p5-04">
+        <p class="co-label">Your call · what the memory holds</p>
+        <p class="co-moment">The real agent keeps its last 100,000 laps and overwrites the oldest once full. A race is 52 laps.</p>
+        <p class="co-ask">After race 3,000, which is the oldest race the memory still holds?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-04" value="a"> Race 1: nothing is thrown away.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-04" value="b"> About race 1,077.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-04" value="c"> About race 2,000.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>Why in-order data is a problem</h2>
+      <p>Consecutive laps of one race are much alike: similar tyre age, similar fuel, the same weather. Gradient descent behaves well when its examples are drawn independently from a steady distribution, <strong>i.i.d.</strong>, and a stream of one race's laps in order is the opposite. If the last 20 updates all came from laps 30 to 50 of one race, the network has been told "late race, old tyres" 20 times running, and its weights drift to fit that slice at the expense of what they knew about the early laps. Page 03's problem was the target moving under the network. This one is the network moving because of what it is shown.</p>
 
       <h2>The fix: store, then sample</h2>
-      <p>Instead of training on the transition that just happened, store every transition <code>(s, a, r, s', done)</code> in a buffer as it's experienced, and train on a randomly sampled mini-batch drawn from the <em>whole</em> buffer. This buys two distinct things, worth naming separately because <a class="xref" href="07-prioritized-replay.html">page 07</a> revisits both:</p>
+      <p>Store every transition <code>(s, a, r, s′, done)</code> in a memory as it happens, and train on a mini-batch drawn at random from the whole memory. That buys two separate things:</p>
       <ul>
-        <li><strong>Breaking temporal correlation</strong> — a random sample from a buffer holding thousands of transitions from many different points in many different races looks far closer to i.i.d. than the raw stream of one race's laps in order.</li>
-        <li><strong>Sample efficiency</strong> — each transition, once stored, can be sampled and trained on many times over its life in the buffer, instead of being used for exactly one gradient step and discarded, getting more learning signal out of the same amount of environment interaction.</li>
+        <li><strong>Less correlation.</strong> A random draw from thousands of transitions across many races is much closer to i.i.d. than one race in order.</li>
+        <li><strong>Sample efficiency.</strong> Each stored transition can be trained on many times before it is overwritten, rather than once and discarded.</li>
       </ul>
+      <p>The baseline memory is a <strong>ring buffer</strong>: a fixed size, the oldest transition overwritten by the newest once full, and every stored transition equally likely to be drawn. Page 07 makes some transitions likelier than others.</p>
 
-      <h2>A minimal replay buffer</h2>
-      <p>As a baseline idea, before <a class="xref" href="07-prioritized-replay.html">page 07</a> complicates it: fixed capacity; once full, the oldest transition is overwritten by the newest (a ring buffer, FIFO); sampling draws a batch uniformly at random from whatever is currently stored. Nothing about "which transitions are more useful to revisit" enters yet — every stored transition is equally likely to be picked, regardless of how surprising or routine it was.</p>
+      <section class="reveal closed" data-for="p5-04">
+        <p class="co-label">The reveal · the oldest race</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About race 1,077</b></div></div>
+        <div class="co-body">
+          <p>100,000 laps at 52 a race is about 1,923 races. After race 3,000, the 156,000th lap, the memory holds laps 56,001 to 156,000. Lap 56,001 is near the end of race 1,077, so the memory holds the last few laps of race 1,077 and all of races 1,078 to 3,000.</p>
+          <p>From race 1,923 on, each new lap pushes out the oldest. The network trains on its last two thousand races, not on everything it has seen.</p>
+        </div>
+      </section>
 
-      <div class="note generic">
-        <div class="tag">Not all transitions are equally worth replaying</div>
-        <p>Uniform sampling treats a routine "stay out, nothing changes" transition exactly the same as a rare, strategically decisive pit-stop transition — even though the buffer will hold vastly more of the former than the latter simply because "stay out" is the correct action on most laps. Named here, developed fully on <a class="xref" href="07-prioritized-replay.html">page 07</a> once the dueling architecture (<a class="xref" href="05-dueling-architecture.html">page 05</a>) and Double DQN (<a class="xref" href="06-double-dqn.html">page 06</a>) have given the target network something more refined to compute, and once there's a concrete number — how rare pit transitions actually are in this project's races — to make the problem specific rather than abstract.</p>
-      </div>
+      <h2>What the champion's memory was fed</h2>
+      <p>The capstone's schedule lowers ε from 1 to 0.05 over the first 60% of training, then holds it. The champion's last 800 races ran at ε = 0.05, a random call on about one lap in twenty, and every one of those laps went into its memory. That is the point of exploring in training: a call the greedy policy never makes still gets tried, stored and replayed, so its value is learned. Without those random stops the network couldn't know that lap 9's stop is worse.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why a batch from the stream fails, in numbers<span class="dd-len">100 words</span></summary>
+        <div class="dd-body">
+          <p>On page 09's small world the bare learner trains on the one transition that just happened. In the runs made for that page its loss averaged 0.004 to 0.008 over the final 2,000 updates, and its spread was 0.014 to 0.046, several times its own average: a learner pulled about by whichever lap it saw last. With a memory and a target network the spread fell to 0.002 to 0.003. The races it found were the same on a world that small. On the capstone's 20-lap race with a mandatory second compound, the stream learner finishes far from the optimum.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Ruled out: the memory. It shapes training, and exploring in training is how the champion learned what an unplanned stop costs. Next: how sure the network is about each call.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-04" data-lab-format="pytest">
         <span class="lab-kicker">Lab p5-04 · Code + tests · about 15 min</span>
@@ -62,6 +87,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

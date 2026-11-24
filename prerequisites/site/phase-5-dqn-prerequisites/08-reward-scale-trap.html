@@ -13,88 +13,76 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 08 of 11 — The failure that looks like success</p>
-      <h1>The Reward-Scale Trap: Why This Phase Can Look Like "Training But Not Learning"</h1>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 08 · The reward-scale trap</p>
+      <h1>The Reward-Scale Trap</h1>
       <p class="dek">Every safeguard that keeps a network's training stable also limits how far one update can move it. Ask that network for outputs near −5,000 and it gets there slowly, quietly, and with no error message.</p>
 
+      <section class="cold-open" data-call="p5-08">
+        <p class="co-label">Your call · a flat reward curve</p>
+        <p class="co-moment">A DQN trains on rewards of minus the lap time: about −95 a lap for 52 laps, so true values near −4,940. A fresh network outputs about 0. After a few hundred races nothing has errored and the loss is falling, but the race reward is flat.</p>
+        <p class="co-ask">What is most likely?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-08" value="a"> A bug: the updates aren't reaching the weights.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-08" value="b"> Nothing is broken yet: the outputs are still travelling toward −4,940.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-08" value="c"> The learning rate is too high.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
       <h2>The numbers</h2>
-      <blockquote class="eq">reward per lap:                    about −95   (minus the lap time, in seconds)
-laps:                              52
-discount:                          γ = 1
-true Q-values early in the race:   about −95 × 52 ≈ −4,940
+      <p>A fresh network's weights are small random numbers, so its outputs are small too. A fresh copy of this project's network, on observations in the 0-to-1 range, gave outputs averaging −0.02, none further from zero than 0.11. Before it can say anything about strategy it must learn to output numbers about 5,000 from where it starts, accurate to about a second: a pit stop costs about 18 s, and good and bad calls differ by a few seconds.</p>
 
-a freshly built network's output:  about 0</blockquote>
-      <p>The last line is a property of how networks start. Their initial weights are small random numbers, so their initial outputs are small too. A fresh copy of this project's network, given observations in the normal 0-to-1 range, produced outputs averaging <code>−0.02</code>, and none further from zero than <code>0.11</code>. Before the network can say anything about strategy, it has to learn to output numbers about 5,000 away from where it starts.</p>
-      <p>The strategy itself lives in much smaller numbers. A pit stop costs roughly 18 seconds, and fresh tyres win that time back gradually over the laps that follow. The difference between a good and a bad decision is a few seconds. So the network has to produce outputs near <code>−4,940</code> that are accurate to about a second, which is one part in several thousand.</p>
-
-      <h2>Three safeguards, each one a speed limit</h2>
-      <p>The real training step has three mechanisms that stop a single bad batch from wrecking the weights. Each is sensible. Each also caps how much one update can do.</p>
-
-      <h3>Huber loss</h3>
-      <p><a class="xref" href="02-neural-networks-primer.html">Page 02</a> named the loss the agent uses, smooth L1 or <strong>Huber loss</strong>, and left the reason for this page. For an error <code>e = prediction − target</code>:</p>
-      <blockquote class="eq">Huber(e) = ½·e²         when |e| ≤ 1        (behaves like squared error)
-         = |e| − ½      when |e| &gt; 1        (grows in a straight line)
-
-slope of the loss, which is the size of the push on the prediction:
-
-error e        squared error: 2e        Huber
-   0.5              1                    0.5
-   250            500                    1
- 5,000         10,000                    1</blockquote>
-      <p>Under squared error, a prediction that is off by 5,000 produces a gradient of 10,000. One such batch, early on, throws the weights far from anywhere useful. Huber caps the push at <code>1</code> however large the error is. That is the stability it was chosen for. Now read the last two rows again: an error of 250 and an error of 5,000 produce the same push. The network gets no extra urgency from being twenty times further away.</p>
-
-      <h3>Gradient clipping</h3>
-      <p>After backpropagation, the gradients for all the weights form one long list of numbers. Its overall size is its <strong>norm</strong>: the square root of the sum of the squares. The real agent clips that norm to <code>10</code>. If the norm comes out larger, every gradient is scaled down by the same factor so that the norm is exactly 10:</p>
-      <blockquote class="eq">norm of this batch's gradient:   40
-limit:                           10
-every gradient is multiplied by  10 / 40 = 0.25
-
-The direction of the update is unchanged. Only its length is cut.</blockquote>
-      <p>This is a second guard against one unusual batch. It is also a second cap on how far one batch can move the weights.</p>
-
-      <h3>Adam's step size</h3>
-      <p><a class="xref" href="02-neural-networks-primer.html">Page 02</a> described Adam as gradient descent with a step size adapted per weight. The adaptation divides each weight's gradient by that weight's recent typical gradient size. The practical result is that each weight moves by roughly the learning rate per step at most, here <code>0.001</code>, whether its gradient is large or small. A larger error does not buy a proportionally larger step.</p>
+      <h2>Three safeguards, each a speed limit</h2>
+      <p><strong>Huber loss</strong> (page 02's choice) is <code>½e²</code> for an error <code>|e| ≤ 1</code> and <code>|e| − ½</code> beyond. Its slope, the push on the prediction, never exceeds 1:</p>
+      <blockquote class="eq">error e        squared error's slope 2e        Huber's slope
+   0.5                1                            0.5
+   250              500                            1
+ 5,000           10,000                            1</blockquote>
+      <p>One early batch with a 10,000 push would throw the weights far off; Huber caps it. But an error of 250 and one of 5,000 now push equally. <strong>Gradient clipping</strong> scales the whole gradient down when its norm exceeds 10: a norm of 40 is multiplied by 0.25. <strong>Adam</strong> divides each weight's gradient by its recent typical size, so each weight moves by roughly the learning rate, 0.001, per step at most. A larger error buys no larger step from any of the three.</p>
 
       <h2>A fourth limit: the target starts near zero too</h2>
-      <p>The target is not −4,940 from the first update. It is <code>r + γ·Q(s',a*;θ⁻)</code> (<a class="xref" href="06-double-dqn.html">page 06</a>), and the target network starts as a copy of the same fresh network, so it also outputs about zero. The first targets are therefore about <code>−95</code>: one lap's reward, plus nothing. Once the online network has learned "about −95", the target network has to follow it (<a class="xref" href="03-target-network.html">page 03</a>'s slow Polyak update), and only then do targets move to about <code>−190</code>, and so on, a lap's worth at a time. Only the last lap of the race has a target with no estimate in it. Every other value is built by passing that information backward through 52 laps, through a target network that is slow by design.</p>
+      <p>The target network starts as a copy of the same fresh network, so the first targets are one lap's reward plus about 0: about −95. Once the online network has learned "about −95", the target network follows slowly, and only then do targets reach about −190, a lap's worth at a time. Only the last lap's target has no estimate in it; every other value is passed backward through 52 laps by a copy that is slow by design.</p>
 
-      <h2>Why this fails quietly</h2>
-      <p>Put the four limits together. Nothing explodes, because every mechanism above exists to prevent an explosion. The loss can even fall, because the network is getting better at predicting its own slowly moving targets. Episode reward stays flat, because a network whose outputs are still hundreds or thousands away from the truth cannot yet rank "pit now" against "stay out" when the two differ by a few seconds.</p>
-      <p>A training run in this state and a training run with a real bug look the same on a reward curve. The first thing to check is the scale of the network's outputs against the scale the true values must have.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>What you see</th><th>What it suggests</th></tr></thead>
-          <tbody>
-            <tr><td>Reward flat. Average Q-value moving steadily toward the expected scale.</td><td>Still travelling. The algorithm is working and has a long way to go.</td></tr>
-            <tr><td>Reward flat. Average Q-value flat and far from the expected scale.</td><td>Something is broken: no updates are happening, or the targets are wrong.</td></tr>
-            <tr><td>Average Q-value at the expected scale. Reward still flat.</td><td>The scale is learned and the fine differences between actions are not. Look at exploration and at how often pit transitions are sampled (<a class="xref" href="07-prioritized-replay.html">page 07</a>).</td></tr>
-            <tr><td>Average Q-value far past the expected scale and still growing.</td><td>Runaway estimates. Look at the target computation: the terminal cut-off, the masking, and the target network (<a class="xref" href="06-double-dqn.html">page 06</a>).</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h2>Why Phase 4's first instinct does not transfer</h2>
-      <p><a class="xref" href="../phase-4-q-learning-prerequisites/08-this-project-formalized.html">Phase 4 page 08</a> met the same −5,000 problem in a table, where each cell starts at whatever value you write into it. A network has no cells. Its output at a state is whatever its shared weights happen to produce, so there is no way to set a starting value state by state. One global knob does exist: the final layer's bias could be set to −5,000 by hand. That moves every output by the same amount, which is the same idea as the fix below, applied at the wrong end. It leaves the rewards, the targets and the errors at their original size.</p>
+      <section class="reveal closed" data-for="p5-08">
+        <p class="co-label">The reveal · flat reward, falling loss</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Still travelling</b></div></div>
+        <div class="co-body">
+          <p>Nothing explodes, because every safeguard exists to stop an explosion. The loss falls, because the network is getting better at its own slowly moving targets. The reward stays flat, because outputs still thousands from the truth can't rank calls that differ by a few seconds.</p>
+          <p>That looks the same on a reward curve as a real bug. The first check is the size of the network's outputs against the size the true values must have: an average Q-value moving steadily toward −4,940 is a network still travelling; a flat one far from it is broken.</p>
+        </div>
+      </section>
 
       <h2>The fix: change the scale of the reward</h2>
-      <p>The fix is the one Phase 4 used, for the same reason. Train on the centred reward <code>−(lap_time − base_pace)</code>. Per-lap rewards fall from about <code>−95</code> to about <code>−5</code>, and true Q-values from about <code>−4,940</code> to about <code>−250</code>.</p>
+      <p>Train on the centred reward <code>−(lap_time − base_pace)</code>, as Phase 4 did. Per-lap rewards fall from about −95 to about −5, and true values from about −4,940 to about −250:</p>
       <blockquote class="eq">                                   uncentred        centred
 distance from a fresh network:      ≈ 4,940          ≈ 250
 a 5-second strategy difference:     0.1% of the      2% of the
                                     output's size    output's size</blockquote>
-      <p>The speed limits are all still in force. There is now a twentieth of the distance to cover under them, and the differences that decide the strategy are no longer a tiny ripple on a very large number.</p>
-      <p>Centring does not change which policy is best. Every race has the same fixed number of laps <code>T</code>, so subtracting a constant <code>c</code> from every lap's reward changes every policy's total by the same <code>c × T</code>. Adding the same amount to every option never changes which one is largest. <a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 03</a> has the full proof. Reported race times are always the true, uncentred ones, read from <code>info["lap_time"]</code>. Centring changes what the network trains on and nothing that is reported.</p>
+      <p>The speed limits still apply, over a twentieth of the distance. Centring changes no decision: every race has the same number of laps, so subtracting a constant from every lap moves every strategy's total by the same amount (<a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 03</a> proves it). Reported race times are always the true ones, read from <code>info["lap_time"]</code>.</p>
 
-      <div class="note generic">
-        <div class="tag">The general lesson</div>
-        <p>A mechanism that makes training <em>stable</em> can make a scale problem <em>invisible</em>. A loud failure gets fixed the same afternoon. A quiet one costs days of tuning hyperparameters that were never the problem. Before reading anything into a flat reward curve, compare two numbers: the size of the outputs the network is producing, and the size the true values must have.</p>
-      </div>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Reading the symptoms, and why a starting bias isn't the fix<span class="dd-len">200 words, 1 table</span></summary>
+        <div class="dd-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>What you see</th><th>What it suggests</th></tr></thead>
+              <tbody>
+                <tr><td>Reward flat. Average Q-value moving steadily toward the expected scale.</td><td>Still travelling. The algorithm works and has a long way to go.</td></tr>
+                <tr><td>Reward flat. Average Q-value flat and far from the expected scale.</td><td>Broken: no updates are happening, or the targets are wrong.</td></tr>
+                <tr><td>Average Q-value at the expected scale. Reward still flat.</td><td>The scale is learned and the differences between calls aren't. Look at exploration and at how often pit stops are sampled (page 07).</td></tr>
+                <tr><td>Average Q-value far past the expected scale and still growing.</td><td>Runaway estimates. Look at the target: the terminal cut-off, the masking and the target network (page 06).</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><a class="xref" href="../phase-4-q-learning-prerequisites/08-back-to-the-plan.html">Phase 4</a> met the same −5,000 in a table, where each cell starts at whatever you write in it. A network has no cells, so no per-state starting value. Setting the final layer's bias to −5,000 by hand moves every output by the same amount, the right idea at the wrong end: the rewards, targets and errors stay their original size. The original DQN paper (Mnih and colleagues, <a class="inline-link" href="https://www.nature.com/articles/nature14236">Human-level control through deep reinforcement learning</a>, 2015) handled the problem from the other side, by limiting rewards and errors to between −1 and 1.</p>
+        </div>
+      </details>
 
-      <div class="note generic">
-        <div class="tag">Further reading — optional</div>
-        <p>Nothing later in this set depends on it. Volodymyr Mnih and colleagues, <a class="inline-link" href="https://www.nature.com/articles/nature14236">Human-level control through deep reinforcement learning</a> (2015), is the original DQN paper. It handled the same problem from the other side, by limiting both rewards and errors to the range −1 to 1.</p>
-      </div>
+      <h2>Did the champion learn the scale?</h2>
+      <p>The champion trained on centred rewards. At the start line it expects 225.94 s to the flag if it stays out, where its own strategy averages 232.20 s: about 6 s, under 3%, from the truth, and its calls rank correctly, as page 05 found. This is the third row of the table in the deep dive at most, and its strategy is 0.28 s from the optimum. It isn't the trap.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Ruled out: the reward scale. The champion's start value is within 3% of the truth and its calls rank correctly. Every suspect in the network and its training is cleared, and the stops are still there. Next: build the learner, and look at how it is evaluated.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-08" data-lab-format="notebook">
         <span class="lab-kicker">Lab p5-08 · Notebook · about 20 min</span>
@@ -121,6 +109,7 @@ a 5-second strategy difference:     0.1% of the      2% of the
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

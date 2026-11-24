@@ -13,30 +13,50 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 01 of 10 — Conceptual</p>
-      <h1>When the Opponent Learns Too: Non-Stationarity, Revisited</h1>
-      <p class="dek"><a class="xref" href="../phase-6-multi-car-prerequisites/07-non-stationarity.html">Phase 6 page 07</a> explained why scripted rivals sidestep this problem. Phase 8 removes that shield on purpose.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 01 · Non-stationarity</p>
+      <h1>When the Opponent Learns Too</h1>
+      <p class="dek"><a class="xref" href="../phase-6-multi-car-prerequisites/07-non-stationarity.html">Phase 6 page 07</a> explained why scripted rivals keep the environment still. Phase 8 removes that on purpose.</p>
 
-      <h2>A quick recap of the shield</h2>
-      <p>Standard RL theory — everything Phase 4 and 5 rely on — assumes the environment is <em>stationary</em>: the same state, visited at two different times, produces the same distribution over next states and rewards. Phase 6's rivals follow a predetermined <code>pit_laps</code> plan with no learning update of their own, so from the agent's point of view they're part of a fixed environment, exactly like the weather trace or the safety-car process. All of Q-learning and DQN's convergence arguments keep applying unmodified — only the state and reward got bigger.</p>
+      <section class="cold-open" data-call="p8-01">
+        <p class="co-label">Your call · copies chasing copies</p>
+        <p class="co-moment">The pit-timing duel, blocking on: two equal cars, the follower 0.5 s behind, one stop each. Each round the follower picks the best reply to the leader's last stop, then the leader picks the best reply to the follower's new one. Both start on lap 8.</p>
+        <p class="co-ask">Where does this self-play settle?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-01" value="a"> On one pair of laps, after a few rounds.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-01" value="b"> Nowhere: it cycles through three pairs for ever.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-01" value="c"> On lap 8 for both, where it started.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>What breaks once the opponent is also learning</h2>
-      <p>Phase 8 lets two (or more) copies of the same kind of learner train against each other. Now the "environment," from any one agent's point of view, includes the other agent's policy — and if that policy is changing over time, so is everything the first agent is trying to learn. A pit-under-safety-car move that worked well against last week's opponent policy might not work at all against this week's, purely because the opponent adapted, not because anything about the track, tyres, or weather changed. The transition dynamics the agent's Q-learning update is trying to converge on are themselves moving under it.</p>
+      <h2>The assumption that held until now</h2>
+      <p>Everything Phases 4 and 5 rely on assumes a <strong>stationary</strong> environment: the same state, visited at two different times, gives the same distribution over next states and rewards. Phase 6's rivals follow a <code>pit_laps</code> plan with no learning of their own, so they are part of a fixed environment, and the convergence arguments keep applying.</p>
 
-      <div class="note grounded">
-        <div class="tag">A second, sharper reason experience replay needs care here</div>
-        <p>Phase 5 justified experience replay by breaking the temporal correlation between consecutive transitions. Self-play adds a second reason to be careful with it: a transition collected against an old opponent checkpoint describes a game that, strictly, no longer exists once that opponent has been replaced by a newer one in the pool. Replaying it later trains the learner against a summary of a game state that isn't the one it will actually face next. This doesn't mean replay has to be abandoned — <a class="xref" href="03-checkpoint-pool.html">page 03</a>'s checkpoint pool is part of how the real plan manages this — but it's worth naming as a second source of staleness beyond Phase 5's original one.</p>
-      </div>
+      <h2>What breaks once the opponent learns</h2>
+      <p>In Phase 8 the opponent's policy is part of the environment, and it changes as training goes on. A stop under the safety car that worked against last week's opponent may fail against this week's, with nothing changed about the track or the tyres. The transitions the learner is trying to learn move under it.</p>
+      <p>The replay memory gets a second kind of staleness too. <a class="xref" href="../phase-5-dqn-prerequisites/04-experience-replay.html">Phase 5</a> used it to break the correlation between consecutive laps. In self-play a stored lap was played against an opponent that may no longer be in the pool: replaying it trains against a game that no longer exists. That doesn't rule replay out, and page 03's pool is part of how the plan manages it.</p>
 
-      <h2>Three ways to structure multi-agent training</h2>
-      <p>Given that more than one agent is learning at once, there's a genuine design choice in how their learning is organized. Three points on that spectrum, briefly:</p>
+      <section class="reveal closed" data-for="p8-01">
+        <p class="co-label">The reveal · copies chasing copies</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">A cycle of three</b></div></div>
+        <div class="co-body">
+          <p>From (8, 8): the follower answers lap 8 with lap 6, the leader covers with lap 7; the follower answers 7 with 5, the leader goes long to 10; the follower answers 10 with 9, the leader comes back to 8; and the follower answers 8 with 6 again. (6, 7) → (5, 10) → (9, 8) → (6, 7), for ever. Each copy chases what the other did last round.</p>
+          <p>With blocking off it settles at once: lap 8 is each car's best stop whatever the other does, because neither can cost the other time. The cycle exists because the cars can hold each other up. Below, you are the follower against a leader that plays this way. It is predictable, so it can be beaten.</p>
+        </div>
+      </section>
+
+      <div data-widget="pitwall" data-mode="duel" data-leader="latest" data-seed="1"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <h2>Three ways to organize multi-agent training</h2>
       <ul>
-        <li><strong>Independent learners.</strong> Each agent has its own separate value function (its own DQN, its own replay buffer, its own weights) and learns purely from its own experience, with no communication between agents and no shared network. From any one agent's perspective, every other agent is just part of a — now nonstationary — environment. This is the simplest setup and the one the real plan uses.</li>
-        <li><strong>Parameter sharing.</strong> All agents use one shared network, trained on the combined experience of everyone. This tends to learn faster, because experience is pooled, but it implicitly assumes the agents are meaningfully symmetric (interchangeable roles) — true here, since every car runs the same strategy problem, but the real plan doesn't exploit this.</li>
-        <li><strong>Centralized-training, decentralized-execution (CTDE).</strong> A shared value function (often a "centralized critic") sees the full joint state of every agent during training, while each agent still acts on its own local observation at execution time. This is more powerful — it can directly represent how one agent's action affects another's return — and more complex to implement (the more sophisticated MARL methods, such as MADDPG, are built this way).</li>
+        <li><strong>Independent learners.</strong> Each agent has its own network, memory and weights, and learns from its own experience; every other agent is part of its (now changing) environment. The simplest setup, and the plan's.</li>
+        <li><strong>Parameter sharing.</strong> One network for every agent, trained on everyone's experience. It learns faster, and assumes the agents are interchangeable, which every car here is. The plan doesn't use it.</li>
+        <li><strong>Centralized training, decentralized execution.</strong> A shared critic sees the joint state during training; each agent acts on its own observation. More powerful (it can represent how one agent's action affects another's return) and more complex; MADDPG is built this way.</li>
       </ul>
-      <p>Why independent learners is the deliberate choice here, not a corner cut: Phase 5's <code>DuelingDoubleDQNAgent</code> already exists as a complete, working single-agent learner. The real plan reuses it completely unmodified, one instance per car, and treats coordination-shaped behavior — the undercut, the overcut — as something that should <em>emerge</em> from the environment's own payoff structure (once <a class="xref" href="06-blocking-model-dependency.html">page 06</a>'s blocking model exists) rather than something engineered into a shared critic. It's the simplest setup that can, in principle, still produce the interesting result.</p>
+      <p>Independent learners is a choice, not a corner cut. Phase 5's <code>DuelingDoubleDQNAgent</code> already works; the plan reuses it unmodified, one per car, and expects the undercut and the overcut to come from the race's payoffs rather than a shared critic.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>A learning opponent makes the target move. In the duel with blocking on, copies best-replying to each other's last stop cycle through three pairs and never settle; a follower who sees the pattern wins on average. With blocking off they settle at once. Next: what self-play should be chasing instead.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-01" data-lab-format="notebook">
         <span class="lab-kicker">Lab p8-01 · Notebook · about 15 min</span>
@@ -91,6 +111,14 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/pitgame_data.js"></script>
+<script src="../assets/pitwall/pitgame.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/pitgameui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

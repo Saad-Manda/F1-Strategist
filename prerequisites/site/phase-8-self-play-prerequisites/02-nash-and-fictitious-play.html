@@ -13,49 +13,68 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 02 of 10 — A little math</p>
-      <h1>The Game Underneath: Nash Equilibria and Fictitious Self-Play</h1>
-      <p class="dek">Self-play isn't really chasing "the optimal policy" — it's chasing a solution to a two-player game, which is a different, relative notion of "solved."</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 02 · Nash and fictitious play</p>
+      <h1>The Game Underneath</h1>
+      <p class="dek">Self-play isn't chasing "the optimal policy". It is chasing a solution to a two-player game, a relative notion of solved.</p>
 
-      <h2>Why "optimal policy" stops being the right target</h2>
-      <p>Every phase through Phase 6 asked for the policy that maximizes expected return against a <em>fixed</em> environment — a well-defined, single best answer. Self-play changes what's being maximized against: each agent picks a strategy — really, a full pit-timing policy, not a single action — and the return either agent gets depends on <em>both</em> agents' strategies at once. That's a two-player game, not a single-agent MDP, and "optimal" no longer has a fixed target to be optimal relative to.</p>
+      <section class="cold-open" data-call="p8-02">
+        <p class="co-label">Your call · matching pennies</p>
+        <p class="co-moment">Matching pennies: each player shows heads or tails; the row player wins 1 on a match and loses 1 otherwise. Best-replying to the opponent's last move cycles for ever. Instead, each player best-replies to the opponent's <em>average</em> play so far.</p>
+        <p class="co-ask">After 2,000 rounds, how often does each player show heads?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-02" value="a"> It still cycles, so there is no stable share.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-02" value="b"> About 50%.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-02" value="c"> Always: heads wins the ties.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>Why "optimal policy" stops being the target</h2>
+      <p>Through Phase 6 the agent wanted the best policy against a fixed environment: one best answer. In self-play each player picks a whole pit-timing policy, and the return of each depends on both. That is a two-player game, and "optimal" has nothing fixed to be optimal against.</p>
 
       <h2>Nash equilibrium</h2>
-      <p>The natural notion of "solved" for a game like this: a pair of strategies where neither player can improve their own return by unilaterally switching strategy, holding the other player's strategy fixed.</p>
-      <blockquote class="eq">(π_A*, π_B*) is a Nash equilibrium  if
-    Return_A(π_A*, π_B*) ≥ Return_A(π_A, π_B*)   for every alternative π_A
-    Return_B(π_A*, π_B*) ≥ Return_B(π_A*, π_B)   for every alternative π_B</blockquote>
-      <p>Neither side has a unilateral incentive to deviate. This is a genuinely different concept from Phase 4's optimal policy: there, "optimal" meant best against a fixed world; here, each player's "best" depends on what the other player is doing, so the two definitions have to hold <em>simultaneously</em>, each in terms of the other.</p>
+      <p>The natural notion of solved: a pair of strategies where neither player can do better by switching alone.</p>
+      <blockquote class="eq">(π_A*, π_B*) is a Nash equilibrium if
+Return_A(π_A*, π_B*) ≥ Return_A(π_A, π_B*)   for every π_A
+Return_B(π_A*, π_B*) ≥ Return_B(π_A*, π_B)   for every π_B</blockquote>
+      <p>Each player's best depends on the other's, so the two conditions hold together. In matching pennies no pure pair satisfies them: at any of the four cells, one player gains 2 by switching. The equilibrium is a mix, each side 50/50, where heads and tails both earn 0 and neither player can gain by moving.</p>
 
-      <h2>Fictitious self-play</h2>
-      <p>A classical way to actually find such a pair: each player repeatedly computes a <strong>best response</strong> — the strategy that maximizes their own return — not against the other player's single latest strategy, but against the <em>average</em> of the other player's strategies over all rounds played so far. Under broad conditions (provably, in zero-sum two-player games), this process converges to a Nash equilibrium. This is the theoretical backbone the checkpoint pool (<a class="xref" href="03-checkpoint-pool.html">page 03</a>) is a practical approximation of.</p>
+      <h2>Fictitious play</h2>
+      <p>A classical way to find it: each round, each player best-replies to the <strong>average</strong> of the other's play so far, not to its last move. In two-player zero-sum games this provably converges to an equilibrium. The checkpoint pool (page 03) is the plan's practical stand-in for it.</p>
 
-      <h2>Why "best-respond to the latest only" doesn't converge: a worked example</h2>
-      <p><strong>Matching pennies.</strong> Each player shows heads (H) or tails (T). The row player wins 1 if they match and loses 1 if they do not; the column player gets the opposite. Payoffs to the row player:</p>
-      <blockquote class="eq">           col=H    col=T
-row=H:     +1       −1
-row=T:     −1       +1</blockquote>
-      <p>No pure pair is stable. At (H, H) the column player gains 2 by switching to T; at (H, T) the row player gains 2 by switching to T; and so on round the four cells. Start both on H and best-respond to the opponent's <em>latest</em> move, the row player first, then the column player against the row player's new move:</p>
-      <blockquote class="eq">Round 1: row answers col's H with H (match)    → col answers row's H with T (mismatch)   (H, T)
-Round 2: row answers col's T with T            → col answers row's T with H              (T, H)
-Round 3: row answers col's H with H            → col answers row's H with T              (H, T)
-...      (H, T), (T, H), (H, T), (T, H): a cycle of length 2, for ever</blockquote>
-      <p>Each player chases what the other just did, and neither ever settles.</p>
-      <p>Now best-respond to the <strong>running average</strong> of the opponent's play instead: fictitious play. Each player keeps counts of the other's moves (both start with one H) and best-responds to the frequencies; on a tie, take H.</p>
-      <blockquote class="eq">Round 1: col so far 100% H        → row plays H.   row so far 2 H, 0 T → col plays T
-Round 2: col so far 1 H, 1 T (tie) → row plays H.   row so far 3 H, 0 T → col plays T
-Round 3: col so far 1 H, 2 T       → row plays T.   row so far 3 H, 1 T → col plays T
-Round 4: col so far 1 H, 3 T       → row plays T.   row so far 3 H, 2 T → col plays T
-Round 5: col so far 1 H, 4 T       → row plays T.   row so far 3 H, 3 T (tie) → col plays H
-         after five rounds: row 3 H / 3 T,  col 2 H / 4 T</blockquote>
-      <p>Each player still swings, now in longer and longer runs, but the <em>averages</em> close in on 50/50: 0.5002 / 0.4998 for both after 2,000 rounds. That is the game's equilibrium. Against 50/50, H and T each earn 0, so neither player can gain by deviating. Best-responding to history, not to the latest snapshot, is what makes this converge instead of cycle. Lab p8-02 runs both, and rock-paper-scissors too, where latest-only cycles with length 3.</p>
-      <p>An earlier version of this page used a two-move "rock-paper" game: rock against paper loses, paper against rock wins, the same move ties. That game cannot cycle. Paper is better than rock against <em>either</em> move (it dominates rock), so best responses go to (paper, paper) at once and stay there; its equilibrium is pure, not 50/50. Cycling needs a game where every move has an answer, as in matching pennies and rock-paper-scissors.</p>
+      <section class="reveal closed" data-for="p8-02">
+        <p class="co-label">The reveal · matching pennies</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 50%</b></div></div>
+        <div class="co-body">
+          <p>Each player still swings, in longer and longer runs of one move, but the averages close in: 0.5002 heads and 0.4998 tails for both after 2,000 rounds. Best-replying to history rather than to the latest move is what turns the cycle into convergence.</p>
+          <p>The duel does the same. Fictitious play's exploitability, how much both players together could gain by switching to a best reply, falls from 0.140 after 10 rounds to 0.006 after 1,000. The follower ends up mixing laps 4, 5, 6 and 9; the leader covers with 5 to 8; the follower's payoff is −0.769. Below, the leader plays that mix. Tick <em>show what each lap is worth</em>: no lap beats −0.769.</p>
+        </div>
+      </section>
 
-      <div class="note generic">
-        <div class="tag">Population-based training, in one paragraph</div>
-        <p>AlphaStar (DeepMind), referenced by name in the real plan's own docstring, is the large-scale descendant of this same idea: instead of tracking one running average opponent, maintain a whole <em>population</em> of diverse policies and train against a mixture of them, which both approximates fictitious play's averaging and adds robustness against being over-fit to any single opponent style. This is the direct motivation for why the real plan keeps up to 50 checkpoints in a pool, rather than training against only "the current best" — the next page works through exactly how that pool approximates the running-average idea above with discrete, sampled snapshots instead of literal averaging.</p>
-      </div>
+      <div data-widget="pitwall" data-mode="duel" data-leader="eq" data-seed="2"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Matching pennies, round by round<span class="dd-len">200 words</span></summary>
+        <div class="dd-body">
+          <p>Best reply to the latest, row first, both starting on H: (H, T), (T, H), (H, T), (T, H), a cycle of two for ever. Fictitious play, both starting with one H counted, ties to H:</p>
+          <blockquote class="eq">Round 1: col so far 100% H        → row H.   row so far 2 H, 0 T → col T
+Round 2: col so far 1 H, 1 T (tie) → row H.   row so far 3 H, 0 T → col T
+Round 3: col so far 1 H, 2 T       → row T.   row so far 3 H, 1 T → col T
+Round 4: col so far 1 H, 3 T       → row T.   row so far 3 H, 2 T → col T
+Round 5: col so far 1 H, 4 T       → row T.   row so far 3 H, 3 T → col H</blockquote>
+          <p>An earlier version of this page used a two-move rock-paper game. It can't cycle: paper beats or ties rock against either move, so best replies go to (paper, paper) and stay. Cycling needs a game where every move has an answer, as in matching pennies, rock-paper-scissors and the duel. Lab p8-02 runs all three.</p>
+        </div>
+      </details>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Population-based training, in one paragraph<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p>AlphaStar, named in the plan's own docstring, is the large-scale descendant of this idea: keep a population of diverse policies and train against a mixture of them. That approximates fictitious play's averaging and adds robustness against over-fitting one opponent's style. It is why the plan keeps up to 50 checkpoints rather than training against the latest only.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Best-replying to the average converges where best-replying to the latest cycles: the duel's equilibrium mix holds the follower to −0.769, and nothing beats it. The plan approximates the average with a pool. Next: how well its pool does, and the line that crashes.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-02" data-lab-format="notebook">
         <span class="lab-kicker">Lab p8-02 · Notebook · about 20 min</span>
@@ -109,6 +128,14 @@ Round 5: col so far 1 H, 4 T       → row plays T.   row so far 3 H, 3 T (tie) 
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/pitgame_data.js"></script>
+<script src="../assets/pitwall/pitgame.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/pitgameui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

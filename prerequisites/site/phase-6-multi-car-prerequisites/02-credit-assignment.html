@@ -13,35 +13,51 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 02 of 10 — Foundations</p>
-      <h1>What "Doing Well" Even Means Now</h1>
-      <p class="dek">Phase 1's reward was the cleanest one this project will ever have. Phase 6 forces a tradeoff <code>docs/idea.md</code> warned about from the very first page.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 02 · Credit assignment</p>
+      <h1>What "Doing Well" Means Now</h1>
+      <p class="dek">Phase 1's reward was the cleanest this project will have. Racing for position costs that.</p>
 
-      <h2>The reward Phase 1 through 5 had</h2>
-      <p><code>-lap_time</code>, every step. Summed over an episode, this equals <code>-total_race_time</code> exactly — the dense, per-step reward literally <em>is</em> the true objective, not a proxy standing in for it. There was never any question of whether the reward measured the right thing; the only open questions were about learning it well.</p>
+      <section class="cold-open" data-call="p6-02">
+        <p class="co-label">Your call · a reward for finishing ahead</p>
+        <p class="co-moment">The plan's first reward design adds 20 s to the score for each place gained at the flag. Against the lap-9 rival in the plan's race, that is 20 s for finishing ahead of it.</p>
+        <p class="co-ask">Does the bonus move the best stop away from lap 8?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p6-02" value="a"> Yes, later: you stay ahead for more laps.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-02" value="b"> Yes, earlier: you take the place sooner.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-02" value="c"> No: lap 8 stays the best stop.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>What the equivalent reward for "race well" would be</h2>
-      <p>If the goal shifts from "go as fast as possible" to "finish as high as possible relative to rivals," the equally honest reward is final position. It exists, and it's exactly what the agent should care about — but it's <strong>sparse</strong>: known only once, on the terminal step of the episode, after hundreds of per-lap decisions have already been made. Every lap in between contributes to that eventual position, but none of them get told, in the moment, whether the choice just made helped or hurt.</p>
+      <h2>The reward Phases 1 to 5 had</h2>
+      <p><code>−lap_time</code>, every lap. Summed over a race it equals minus the race time: the per-lap reward is the objective, not a stand-in for it. The only open questions were about learning it well.</p>
 
-      <h2>The credit-assignment problem</h2>
-      <p>When a reward arrives many steps after the decisions that caused it, the learning signal has to somehow apportion credit backward across every intervening step — did lap 14's early pit help or hurt the eventual P3 finish, as opposed to lap 31's tyre choice, or lap 40's overtake attempt? TD learning (Phase 4) already does a version of this through bootstrapping, propagating value backward one step at a time. But a reward that's exactly zero for fifty consecutive steps and then one number at the very end gives that machinery very little to work with per update, compared to Phase 1 through 5's fully dense <code>-lap_time</code>, which supplied a learning signal on <em>every single lap</em>.</p>
+      <h2>The honest reward for racing well is sparse</h2>
+      <p>If the goal becomes finishing as high as possible, the honest reward is the final position. It exists, but it is <strong>sparse</strong>: known once, at the flag, after every call of the race has been made. Did lap 14's stop help the P3 finish, or lap 31's tyre choice, or lap 40's pass? That is the <strong>credit-assignment problem</strong>. TD learning (Phase 4) passes value back one step at a time, but a reward of zero for fifty laps and one number at the end gives each update very little to work with, compared with a lap time on every lap.</p>
 
-      <h2>Dense proxies, and their own failure mode</h2>
-      <p>The obvious fix is a denser proxy reward — something computable every lap that's correlated with the true sparse goal. The real plan offers two, and they sit at different points on a real tradeoff:</p>
+      <h2>Two dense stand-ins</h2>
       <ul>
-        <li><strong><code>lap_time_plus_position</code></strong> — the familiar dense <code>-lap_time</code> every lap, plus a one-time terminal bonus scaled by final position (<code>position_bonus_scale = 20.0</code> seconds-equivalent per position). This is still mostly the honest per-lap signal, with a shaped nudge toward caring about position layered on top only at the end.</li>
-        <li><strong><code>gap_change</code></strong> — a reward every lap for closing the gap to the leader (or car ahead). Dense every step, unlike the terminal-only bonus above — but it's a <em>proxy</em> for the real goal, not the goal itself.</li>
+        <li><strong><code>lap_time_plus_position</code></strong>: <code>−lap_time</code> every lap, plus <code>position_bonus_scale = 20</code> seconds-equivalent per place gained, on the last step. Mostly the honest signal, with a nudge toward position at the end.</li>
+        <li><strong><code>gap_change</code></strong>: every lap, <code>−(curr_gap − prev_gap)</code>, the gap to the leader starting from 0. Dense, but a stand-in.</li>
       </ul>
-      <p>The real plan names a risk for <code>gap_change</code>: that an agent rewarded for closing gaps every lap will push its tyres for a short-term gain and pay for it in a slower final stint. Check that against the arithmetic first. The plan's reward is the lap's change in the gap, <code>−(curr_gap − prev_gap)</code>, starting from 0. Add those up over a race with <code>γ = 1</code> and every lap's change cancels the next lap's start: the total is exactly <code>−(final gap)</code>. (That stays true through a safety car, because the plan skips the reward on those laps but still updates <code>prev_gap</code>, so the next lap's change picks up what was skipped.) A gap closed now and lost later earns nothing overall. What <code>gap_change</code> rewards is the final margin to the leader, delivered in instalments: a <em>different objective</em> from race time, not a short-sighted version of it. The real risk is the general one, and it still applies: an agent may chase the margin to one car at a cost to everything else, and with <code>γ &lt; 1</code> the early instalments count for more than the late ones, so the sum stops being exact. This is the general shape of <strong>reward hacking</strong> (sometimes called Goodhart's-law-style optimization): once a proxy stands in for the real objective, the fastest way to raise the proxy's number isn't always the same as the best way to achieve the thing the proxy was supposed to measure.</p>
+      <p>The plan's worry about <code>gap_change</code> is that an agent paid for closing gaps every lap will burn its tyres for a short gain. Check that against the arithmetic. With <code>γ = 1</code> each lap's change cancels the next one's start, and the sum is minus the final gap. (It stays true through a safety car: the plan skips the reward on those laps but still updates <code>prev_gap</code>.) A gap closed now and lost later earns nothing overall. <code>gap_change</code> pays for the final margin to the leader, in instalments: a different objective from race time, not a short-sighted version of it. The general risk stands, and it has a name, <strong>reward hacking</strong>: once a stand-in is scored, raising its number and doing what it was meant to measure can come apart. With <code>γ &lt; 1</code>, early instalments also count for more than late ones, and the sum stops matching the margin.</p>
+
+      <section class="reveal closed" data-for="p6-02">
+        <p class="co-label">The reveal · the place bonus</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">No: lap 8 stays best</b></div></div>
+        <div class="co-body">
+          <p>In the plan's race the rival finishes in 231.37 s whatever you do: nothing you do touches its lap times. Every one-stop from lap 4 to lap 11 beats that, so every plan near the top already gets the bonus, and it adds the same 20 s to each. The ranking under them is the ranking by race time, with lap 8 first.</p>
+          <p><code>gap_change</code> agrees: its sum is 231.37 s minus your time, so it too ranks plans by your time alone. Every design in the plan picks lap 8 in the plan's race. A reward can only make the rival matter through something the rival affects, and here it affects nothing of yours.</p>
+        </div>
+      </section>
 
       <div class="note generic">
-        <div class="tag">Not a hypothetical</div>
-        <p><code>docs/idea.md</code>'s own "common pitfalls" section names this as the #1 RL debugging trap, project-wide: <em>a rising learning curve isn't proof of anything by itself</em>, because the agent may be exploiting a flaw in the reward function rather than learning good strategy. <code>gap_change</code> is Phase 6's most concrete, plannable instance of exactly that risk — which is precisely why it's worth training deliberately rather than avoiding it out of caution.</p>
+        <div class="tag">Why the plan trains three designs</div>
+        <p>The plan doesn't argue its way to one design. It trains three, <code>lap_time_plus_position</code>, <code>gap_change</code> and <code>potential_shaping</code> (page 03), and compares what each produces: different pit timing (the average tyre age at a stop), faster convergence, a better race. Trying the tradeoff and reporting the result is good practice, and <code>docs/idea.md</code> warns why: a rising learning curve proves nothing by itself, because the agent may be farming a flaw in the reward.</p>
       </div>
 
-      <h2>Why the real plan trains three designs instead of choosing one</h2>
-      <p>Given this tradeoff, the real plan doesn't try to reason its way to the single best reward design up front. It trains all three — <code>lap_time_plus_position</code>, <code>gap_change</code>, and a third design, <code>potential_shaping</code> (<a class="xref" href="03-potential-based-shaping.html">page 03</a>) — and compares what each one actually produces: does <code>gap_change</code> lead to different pit timing (checkable via average tyre age at pit stops)? Does one converge faster than the others? Which produces the best actual race outcome? This is presented in the real plan as good practice — try the tradeoff empirically and report what happened — not as a gap where the plan should have just picked one.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Every reward design in the plan picks lap 8 in the plan's race. The rival's 231.37 s is fixed, so finishing ahead is a line your own time crosses or doesn't. Not the reward, then. Next: a shaping term that pays for position every lap.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-02" data-lab-format="notebook">
         <span class="lab-kicker">Lab p6-02 · Notebook · about 20 min</span>
@@ -68,6 +84,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

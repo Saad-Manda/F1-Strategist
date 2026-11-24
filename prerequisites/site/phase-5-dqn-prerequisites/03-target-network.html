@@ -13,38 +13,48 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 03 of 11 — Two instabilities, part one</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 03 · The target network</p>
       <h1>The Target Network</h1>
-      <p class="dek">The naive way to turn Q-learning into DQN trains a network to chase a target computed by that same network — which keeps moving every time the network gets updated. The fix is a second, slower copy.</p>
+      <p class="dek">The naive DQN trains a network toward a target computed by that same network, and the target moves with every update. The fix is a second, slower copy.</p>
 
-      <h2>The naive idea</h2>
-      <p><a class="xref" href="01-table-to-function.html">Page 01</a> established what doesn't change: the target is still <code>r + γ·max_a' Q(s',a')</code>. The most direct way to use a network for this replaces the tabular lookup with the network's own prediction: <code>target = r + γ·max_a' Q(s',a';θ)</code>, and trains the same network <code>θ</code> toward it using <a class="xref" href="02-neural-networks-primer.html">page 02</a>'s gradient-descent step.</p>
+      <section class="cold-open" data-call="p5-03">
+        <p class="co-label">Your call · how slow is slowly?</p>
+        <p class="co-moment">The real agent nudges its second copy toward the network it trains, a fraction τ = 0.005 of the remaining gap per update. Suppose the trained network jumps once and then holds still.</p>
+        <p class="co-ask">How many updates until the copy has closed half the gap?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-03" value="a"> About 5.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-03" value="b"> About 139.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-03" value="c"> About 1,000.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>Why that's unstable</h2>
-      <p><code>θ</code> is doing two jobs at once: it's the network being trained (<code>Q(s,a;θ)</code>, the prediction the loss is computed on), and it's also the network used to compute the very target that prediction is being trained toward (<code>Q(s',a';θ)</code>, inside the target). Every gradient step changes <code>θ</code> — and because both the prediction and the target are functions of the same <code>θ</code>, changing it to fix today's error also shifts tomorrow's target. It's chasing a target that runs away every time you get closer to it.</p>
-      <p>A tiny illustration makes this concrete. Suppose at some state-action pair the network currently predicts <code>Q(s,a;θ) = 3.0</code>, and the target (computed from the same weights) is <code>target = r + γ·max_a' Q(s',a';θ) = 5.0</code>. A gradient step moves <code>θ</code> to close that gap — but <code>θ</code> also appears inside <code>Q(s',a';θ)</code>, so the same step that raised <code>Q(s,a;θ)</code> toward <code>5.0</code> can simultaneously raise <code>Q(s',a';θ)</code>, which raises the target itself, say to <code>5.4</code>. The gap the next update sees hasn't shrunk to reflect the progress just made — worse, in this example it grew. Nothing here is a bug in gradient descent; it's a direct consequence of one set of weights serving two roles that are supposed to converge toward each other.</p>
+      <h2>The naive idea, and why it's unstable</h2>
+      <p>The target is still <code>r + γ·max_a′ Q(s′, a′)</code>. The direct way to use a network puts its own prediction in the target, <code>r + γ·max_a′ Q(s′, a′; θ)</code>, and trains the same <code>θ</code> toward it with page 02's step. Now <code>θ</code> has two jobs: it is the prediction being trained and the source of the target it is trained toward. Every step that fixes today's error also moves tomorrow's target.</p>
+      <p>Say the network predicts <code>Q(s, a; θ) = 3.0</code> and the target, from the same weights, is <code>5.0</code>. The step that raises <code>Q(s, a; θ)</code> toward 5.0 can also raise <code>Q(s′, a′; θ)</code>, which lifts the target to, say, 5.4. The gap the next update sees grew. Nothing is wrong with gradient descent; one set of weights is serving two roles that are meant to converge on each other.</p>
 
-      <h2>The fix: a second, frozen-ish copy</h2>
-      <p>Keep two networks with separate weights: the <strong>online network</strong> (<code>θ</code>), updated by gradient descent every training step, and the <strong>target network</strong> (<code>θ⁻</code>), used <em>only</em> to compute the target: <code>target = r + γ·max_a' Q(s',a';θ⁻)</code>. Gradient steps only ever touch <code>θ</code>; <code>θ⁻</code> never receives a gradient directly. The target stops moving out from under the update that's chasing it, because the weights computing it are no longer the same weights that update just changed.</p>
-
-      <h2>Keeping <code>θ⁻</code> from going stale forever</h2>
-      <p>If <code>θ⁻</code> never changed at all, the online network would eventually be training toward a target computed by an arbitrarily out-of-date network — useful for stability, useless for actually converging to anything close to correct. Two ways to update <code>θ⁻</code>, both named because the real agent implements one of them:</p>
+      <h2>The fix: a second, slower copy</h2>
+      <p>Keep two networks. The <strong>online network</strong> <code>θ</code> is trained on every update. The <strong>target network</strong> <code>θ⁻</code> is used only inside the target, <code>r + γ·max_a′ Q(s′, a′; θ⁻)</code>, and never receives a gradient. The target stops moving with each step taken toward it.</p>
+      <p>A copy that never changed would train the network toward an ever more out-of-date answer, so <code>θ⁻</code> has to follow, one of two ways:</p>
       <ul>
-        <li><strong>Hard update:</strong> every <code>N</code> steps, copy <code>θ → θ⁻</code> directly. Simple, but causes a visible discontinuity in the target every <code>N</code> steps — right after a copy, every target the network is trained toward suddenly jumps to reflect however much <code>θ</code> had drifted since the last copy.</li>
-        <li><strong>Polyak / soft update:</strong> every step, nudge <code>θ⁻</code> a little toward <code>θ</code>: <code>θ⁻ ← τ·θ + (1−τ)·θ⁻</code>, with a small <code>τ</code> (the real agent's default: <code>0.005</code>). No jumps — <code>θ⁻</code> tracks <code>θ</code> continuously, just much more slowly.</li>
+        <li><strong>Hard update:</strong> every <code>N</code> steps, copy <code>θ</code> into <code>θ⁻</code>. Simple, and every target jumps at each copy.</li>
+        <li><strong>Soft (Polyak) update:</strong> every step, <code>θ⁻ ← τ·θ + (1 − τ)·θ⁻</code> with a small <code>τ</code>, 0.005 in the real agent. No jumps; <code>θ⁻</code> trails <code>θ</code> smoothly. The real agent uses this one.</li>
       </ul>
 
-      <h2>Worked arithmetic: how slow is "slowly"?</h2>
-      <p>Suppose <code>θ</code> jumps to a new value and then holds perfectly still (an idealization, just to isolate how fast <code>θ⁻</code> catches up). After <code>n</code> soft-update steps with rate <code>τ</code>, the remaining gap between <code>θ⁻</code> and <code>θ</code> has shrunk by a factor of <code>(1−τ)ⁿ</code> — each step closes a fixed fraction <code>τ</code> of whatever gap is left, so the untouched fraction keeps compounding. Solving for the number of steps needed to close half the gap:</p>
-      <blockquote class="eq">(1 - τ)^n = 0.5
-n = ln(0.5) / ln(1 - τ)
+      <section class="reveal closed" data-for="p5-03">
+        <p class="co-label">The reveal · half the gap</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 139 updates</b></div></div>
+        <div class="co-body">
+          <p>Each update closes a fraction τ of what is left, so after <code>n</code> updates <code>(1 − τ)ⁿ</code> of the gap remains. Half is gone when <code>n = ln 0.5 / ln 0.995 ≈ 138.3</code>: 139 updates.</p>
+          <p>The real agent updates every 4 laps, so that is about 556 laps, about eleven 52-lap races. Slow enough to stop the chase, fast enough that over 5,000 races the target never falls far behind. The lab below lets you drag τ and watch both effects.</p>
+        </div>
+      </section>
 
-τ = 0.005:
-n = ln(0.5) / ln(0.995) = -0.6931 / -0.005013 ≈ 138.2
+      <h2>The target network in the case</h2>
+      <p>Both networks are training machinery. A target network that lags can make training wobble, and a wobbly network might have learned a wrong number somewhere. But the champion's evaluation trains nothing: its weights are fixed, and the replay is a recording of them. A lagging copy can't move a call in the middle of an evaluated race, and the network that was recorded rates lap 9's stop 5.29 s worse.</p>
 
-→ roughly 139 steps for θ⁻ to close half the gap to a θ that jumped and then held still.</blockquote>
-      <p>That's the concrete meaning behind "slowly tracks": with <code>train_freq=4</code> (the real agent updates every 4 environment steps), 139 training steps is roughly 556 environment steps, which is about eleven 52-lap races — so the target network needs around eleven races to absorb half of any sudden shift in the online network. That is slow enough to avoid the same-weights instability this page opened with, and fast enough that across a 5,000-race training run the target never falls far behind.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Ruled out: the target network. It shapes training only, and nothing trains during evaluation. Next: the other half of the training machinery, the replay memory.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-03" data-lab-format="notebook">
         <span class="lab-kicker">Lab p5-03 · Notebook · about 20 min</span>
@@ -101,6 +111,7 @@ n = ln(0.5) / ln(0.995) = -0.6931 / -0.005013 ≈ 138.2
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/polyak.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

@@ -1,6 +1,9 @@
 """Navigation tooling for the prerequisites site (prerequisites/site).
 
     python tools/nav.py check     validate manifest, pages and links (permanent guard)
+    python tools/nav.py style     the redesign's style warnings for rewritten pages (word counts,
+                                  cold opens, early interactives, banned words); add a path to
+                                  count any page or the pages of a git revision: style HEAD
     python tools/nav.py hub       regenerate index.html's course map from the manifest
     python tools/nav.py migrate   one-time conversion from the old per-phase layout
 
@@ -206,6 +209,12 @@ class Linker:
 # --------------------------------------------------------------------------- hub
 
 
+# case titles for rounds not rebuilt yet (redesign plan, section 4); a phase's own "case" in the
+# manifest replaces its entry here once that round is rebuilt
+UPCOMING_CASES = {
+}
+
+
 def render_hub(course: dict) -> str:
     rows = []
     for ph in course["phases"]:
@@ -247,11 +256,34 @@ def render_hub(course: dict) -> str:
         </details>"""
         )
     total = sum(len(ph["pages"]) for ph in course["phases"])
+    rounds = []
+    for i, ph in enumerate(course["phases"], 1):
+        case = ph.get("case") or {"title": UPCOMING_CASES.get(ph["id"], "")}
+        label = "Case " + str(i) if ph.get("case") else "case to come"
+        rounds.append(
+            f'        <a class="round" href="{ph["slug"]}/{ph["pages"][0]["file"]}">'
+            f'<span class="r-n">R{i} · Phase {ph["id"]}</span>'
+            f'<span class="r-name">{html.escape(ph["short"])}</span>'
+            f'<span class="r-case">{label}: {html.escape(case["title"])}</span>'
+            f'<span class="r-pts" data-round-pts="{ph["id"]}">{len(ph["pages"])} pages</span>'
+            f'<span class="r-bar"><i style="width:0%"></i></span></a>'
+        )
     body = f"""      <p class="eyebrow">Course map</p>
       <h1>Prerequisites</h1>
-      <p class="dek">Seven prerequisite sets, {total} pages, one path. This is the only index: every page is reachable from the tree on the left, and Next at the bottom of any page carries on through the whole course.</p>
+      <p class="dek">Seven rounds, {total} pages, one season. Each round is a phase of the project with a case to crack; each page earns points. Nothing is locked: the points only keep score.</p>
+
+      <div class="standings" id="standings"></div>
+      <div class="season">
+{chr(10).join(rounds)}
+      </div>
 
       <div id="resume"><noscript><p><a class="inline-link" href="{course["phases"][0]["slug"]}/{course["phases"][0]["pages"][0]["file"]}">Start: Phase 1 · Overview →</a></p></noscript></div>
+
+      <div class="pw-panel">
+        <div class="pw-kicker"><b>The Pit Wall</b><span>a 20-lap toy race you call lap by lap</span></div>
+        <p style="margin:0 0 10px">Call a race against an oracle that plays it perfectly on average, then open it as an MDP. Phase 1 opens Race mode; each later round adds a mode.</p>
+        <a class="pw-btn go" href="pitwall.html" style="text-decoration:none;display:inline-block">Open the Pit Wall</a>
+      </div>
 
       <h2>Course map</h2>
       <p>Open a phase to see its pages, what each one covers, and why that phase needs it.</p>
@@ -262,13 +294,14 @@ def render_hub(course: dict) -> str:
       <h2>How the course works</h2>
       <p>The sets are cumulative: each assumes every set above it and nothing later. Read top to bottom on a first pass, and jump straight to a phase only once the sets it lists under "Assumes" are behind you.</p>
       <p>Every set has the same three parts, marked in the sidebar. <strong>Concepts</strong> build one continuous argument and are read in order, with the F1 examples inside them as illustration. <strong>Capstone</strong> is the hands-on page: you build a small toy version of the phase's technique yourself, one complication at a time, under names that deliberately do not match the real project. <strong>This project</strong> then maps the same ideas onto the real design and gives a reading guide to the phase's implementation plan. Terms from every set are collected in the <a class="inline-link" href="glossary.html">glossary</a>.</p>
-      <p><strong>Labs.</strong> Where a set has labs, every page ends in one: a hand calculation or quiz checked in the page, or a notebook or code exercise in <code>prerequisites/labs/</code>, opened and checked with <code>python -m labs</code> from inside the <code>prerequisites/</code> folder (see <code>prerequisites/README.md</code>). The capstone page is the brief for a longer staged build. Phases 1, 3.5 and 4 have labs today; the other sets get theirs phase by phase.</p>
+      <p><strong>Labs.</strong> Where a set has labs, every page ends in one: a hand calculation or quiz checked in the page, or a notebook or code exercise in <code>prerequisites/labs/</code>, opened and checked with <code>python -m labs</code> from inside the <code>prerequisites/</code> folder (see <code>prerequisites/README.md</code>). The capstone page is the brief for a longer staged build. Every set has labs.</p>
+      <p><strong>Points.</strong> A page read is 1 point, a cold-open call 1, an in-page lab 3, a code lab 5, a capstone 10, a case closed 10, and a Pit Wall race within a second of the oracle 5 per mode. Every phase is built as a case: a mystery opened on its first page and closed on its last.</p>
       <p>The sidebar marks a page as opened when you visit it and as finished when you reach its end, and ticks in-page labs as you complete them. That record lives in this browser only. Code labs are ticked by running <code>python -m labs status</code> and reloading.</p>
 
       <h2>Where things stand</h2>
       <div class="note grounded">
         <div class="tag">Read before relying on these pages</div>
-        <p><strong>Only Phase 0 of the project is implemented.</strong> The code-walkthrough pages for Phases 1, 3.5, 4 and 5 are reading guides to files that are planned, not yet present in <code>src/</code>. Phases 6, 8 and 9 already say this about themselves.</p>
+        <p><strong>Only Phase 0 of the project is implemented.</strong> Every phase's "Back to the plan" page is a reading guide to files that are planned, not yet present in <code>src/</code>.</p>
       </div>
       <div class="note generic">
         <div class="tag">Not covered yet</div>
@@ -500,10 +533,34 @@ def migrate() -> None:
 # --------------------------------------------------------------------------- check
 
 
+REDIRECTS = {
+    "phase-1-rl-prerequisites/06-this-project-as-mdp.html": "06-back-to-the-plan.html",
+    "phase-1-rl-prerequisites/07-code-walkthrough.html": "06-back-to-the-plan.html",
+    "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html": "06-back-to-the-plan.html",
+    "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html": "06-back-to-the-plan.html",
+    "phase-4-q-learning-prerequisites/08-this-project-formalized.html": "08-back-to-the-plan.html",
+    "phase-4-q-learning-prerequisites/09-code-walkthrough.html": "08-back-to-the-plan.html",
+    "phase-5-dqn-prerequisites/10-this-project-formalized.html": "10-back-to-the-plan.html",
+    "phase-5-dqn-prerequisites/11-code-walkthrough.html": "10-back-to-the-plan.html",
+    "phase-6-multi-car-prerequisites/09-this-project-formalized.html": "09-back-to-the-plan.html",
+    "phase-6-multi-car-prerequisites/10-reading-the-plan.html": "09-back-to-the-plan.html",
+    "phase-8-self-play-prerequisites/09-this-project-formalized.html": "09-back-to-the-plan.html",
+    "phase-8-self-play-prerequisites/10-reading-the-plan.html": "09-back-to-the-plan.html",
+    "phase-9-ppo-prerequisites/10-this-project-formalized.html": "10-back-to-the-plan.html",
+    "phase-9-ppo-prerequisites/11-reading-the-plan.html": "10-back-to-the-plan.html",
+}
+
+
 def check() -> int:
     course = load_manifest()
     errors: list[str] = []
-    listed = {"index.html", "glossary.html"}
+    listed = {"index.html", "glossary.html", "pitwall.html"}
+    # old URLs kept as redirect stubs after pages were merged: (file, where it now points)
+    for rel, target in REDIRECTS.items():
+        listed.add(rel)
+        path = ROOT / rel
+        if path.exists() and f'url={target}' not in path.read_text(encoding="utf-8"):
+            errors.append(f"{rel}: redirect stub does not point to {target}")
 
     for ph in course["phases"]:
         numbers = [p["n"] for p in ph["pages"]]
@@ -564,10 +621,98 @@ def check() -> int:
     return 1 if errors else 0
 
 
+
+# --------------------------------------------------------------------------- style (redesign plan, section 6 and 7.2)
+
+BANNED = ["genuinely", "precisely", "exactly", "load-bearing", "crucially", "essentially", "notably",
+          "in practice", "simply", "just"]
+WORD_LIMIT, EARLY = 900, 400
+
+
+def core_text(page_html: str) -> tuple[str, str]:
+    """The core path of a page as plain text: the .doc body without the lab, collapsed boxes (deep dives,
+    hints, snippets), code blocks and scripts. Also returns the text before the first interactive."""
+    start = page_html.find('<div class="doc')
+    body = page_html[start:] if start >= 0 else page_html
+    body = body.split('<div class="pagenav"')[0]
+    body = re.sub(r'<section class="lab".*?</section>', " ", body, flags=re.S)
+    body = re.sub(r"<details\b.*?</details>", " ", body, flags=re.S)
+    body = re.sub(r"<(pre|script|noscript)\b.*?</\1>", " ", body, flags=re.S)
+    first = re.search(r'class="cold-open"|data-widget=', body)
+    def plain(h):
+        return html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", h))).strip()
+    return plain(body), plain(body[: first.start()]) if first else plain(body)
+
+
+def words(text: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'’.,−\-/]*", text))
+
+
+def style(args: list[str]) -> int:
+    course = load_manifest()
+    if args and not args[0].endswith(".html"):  # a git revision: count that revision's pages
+        import subprocess
+        rev = args[0]
+        for ph in course["phases"]:
+            repo = ROOT.parents[1]
+            listing = subprocess.run(["git", "ls-tree", "--name-only", rev, f"prerequisites/site/{ph['slug']}/"],
+                                     capture_output=True, text=True, cwd=repo)
+            total = 0
+            for name in sorted(listing.stdout.split()):
+                if not name.endswith(".html"):
+                    continue
+                src = subprocess.run(["git", "show", f"{rev}:{name}"],
+                                     capture_output=True, text=True, encoding="utf-8", cwd=repo).stdout
+                if 'http-equiv="refresh"' in src:
+                    continue
+                total += words(core_text(src)[0])
+            print(f"{rev} Phase {ph['id']}: {total} core-path words")
+        return 0
+    warnings, totals = [], {}
+    for ph in course["phases"]:
+        for p in ph["pages"]:
+            rel = f'{ph["slug"]}/{p["file"]}'
+            if args and rel not in args:
+                continue
+            src = (ROOT / rel).read_text(encoding="utf-8")
+            core, before = core_text(src)
+            n = words(core)
+            totals[ph["id"]] = totals.get(ph["id"], 0) + n
+            if '<div class="doc v2' not in src:
+                continue  # not rewritten yet: counted, not judged
+            print(f"  {rel}: {n} core words, first interactive after {words(before)}")
+            if n > WORD_LIMIT:
+                warnings.append(f"{rel}: core path is {n} words (target {WORD_LIMIT})")
+            if words(before) > EARLY:
+                warnings.append(f"{rel}: first interactive after {words(before)} words (target {EARLY})")
+            calls = re.findall(r'class="cold-open" data-call="([^"]+)"', src)
+            if p.get("group") in ("concepts", "project"):
+                if not calls:
+                    warnings.append(f"{rel}: content page without a cold open")
+                if p.get("call") and p["call"] not in calls:
+                    warnings.append(f'{rel}: manifest call {p["call"]} not on the page')
+            for c in calls:
+                if f'class="reveal closed" data-for="{c}"' not in src and f'class="reveal" data-for="{c}"' not in src:
+                    warnings.append(f"{rel}: cold open {c} has no reveal")
+            low = core.lower()
+            for w in BANNED:
+                k = len(re.findall(r"\b" + re.escape(w) + r"\b", low))
+                if k:
+                    warnings.append(f"{rel}: banned word '{w}' x{k}")
+    for pid, t in totals.items():
+        print(f"Phase {pid}: {t} core-path words")
+    for w in warnings:
+        print("WARN", w)
+    print(f"{len(warnings)} style warning(s)")
+    return 0
+
+
 def main() -> int:
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "check":
         return check()
+    if cmd == "style":
+        return style(sys.argv[2:])
     if cmd == "hub":
         (ROOT / "index.html").write_text(render_hub(load_manifest()), encoding="utf-8", newline="\n")
         print("index.html regenerated")

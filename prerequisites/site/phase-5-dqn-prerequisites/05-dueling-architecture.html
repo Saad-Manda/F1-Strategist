@@ -13,48 +13,60 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 05 of 11 — What the real agent adds, part one</p>
-      <h1>The Dueling Architecture: Separating "How Good Is This Spot" from "Which Move Helps"</h1>
-      <p class="dek">On this problem, one action is correct on roughly 85% of laps. A network that must learn six independent numbers per state is solving a harder problem than it needs to.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 05 · Dueling</p>
+      <h1>The Dueling Architecture</h1>
+      <p class="dek">Staying out is the right call on most laps. A network that learns each call's value separately is solving a harder problem than it needs to.</p>
 
-      <h2>The motivating observation</h2>
-      <p>In this project's races, "stay out" is the correct action on roughly <strong>85% of laps</strong> — the real plan's own estimate. A single shared output head, predicting <code>Q(s,a)</code> for all six actions from the same trunk with no further structure, still has to learn a genuinely separate number for every one of those six actions at every state, even though five of them are usually near-identical, low-value alternatives to the one action that actually matters at that moment.</p>
+      <section class="cold-open" data-call="p5-05">
+        <p class="co-label">Your call · splitting a value</p>
+        <p class="co-moment">Three calls at one state are worth Q = [−2, −5, −3]. You split them into one number for the state, V, plus one edge per call, A, with the edges averaging zero.</p>
+        <p class="co-ask">What is V?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-05" value="a"> −2, the best call's value.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-05" value="b"> −3.33, the average of the three.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-05" value="c"> Anything: any V works if the edges make up the rest.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>Value/advantage decomposition</h2>
-      <p>Split the question "how good is action <code>a</code> at state <code>s</code>" into two smaller questions:</p>
+      <h2>Two questions instead of one</h2>
+      <p>In this project's races, staying out is the right call on about 85% of laps, by the real plan's own estimate. A single output head must still learn a separate number for every call at every state, even when most of them are near-identical poor alternatives to the one that matters. Split the question in two:</p>
       <ul>
-        <li><strong><code>V(s)</code></strong> — how good is it to be in this state at all, regardless of which action gets taken next.</li>
-        <li><strong><code>A(s,a)</code></strong> — how much better or worse is this specific action than the state's average action.</li>
+        <li><strong><code>V(s)</code></strong>: how good it is to be in this state at all.</li>
+        <li><strong><code>A(s, a)</code></strong>: how much better or worse this call is than the state's average call.</li>
       </ul>
-      <p>Combined: <code>Q(s,a) = V(s) + A(s,a)</code>. Why this helps concretely for this problem: <code>V(s)</code> can absorb "it's lap 15, tyres are fine, this is generally a fine spot to be in" <em>once</em>, shared across all six actions, while <code>A(s,a)</code> only has to capture the much smaller signal "...and pitting right now specifically would be a mistake." The large, mostly action-independent part of the answer and the small, action-specific correction are learned by two different parts of the network, instead of one head having to learn their sum from scratch, independently, for each of six actions.</p>
+      <p>Then <code>Q(s, a) = V(s) + A(s, a)</code>. "Lap 15, the tyres are fine" is learned once, in <code>V</code>, shared by every call, and <code>A</code> only has to carry the much smaller "and pitting now would be a mistake".</p>
 
       <h2>The identifiability problem</h2>
-      <p><code>Q(s,a) = V(s) + A(s,a)</code> has no unique solution for <code>V</code> and <code>A</code> given only <code>Q</code>. Adding any constant <code>c</code> to <code>V(s)</code> and subtracting the same <code>c</code> from every <code>A(s,a)</code> at that state leaves every <code>Q(s,a)</code> unchanged:</p>
-      <blockquote class="eq">Suppose the true Q-values at some state are Q = [-2, -5, -3]  (3 actions)
+      <p>Given only <code>Q</code>, the split isn't unique. Add any constant to <code>V</code> and subtract it from every <code>A</code>, and every <code>Q</code> is unchanged:</p>
+      <blockquote class="eq">Q = [−2, −5, −3]
 
-Decomposition A:  V = 0,   A = [-2, -5, -3]      →  V + A = [-2, -5, -3]  ✓
-Decomposition B:  V = -10, A = [8, 5, 7]         →  V + A = [-2, -5, -3]  ✓
+V = 0,    A = [−2, −5, −3]   →  V + A = [−2, −5, −3]
+V = −10,  A = [8, 5, 7]      →  V + A = [−2, −5, −3]</blockquote>
+      <p>The loss sees only the sum, so a network could let <code>V</code> drift to +1,000,000 and <code>A</code> to −1,000,002 and never be corrected.</p>
 
-Both decompositions produce identical Q. Nothing in the sum alone can tell them apart.</blockquote>
-      <p>A network trained only on the resulting <code>Q</code> could put an arbitrary, unconstrained shifting constant into either stream — <code>V</code> could drift toward <code>+1,000,000</code> and <code>A</code> toward <code>−1,000,002</code> and the loss would never notice, since the loss only ever sees the sum.</p>
+      <h2>The fix: pin the edges' mean to zero</h2>
+      <p>Combine the heads as <code>Q(s, a) = V(s) + (A(s, a) − mean_a A(s, ·))</code>. The edges now average zero by construction, and only one split satisfies both rules:</p>
+      <blockquote class="eq">from V = 0:    A′ = [−2, −5, −3] − (−3.33) = [1.33, −1.67, 0.33]    V′ = 0 + (−3.33)  = −3.33
+from V = −10:  A′ = [8, 5, 7] − 6.67       = [1.33, −1.67, 0.33]    V′ = −10 + 6.67   = −3.33</blockquote>
 
-      <h2>The fix: pin the advantage stream's mean to zero</h2>
-      <p>Replace the plain sum with <code>Q(s,a) = V(s) + (A(s,a) − mean_a A(s,·))</code>. Subtracting the mean of <code>A(s,·)</code> forces <code>mean_a A(s,·) = 0</code> to hold by construction, which removes the shifting degeneracy: exactly one decomposition now satisfies both "sums to the right <code>Q</code>" and "the advantage stream's mean is zero" — neither decomposition above satisfies that second requirement as it stands (<code>mean([-2, -5, -3]) ≈ −3.33</code> and <code>mean([8, 5, 7]) ≈ 6.67</code>, and neither is zero), so apply the subtraction to each and see where it lands:</p>
-      <blockquote class="eq">Decomposition A, mean-subtracted:
-  A' = A - mean(A) = [-2, -5, -3] - (-10/3) = [-2+3.33, -5+3.33, -3+3.33] = [1.33, -1.67, 0.33]
-  V' = V + mean(A) = 0 + (-10/3) = -3.33
-  Check: V' + A' = [-3.33+1.33, -3.33-1.67, -3.33+0.33] = [-2, -5, -3]  ✓, and mean(A') = 0  ✓
+      <section class="reveal closed" data-for="p5-05">
+        <p class="co-label">The reveal · V</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">−3.33, the average</b></div></div>
+        <div class="co-body">
+          <p>With the edges' mean pinned to zero, <code>V</code> is the average of the three values, −3.33, and the edges are each call's distance from it: [1.33, −1.67, 0.33]. Both starting splits land there.</p>
+          <p>Option (c) is the plain sum's problem, the one the mean subtraction removes.</p>
+        </div>
+      </section>
 
-Decomposition B, mean-subtracted:
-  A' = A - mean(A) = [8, 5, 7] - 6.67 = [1.33, -1.67, 0.33]
-  V' = V + mean(A) = -10 + 6.67 = -3.33
-  Check: same V' and A' as decomposition A — the mean-subtraction collapses every
-  degenerate decomposition onto the same unique one.</blockquote>
-      <p>Both starting decompositions land on the <em>same</em> <code>(V', A')</code> once the mean is subtracted — the formula makes the split unique, no matter what arbitrary constant a not-yet-converged network happened to put into <code>V</code> versus <code>A</code>.</p>
+      <h2>Two heads on a shared trunk</h2>
+      <p>In the real <code>DuelingDQN</code>, page 02's trunk feeds a <strong>value head</strong>, <code>Linear(128→64) → ReLU → Linear(64→1)</code>, and an <strong>advantage head</strong>, <code>Linear(128→64) → ReLU → Linear(64→6)</code>, combined by the formula above into the six Q-values the rest of the agent uses as before. The layers work as on page 02; only the two heads are new.</p>
 
-      <h2>Architecture: two heads on a shared trunk</h2>
-      <p>Matched to the real <code>DuelingDQN</code>: the shared trunk from <a class="xref" href="02-neural-networks-primer.html">page 02</a> (<code>Linear(16→128) → ReLU → Linear(128→128) → ReLU</code>) feeds two separate small heads — a <strong>value stream</strong> (<code>Linear(128→64) → ReLU → Linear(64→1)</code>, producing the single scalar <code>V(s)</code>) and an <strong>advantage stream</strong> (<code>Linear(128→64) → ReLU → Linear(64→6)</code>, producing one scalar per action, <code>A(s,·)</code>). The two streams' outputs are combined by this page's formula to produce the six <code>Q(s,a)</code> values the rest of the agent uses exactly as before. This is the first place the primer's forward-pass mechanics (<a class="xref" href="02-neural-networks-primer.html">page 02</a>) get used on something DQN-specific rather than a toy example — everything about how each linear layer and ReLU computes its output is unchanged; only the fact that there are now two output heads sharing one trunk is new.</p>
+      <h2>How sure is the champion?</h2>
+      <p>The edges are where a call is decided, so look at the champion's. On lap 3 of a green race, on the starting A, it expects 202.84 s to the flag if it stays out and 206.72 s if it boxes for B: a 3.88 s edge. On lap 9 of race 29 the edge is 5.29 s. These aren't near-ties that a little error could flip. A network can be wrong, and page 06 finds one that is, but here the champion's numbers and the oracle's (3.67 s and 6.28 s) agree on the call by seconds.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The champion's edges against its unplanned stops are 3.88 and 5.29 s, close to the oracle's 3.67 and 6.28 s. It rates those stops worse, and by a lot. Next: the prime suspect, a network that overrates pit stops.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-05" data-lab-format="pytest">
         <span class="lab-kicker">Lab p5-05 · Code + tests · about 15 min</span>
@@ -116,6 +128,7 @@ Decomposition B, mean-subtracted:
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

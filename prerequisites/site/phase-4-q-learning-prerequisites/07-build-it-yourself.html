@@ -13,15 +13,63 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 4 · Page 07 of 09 — Building it yourself</p>
-      <h1>Build It Yourself: A Toy Q-Learning and SARSA, Side by Side</h1>
-      <p class="dek">Six stages: a tiny world small enough to reason about by hand, a shared learner shell, an off-policy learner, an on-policy learner, a run that reproduces <a class="xref" href="04-sarsa-on-policy.html">page 4</a>'s divergence for real, and a leak you trigger yourself.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 4 · Page 07 · The build</p>
+      <h1>Build It Yourself: Two Learners on the Toy Race</h1>
+      <p class="dek">You build an off-policy and an on-policy table learner, and measure both against the exact optimum.</p>
 
-      <p>Every name below (<code>TinyStrategyWorld</code>, <code>OffPolicyLearner</code>, <code>_pending_action</code>, and so on) is invented for this page and deliberately does <strong>not</strong> match <code>q_learning_agent.py</code>. The goal, same as every prior toy-build in this project's prerequisite sets, is to arrive at the same <em>shape</em> of solution independently, so the real file reads as familiar structure rather than new material when <a class="xref" href="09-code-walkthrough.html">page 9</a> opens it.</p>
+      <div class="case-file">
+        <p class="cf-label">Capstone brief</p>
+        <h2>Six stages, two learners, one ruler</h2>
+        <p>Build it in <code>prerequisites/labs/phase4/p4_cap_toy_learners/toy_learners.py</code>, where every stage has checks. The race is the Pit Wall's, run here without the safety car, and the ruler is the Phase 3.5 capstone's exact optimum for it, 224.49 s. Your off-policy learner is the one the Learner runs: a parity check trains both on the same random numbers and gets the same table to 1e-9. The lab block is <a class="inline-link" href="#lab">at the end of this page</a>.</p>
+      </div>
 
-      <h2>Stage 1 — a tiny world with a genuine risky-shortcut-vs-safe-route contrast</h2>
-      <p>The exact toy from <a class="xref" href="04-sarsa-on-policy.html">page 4</a>, made runnable. State <code>0</code> is the opening decision; state <code>1</code> is reached only by the risky choice; both terminate:</p>
+      <p>Every name here (<code>OffPolicyLearner</code>, <code>pending</code>, <code>run_race</code>) is invented and matches nothing in <code>q_learning_agent.py</code>. As in the earlier builds, the point is to reach the real file's shape on your own, so that <a class="xref" href="08-back-to-the-plan.html">page 08</a> reads as labels for something you know.</p>
+
+      <h2>The six stages</h2>
+      <ol>
+        <li><strong>Choose a call.</strong> <code>explore_or_exploit</code> is page 03's ε-greedy over the legal calls, ties to the lowest number, and <code>decayed_epsilon</code> its straight-line schedule.</li>
+        <li><strong>The off-policy update.</strong> Page 02's target: the lap's reward plus the best value for the next lap's legal calls, or the reward alone on the last lap.</li>
+        <li><strong>The on-policy update.</strong> Page 04's target. It needs the next call before the loop asks for it, so <code>learn()</code> chooses it, keeps it in <code>self.pending</code>, and <code>act()</code> hands it out next time.</li>
+        <li><strong>Forget.</strong> A <code>reset()</code> that clears <code>pending</code>, for a race that stops before its last lap.</li>
+        <li><strong>The race loop.</strong> <code>run_race</code>: state, legal calls, call, lap time, next state, update, five steps a lap. The learner is told <code>−(lap time − offset)</code>, Phase 1's reward centring; the race reports the true time.</li>
+        <li><strong>Measure.</strong> No new code: train what you built and score its greedy strategy against the optimum, with no sampling noise.</li>
+      </ol>
+
+      <section class="cold-open" data-call="p4-07">
+        <p class="co-label">Your call · stage 6</p>
+        <p class="co-moment">Your trained off-policy learner's greedy race is 224.49 s, the optimum. You "evaluate" it with ε left at its floor of 0.05: about one random call in a 20-lap race.</p>
+        <p class="co-ask">The mean of 1,000 such races is about</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p4-07" value="a"> 224.49 s: one random call in twenty averages out.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-07" value="b"> 226.4 s.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-07" value="c"> 244 s.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>What stage 6 measures</h2>
+      <p>Three learners per setting, 5,000 races each, on the quiet race:</p>
+      <ul>
+        <li><strong>Centring.</strong> With rewards centred on a 10 s lap, the gaps to the optimum are 0.00, 0.00 and 6.58 s. Fed the raw lap time, the same learners end 4.35, 8.16 and 17.28 s off. A table that starts at 0 has much further to travel to raw values, page 08's reward-scale argument in miniature.</li>
+        <li><strong>On-policy.</strong> The on-policy learner ends 0.18 s off, and nothing is left in <code>pending</code> after races that all reach the flag.</li>
+        <li><strong>Exploration at evaluation.</strong> The cold open above.</li>
+      </ul>
+
+      <section class="reveal closed" data-for="p4-07">
+        <p class="co-label">The reveal · evaluating with ε on</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 226.4 s</b></div></div>
+        <div class="co-body">
+          <p>Greedy, the learner runs 224.49 s every time. With ε = 0.05 the mean of 1,000 races is 226.38 s: 1.89 s worse, from one random call a race. One random call can be a stop the strategy would never make, and a stop costs 4 s.</p>
+          <p>The real plan evaluates with the same leftover ε unless something switches it off: 0.05 × 52 ≈ 2.6 random calls a race. Page 08 names the fix.</p>
+        </div>
+      </section>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Page 04's two-state toy, in code<span class="dd-len">900 words, with code</span></summary>
+        <div class="dd-body">
+          <p>The earlier version of this build ran on page 04's push-or-pit toy. Its code is here as a last-resort hint: the names and the world differ from the lab's.</p>
+          <p><strong>A tiny world</strong> with a risky shortcut and a safe route:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code>class TinyStrategyWorld:
     """
@@ -51,9 +99,7 @@
             reward = -8.0 if action == 0 else -30.0
             return None, reward, True</code></pre>
       </details>
-
-      <h2>Stage 2 — a shared TD-learner shell</h2>
-      <p>A <code>dict</code>-based table (<code>defaultdict</code> pattern, matching what <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a>'s arithmetic already justified for a sparsely-visited state space), ε-greedy action selection respecting a supplied legal-action list, and <a class="xref" href="03-epsilon-greedy-exploration.html">page 3</a>'s linear decay schedule — sized for a toy that trains in thousands, not millions, of steps:</p>
+          <p><strong>A shared learner shell</strong>: a <code>defaultdict</code> table, ε-greedy over a legal list, linear decay.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code>from collections import defaultdict
 import numpy as np
@@ -81,8 +127,7 @@ class TDLearnerShell:
         step_size = (self.eps_start - self.eps_end) / self.decay_steps
         self.epsilon = max(self.eps_end, self.epsilon - step_size)</code></pre>
       </details>
-
-      <h2>Stage 3 — <code>OffPolicyLearner</code>: page 2's target</h2>
+          <p><strong>The off-policy learner</strong>, page 02's target:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code>class OffPolicyLearner(TDLearnerShell):
     def learn(self, state, action, reward, next_state, done, legal_next, rng):
@@ -97,9 +142,7 @@ class TDLearnerShell:
         self.table[state][action] += self.alpha * td_error
         self.decay()</code></pre>
       </details>
-
-      <h2>Stage 4 — <code>OnPolicyLearner</code>: page 4's target, with the pre-commit mechanic</h2>
-      <p>The real <code>SARSAAgent</code> has to know <code>a'</code> <em>before</em> it can compute this step's target — but the natural training loop only asks for the next action <em>after</em> stepping the environment. The fix, built here first in miniature: pick <code>a'</code> during <code>learn()</code>, stash it, and hand it back out on the very next call to <code>pick_action</code>:</p>
+          <p><strong>The on-policy learner</strong>, page 04's target, with the pre-commit:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code>class OnPolicyLearner(TDLearnerShell):
     def __init__(self, *args, **kwargs):
@@ -122,8 +165,7 @@ class TDLearnerShell:
         self.table[state][action] += self.alpha * td_error
         self.decay()</code></pre>
       </details>
-
-      <h2>Stage 5 — run both, identical seeds, watch them diverge for real</h2>
+          <p><strong>Both, on identical seeds:</strong></p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code>def run_episodes(learner, world, n_episodes, seed):
     rng = np.random.default_rng(seed)
@@ -150,12 +192,8 @@ print("On-policy  Q(state 0):", on_policy.table[0])
 print("Off-policy prefers:", "STRETCH" if np.argmax(off_policy.table[0]) else "BOX_NOW")
 print("On-policy  prefers:", "STRETCH" if np.argmax(on_policy.table[0]) else "BOX_NOW")</code></pre>
       </details>
-      <p>The off-policy learner's <code>Q(0, STRETCH)</code> settles on the greedy-optimal value of <code>−9</code> and stays there: its target ignores the 5% of the time that exploration picks <code>OVERSTRETCH</code>. The on-policy learner's value is pulled below <code>−9</code> every time its own exploration lands on the cliff. How visible that is depends on <code>α</code>. At the shell's default of <code>0.5</code> the cell jumps most of the way to each new target, so what you print is mostly the last one or two episodes: usually <code>−9</code>, now and then something like <code>−14.5</code>. Rerun both learners with <code>alpha=0.05</code> and the on-policy value settles between about <code>−9.1</code> and <code>−9.4</code>, a little below the off-policy <code>−9</code>, which is the average its exploration really earns. In this toy the difference is too small to change the preferred action. Lab p4-04 runs the same comparison on a problem where it does.</p>
-
-      <h2>Stage 6 — catch the leak</h2>
-      <p>The pre-commit mechanic has one weak point. <code>learn()</code> chooses an action for a step that has not happened yet. If that step never happens, the choice is still sitting in <code>_pending_action</code> when the next episode begins.</p>
-      <p>A loop in which every episode runs to its terminal step never triggers this: the last <code>learn()</code> of an episode has <code>done = True</code> and commits to nothing. Check that first. Add <code>print(on_policy._pending_action)</code> after stage 5's run and confirm it is <code>None</code>.</p>
-      <p>Now stop episodes early, the way a step limit, a red flag or an exception in the middle of a race would. This loop takes exactly one step per episode and then abandons it:</p>
+          <p>The off-policy learner's <code>Q(0, STRETCH)</code> settles on −9 and stays: its target ignores the 5% of the time exploration picks <code>OVERSTRETCH</code>. The on-policy value is pulled below −9 each time its own exploring finds the cliff. At α = 0.5 the cell jumps most of the way to each new target, so a print shows mostly the last episode or two: usually −9, now and then −14.5. With α = 0.05 it settles between about −9.1 and −9.4, the average its exploring earns. In this toy the difference is too small to change the preferred call; lab p4-04 runs the comparison where it does.</p>
+          <p><strong>The leak.</strong> A loop where every episode reaches its terminal step never triggers it: the last update has <code>done = True</code> and commits to nothing. So cut every episode off after one step, as a step limit or an exception would:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses a different world and different names)</summary>
       <pre><code># A step limit of 1: every episode is cut off after its first step, finished or not.
 rng = np.random.default_rng(1)
@@ -171,10 +209,11 @@ for ep in range(500):
     leaky.learn(state, action, reward, next_state, done, legal_next, rng)
 print(stale, "of 500 episodes began with a leftover action")</code></pre>
       </details>
-      <p>It prints <code>259 of 500</code>. Whenever the first step was <code>STRETCH</code>, <code>learn()</code> committed to an action for state <code>1</code>, the episode was dropped, and the next episode's opening move at state <code>0</code> was that leftover. In this toy the two states happen to share action numbers, so nothing crashes and the damage is extra noise in the table. In the real environment a leftover action would be applied to the first lap of a different race, in a different scenario, possibly where it is not even legal.</p>
-      <p>The fix is one method. Give <code>OnPolicyLearner</code> a <code>reset()</code> that sets <code>_pending_action = None</code>, call it at the top of every episode, and confirm the count drops to <code>0</code>. <a class="xref" href="08-this-project-formalized.html">Pages 8</a> and <a class="xref" href="09-code-walkthrough.html">9</a> point at the same gap in the real <code>SARSAAgent</code>.</p>
+          <p>It prints 259 of 500. Whenever the first step was <code>STRETCH</code>, <code>learn()</code> committed to a call for state 1, the episode was dropped, and the next episode's opening move at state 0 was that leftover. Here the two states share call numbers, so nothing crashes; in the real environment the leftover would be applied to the first lap of a different race, perhaps where it isn't even legal. A <code>reset()</code> that clears the pending call, run at the top of every episode, brings the count to 0.</p>
+        </div>
+      </details>
 
-      <p>That's the full toy pair: a world with a genuine risk-vs-safety contrast, a shared TD shell, off-policy and on-policy learners implementing exactly <a class="xref" href="02-q-learning-derived.html">page 2</a> and <a class="xref" href="04-sarsa-on-policy.html">page 4</a>'s update rules, a run that reproduces the hand-worked divergence at scale, and the specific on-policy bug class a reader who built <code>_pending_action</code> here will recognize immediately in the real code. <a class="xref" href="08-this-project-formalized.html">Page 8</a> doesn't repeat this code — it names which piece of the real state design and reward shaping corresponds to what you just built.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>You can build both learners and score them against the optimum with no sampling noise: centring takes the gap from 4 to 17 s down to near 0, and leaving ε on at evaluation costs 1.89 s. Next: the real files, and the case's verdict.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p4-cap" data-lab-format="pytest">
         <span class="lab-kicker">Lab p4-cap · Code + tests · about 90 min</span>
@@ -202,6 +241,7 @@ print(stale, "of 500 episodes began with a leftover action")</code></pre>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

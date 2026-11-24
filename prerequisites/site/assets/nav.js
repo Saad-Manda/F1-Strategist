@@ -63,6 +63,33 @@
     return !!((lp[id] && lp[id].passed) || state.labs[id]);
   }
 
+  /* Championship points (light: nothing is locked). The table lives in the redesign plan, section 10.
+     page read 1 · cold-open call 1 · in-page lab 3 · code lab 5 · capstone 10 · case closed 10 ·
+     Pit Wall personal best within 1 s of the oracle 5 per mode. */
+  var PITWALL_MODES = { "1": ["race"], "3.5": ["oracle"], "4": ["learner"], "5": ["replay"], "6": ["rival"], "8": ["duel"], "9": ["training"] };
+  function labPoints(p) {
+    if (p.group === "capstone") return 10;
+    return p.lab.format === "notebook" || p.lab.format === "pytest" ? 5 : 3;
+  }
+  function points(phId) {
+    var got = 0, max = 0, calls = state.calls || {}, cases = state.cases || {};
+    var pw = (state.pitwall && state.pitwall.best) || {};
+    COURSE.phases.forEach(function (ph) {
+      if (phId && ph.id !== phId) return;
+      ph.pages.forEach(function (p) {
+        var id = ph.id + "/" + p.n;
+        max += 1; if (pageState(id) === "finished") got += 1;
+        if (p.call) { max += 1; if (calls[p.call]) got += 1; }
+        if (p.lab) { var lp = labPoints(p); max += lp; if (labDone(p.lab.id)) got += lp; }
+      });
+      if (ph["case"]) { max += 10; if (cases[ph.id]) got += 10; }
+      (PITWALL_MODES[ph.id] || []).forEach(function (m) {
+        max += 5; if (pw[m] && pw[m].gap <= 1.0) got += 5;
+      });
+    });
+    return { got: got, max: max };
+  }
+
   /* ---------- helpers ---------- */
 
   function esc(s) {
@@ -103,8 +130,10 @@
     h += '<button class="menu-toggle" type="button">☰ Course</button>';
     h += '<div class="progress-track"><div class="progress-fill" style="width:' +
          (total ? Math.round(100 * done / total) : 0) + '%"></div></div>';
+    var pts = points();
     h += '<div class="progress-label">pages ' + done + " / " + total +
-         (labsTotal ? " · labs " + labsDone + " / " + labsTotal : "") + "</div>";
+         (labsTotal ? " · labs " + labsDone + " / " + labsTotal : "") +
+         ' · <b class="pts">' + pts.got + "</b> pts</div>";
     h += '<div class="tree' + (wasOpen ? " open" : "") + '">';
 
     COURSE.phases.forEach(function (ph) {
@@ -137,6 +166,7 @@
       h += "</ul></div>";
     });
 
+    h += '<a class="gloss-link' + (pageId === "pitwall" ? " active" : "") + '" href="' + root + 'pitwall.html">The Pit Wall</a>';
     h += '<a class="gloss-link' + (pageId === "glossary" ? " active" : "") + '" href="' + root + 'glossary.html">Glossary</a>';
     h += "</div>";
     nav.innerHTML = h;
@@ -167,6 +197,8 @@
       h += '<span class="pos">' + (idx + 1) + " of " + flat.length + "</span>";
     } else if (pageId === "glossary") {
       h += sep + '<span class="here">Glossary</span>';
+    } else if (pageId === "pitwall") {
+      h += sep + '<span class="here">The Pit Wall</span>';
     } else {
       h += sep + '<span class="here">Course map</span>';
     }
@@ -312,6 +344,19 @@
       var st = pageState(a.getAttribute("data-page-link"));
       if (st) a.insertAdjacentHTML("afterend", ' <span class="st ' + st + '" style="display:inline-block;margin-left:6px"></span>');
     });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-round-pts]"), function (node) {
+      var pid = node.getAttribute("data-round-pts"), pt = points(pid);
+      node.innerHTML = "<b>" + pt.got + "</b> / " + pt.max + " pts";
+      var bar = node.parentNode.querySelector(".r-bar i");
+      if (bar) bar.style.width = (pt.max ? Math.round(100 * pt.got / pt.max) : 0) + "%";
+    });
+    var standing = document.getElementById("standings");
+    if (standing) {
+      var all = points(), roundsDone = 0;
+      COURSE.phases.forEach(function (ph) { if ((state.cases || {})[ph.id]) roundsDone++; });
+      standing.innerHTML = "<span><b>" + all.got + "</b> / " + all.max + " points</span>" +
+        "<span>cases closed " + roundsDone + " / " + COURSE.phases.length + "</span>";
+    }
     var reset = document.getElementById("reset-progress");
     if (reset) {
       var armed = false;
@@ -326,7 +371,7 @@
   /* ---------- assemble ---------- */
 
   // lets in-page labs redraw the sidebar ticks the moment a lab is completed
-  window.F1NAV = { refresh: function () { state = load(); renderSidebar(); } };
+  window.F1NAV = { refresh: function () { state = load(); renderSidebar(); }, points: function (ph) { state = load(); return points(ph); } };
 
   renderSidebar();
   var main = document.querySelector("main");

@@ -13,47 +13,58 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 04 of 10 — A little math</p>
-      <h1>Overtaking and Dirty Air: Modeling What Cumulative Time Alone Can't</h1>
-      <p class="dek">Two small, hand-checkable formulas stand in for a real aerodynamic effect and a real racing decision.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 04 · Overtaking and dirty air</p>
+      <h1>Overtaking and Dirty Air</h1>
+      <p class="dek">Two small formulas stand in for an aerodynamic effect and a racing decision. Both are about the car in front.</p>
 
-      <h2>Dirty air, the real effect</h2>
-      <p>A trailing F1 car loses downforce running in a leading car's aerodynamic wake — a real, well-documented effect, worse the closer the following distance. The real plan models it as a straight line: a penalty of <code>DIRTY_AIR_MAX_PENALTY = 0.5</code> seconds at zero gap, falling linearly to <code>0.0</code> seconds at <code>DIRTY_AIR_MAX_GAP = 1.5</code> seconds and beyond:</p>
-      <blockquote class="eq">penalty(gap) = 0                                    if gap ≥ 1.5
-penalty(gap) = 0.5 · (1.5 − gap) / 1.5               if gap &lt;  1.5
+      <section class="cold-open" data-call="p6-04">
+        <p class="co-label">Your call · the first five laps</p>
+        <p class="co-moment">On the Pit Wall with blocking on, you start 0.3 s behind a rival that is 0.3 s a lap slower. Within 1 s you can try to pass on any lap you are faster, and in its wake you lose time.</p>
+        <p class="co-ask">How often do you pass it in the first five laps?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p6-04" value="a"> Most races: a 0.3 s edge is a fair chance every lap.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-04" value="b"> About one race in four.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-04" value="c"> Never.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-Check the three points the real plan's own unit tests assert:
-  gap = 0.00  →  0.5 · 1.50 / 1.5 = 0.500  ✓ (max penalty, bumper-to-bumper)
-  gap = 0.75  →  0.5 · 0.75 / 1.5 = 0.250  ✓ (halfway gap, half penalty)
-  gap = 1.50  →  0.5 · 0.00 / 1.5 = 0.000  ✓ (at the threshold, no penalty)</blockquote>
-      <p>Nothing subtle here — it's a straight line between two calibration points, and the three test values above are exactly the ones a reader can verify by hand before ever running the code.</p>
+      <h2>Dirty air</h2>
+      <p>A car following closely loses downforce in the wake of the car ahead, more the closer it is. The plan models it as a straight line: <code>DIRTY_AIR_MAX_PENALTY = 0.5</code> s at zero gap, falling to 0 at <code>DIRTY_AIR_MAX_GAP = 1.5</code> s and beyond.</p>
+      <blockquote class="eq">penalty(gap) = 0                         if gap ≥ 1.5
+penalty(gap) = 0.5 · (1.5 − gap) / 1.5    if gap &lt; 1.5
+
+gap 0.00 → 0.500     gap 0.75 → 0.250     gap 1.50 → 0.000</blockquote>
+      <p>The three values are the ones the plan's own tests assert, checkable by hand.</p>
 
       <h2>Probabilistic overtaking</h2>
-      <p>An overtake can only be <em>attempted</em> within <code>OVERTAKE_ATTEMPT_GAP = 1.0</code> second, and only when the attacking car is faster this lap (<code>pace_delta &lt; 0</code>, where <code>pace_delta = my_lap_time − their_lap_time</code>). Given an attempt happens, success probability is a sigmoid in the pace advantage:</p>
-      <blockquote class="eq">base_prob(pace_delta) = 1 / (1 + exp(5 · (pace_delta + 0.5)))</blockquote>
-      <p>Worked by hand at the one point the real plan's own docstring names explicitly — 0.5 seconds faster:</p>
-      <blockquote class="eq">pace_delta = −0.5  (0.5s faster)
-  exponent = 5 · (−0.5 + 0.5) = 5 · 0 = 0
-  base_prob = 1 / (1 + e^0) = 1 / 2 = 0.50   →  50%, exactly as claimed</blockquote>
-      <div class="note grounded">
-        <div class="tag">Worth checking the other two claimed points too</div>
-        <p>The real plan's docstring also claims "80% at 1.0s faster, 95% at 1.5s faster." Running the same formula at those two points tells a different story:</p>
-        <blockquote class="eq">pace_delta = −1.0  (1.0s faster)
-  exponent = 5 · (−1.0 + 0.5) = 5 · (−0.5) = −2.5
-  base_prob = 1 / (1 + e^−2.5) = 1 / (1 + 0.082) ≈ 0.924   →  92.4%, not 80%
+      <p>A pass can only be tried within <code>OVERTAKE_ATTEMPT_GAP = 1.0</code> s, and only by a car faster this lap: <code>pace_delta &lt; 0</code>, with <code>pace_delta = my_lap_time − their_lap_time</code>. Given an attempt, it succeeds with a sigmoid in the pace advantage:</p>
+      <blockquote class="eq">base_prob(pace_delta) = 1 / (1 + exp(5 · (pace_delta + 0.5)))
 
-pace_delta = −1.5  (1.5s faster)
-  exponent = 5 · (−1.5 + 0.5) = 5 · (−1.0) = −5.0
-  base_prob = 1 / (1 + e^−5.0) = 1 / (1 + 0.0067) ≈ 0.993   →  99.3%, not 95%</blockquote>
-        <p>The formula and the two later numbers in its own comment don't agree — a small, low-stakes example of exactly the habit <a class="xref" href="10-reading-the-plan.html">page 10</a> asks for on a larger scale: hand-check a formula against what its own documentation claims, rather than trusting the comment. It changes nothing about whether the model is reasonable (a steeper-than-advertised sigmoid is still a sigmoid), only what the reader should expect to see if they log actual pass rates during training.</p>
+pace_delta = −0.5:  exp(0) = 1        →  1 / 2         = 50%</blockquote>
+      <p>On top of that, <code>follow_bonus = min(0.1 × laps_following, 0.2)</code> rewards persistence, and the total is capped at 0.95, so no pass is ever certain. The Pit Wall uses the sigmoid and the cap, without the follow bonus.</p>
+
+      <section class="reveal closed" data-for="p6-04">
+        <p class="co-label">The reveal · the first five laps</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Never</b></div></div>
+        <div class="co-body">
+          <p>At 0.3 s behind, the wake costs 0.5 × 1.2 / 1.5 = 0.40 s, more than your 0.3 s edge. You are slower than the rival on that lap, so <code>pace_delta</code> is positive and no attempt is made. So the gap grows a little each lap, 0.40, 0.47, 0.51, 0.54 and 0.56 s after the first five, and the wake shrinks with it. It settles at 0.6 s, where the wake costs 0.3 s and the two cars run at the same pace.</p>
+          <p>The faster car is stuck, by the wake alone. With blocking on the Pit Wall puts the wake in the lap time, so being behind costs time. In the plan's race the wake reaches the score but not the lap time (page 06, E3), so it can't hold anyone back, and passing has nothing to release you from.</p>
+        </div>
+      </section>
+
+      <div class="note grounded">
+        <div class="tag">Check the docstring against the formula</div>
+        <p>The plan's docstring also claims 80% at 1.0 s faster and 95% at 1.5 s faster. The formula gives <code>1 / (1 + e^−2.5) ≈ 92.4%</code> and <code>1 / (1 + e^−5) ≈ 99.3%</code>, which the cap then holds to 95%. A steeper curve than advertised is still a fair model. The habit matters more than the numbers: hand-check a formula against its own comment before trusting either, and expect pass rates in training logs to follow the formula.</p>
       </div>
-      <p>On top of <code>base_prob</code>, a small bonus rewards persistence: <code>follow_bonus = min(0.1 × laps_following, 0.2)</code> — up to 0.2 extra probability after two or more consecutive laps within range, capped, and the total capped again at <code>0.95</code> so an overtake is never a certainty no matter how large the pace advantage.</p>
 
       <div class="note generic">
         <div class="tag">A modeling choice, not a law of physics</div>
-        <p>This sigmoid, with these particular constants, is one reasonable functional form among many — a step function or a differently-shaped curve could stand in just as well. What matters for the rest of this project is understanding what the model is trying to capture (a bigger pace advantage should mean a meaningfully higher pass probability; extended following should help a little), well enough to defend or adjust the constants later, not memorizing this exact formula as the only correct one.</p>
+        <p>The sigmoid and its constants are one reasonable form among many; a step or another curve would do. What matters is what it captures: a bigger pace edge means a likelier pass, and following for a while helps a little. Know that well enough to defend or retune the constants later.</p>
       </div>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The wake and the pass both depend on the car ahead, and either one could make position matter. With the wake in the lap time, a faster car settles 0.6 s behind and never gets an attempt. In the plan's race the wake never reaches the lap time. Next: the rule that would make being behind cost something.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-04" data-lab-format="widget">
         <span class="lab-kicker">Lab p6-04 · In page · about 15 min</span>
@@ -123,6 +134,7 @@ pace_delta = −1.5  (1.5s faster)
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/overtake.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

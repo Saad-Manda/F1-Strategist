@@ -13,38 +13,49 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 08 of 11 — An audit finding, taught as a core lesson (J2)</p>
-      <h1>"Same Timesteps" Isn't "Same Experience"</h1>
-      <p class="dek">A stated fairness protocol, and the arithmetic that quietly contradicts it.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 08 · The comparison</p>
+      <h1>“Same Timesteps” Isn't “Same Experience”</h1>
+      <p class="dek">The plan's fairness protocol, and the arithmetic that contradicts it.</p>
 
-      <h2>The stated protocol</h2>
-      <p>The real plan's fair-comparison protocol states, as item 4 of 5: "Same total environment steps — ~2M steps for both." This is exactly the right instinct — Phase 3's paired-seed evaluation discipline (assumed background) only controls for luck in which scenarios got sampled during <em>evaluation</em>; it says nothing about whether the two agents being compared were actually given the same amount of <em>training</em> experience to work with.</p>
+      <section class="cold-open" data-call="p9-08">
+        <p class="co-label">Your call · two budgets</p>
+        <p class="co-moment">The plan's DQN trains 5,000 episodes of a 52-lap race. Its <code>configs/ppo.yaml</code> sets <code>total_timesteps: 2000000</code>, and its protocol says “same total environment steps, ~2M for both”.</p>
+        <p class="co-ask">How much more experience does PPO get?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p9-08" value="a"> The same: the protocol says so.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-08" value="b"> About 4 times.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-08" value="c"> About 8 times.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The arithmetic that contradicts it</h2>
-      <blockquote class="eq">DQN (Phase 5):  5,000 episodes × ~52 laps/episode  ≈  260,000 environment steps
-PPO (this phase):  configs/ppo.yaml sets total_timesteps: 2,000,000
+      <h2>The arithmetic</h2>
+      <blockquote class="eq">DQN:  5,000 episodes × 52 laps  ≈   260,000 steps
+PPO:  total_timesteps           =  2,000,000 steps
+2,000,000 / 260,000            ≈  7.7</blockquote>
+      <p>The config's own comment compounds it: “~2M steps; equivalent to ~5000 episodes”, but 2,000,000 / 52 ≈ 38,500 episodes. Off by the same 7.7: two numbers meant to agree that quietly didn't.</p>
 
-2,000,000 / 260,000  ≈  7.7</blockquote>
-      <p>PPO receives roughly <strong>eight times</strong> the environment interaction the stated protocol claims to be controlling for.</p>
+      <section class="reveal closed" data-for="p9-08">
+        <p class="co-label">The reveal · two budgets</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 8 times</b></div></div>
+        <div class="co-body">
+          <p>PPO gets 7.7 times DQN's experience. Any “PPO beat DQN”, or the reverse, then mixes the algorithm with the budget. The Definition of Done's “100 paired seeds” controls evaluation luck (Phase 3's discipline), not this.</p>
+          <p>Lab p9-08 measures it on the toy race: a table Q-learner read at its own final point and the mini PPO at its far larger one differ by 24.6 s; read over the same window of steps, by 5.8 s. About three quarters of the first answer was the budget.</p>
+        </div>
+      </section>
 
-      <h2>A compounding error, worth naming precisely</h2>
-      <p>The same config file's own comment describes its <code>total_timesteps: 2000000</code> as "~2M steps; equivalent to ~5000 episodes" — but <code>2,000,000 / 52 ≈ 38,500</code> episodes, not 5,000. The config's own self-description is off by roughly the same 7.7× factor as the actual DQN/PPO mismatch, which is itself informative: it suggests this wasn't a deliberate choice to give PPO more data, but two numbers that were meant to agree and quietly didn't.</p>
+      <h2>Two fixes that are principled</h2>
+      <p>Not “give DQN 2M steps” on its own, which silently changes Phase 5's tuned budget. Either:</p>
+      <ul>
+        <li><strong>Match the budgets before training</strong>, and say in the write-up what number was chosen and why.</li>
+        <li><strong>Train each to its own budget and compare at matched steps</strong>, on a shared environment-step axis, as the plan's comparison notebook already intends. Sample efficiency is a real difference between an off-policy and an on-policy learner; made visible, the gap is a finding instead of a confound.</li>
+      </ul>
 
-      <h2>Why this specifically undermines the phase's headline claim</h2>
-      <p>Any result of the form "PPO reached a better (or worse) race time than DQN" is uninterpretable once one algorithm has had 7.7× the training data. The difference could reflect the algorithm, the sample budget, or some mix of both, and the real plan's Definition of Done as written — "DQN vs PPO comparison runs on 100 paired seeds" — controls only for evaluation-time luck, not for this training-time confound. A comparison can be statistically rigorous at evaluation time and still be a comparison of the wrong thing.</p>
+      <h2>What the comparison would say about the case</h2>
+      <p>Put J3 into this table. On the toy race the raw MaskablePPO ends 38.48 s from the optimum after 2,000 races, while Phase 5's network DQN learner, centred, reached 0.00 to 4.3 s in 600. A comparison run with an uncentred PPO would conclude “DQN wins by 34 to 38 seconds”, pass every item of its checklist, and be about the reward, not the algorithm. With J2 left in too, it would also have given the loser eight times the data.</p>
 
-      <h2>Two genuine fixes</h2>
-      <p>Not "just increase DQN's budget to match" in isolation — that would silently change a separately-tuned hyperparameter (Phase 5's 5,000-episode budget) without stating that's what happened. Two options that are actually principled:</p>
-      <ol>
-        <li><strong>Match the budgets explicitly</strong> before training either agent, so the protocol's own stated intent — "same total environment steps" — is genuinely met, and say in the write-up what number was chosen and why.</li>
-        <li><strong>Train both to their own tuned budget, but report learning curves on a shared environment-step x-axis</strong> — which the comparison notebook's own Cell 3 already intends to do ("Align x-axis on 'environment steps' for fair comparison"), but which the current configs actively work against. This option is arguably the better one: <strong>sample efficiency is itself a genuine, reportable difference between an off-policy method (DQN) and an on-policy one (PPO)</strong>, so making the training-step gap a visible, labeled part of the result turns a hidden confound into a real finding, rather than papering over it.</li>
-      </ol>
-
-      <div class="note grounded">
-        <div class="tag">Tied to Phase 3's evaluation discipline, not a separate concern</div>
-        <p>Controlling the <em>evaluation</em> seeds carefully — Phase 3's paired-seed framework, assumed background — means very little if the <em>training</em> budgets that produced the two agents being compared were never matched, or at least never reported. A rigorous evaluation protocol wrapped around an unmatched training setup is still an unfair comparison; the rigor at the end doesn't retroactively fix the confound built in at the start.</p>
-      </div>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The plan's comparison would report J3 as an algorithm result: an uncentred PPO would lose to DQN by tens of seconds, with 7.7 times the data, and the checklist would pass. Next: you build a policy-gradient learner yourself.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-08" data-lab-format="notebook">
         <span class="lab-kicker">Lab p9-08 · Notebook · about 15 min</span>
@@ -97,6 +108,7 @@ PPO (this phase):  configs/ppo.yaml sets total_timesteps: 2,000,000
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

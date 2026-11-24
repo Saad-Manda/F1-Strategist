@@ -13,93 +13,115 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 1 · Page 02 of 07 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 1 · Page 02 · The state</p>
       <h1>Markov Decision Processes</h1>
-      <p class="dek">The formal object that gives the agent–environment loop precise mathematical meaning — the language Phase 1 is written in.</p>
+      <p class="dek">What a call depends on, written down so that a computer can solve it.</p>
 
-      <h2>The formal tuple</h2>
-      <p>An MDP is defined by five things, usually written as the tuple <strong>(S, A, P, R, γ)</strong>:</p>
-      <ul>
-        <li><strong>S — the state space.</strong> The set of all possible situations the agent could be in.</li>
-        <li><strong>A — the action space.</strong> The set of all choices available to the agent (sometimes state-dependent, via a mask — more below).</li>
-        <li><strong>P — the transition function.</strong> <code>P(s' | s, a)</code> — the probability of ending up in state <code>s'</code> given you were in state <code>s</code> and took action <code>a</code>. Encodes "how the world works."</li>
-        <li><strong>R — the reward function.</strong> The scalar reward received for a transition, often written <code>R(s, a, s')</code>.</li>
-        <li><strong>γ (gamma) — the discount factor</strong>, a number in <code>[0, 1]</code> controlling how much the agent should value future reward relative to immediate reward.</li>
-      </ul>
+      <section class="cold-open" data-call="p1-02">
+        <p class="co-label">Your call · lap 14 of 20</p>
+        <p class="co-moment">Two cars, both on A, both on 8-lap-old tyres, both have run B already.</p>
+        <p class="co-ask">One boxed for B on lap 2 and back to A on lap 6. The other ran B from lap 4 to lap 6. Should they make different calls now?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p1-02" value="a"> Yes. The car that stopped earlier has spent more time in the pits.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-02" value="b"> No. Everything that decides the rest of the race is the same for both.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-02" value="c"> Yes. Their past lap times say how worn the tyres really are.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <div class="note generic">
-        <div class="tag">Generic example</div>
-        <p>A robot navigating a grid. States are grid cells, actions are {up, down, left, right}, <code>P</code> says moving "up" succeeds 90% of the time and slips sideways 10% of the time, <code>R</code> is −1 per step (encouraging speed) with a bonus at the goal cell.</p>
-      </div>
-
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p><code>S</code> is the set of all possible 16-dimensional observation vectors; <code>A</code> is the 6 pit choices; <code>P</code> is <code>compute_lap_time</code> plus the tyre-age and weather-trace bookkeeping in <code>step()</code> — stochastic, since lap time includes Gaussian noise and weather/safety-car draws are random; <code>R</code> is <code>-lap_time</code> (or the terminal −500 penalty); <code>γ = 1.0</code>, chosen deliberately (below). Every one of these five objects has a literal, named counterpart in <code>dynamics.py</code> or <code>f1_strategy_env.py</code> — that correspondence is exactly what "Phase 1 defines the MDP" means in practice.</p>
-      </div>
-
-      <h2>The Markov property</h2>
-      <p>The "Markov" in MDP refers to the <strong>Markov property</strong>: the future depends only on the <em>current</em> state, not on the history of how you got there. Formally, <code>P(s'|s, a)</code> must not need to know anything about states before <code>s</code>. This is a design requirement, not something automatically true — if it doesn't hold, the state representation is incomplete.</p>
-
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>This is precisely why Phase 1 derives <code>tyre_age</code> and the out-lap warmup penalty the way it does, and explicitly rejects tracking a second, separate <code>laps_since_pit</code> counter: <code>tyre_age</code> alone already determines warmup (<code>tyre_age == 1</code> means out-lap), so adding a second variable would be redundant — and worse, redundant variables that <em>can</em> drift out of sync are a way for hidden, un-observed history to sneak back into the transition function without you noticing.</p>
-      </div>
-
-      <h2>Policies</h2>
-      <p>A <strong>policy</strong>, written <code>π</code>, is the agent's strategy: a mapping from states to actions (deterministic) or to a probability distribution over actions (stochastic). "Solving" an MDP means finding the policy that gets the most total reward. Nothing about the policy lives in Phase 1 — Phase 1 builds the <em>world the policy acts in</em> — but every later phase (baseline heuristics in Phase 3, learned Q-tables in Phase 4, neural networks in Phase 5) is a different way of representing and improving a policy for this exact MDP.</p>
-
-      <h2>Return and the discount factor</h2>
-      <p>The <strong>return</strong> is the actual quantity an agent tries to maximize: the (possibly discounted) sum of all future rewards from a given point onward:</p>
-      <blockquote class="eq">G_t = R_(t+1) + γ·R_(t+2) + γ²·R_(t+3) + γ³·R_(t+4) + ...</blockquote>
-      <p><code>γ</code> controls the trade-off between immediate and future reward. <code>γ = 0</code> makes the agent totally short-sighted; <code>γ</code> close to 1 makes it weigh distant future rewards almost as much as immediate ones. <code>γ</code> strictly less than 1 is also what keeps the return finite in a <em>continuing</em> (never-ending) task.</p>
-
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>Phase 1 uses <strong>γ = 1.0 exactly</strong>, which looks mathematically dangerous (an unbounded sum) and isn't. Episodes are <strong>fixed-length</strong> (every race is exactly <code>total_laps</code> laps), so the return sum is always finite no matter what γ is. Given that, γ = 1 is not just safe but <em>correct</em>: with γ = 1, the return is <code>Σ(-lap_time)</code> over the whole race with every lap weighted equally — exactly <code>-total_race_time</code>. Any γ &lt; 1 would instead make later laps count for less than earlier ones, biasing the agent toward good early-race pace at the expense of the finish, with no basis in what a race actually rewards. This is the reasoning behind the plan's comment "γ = 1.0 (fixed-length episodes; avoids late-race pace bias)."</p>
-      </div>
-
-      <h2>Action masking</h2>
-      <p>Real MDPs are sometimes written with a fixed action space for every state, with invalid actions made unattractive (e.g. reward <code>-∞</code>) so the agent learns to avoid them on its own. When it's <em>known in advance</em> which actions are invalid — as it is here — it's faster and more reliable to remove them directly. This is <strong>action masking</strong>: alongside each state, a boolean vector saying which actions are currently legal.</p>
-
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>The action mask enforces exactly the kind of hard constraints real racing regulations impose: intermediate tyres are illegal in the dry, slicks are illegal in the wet, you can't "pit" for the compound you're already on, and the two-dry-compound rule forces a pit stop once it's the only way left to satisfy it. Because both the environment and the Phase 3.5 dynamic-programming oracle must agree on exactly which actions are legal, the plan implements masking as a single <strong>shared free function</strong> (<code>compute_action_mask</code> in <code>dynamics.py</code>) that both consumers call — one place the rule can be gotten wrong, not two places that could silently disagree.</p>
-      </div>
-
-      <h2>Worked example: one lap, two possible actions</h2>
-      <p>Take a concrete state <code>s</code> and push it through <code>P</code> and <code>R</code> by hand, using illustrative but realistic constants of the shape <code>calibration.json</code> actually holds. This is exactly the arithmetic <code>compute_lap_time</code> performs — nothing here is simplified away.</p>
-
-      <p><strong>State <code>s</code>:</strong> lap 30 of 52, fitted compound MEDIUM, tyre age 14 laps, DRY, no safety car, only MEDIUM used so far.</p>
-
-      <p><strong>Constants used</strong> (illustrative):</p>
+      <h2>A race, written down in five parts</h2>
+      <p>The loop on page 01 needs a precise version before anything can be computed from it. That version is a <strong>Markov decision process</strong>, or MDP: five things, written <strong>(S, A, P, R, γ)</strong>. Here they are read off the Pit Wall's panel.</p>
       <div class="table-wrap">
         <table>
+          <thead><tr><th>Part</th><th>What it is</th><th>On the Pit Wall</th></tr></thead>
           <tbody>
-            <tr><td class="mono">base_pace</td><td>92.000 s</td></tr>
-            <tr><td class="mono">compound_pace_offset[MEDIUM]</td><td>0.000 s (reference compound)</td></tr>
-            <tr><td class="mono">compound_pace_offset[HARD]</td><td>+0.550 s</td></tr>
-            <tr><td class="mono">MEDIUM: base_deg / cliff_age</td><td>0.030 s/lap / 18 laps</td></tr>
-            <tr><td class="mono">fuel: consumption / sensitivity</td><td>1.600 kg/lap / 0.033 s/kg</td></tr>
-            <tr><td class="mono">weather_compound_penalty[DRY][MEDIUM]</td><td>0.000 s (matched tyre)</td></tr>
-            <tr><td class="mono">pit_loss (GREEN)</td><td>22.000 s</td></tr>
+            <tr><td><strong>S</strong>, states</td><td>every situation you could be in</td><td>(lap, tyre, tyre age, safety car, both used, wet): 3,360 of them</td></tr>
+            <tr><td><strong>A</strong>, actions</td><td>the choices, some ruled out by a mask</td><td>STAY OUT, BOX FOR A, BOX FOR B</td></tr>
+            <tr><td><strong>P</strong>, transitions</td><td><code>P(s′ | s, a)</code>: how likely each next state is, given this state and call</td><td>the tyre ages a lap or resets; the safety car arrives with probability 6%</td></tr>
+            <tr><td><strong>R</strong>, reward</td><td>one number for each transition</td><td>minus the lap time</td></tr>
+            <tr><td><strong>γ</strong>, discount</td><td>how much a later reward counts, between 0 and 1</td><td>1: every lap counts the same</td></tr>
           </tbody>
         </table>
       </div>
+      <p>The real project has the same five parts, each with a named counterpart in <code>dynamics.py</code> or <code>f1_strategy_env.py</code>: 16-number observations, six pit choices, <code>compute_lap_time</code> plus the bookkeeping in <code>step()</code>, <code>-lap_time</code>, and <code>γ = 1.0</code>. That is what "Phase 1 defines the MDP" means. Page 06 goes through them one by one.</p>
 
-      <h3>Action A: STAY_OUT</h3>
-      <p>Tyre age 14 is below MEDIUM's <code>cliff_age</code> of 18, so degradation is still in its linear phase: <code>0.030 × 14 = 0.420 s</code>. With 22 laps remaining, fuel load contributes <code>(22 × 1.600) × 0.033 = 1.162 s</code>. Weather penalty and warmup are both zero (matched compound, tyre long past its out-lap). Called with <code>rng=None</code> — the exact-expectation form the DP oracle relies on — noise is omitted entirely:</p>
-      <blockquote class="eq">lap_time = 92.000 + 0.000 + 0.420 + 1.162 + 0.000 + 0.000 = 93.582 s
-reward   = −93.582</blockquote>
-      <p>The next state <code>s'</code>: lap 31, same compound, <code>tyre_age = 15</code>, one lap closer to the end.</p>
+      <h2>The state must carry the whole past that matters</h2>
+      <p>The M in MDP is the <strong>Markov property</strong>: what happens next depends on the current state and action only, not on how you got there. It is not automatically true. It is a demand on whoever designs the state. If two histories lead to the same state and then behave differently, the state is missing something.</p>
+      <p>The Pit Wall's state carries a flag for this reason: <em>both used</em>. A car that has never run B must stop by lap 19 in a dry race; a car that has can stay out to the flag. Without the flag, the past would decide the future and the state would not show it.</p>
 
-      <h3>Action B: PIT_HARD</h3>
-      <p>The pit-lap ordering rule from the plan applies here: this lap is still run on the <em>old</em> tyre — MEDIUM at age 14 — so the base lap time is identical, <strong>93.582 s</strong>. A pit-lane loss is added on top, undiscounted because there's no safety car active:</p>
-      <blockquote class="eq">lap_time = 93.582 + pit_loss(GREEN) = 93.582 + 22.000 = 115.582 s
-reward   = −115.582</blockquote>
-      <p>The next state <code>s'</code>: lap 31, compound now HARD, <code>tyre_age = 1</code> (next lap is the out-lap, so its warmup penalty will apply then, not now) — and <code>compounds_used</code> now contains both MEDIUM and HARD, satisfying the two-compound rule for the rest of the race.</p>
+      <section class="reveal closed" data-for="p1-02">
+        <p class="co-label">The reveal · lap 14</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Same call: box for B</b></div></div>
+        <div class="co-body">
+          <p>Both cars are in state (lap 14, A, age 8, no safety car, both used, dry). From there the rest of the race costs 83.48 s on average if you box for B and 84.31 s if you stay out, for either car. The time already spent in the pits is in the past; it changes the total, not the next call.</p>
+          <p>Past lap times say nothing the tyre age does not. On this track a tyre's wear is a function of its compound and age, so the age is the whole story. That is the Markov property doing its job.</p>
+        </div>
+      </section>
 
-      <p>Comparing the two rewards, <code>−93.582</code> vs. <code>−115.582</code>, is precisely the trade-off the agent must learn to weigh: pitting costs about 22 seconds <em>right now</em>, in exchange for fresher tyres and — critically, per the Bellman equation on <a class="xref" href="03-value-functions-bellman.html">page 3</a> — a better expected outcome over every lap that follows. A single-step comparison always favours STAY_OUT; the whole reason this is a sequential decision problem, and not a greedy one, is that the right comparison is between the two full <em>returns</em>, not the two immediate rewards.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why the plan keeps one tyre counter, not two<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p>Phase 1 derives the out-lap warm-up from <code>tyre_age</code> and rejects a second <code>laps_since_pit</code> counter. <code>tyre_age == 1</code> already means "out-lap", so the second counter would be redundant. Worse, two counters that can drift out of step are a way for hidden history to slip back into the transition function without anyone noticing. One variable, one meaning.</p>
+        </div>
+      </details>
+
+      <h2>What a policy is</h2>
+      <p>A <strong>policy</strong> <code>π</code> maps each state to an action, or to probabilities over actions. Solving an MDP means finding the policy with the most total reward. Phase 1 builds the world the policy acts in and no policy at all. Every later phase is a different way to represent and improve one for this same MDP: rules of thumb in Phase 3, a table in Phase 4, a neural network in Phase 5.</p>
+
+      <h2>Why every lap counts the same</h2>
+      <p>The <strong>return</strong> is what the agent maximises: the sum of the rewards still to come, each one weighted by γ once more than the one before it.</p>
+      <blockquote class="eq">G_t = R_(t+1) + γ·R_(t+2) + γ²·R_(t+3) + γ³·R_(t+4) + ...</blockquote>
+      <p>With γ = 0 the agent only sees the next reward. With γ close to 1, distant rewards count almost as much as near ones. Phase 1 uses γ = 1.0, so the return is the plain sum of <code>-lap_time</code>: minus the race time. Any γ below 1 makes late laps count for less than early ones (the lab measures by how much). That rewards pace early in the race at the cost of the finish, which no race does. The plan's comment says it in one line: "γ = 1.0 (fixed-length episodes; avoids late-race pace bias)".</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Is γ = 1 safe? The sum could be infinite<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p>In a task that never ends, a γ below 1 is what keeps the return finite. A race ends: every episode is <code>total_laps</code> long, so the sum has a fixed number of terms and is finite whatever γ is. With that worry gone, γ = 1 is the one value that matches the goal, the total race time.</p>
+        </div>
+      </details>
+
+      <h2>Who rules out an illegal call?</h2>
+      <p>You could give every state all actions and punish the bad ones, say with a reward of −∞, and let the agent learn to avoid them. When you know in advance which actions are illegal, it is faster and safer to remove them. That is an <strong>action mask</strong>: next to each state, a list of true/false values saying which actions are legal now. On the Pit Wall it is the greyed-out button and its reason.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The project's mask rules, and why they live in one function<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>The mask enforces the regulations: intermediates are illegal in the dry, slicks are illegal in the wet, you cannot pit for the compound you are on, and the two-dry-compound rule forces a stop once it is the only way left to meet it. The environment and the Phase 3.5 oracle must agree on what is legal. So the plan writes the mask once, as a shared free function, <code>compute_action_mask</code> in <code>dynamics.py</code>, that both call. One place to get the rule wrong, not two places that can quietly disagree.</p>
+        </div>
+      </details>
+
+      <h2>One lap of the real race, priced by hand</h2>
+      <p>Lap 30 of 52 on 14-lap-old MEDIUM, dry. Staying out pays −93.582. Pitting for HARD pays −115.582: the same lap on the old tyre plus a 22 s stop. On one lap's reward, staying out always wins. The comparison that decides is between the two <em>returns</em>, the rest of the race after each call, and that is <a class="xref" href="03-value-functions-bellman.html">page 03</a>. The arithmetic, term by term:</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Worked example: one lap of the real race, two calls, priced by hand (the lab builds on it)<span class="dd-len">300 words, 1 table</span></summary>
+        <div class="dd-body">
+          <p>Push one state through <code>P</code> and <code>R</code> by hand, with constants of the shape <code>calibration.json</code> holds. The numbers are illustrative; the arithmetic is what <code>compute_lap_time</code> does.</p>
+          <p><strong>State:</strong> lap 30 of 52, MEDIUM, tyre age 14, dry, no safety car, only MEDIUM used so far.</p>
+          <div class="table-wrap">
+            <table>
+              <tbody>
+                <tr><td class="mono">base_pace</td><td>92.000 s</td></tr>
+                <tr><td class="mono">compound_pace_offset[MEDIUM]</td><td>0.000 s (reference compound)</td></tr>
+                <tr><td class="mono">compound_pace_offset[HARD]</td><td>+0.550 s</td></tr>
+                <tr><td class="mono">MEDIUM: base_deg / cliff_age</td><td>0.030 s/lap / 18 laps</td></tr>
+                <tr><td class="mono">fuel: consumption / sensitivity</td><td>1.600 kg/lap / 0.033 s/kg</td></tr>
+                <tr><td class="mono">weather_compound_penalty[DRY][MEDIUM]</td><td>0.000 s (matched tyre)</td></tr>
+                <tr><td class="mono">pit_loss (GREEN)</td><td>22.000 s</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>STAY_OUT.</strong> Age 14 is below MEDIUM's cliff at 18, so wear is linear: <code>0.030 × 14 = 0.420 s</code>. With 22 laps to go, the fuel costs <code>(22 × 1.600) × 0.033 = 1.162 s</code>. No weather penalty, no warm-up. Called with <code>rng=None</code>, the expected-value form the oracle uses, there is no noise term:</p>
+          <blockquote class="eq">lap_time = 92.000 + 0.000 + 0.420 + 1.162 + 0.000 + 0.000 = 93.582 s
+    reward   = −93.582</blockquote>
+          <p>Next state: lap 31, MEDIUM, age 15.</p>
+          <p><strong>PIT_HARD.</strong> The plan's ordering rule: the pit lap is still driven on the old tyre, so the lap itself is the same 93.582 s. The pit loss is added on top, in full, since there is no safety car:</p>
+          <blockquote class="eq">lap_time = 93.582 + pit_loss(GREEN) = 93.582 + 22.000 = 115.582 s
+    reward   = −115.582</blockquote>
+          <p>Next state: lap 31, HARD, age 1 (the next lap is the out-lap, so its warm-up applies then), and both MEDIUM and HARD used, which settles the two-compound rule.</p>
+          <p>On the rewards alone, −93.582 beats −115.582 and staying out wins. It always will on a single lap: a stop costs 22 s now, and fresh tyres only pay back on later laps. The comparison that decides is between the two <em>returns</em>, the rest of the race after each call. That is <a class="xref" href="03-value-functions-bellman.html">page 03</a>.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>With γ = 1 the return is minus the race time still to come, and the state carries everything that time depends on. So "what is this situation worth" has one answer per state.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p1-02" data-lab-format="paper">
         <span class="lab-kicker">Lab p1-02 · In page · about 15 min</span>
@@ -185,6 +207,7 @@ reward   = −115.582</blockquote>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/discount.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

@@ -13,30 +13,44 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 08 of 10 — Building it yourself</p>
-      <h1>Build It Yourself: The Pit-Timing Duel</h1>
-      <p class="dek">Two equal cars, one stop each, and the only question is who stops first. Seven stages: the payoff, best responses and the loop that cycles, fictitious play, a checkpoint pool of best responses, the plan's own pool rule, the pit-delta histogram, and <a class="xref" href="07-is-it-bimodal.html">page 07</a>'s null test on it.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 08 · The build</p>
+      <h1>Build It Yourself: the Pit-Timing Duel</h1>
+      <p class="dek">Two equal cars, one stop each, and one question: who stops first? Seven exact stages, from the payoff to page 07's null on your own result.</p>
 
-      <p>This page is the brief for the capstone lab below. It replaces an earlier toy built on a two-move rock-paper game. That game has a dominant move (paper ties paper and beats rock), so its equilibrium is pure and nothing in it could cycle or need a pool. The game here has neither problem, and it is the plan's own question in miniature.</p>
+      <section class="cold-open" data-call="p8-08">
+        <p class="co-label">Your call · both on lap 8</p>
+        <p class="co-moment">The follower starts 0.5 s behind an equal leader. Its payoff is +1 for finishing ahead, −1 if not, plus 0.05 per second of final margin. Blocking on, both stop on lap 8.</p>
+        <p class="co-ask">What is the follower's payoff?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-08" value="a"> −1.025: it stays 0.5 s behind.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-08" value="b"> −1.075: it stays behind and loses more time.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-08" value="c"> About 0: it passes half the time.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>The duel</h2>
-      <p>The two-car race of Phase 6's capstone (<code>labkit.duel</code>: wake, being held up, passing on the dice), with blocking as a switch. Two changes make a real undercut possible: tyres that wear faster (0.25 s per lap of age on A, 0.15 s on B) and a smaller out-lap warm-up (0.3 s). With the toy race's own tyres, fresh B plus the 1.2 s warm-up is slower than worn A, and stopping first never gains anything. The cars are equally fast; the <strong>follower</strong> starts 0.5 s behind the <strong>leader</strong>. Each stops once, onto B, on a lap from 2 to 18.</p>
-      <p>A strategy is a stop lap, so the game is a 17 × 17 matrix. The follower's payoff is +1 for finishing ahead and −1 if not, plus 0.05 per second of final margin; the leader's is the negative. The follower is the row player and maximises; the leader is the column player and minimises. Each entry is averaged over 20 seeds of pass dice, the same seeds in every cell. <code>labkit.pitgame.matrix(interaction)</code> holds both matrices, cached. Every stage below is exact: no stage trains anything, so none of them is noisy.</p>
+      <p>The two-car race of Phase 6's capstone (<code>labkit.duel</code>: wake, being held up, passing on the dice), blocking as a switch, with two changes that make a real undercut possible: tyres that wear faster (0.25 s per lap of age on A, 0.15 s on B) and a 0.3 s out-lap warm-up. With the toy race's own tyres, fresh B plus the 1.2 s warm-up is slower than worn A, and stopping first never gains anything. Each car stops once, onto B, on a lap from 2 to 18, so the game is a 17 × 17 matrix: the follower is the row player and maximises, the leader minimises. Each entry is averaged over 20 seeds of pass dice, the same seeds in every cell. <code>labkit.pitgame.matrix(interaction)</code> holds both matrices; the Pit Wall's Duel mode ships them. No stage trains anything, so none is noisy.</p>
 
-      <h2>Stage 1 — the payoff, and an honest cache</h2>
-      <p>Write <code>payoff</code> for one race and <code>expected_payoff</code>, its mean over the 20 seeds. The check rebuilds 20 cells of the cached matrices from your function. Both cars stopping on lap 8, blocking on: −1.075. The follower stays behind and loses 1.5 s of margin.</p>
+      <h2>Stage 1: the payoff, and an honest cache</h2>
+      <p>Write <code>payoff</code> for one race and <code>expected_payoff</code>, its mean over the 20 seeds. The check rebuilds 20 cells of the cached matrices from your function.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>r = pitgame.race(f_lap, l_lap, seed, interaction)
 win = 1.0 if r["finished_ahead"] else -1.0
 return win + pitgame.MARGIN_WEIGHT * (r["rival_time"][-1] - r["agent_time"][-1])</code></pre></details>
 
-      <h2>Stage 2 — best responses, and self-play against the latest snapshot</h2>
-      <p>A best response to a mixture is an argmax (row) or argmin (column) of a matrix-vector product, <a class="xref" href="02-nash-and-fictitious-play.html">page 02</a>'s definition. <code>latest_only</code> is naive self-play: each round the follower best-responds to the leader's last lap, then the leader to the follower's new one.</p>
-      <ul>
-        <li><strong>Blocking off:</strong> lap 8 is each car's best reply to <em>every</em> lap the other could choose. The cars cannot cost each other time, so each runs its own solo race. Latest-only sits at (8, 8) from the first round: a pure equilibrium.</li>
-        <li><strong>Blocking on:</strong> no pure equilibrium. The best the follower can guarantee with one lap is −1.075; the best the leader can hold it to is −0.398, a saddle gap of 0.68. Latest-only cycles with period 3: (6, 7) → (5, 10) → (9, 8) → (6, 7). The follower undercuts, the leader covers by stopping later, the follower overcuts, the leader stops earlier, and round it goes. This is <a class="xref" href="01-non-stationarity-revisited.html">page 01</a>'s chasing, with laps.</li>
-      </ul>
+      <section class="reveal closed" data-for="p8-08">
+        <p class="co-label">The reveal · both on lap 8</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">−1.075</b></div></div>
+        <div class="co-body">
+          <p>Stopping together keeps the order, and the follower spends the race in the leader's wake: it finishes behind, 1.5 s back. −1 − 0.05 × 1.5 = −1.075. With blocking off it stays 0.5 s back and gets −1.025.</p>
+          <p>−1.075 is also the best the follower can guarantee with a single lap against a leader who knows it. The best the leader can hold it to with one lap is −0.398. The 0.68 between them is why there is no pure equilibrium.</p>
+        </div>
+      </section>
+
+      <h2>Stage 2: best replies, and self-play against the latest</h2>
+      <p>A best reply to a mixture is an argmax (row) or argmin (column) of a matrix-vector product. <code>latest_only</code> is naive self-play. With blocking off, lap 8 is each car's best reply to every lap, and it sits at (8, 8) from the first round. With blocking on it cycles with period 3, (6, 7) → (5, 10) → (9, 8), page 01's chase with laps.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>def best_response(U, opp_mix, player):
     if player == "row":
@@ -50,13 +64,8 @@ for _ in range(rounds):
     j = best_response(U, pure(i), "col")
     out.append((i, j))</code></pre></details>
 
-      <h2>Stage 3 — fictitious play</h2>
-      <p>Respond to the opponent's <em>average</em> play instead of its last move, follower first, then the leader against the follower's updated counts. Exploitability, the total that both players together could gain by switching to a best response, falls from 0.140 after 10 rounds to 0.080 after 100, 0.006 after 1,000 and 0.002 after 10,000. The equilibrium the duel converges to:</p>
-      <ul>
-        <li>The follower mixes undercuts and an overcut: lap 4 (11%), 5 (45%), 6 (20%) or 9 (24%).</li>
-        <li>The leader covers: lap 5 (19%), 6 (14%), 7 (36%) or 8 (32%).</li>
-        <li>The follower's expected payoff is −0.77: it usually still loses, but by less than the −1.075 of copying the leader.</li>
-      </ul>
+      <h2>Stage 3: fictitious play</h2>
+      <p>Reply to the opponent's average instead. Exploitability falls from 0.140 after 10 rounds to 0.080 after 100, 0.006 after 1,000 and 0.002 after 10,000. The follower mixes laps 4 (11%), 5 (45%), 6 (20%) and 9 (24%); the leader covers with 5 (19%), 6 (14%), 7 (36%) and 8 (32%). The follower's expected payoff is −0.77: it usually still loses, but by less than the −1.075 of copying the leader.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>cr, cc = pure(start[0]), pure(start[1])
 trace = []
@@ -66,12 +75,8 @@ for _ in range(iters):
     trace.append(exploitability(U, cr / cr.sum(), cc / cc.sum()))
 return cr / cr.sum(), cc / cc.sum(), trace</code></pre></details>
 
-      <h2>Stage 4 — a checkpoint pool of best responses</h2>
-      <p><a class="xref" href="03-checkpoint-pool.html">Page 03</a>'s pool, with laps in place of networks: each snapshot is one pure strategy. <code>pool_mix</code> turns a pool into the mixture that sampling from it gives, with page 03's recency rule (and the n = 1 guard, lab p8-03). <code>pool_play</code> is self-play against the pool: each round each player adds a best response to the other's pool mixture. Two checks tie the stages together:</p>
-      <ul>
-        <li><strong>Uniform sampling with no window is fictitious play.</strong> The pool's mixture <em>is</em> the frequency of past play, so the two traces agree to rounding (the build measured the difference at 3 × 10⁻¹⁵).</li>
-        <li><strong>A window of one is latest-only.</strong> <code>max_size=1</code> keeps only the newest snapshot, and stage 2's cycle comes back.</li>
-      </ul>
+      <h2>Stage 4: a pool of best replies</h2>
+      <p>Page 03's pool, with laps for networks: <code>pool_mix</code> turns a pool into the mixture sampling from it gives (with the n = 1 guard), and <code>pool_play</code> adds a best reply to the other's pool mixture each round. Uniform sampling with no window is fictitious play (the two traces agree to 3 × 10⁻¹⁵); a window of one is latest-only, and stage 2's cycle comes back.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>n = len(pool)
 if recency_bias is None or n == 1:
@@ -82,22 +87,11 @@ else:
 mix = np.zeros(N)
 np.add.at(mix, np.asarray(pool), w)</code></pre></details>
 
-      <h2>Stage 5 — the plan's rule</h2>
-      <p>No new code: run <code>pool_play</code> with the plan's settings, 70% from the newest 20% and at most 50 entries. It does not settle. Over the last 200 of 1,000 rounds its exploitability averages 0.38, against fictitious play's 0.006. Each piece of the rule costs something (the build's numbers, averaged over the last 200 rounds):</p>
-      <ul>
-        <li>Recency with an unbounded window: 0.31.</li>
-        <li>Uniform sampling with a window of 50: 0.62.</li>
-        <li>Latest-only, over its cycle: 0.75, 2.26 and 1.04.</li>
-      </ul>
-      <p>The window forgets the old strategies that the equilibrium mixes in, and the recency bias weights the newest ones, which are exactly the ones still chasing. The plan's pool sits between the two extremes, much nearer the cycle than the equilibrium. That is a measurement on this game, not a verdict on the plan: with networks that generalise, the trade-off between forgetting and adapting is different. But it is not free.</p>
+      <h2>Stage 5: the plan's rule</h2>
+      <p>No new code: <code>pool_play</code> with 70% from the newest 20% and at most 50 entries. Over the last 200 of 1,000 rounds its exploitability averages 0.38, against fictitious play's 0.006. Recency with no window alone gives 0.31; a window of 50 with uniform sampling alone, 0.62; latest-only, 0.75 to 2.26 over its cycle.</p>
 
-      <h2>Stage 6 — the histogram the plan wants to read</h2>
-      <p><code>delta_distribution</code>: the distribution of (follower's stop lap − leader's) when both draw from their mixtures. At the stage 3 equilibrium:</p>
-      <ul>
-        <li><strong>Blocking off:</strong> all the mass at 0.</li>
-        <li><strong>Blocking on:</strong> 0.11 at 0, 0.61 with the follower stopping first and 0.28 with the leader first.</li>
-      </ul>
-      <p>That is the plan's "undercut and overcut" histogram, produced by the game itself, with blocking as the whole difference (<a class="xref" href="06-blocking-model-dependency.html">page 06</a>).</p>
+      <h2>Stage 6: the histogram the plan wants to read</h2>
+      <p><code>delta_distribution</code>: follower's stop minus leader's, when both draw from their mixtures. At the equilibrium with blocking off, all the mass is at 0; with it on, 0.11 at 0, 0.61 with the follower first and 0.28 with the leader first. The plan's undercut-and-overcut histogram, produced by the game itself, with blocking as the whole difference.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>out = {}
 for i in np.flatnonzero(f_mix):
@@ -106,16 +100,22 @@ for i in np.flatnonzero(f_mix):
         out[d] = out.get(d, 0.0) + float(f_mix[i] * l_mix[j])
 return dict(sorted(out.items()))</code></pre></details>
 
-      <h2>Stage 7 — your null on your result</h2>
-      <p>Draw 2,000 races from the stage 3 mixtures and apply page 07's shuffle test. It does not reject (p = 0.93), and it is right not to. Each car chose its lap before the start, so neither reacted to the other within a race, and the shuffle keeps each car's own distribution, which is where the shape lives. A histogram can be strategic all the way through and still pass the shuffle test. "Did they react?" and "is the shape strategic?" are different questions. The second is answered by comparing with blocking off, as stage 6 did.</p>
+      <h2>Stage 7: your null on your result</h2>
+      <p>Draw 2,000 races from the equilibrium mixtures and apply page 07's shuffle. It doesn't reject (p = 0.93), and it is right not to: each car chose before the start, and the shuffle keeps each car's own distribution, where the shape lives.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>real = float(np.mean(f_laps == l_laps))
 null = np.array([np.mean(f_laps == rng.permutation(l_laps)) for _ in range(shuffles)])
 far = np.abs(null - null.mean()) &gt;= abs(real - null.mean())
 return float((far.sum() + 1) / (shuffles + 1))</code></pre></details>
 
-      <h2>The report</h2>
-      <p>The lab's report notebook, about six minutes of given cells, does what the plan does: it trains learners by self-play on the same duel, tabular ones that choose every lap and see whether each car has stopped. It runs sixteen of them: latest-only or a recency pool, blocking on or off, four seeds each. It draws each run's histogram against the exact equilibrium, and the spread is the result. With blocking on, the pool learners' follower-first share ran from 0.09 to 0.78 across four seeds (exact: 0.61). With blocking off, where the exact answer is all at 0, learners still put up to 1.00 on one side. These learners can react within a race, so the shuffle can reject them, and it did for three of four blocking-on runs. It also rejected one blocking-<em>off</em> run: a learner that covers its rival's stop is reacting whether or not the reaction pays. One run's histogram is weak evidence (<a class="xref" href="10-reading-the-plan.html">page 10</a>).</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The report: sixteen learners<span class="dd-len">130 words</span></summary>
+        <div class="dd-body">
+          <p>The report notebook, about six minutes of given cells, does what the plan does: it trains tabular self-play learners that choose every lap and see whether each car has stopped. Sixteen runs: latest-only or a recency pool, blocking on or off, four seeds each. With blocking on, the pool learners' follower-first share ran from 0.09 to 0.78 across four seeds (exact: 0.61). With blocking off, where the exact answer is all at 0, learners still put up to 1.00 on one side, from imperfect learning, not strategy. These learners can react within a race, so the shuffle can reject them, and it did for three of four blocking-on runs. It also rejected one blocking-off run: a learner that covers its rival's stop is reacting whether or not the reaction pays.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Solved with no noise: blocking off puts every delta at 0, blocking on gives a mixed equilibrium at −0.77 that latest-only can't find and the plan's pool only approaches (0.38 against 0.006). Next: back to the plan, and the verdict.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-cap" data-lab-format="pytest">
         <span class="lab-kicker">Lab p8-cap · Code + tests · about 90 min</span>
@@ -143,6 +143,14 @@ return float((far.sum() + 1) / (shuffles + 1))</code></pre></details>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/pitgame_data.js"></script>
+<script src="../assets/pitwall/pitgame.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/pitgameui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

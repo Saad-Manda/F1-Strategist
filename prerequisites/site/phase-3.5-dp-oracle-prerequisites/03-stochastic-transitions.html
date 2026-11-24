@@ -13,60 +13,91 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 3.5 · Page 03 of 07 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Page 03 · Expectations</p>
       <h1>Expectations Over Randomness</h1>
-      <p class="dek"><a class="xref" href="02-backward-induction.html">Page 2</a>'s toy race had no luck in it — every action led to exactly one next state. A real race doesn't get that guarantee: a safety car might arrive, or it might not. This page is the one new piece of math that closes that gap.</p>
+      <p class="dek">The oracle cannot know whether the safety car comes. It can know how likely it is. This page is the case's answer.</p>
 
-      <h2>What changes when the next state isn't certain</h2>
-      <p><a class="xref" href="02-backward-induction.html">Page 2</a>'s recursion assumed each state-action pair leads to exactly one successor state. Once a safety car can arrive at random, that's no longer true: from a given green-flag state, taking <code>STAY</code> leads to <em>two</em> possible next states — still green, or now under a safety car — and the DP has no way to know in advance which one it'll be. The general backward-induction equation already accounted for this with an expectation, written but not yet unpacked on <a class="xref" href="02-backward-induction.html">page 2</a>:</p>
-      <blockquote class="eq">V_t(s) = min_a [ cost(s, a) + E_s'[ V_(t+1)(s') ] ]</blockquote>
-      <p>Unpacking <code>E_s'[...]</code> is this page's whole job. Because there are only two possible outcomes here — safety car arrives, or it doesn't — the expectation is nothing more exotic than a weighted average of two known numbers:</p>
-      <blockquote class="eq">E_s'[ V_(t+1)(s') ]  =  P(sc_next = 1) · V_(t+1)(s' with sc_active=1)
-                       +  P(sc_next = 0) · V_(t+1)(s' with sc_active=0)</blockquote>
-      <p>This is the defining move of stochastic dynamic programming: wherever the deterministic recursion referenced "the" next value, the stochastic version references a probability-weighted average <em>over every next value that could actually occur</em>. Everything else about the backward pass — working from <code>V_(T+1)=0</code> toward lap 1, one lap at a time — is completely unchanged.</p>
+      <section class="cold-open" data-call="p35-03">
+        <p class="co-label">Your call · race #257, lap 8</p>
+        <p class="co-moment">The oracle boxed for B under green, for 4 s. On lap 10 the safety car came out, when a stop costs 1.6 s. You waited, boxed under it, and finished 2.36 s ahead.</p>
+        <p class="co-ask">Was the oracle's lap-8 stop a mistake?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p35-03" value="a"> Yes. It paid 4 s for a stop that cost 1.6 s two laps later.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-03" value="b"> No. On lap 8 nobody knows the safety car is coming, and on the odds, boxing then is cheaper.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-03" value="c"> Yes. With a 6% safety car every lap, it should have waited for one.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>Where the probabilities come from: a hazard-rate model</h2>
-      <p>The two probabilities above need their own small model, calibrated from real safety-car data in Phase 0.5. Treat each green lap as a coin flip with a small, per-circuit chance of triggering a safety car — a standard way to model "how likely is a rare event on any given opportunity" (the same idea survival analysis calls a <em>hazard rate</em>):</p>
-      <blockquote class="eq">P(sc starts next lap | currently green)   = hazard              (a small per-lap probability, fit per circuit)
-P(sc continues next lap | currently active) = 1 − 1 / mean_duration   (mean_duration in laps)</blockquote>
-      <p>The second line is a standard property of this kind of model: if a safety car period is expected to last <code>mean_duration</code> laps on average, treating each lap under it as an independent chance to end gives exactly a <code>1/mean_duration</code> chance of ending on any given lap, so <code>1 − 1/mean_duration</code> is the chance it's still running next lap.</p>
+      <h2>What does "on average" mean on lap 8?</h2>
+      <p>From a green lap 8, every call leads to two possible lap 9s: still green, or a safety car. The oracle cannot know which. So it weighs them by their odds, 94% and 6%, and the value of the next lap becomes a weighted average of two numbers the backward pass already has:</p>
+      <blockquote class="eq">E[ V_9 ]  =  0.94 · V_9(green)  +  0.06 · V_9(safety car)</blockquote>
+      <p>Work it for both calls on lap 8 of race #257:</p>
+      <blockquote class="eq">stay out:   11.36  +  0.94 × 141.79  +  0.06 × 145.08  =  153.34
+box for B:  15.36  +  0.94 × 136.93  +  0.06 × 143.16  =  152.66</blockquote>
+      <p>Boxing wins by 0.68 s. A safety car on lap 9 makes the rest of the race slower whatever you are on, but the stop still pays. This is the only new piece of maths in the phase. Wherever the backward pass used "the" next value, it now uses the average over every next situation that can happen, weighted by its chance. Everything else stays the same.</p>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>Real safety-car frequency varies enormously by circuit — historically, street circuits like Singapore have seen a safety car in nearly every race, while Bahrain sees one in only a small fraction. That's exactly why <code>hazard</code> is fit <em>per circuit</em> in Phase 0.5, rather than assumed to be one universal constant: a single hazard rate applied everywhere would make the oracle's optimal pit windows equally wrong at both extremes.</p>
+      <h2>Where do the odds come from?</h2>
+      <p>A <strong>hazard model</strong>: each green lap is a small, independent chance of a safety car, fitted per circuit from real races in Phase 0.5. Once out, each lap is a chance for it to come in.</p>
+      <blockquote class="eq">P(safety car next lap | green now)  =  hazard
+P(safety car next lap | out now)    =  1 − 1 / mean_duration</blockquote>
+      <p>On the Pit Wall the hazard is 6% and the safety car stays out with probability 2/3, 3 laps on average. The hazard is fitted per circuit because real circuits differ widely: a street circuit like Singapore has seen a safety car in nearly every race, Bahrain in few. One number for all of them would put the oracle's pit windows wrong at both ends.</p>
+
+      <h2>So how did you beat it?</h2>
+      <p>Any race time splits into three parts. Start from the expected race time, <code>V</code> at the start: 231.92 s. Each call adds its <strong>cost</strong>: how much slower the rest of the race is, on average, after it than after the best call. That is never negative. Each lap's dice add or take away <strong>luck</strong>, with either sign. The three always add up to the race time.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Race #257</th><th class="mono">expected at the start</th><th class="mono">cost of the calls</th><th class="mono">luck</th><th class="mono">time</th></tr></thead>
+          <tbody>
+            <tr><td>you</td><td class="mono">231.92</td><td class="mono">+2.47</td><td class="mono">−6.63</td><td class="mono">227.76</td></tr>
+            <tr><td>oracle</td><td class="mono">231.92</td><td class="mono">0.00</td><td class="mono">−1.80</td><td class="mono">230.12</td></tr>
+          </tbody>
+        </table>
       </div>
+      <p>Your calls cost 2.47 s: staying out on lap 8 (0.68 s) and again on lap 9 (1.78 s), each rounded. Then the safety car came as your A tyres gave out, and handed you a 1.6 s stop: 6.63 s of good luck. The oracle's luck was 1.80 s. Yours beat its by 4.83 s, more than your calls cost. Better dice, not better calls.</p>
+      <p>On other dice it goes the other way. Over 20,000 races, waiting for the safety car beats the oracle in 2,436 (12%) and is 6.23 s slower on average: 238.15 against 231.92. The oracle is the best on average. No strategy that cannot see the future is the best on every set of dice.</p>
+      <p>Play a few races below. After the flag, the split shows where your time went.</p>
 
-      <h2>Worked example: how much does the risk of a safety car change today's decision?</h2>
-      <p>Take <a class="xref" href="02-backward-induction.html">page 2</a>'s lap-3, tyre-age-2 cell and ask what changes if there's now a 25% chance a safety car arrives on lap 4. Suppose (from a version of the recursion that also tracks <code>sc_active</code>) the two possible <code>V_4</code> values are already known: <code>V_4(age=3, green) = 16.0</code> — <a class="xref" href="02-backward-induction.html">page 2</a>'s own number — and a new one, <code>V_4(sc_active) = 20.0</code>, reflecting that a safety-car lap is slow and pitting under it, discounted, still isn't worth it with no laps left afterward:</p>
-      <blockquote class="eq">E[V_4 | currently green, hazard = 0.25]
-    = 0.25 · V_4(sc_active)  +  0.75 · V_4(age=3, green)
-    = 0.25 · 20.0            +  0.75 · 16.0
-    = 5.0 + 12.0
-    = 17.0
+      <div data-widget="pitwall" data-mode="oracle"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-V_3(age=2, STAY) = lap_time(age=2) + E[V_4]
-                 = 13.0 + 17.0
-                 = 30.0</blockquote>
-      <p>Compare that to <a class="xref" href="02-backward-induction.html">page 2</a>'s fully deterministic answer for the same cell: <code>13 + V_4(3) = 13 + 16 = 29</code>. The one-lap risk of a slow safety-car lap next lap raises today's expected cost by exactly 1.0 — a small, honest markup, computed the same way a race strategist reasons informally: "there's a real chance of a safety car soon, and that changes what staying out is actually worth, even though it hasn't happened yet." Nothing about <em>how</em> to compute a backward pass changed from <a class="xref" href="02-backward-induction.html">page 2</a> — only that every reference to "the next value" became a weighted average over the outcomes that could occur.</p>
+      <section class="reveal closed" data-for="p35-03">
+        <p class="co-label">The reveal · lap 8</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Not a mistake: box, by 0.68 s</b></div></div>
+        <div class="co-body">
+          <p>On lap 8, boxing was worth 0.68 s on average. The safety car on lap 10 was a roll of the dice the oracle could not see, and option (c) gets the odds backwards: a 6% chance a lap is not enough to wait for on tyres past their cliff. Waiting, as you did, costs 6.23 s on average.</p>
+          <p>So you beat the oracle on luck, not on calls. Its calls cost 0.00 s; yours cost 2.47 s. The maths of the case closes here: the oracle is the best on average, and on one race luck can outweigh that.</p>
+        </div>
+      </section>
 
-      <h2>The pit-under-safety-car discount, and why it belongs in the transition, not the reward</h2>
-      <p>The Phase 3.5 plan specifies pitting under a safety car costs roughly 40% of the normal pit loss, because the whole field is circulating slowly and the relative time lost by ducking into the pits is much smaller. That's a fact about <code>cost(s, a)</code> — the immediate term in the recursion, computed by <code>dynamics.compute_pit_loss</code> — not about the expectation over next states covered above. Getting the two mixed up is an easy mistake with a large consequence, which is exactly why the design doc calls it out explicitly: zeroing the <em>reward</em> on safety-car laps (rather than discounting the immediate pit-loss term) would also zero out the pit-loss cost, making an SC pit look <em>free</em> instead of merely cheap, and collapsing the optimal policy into "always wait for a safety car" — a strategy that only looks good because of an accounting error, not because it's actually cheap.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why the split always adds up<span class="dd-len">160 words</span></summary>
+        <div class="dd-body">
+          <p>Write the race as laps 1 to 20 with situations <code>s_1, s_2, …</code> and lap times <code>c_t</code>, and set <code>V</code> after the flag to 0. The sum of <code>V(s_t+1) − V(s_t)</code> over the race telescopes to <code>−V(s_1)</code>, so</p>
+          <blockquote class="eq">time − V(s_1) = Σ_t [ c_t + V(s_t+1) − V(s_t) ]
+              = Σ_t [ Q(s_t, a_t) − V(s_t) ]  +  Σ_t [ c_t + V(s_t+1) − Q(s_t, a_t) ]
+              =        cost of the calls       +              luck</blockquote>
+          <p><code>Q(s, a)</code> is the expected time to the flag after call <code>a</code>, and <code>V(s)</code> is the smallest <code>Q</code>, so each cost term is zero or more. Each luck term is the next situation's value minus what it was expected to be, so it averages to zero. The oracle's calls cost nothing, which is why its time differs from 231.92 only by luck. Your split on the Pit Wall is this sum, lap by lap: open <em>This race as an MDP</em> after the flag.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why the safety-car discount is a cost, not a reward<span class="dd-len">100 words</span></summary>
+        <div class="dd-body">
+          <p>The plan has a stop under the safety car cost about 40% of the usual pit loss, because the whole field is running slowly. That belongs in <code>cost(s, a)</code>, the immediate term, computed by <code>dynamics.compute_pit_loss</code>. It has nothing to do with the expectation over next situations. An easy mistake is to zero the <em>reward</em> on safety-car laps instead. That also zeroes the pit loss, makes a safety-car stop free rather than cheap, and the best policy collapses into "always wait for a safety car", a strategy that only looks good because of a bookkeeping error.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why <code>compute_lap_time</code> with no noise is exact<span class="dd-len">120 words</span></summary>
+        <div class="dd-body">
+          <p>The backward pass needs one number for <code>cost(s, a)</code>, not a distribution. The live environment adds random noise to every lap. The oracle may drop it, and the reason is two lines, not a shortcut:</p>
+          <blockquote class="eq">lap_time    = deterministic_part(state, action) + noise,     E[noise] = 0
+E[lap_time] = deterministic_part + E[noise] = deterministic_part
+            = compute_lap_time(..., noise=0)</blockquote>
+          <p>Because the noise is added on and averages to zero, dropping it gives the expected lap time itself, not an approximation. That is why the plan has the oracle call <code>dynamics.compute_lap_time</code> with noise off rather than restating the formula: a second copy would have to prove the same property for its own noise, and two copies that drift apart are a bug that looks right in each file.</p>
+        </div>
+      </details>
 
-      <h2>Why <code>compute_lap_time(noise=0)</code> is exact, not approximate</h2>
-      <p>Backward induction needs a single number for <code>cost(s,a)</code> at every state — not a distribution. But <code>dynamics.compute_lap_time</code>, run inside the live environment, adds a small random noise term to every lap for realism. The DP oracle is allowed to sidestep that noise entirely, and the justification is a two-line argument, not a shortcut taken on faith:</p>
-      <blockquote class="eq">lap_time = deterministic_part(state, action)  +  noise,      where E[noise] = 0
-
-E[lap_time]  =  E[deterministic_part]  +  E[noise]
-             =  deterministic_part     +  0
-             =  deterministic_part
-             =  compute_lap_time(..., noise=0)</blockquote>
-      <p>Because the noise term is additive and zero-mean by construction, dropping it doesn't approximate the expected lap time — it <em>is</em> the expected lap time, exactly. This is precisely why the Phase 3.5 plan insists the DP oracle call <code>dynamics.compute_lap_time</code> itself with noise disabled, rather than reimplementing the lap-time formula: any independent reimplementation would need to separately prove this same zero-mean property for whatever noise model it assumed, and a drift between two "equivalent" formulas is exactly the kind of bug that looks individually correct in each file and is nearly invisible in review.</p>
-
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>This is also why the oracle's rollout evaluation (<a class="xref" href="06-this-project-as-dp.html">page 6</a>) has to be checked against its own <code>V[s_0]</code>: <code>V[s_0]</code> is the expected race time under the <em>model</em> — computed exactly, using this zero-noise shortcut, throughout the whole backward pass. The rollout mean, run with noise switched back on in the real environment, is the measured value under the actual simulator. If those two numbers diverge by more than sampling noise would explain, either the expectation math above has a bug, or the environment and the oracle have quietly drifted apart — and the test exists specifically to catch whichever one it is.</p>
-      </div>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The case's maths is closed. The oracle is the best on average; on race #257 your calls cost 2.47 s and your luck beat the oracle's by 4.83 s. Next: an oracle that knows more than this one.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p35-03" data-lab-format="pytest">
         <span class="lab-kicker">Lab p35-03 · Code + tests · about 20 min</span>
@@ -93,6 +124,10 @@ E[lap_time]  =  E[deterministic_part]  +  E[noise]
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

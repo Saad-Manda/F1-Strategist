@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>00 · Overview — Phase 3.5 DP oracle · F1 Prereqs</title>
+<title>00 · Case brief — Phase 3.5 DP oracle · F1 Prereqs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -13,20 +13,41 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 3.5 · Overview</p>
-      <h1>Phase 3.5 DP Oracle Prerequisites</h1>
-      <p class="dek">Everything — and only what — you need to read and build the exact optimality oracle described in <code>phase-3.5-dp-oracle.md</code>, assuming you already have Phase 1's prerequisites and nothing more.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Case brief</p>
+      <h1>Beating the oracle</h1>
+      <p class="dek">Phase 3.5 builds the oracle: the best possible strategy for the race, computed, not learned. First, beat it.</p>
 
-      <h2>Why this phase exists, and why it isn't "more RL"</h2>
-      <p>Every phase before this one either builds the world (Phase 1) or acts in it reactively (Phase 2's dashboard, Phase 3's hand-written rules). Phase 3.5 does something different: it <strong>computes</strong> the optimal strategy for the single-car race, exactly, by exhaustively working out the consequence of every decision in every reachable situation. Nothing is learned from trial and error here — there is no exploration, no Q-table being nudged toward a target, no gradient step. Given the transition model and reward function Phase 1 already built, the optimal policy is computed directly, once, and cached.</p>
+      <p>Race #257 is the Pit Wall's 20-lap race from Phase 1, with the oracle switched on. After every call it tells you its own call and what yours cost, on average. Play it this way: stay out on A until the safety car comes, then box for B. If no safety car has come by lap 12, box anyway.</p>
 
-      <p>That distinction — <strong>planning</strong> (compute the answer from a known model) versus <strong>learning</strong> (estimate the answer from experience) — is the single idea this whole doc set exists to teach. Phases 4, 5, and 9 all learn. Phase 3.5 plans. It is worth being precise about which is which, because the oracle's entire value as an evaluation tool depends on it being the *exact* answer, not an approximation competing with the agents it's meant to judge.</p>
+      <div data-widget="pitwall" data-mode="oracle" data-seed="257"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p>Played that way, race #257 ends at 227.76 s. The oracle, with the same safety car on the same laps, finishes at 230.12 s. You beat the optimal strategy by 2.36 s, and on laps 8 and 9 it told you that you were making mistakes.</p>
+
+      <div class="case-file">
+        <p class="cf-label">Case 2 · open</p>
+        <h2>How did you beat the optimal strategy?</h2>
+        <p>The oracle is worked out from the rules of the race, every situation, with nothing left to chance in the arithmetic. Nothing can be better. Yet you beat it, with calls it marked as wrong. Is the oracle wrong? Is "optimal" the wrong word? And when a learning agent beats it in Phase 4 or 5, what should you conclude?</p>
+        <p>You will collect the evidence one page at a time:</p>
+        <ol class="cf-trail">
+          <li><div><a href="01-planning-vs-learning.html">Planning</a>: where the oracle's calls come from, without a single race played.</div></li>
+          <li><div><a href="02-backward-induction.html">Backward induction</a>: how it prices lap 8 by starting at the flag.</div></li>
+          <li><div><a href="03-stochastic-transitions.html">Expectations</a>: what "best" means when nobody knows the dice. The maths of the case closes here.</div></li>
+          <li><div><a href="04-markov-chains.html">Markov chains</a>: a second oracle that knows the weather, and how far it beats the first.</div></li>
+          <li><div><a href="05-build-a-toy-solver.html">The build</a>: you write the solver the Pit Wall runs, stage by stage.</div></li>
+          <li><div><a href="06-back-to-the-plan.html">Back to the plan</a>: how the real project scores agents against the oracle, and three places its tests can mislead. The case closes.</div></li>
+        </ol>
+      </div>
+
+      <h2>Why build an oracle at all?</h2>
+      <p>Phases 4, 5 and 9 train agents that learn from experience. Without an oracle, the strongest claim they allow is "my agent beat the rule I wrote", and that rule's weaknesses are the ones you thought of. With one, the plan's headline becomes "my RL agent came within 0.4 s of provable optimum", with the laps where it loses the time. The oracle can give that number because this race is small enough to solve outright, and solving it is planning, not learning.</p>
 
       <div class="note generic">
-        <div class="tag">Scope, precisely</div>
-        <p>Phase 3.5 builds an evaluator, not an agent. So this doc set teaches exactly two things in depth: <strong>backward induction</strong> (the algorithm that makes exact solving tractable for a finite-horizon MDP) and <strong>Markov chains</strong> (the tool the oracle's weather model needs). Nothing about Q-learning, TD updates, exploration, or neural networks is covered here, even in preview — that material belongs to Phase 4 and 5's own prerequisites, and this doc set assumes none of it.</p>
+        <div class="tag">What Phase 3.5 does and does not do</div>
+        <p>Phase 3.5 builds an evaluator, not an agent. So this set teaches two things in depth: <strong>backward induction</strong>, the algorithm that solves a race of fixed length, and <strong>Markov chains</strong>, the weather model the oracle needs. Q-learning, TD updates, exploration and neural networks are not covered, even in preview. They belong to Phases 4 and 5.</p>
       </div>
+
+      <p class="evidence"><span class="ev-tag">Case 2</span><span>Opened. On race #257, waiting for the safety car beat the oracle by 2.36 s. Next: where the oracle's calls come from.</span></p>
 
       <div class="pagenav" id="pagenav"></div>
       <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
@@ -36,5 +57,10 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
 </body>
 </html>

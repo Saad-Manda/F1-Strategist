@@ -13,38 +13,59 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 06 of 11 — Library mechanics, taught generically</p>
-      <h1>Stable-Baselines3 and sb3-contrib's API Surface</h1>
-      <p class="dek">Taught generically first, per this set's standing pattern, so "this project, formalized" (<a class="xref" href="10-this-project-formalized.html">page 10</a>) is a direct instantiation rather than new API surface.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 06 · The library</p>
+      <h1>Inside <code>.learn()</code>: Stable-Baselines3 and sb3-contrib</h1>
+      <p class="dek">The API the plan calls, taught on its own first, and the one part of it that cracks the case.</p>
 
-      <h2>VecEnv: why PPO trains against several environments at once</h2>
-      <p>SB3 trains against a <strong>vectorized environment</strong> — <code>n_envs</code> copies running in lockstep, where a single <code>step()</code> call advances all of them and returns stacked arrays of observations, rewards, and done-flags. This follows directly from <a class="xref" href="04-ppo-clipped-objective.html">page 04</a>'s on-policy constraint: PPO needs a fresh, diverse batch of rollout data before every update (old data goes stale the moment the policy has changed, unlike Phase 5's replay buffer), and running several environment copies in parallel is the standard way to collect a large, diverse batch quickly without an off-policy buffer to fall back on.</p>
-      <p>Two implementations of the same interface: <strong><code>DummyVecEnv</code></strong> steps every copy sequentially inside one process — simple, no serialization needed to communicate between copies. <strong><code>SubprocVecEnv</code></strong> runs each copy in its own OS process and steps them genuinely in parallel — faster only when a single environment step is expensive enough that the added process/inter-process-communication overhead pays for itself. Which one this project should actually use is a specific, load-bearing question — deferred to <a class="xref" href="07-pickling-and-subprocvecenv.html">page 07</a>.</p>
+      <section class="cold-open" data-call="p9-06">
+        <p class="co-label">Your call · the plan's rollout</p>
+        <p class="co-moment">The plan's config: <code>n_steps</code> 256 per environment, 4 environments, <code>batch_size</code> 64, <code>n_epochs</code> 10.</p>
+        <p class="co-ask">How many gradient steps does one update take?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p9-06" value="a"> 16</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-06" value="b"> 160</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-06" value="c"> 1,024</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The rollout-buffer arithmetic</h2>
-      <p><code>n_steps</code>, <code>n_envs</code>, <code>batch_size</code>, and <code>n_epochs</code> relate in a fixed way worth working through numerically, using the real plan's own values:</p>
-      <blockquote class="eq">n_steps = 256      (per env, per update)
-n_envs  = 4
+      <h2>A vector of environments</h2>
+      <p>SB3 trains on a <strong>VecEnv</strong>: <code>n_envs</code> copies stepped together, one call returning stacked observations, rewards and done flags. It follows from page 04: PPO needs a fresh batch before every update, and parallel copies collect one quickly. <code>DummyVecEnv</code> steps the copies in turn in one process; <code>SubprocVecEnv</code> gives each its own process, which pays only when one step is expensive. Page 07 settles which this race needs.</p>
+      <blockquote class="eq">transitions per update = n_steps × n_envs = 256 × 4 = 1,024
+minibatches            = 1,024 / batch_size = 1,024 / 64 = 16
+gradient steps         = 16 × n_epochs = 16 × 10 = 160</blockquote>
+      <p><code>batch_size</code> should divide 1,024. Nothing enforces it: plain PPO warns once and trains on a short last minibatch; <code>MaskablePPO</code> does the same silently (lab p9-06, part E).</p>
 
-transitions collected per update = n_steps × n_envs = 256 × 4 = 1024
+      <h2><code>.learn()</code>, <code>.predict()</code> and the mask</h2>
+      <p><code>model.learn(total_timesteps)</code> alternates a rollout (run the policy for <code>n_steps</code> in every copy, storing observations, calls, rewards, log-probabilities and values) and an update (GAE over the rollout, then <code>n_epochs</code> of clipped steps over shuffled minibatches). Pages 01 to 04 are inside that one call. <code>model.predict(obs, deterministic=True)</code> acts: the most likely call, no sampling.</p>
+      <p>Masking is Phase 1's idea with a new mechanism: wrap the env in <code>ActionMasker(env, mask_fn)</code>, and <code>MaskablePPO</code> sets illegal calls' probability to zero before sampling, so the ratio of page 04 is always computed over legal calls only. <code>tensorboard_log=...</code> logs reward, losses, entropy, <code>clip_fraction</code>, <code>approx_kl</code> and <code>explained_variance</code>.</p>
 
-batch_size = 64
-minibatches per update = 1024 / 64 = 16   (must divide evenly)
+      <section class="reveal closed" data-for="p9-06">
+        <p class="co-label">The reveal · the plan's rollout</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">160</b></div></div>
+        <div class="co-body">
+          <p>1,024 transitions make 16 minibatches of 64, and each is used once per pass for 10 passes: 160 gradient steps, then a new rollout. Every one of those steps also updates the critic.</p>
+          <p>How far each step can move the critic is what decides the case.</p>
+        </div>
+      </section>
 
-n_epochs = 10
-→ each of the 16 minibatches is used for 10 separate gradient steps
-  before the next rollout of 1024 transitions is collected</blockquote>
-      <p><code>batch_size</code> should divide <code>n_steps × n_envs</code> evenly. SB3 does not enforce it. Plain <code>PPO</code> prints a warning when the model is built and then trains with a short last minibatch; <code>MaskablePPO</code>, the class this project uses, does the same without the warning. Nothing is dropped and nothing is raised (lab p9-06 part E shows both).</p>
+      <h2>The critic's pace</h2>
+      <p>SB3's critic is a network trained by Adam, at the plan's learning rate of 3 × 10<sup>−4</sup>. Adam divides each step by the gradient's recent size, so a critic ten times further from the truth doesn't take steps ten times as big. Measured, MaskablePPO on the toy race: after 500 races the critic's value of lap 1 was −14.6 with the raw reward and −14.7 centred. It moves at the same pace either way: 9.9 every 10,000 steps.</p>
+      <p>What differs is the distance. The plan the learner starts on returns −63 centred and −263 raw. Centred, the critic is close enough by race 500, the plan starts improving, and it is within 1 s by race 700 to 900. Raw, after 2,000 races the critic is at −44.9 and the policy hasn't moved: <code>explained_variance</code> is 0.0 (the critic explains none of the returns), and the advantages that drive the policy are mostly the critic's error, the same whatever call was made. Left to run on, the same raw run starts improving at 70,000 steps and is first within 1 s at 130,000: about eight times as long.</p>
+      <div data-widget="pitwall" data-mode="training" data-learner="sb3" data-reward="raw" data-seed="0" data-show="sb3|raw|0,sb3|centred|0"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-      <h2>The <code>.learn()</code> / <code>.predict()</code> shape</h2>
-      <p><code>model.learn(total_timesteps=...)</code> internally alternates two phases, repeated until the timestep budget is exhausted: a <strong>rollout phase</strong> (run the current policy across all <code>n_envs</code> copies for <code>n_steps</code>, storing observations, actions, rewards, log-probabilities, and value estimates as it goes), and an <strong>update phase</strong> (compute GAE per <a class="xref" href="03-generalized-advantage-estimation.html">page 03</a> over the collected rollout, then run <code>n_epochs</code> of clipped-objective gradient steps per <a class="xref" href="04-ppo-clipped-objective.html">page 04</a> over minibatches of it). This one method call encapsulates the entire <a class="xref" href="01-policy-gradients-reinforce.html">pages 01</a>–<a class="xref" href="04-ppo-clipped-objective.html">04</a> derivation chain — precisely what <a class="xref" href="05-build-vs-buy.html">page 05</a> said a library buys: nobody calling <code>.learn()</code> has to get GAE's backward recursion or the clip's minibatch-epoch interaction right themselves. <code>model.predict(obs, deterministic=...)</code> is the acting side: sample (or, if <code>deterministic=True</code>, take the mode of) the current policy's action distribution for a given observation.</p>
+      <p>Two fixes, both measured on the same three seeds. <strong>Centre the reward</strong> (Finding C, Phase 1's <code>reward_offset</code>): 0.00 s by race 2,000. Or keep it raw and wrap the env in <strong><code>VecNormalize(norm_reward=True)</code></strong>, the plan's own fallback: it divides each reward by the running return's spread, about 61 here, so the critic's target is about −3.7. Also 0.00 s by race 2,000. Pick <i>raw, through VecNormalize</i> above to see it.</p>
 
-      <h2>Action masking via <code>sb3-contrib</code>'s <code>MaskablePPO</code></h2>
-      <p>Masking invalid actions is not a new <em>concept</em> here — the reader already knows from Phase 1/4 background why actions that would be illegal (like pitting again immediately after just pitting) must be masked out before an agent can choose among them. What's new is only the <em>mechanism</em> SB3 expects: wrap the base environment with <code>ActionMasker(env, mask_fn)</code>, where <code>mask_fn</code> is a callable that returns a boolean array over the action space. <code>MaskablePPO</code> then applies that mask to the policy's output <em>before</em> sampling — zeroing out invalid actions' probability mass and renormalizing — rather than sampling freely and rejecting invalid draws after the fact. This matters for <a class="xref" href="04-ppo-clipped-objective.html">page 04</a>'s math: it guarantees the log-probabilities used in the ratio <code>r_t(θ)</code> are always computed over the valid-action subset only, so an action that happened to be invalid at collection time never distorts the ratio for a policy update.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why the table critics didn't have this problem<span class="dd-len">160 words</span></summary>
+        <div class="dd-body">
+          <p>Pages 02 and 03's critics are tables updated by V ← V + 0.1 (G − V): each step is a tenth of the error, so a target 263 away is reached as fast, in relative terms, as one 63 away. Adam's step is set by its learning rate, not by the error, which is what makes it robust to badly scaled gradients and also what makes it slow to cover a large distance. SB3 also clips the gradient's norm at 0.5 by default (the plan's <code>max_grad_norm</code>), which caps the step for the same reason.</p>
+          <p>The real race is further still. Its laps are near 90 s and there are 52 of them, so an uncentred return is about −4,700, eighteen times the toy race's −263. The toy race doesn't say how many steps that would need with the plan's <code>[128, 128]</code> network; it says the critic's pace, not its target, sets the wait.</p>
+        </div>
+      </details>
 
-      <h2>Logging</h2>
-      <p><code>tensorboard_log=...</code> is SB3's built-in equivalent of whatever logging Phase 4/5's from-scratch training loops hand-rolled for tracking episode reward, loss, and entropy over time — one configuration line, not a new topic to learn.</p>
+      <p class="evidence"><span class="ev-tag">Cracked</span><span>The library's critic moves at a fixed pace, 9.9 every 10,000 steps here, whatever its error. With the raw reward it has four times as far to go as centred, and the policy waits for it: 38.48 s at 2,000 races, within 1 s only after 130,000 steps. Centring or VecNormalize: 0.00 s by 2,000 races.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-06" data-lab-format="notebook">
         <span class="lab-kicker">Lab p9-06 · Notebook · about 20 min</span>
@@ -71,6 +92,12 @@ n_epochs = 10
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/training_data.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/trainingui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

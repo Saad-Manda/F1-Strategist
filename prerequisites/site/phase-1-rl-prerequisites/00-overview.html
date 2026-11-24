@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>00 · Overview — Phase 1 RL fundamentals · F1 Prereqs</title>
+<title>00 · Case brief — Phase 1 RL fundamentals · F1 Prereqs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -13,20 +13,41 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 1 · Overview</p>
-      <h1>Phase 1 RL Prerequisites</h1>
-      <p class="dek">Everything — and only what — you need to read and build <code>phase-1-gym-environment.md</code> with no prior reinforcement-learning background. No later-phase material.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 1 · Case brief</p>
+      <h1>The 5,000-second head start</h1>
+      <p class="dek">Phase 1 builds the race that every later agent learns in. Before anything else, you call one.</p>
 
-      <h2>Why this project is an RL problem at all</h2>
-      <p>An F1 race strategist makes a sequence of decisions — stay out, or pit for a given tyre — under uncertainty (weather, safety cars, rivals) with a single, measurable goal: minimize total race time. That is exactly the shape of problem reinforcement learning is built for: an <strong>agent</strong> that repeatedly observes a <strong>state</strong>, picks an <strong>action</strong>, and receives a <strong>reward</strong>, with the goal of maximizing total reward over time. Supervised learning has no answer to "what should I do next, given that today's action changes tomorrow's options" — that sequential, consequence-carrying structure is what makes this an RL problem and not a classification problem.</p>
+      <p>You are on the pit wall for a 20-lap race. Every lap you make one call: stay out, or box for a fresh set of tyres. Get to the flag in as little time as you can. At the end you see your time against an oracle that played the same race perfectly on average.</p>
 
-      <p>This exists because Phase 1 is "the intellectual heart of the project" — it defines the simulator every future agent trains inside. A mistake here (a wrong reward, a leaky observation, a masking bug) silently corrupts every phase that follows.</p>
+      <div data-widget="pitwall" data-mode="race"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p>When you reach the flag, open <em>This race as an MDP</em> under the result. Each lap has a <strong>reward</strong>: minus the lap time. Look at the last number in the <em>sum</em> column. For a 20-lap race on this track it lands near −230 (the best strategy averages −231.92). The real project's race is 52 laps of 93 to 97 seconds, so the same sum comes to about −5,000.</p>
+
+      <div class="case-file">
+        <p class="cf-label">Case 1 · open</p>
+        <h2>Why does the learner start out 5,000 seconds wrong?</h2>
+        <p>A learning agent keeps a guess of how good each situation is. Before it has seen a lap, every guess is 0. The true answer for the start of the real race is about −5,000. So the agent begins wrong by 5,000 seconds in the one place it starts from. Is that a problem? Is it a bug in the plan's reward? Can you fix it without changing a single pit stop the agent should make?</p>
+        <p>You will collect the evidence one page at a time:</p>
+        <ol class="cf-trail">
+          <li><div><a href="01-rl-fundamentals.html">The loop</a>: what the agent is told each lap, and what it never is.</div></li>
+          <li><div><a href="02-markov-decision-processes.html">The state</a>: what the call depends on, and why the rewards add up to the race time.</div></li>
+          <li><div><a href="03-value-functions-bellman.html">The value</a>: what the start of a race is worth, and the one change that removes the head start. The maths of the case closes here.</div></li>
+          <li><div><a href="04-gymnasium-api.html">The contract</a>: where the reward is computed in code, and who greys out an illegal call.</div></li>
+          <li><div><a href="05-building-the-environment.html">The build</a>: you write the race the Pit Wall runs, stage by stage.</div></li>
+          <li><div><a href="06-back-to-the-plan.html">Back to the plan</a>: the real reward line, and what to do about it. The case closes.</div></li>
+        </ol>
+      </div>
+
+      <h2>Why a race is a learning problem</h2>
+      <p>A strategist makes a chain of calls under uncertainty: the safety car, the weather, the tyres falling away. Each call changes the next one. Box now and you have fresh tyres for the next ten laps; stay out and the next lap is slower but the stop is still to come. A classifier that labels one lap at a time cannot see that. Reinforcement learning is built for it: an <strong>agent</strong> watches a <strong>state</strong>, picks an <strong>action</strong>, and gets a <strong>reward</strong>, and it learns to make the total as large as possible.</p>
 
       <div class="note generic">
-        <div class="tag">Scope, precisely</div>
-        <p>Phase 1 builds an environment. It does not train an agent — no Q-learning, no neural networks, no policies. So this doc set teaches exactly two things in depth: the math that defines what an environment <em>is</em> (an MDP), and the software contract (Gymnasium) that <code>f1_strategy_env.py</code> must implement. Everything below is in service of one or the other. Algorithm training (Phases 4, 5, 9) is a different set of prerequisites for a different day — nothing about it is covered here, even in preview.</p>
+        <div class="tag">What Phase 1 does and does not do</div>
+        <p>Phase 1 builds the environment, <code>f1_strategy_env.py</code>. It trains no agent. So this set teaches two things in depth: the maths of what an environment is (an MDP) and the software contract it must meet (Gymnasium). Training (Phases 4, 5 and 9) is not covered here, even in preview. A mistake in Phase 1, such as a wrong reward, a leaky observation or a masking bug, quietly corrupts every phase after it.</p>
       </div>
+
+      <p class="evidence"><span class="ev-tag">Case 1</span><span>Opened. A 20-lap race sums to about −230; the real one to about −5,000. Next: what the agent is told on each lap.</span></p>
 
       <div class="pagenav" id="pagenav"></div>
       <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
@@ -36,5 +57,10 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
 </body>
 </html>

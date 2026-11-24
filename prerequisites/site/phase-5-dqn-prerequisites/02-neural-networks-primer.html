@@ -13,65 +13,78 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 02 of 11 — Foundations</p>
-      <h1>Neural Networks in Four Steps: Forward Pass, Loss, Backward Pass, Update</h1>
-      <p class="dek">Scoped tightly to what <code>DuelingDQN.forward()</code> and its training step actually do. No convolutions, no architecture survey, no loss functions this project doesn't use.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 02 · Neural networks</p>
+      <h1>Neural Networks in Four Steps</h1>
+      <p class="dek">Forward pass, loss, backward pass, update: the four mechanics behind <code>DuelingDQN.forward()</code> and its training step, and nothing more.</p>
 
-      <div class="note generic">
-        <div class="tag">Scope note</div>
-        <p>This page teaches exactly four mechanics — a layer's forward computation, a loss, backpropagation, and a gradient-descent step — at the depth needed to read and trust <code>dqn_agent.py</code>. It is not a general deep-learning introduction, and it stops as soon as those four mechanics are covered.</p>
-      </div>
+      <section class="cold-open" data-call="p5-02">
+        <p class="co-label">Your call · from numbers to a call</p>
+        <p class="co-moment">The real network's output for one state is six numbers, one per call, and some calls are illegal in that state.</p>
+        <p class="co-ask">Which call does the agent make when it isn't exploring?</p>
+        <div class="lab-q" data-type="choice" data-answer="a">
+          <label class="lab-opt"><input type="radio" name="co-p5-02" value="a"> The legal call with the largest output.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-02" value="b"> A random pick, weighted so larger outputs are likelier.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-02" value="c"> The call with the largest output, legal or not.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>A layer as a function</h2>
-      <p>A linear layer computes <code>y = Wx + b</code>: a matrix multiply of the input vector <code>x</code> by a weight matrix <code>W</code>, plus a bias vector <code>b</code>. On its own this is just an affine function — stacking several of them would collapse back into one big affine function, which can't represent anything more expressive than a straight line through the input space. A <strong>nonlinearity</strong> after each linear layer is what prevents that collapse; this project uses <strong>ReLU</strong>, <code>max(0, y)</code>, applied elementwise.</p>
-      <p>Traced to the real network's exact shape (<code>Linear(16→128) → ReLU → Linear(128→128) → ReLU</code>, the shared trunk of <code>DuelingDQN</code>): the <code>16</code> is Phase 1's normalized observation vector's dimension — nothing new is being invented here, this is the same 16 numbers <a class="xref" href="../phase-4-q-learning-prerequisites/08-this-project-formalized.html">Phase 4 page 08</a>'s discretization used, just fed to a different kind of consumer. The <code>128</code> hidden width is a design choice, not derived from anything; it just needs to be large enough for the network to represent the function it's trying to learn without being so large that it trains slower than necessary on a state space this small.</p>
+      <p>A linear layer computes <code>y = Wx + b</code>: the input vector times a weight matrix, plus a bias vector. Stacked alone, linear layers collapse into one linear function. A <strong>nonlinearity</strong> after each one prevents that. This project uses <strong>ReLU</strong>, <code>max(0, y)</code>, element by element. The real network's shared trunk is <code>Linear(16→128) → ReLU → Linear(128→128) → ReLU</code>: 16 is Phase 1's observation, and 128 is a design choice, wide enough for the function and no wider.</p>
 
-      <h2>Worked forward pass on a tiny network</h2>
-      <p>A network far smaller than the real one, small enough to run by hand: 2 inputs, 1 hidden layer of 2 units with ReLU, 1 output, no bias terms (to keep the arithmetic short):</p>
-      <blockquote class="eq">W1 = [[ 1.0, -1.0],      x = [2.0, 1.0]
+      <h2>A forward pass by hand</h2>
+      <p>Two inputs, two hidden units with ReLU, one output, no biases:</p>
+      <blockquote class="eq">W1 = [[1.0, −1.0],        x = [2.0, 1.0]
       [0.5,  0.5]]
 
-h_pre = W1 · x = [1.0(2.0) + (-1.0)(1.0),  0.5(2.0) + 0.5(1.0)]
-              = [2.0 - 1.0,  1.0 + 0.5]
-              = [1.0, 1.5]
+h_pre = W1 · x = [2.0 − 1.0,  1.0 + 0.5] = [1.0, 1.5]
+h     = ReLU(h_pre)                      = [1.0, 1.5]
 
-h = ReLU(h_pre) = [max(0, 1.0), max(0, 1.5)] = [1.0, 1.5]
+W2 = [2.0, −1.0]
+y  = W2 · h = 2.0(1.0) + (−1.0)(1.5)     = 0.5</blockquote>
+      <p>That is what <code>self.trunk(x)</code> followed by one output head does, at a size that fits on paper. Here no pre-activation was negative, so ReLU zeroed nothing.</p>
 
-W2 = [2.0, -1.0]     (output layer, 2 -> 1)
+      <h2>Loss, then the backward pass</h2>
+      <p>A loss turns "how wrong" into one number to make smaller. Squared error is <code>L = (ŷ − y*)²</code>; the real agent uses the Huber loss, for a reason page 08 gives. In DQN, <code>ŷ = Q(s, a; θ)</code> and <code>y*</code> is the TD target, so the loss measures what Phase 4's <code>δ</code> measured.</p>
+      <p><strong>Backpropagation</strong> computes <code>∂L/∂θ</code> for every weight by the chain rule, layer by layer from the output back. PyTorch's autograd does it for you; one weight by hand shows what it computes. With <code>y = 0.5</code> and a target <code>y* = 0</code>:</p>
+      <blockquote class="eq">∂L/∂y      = 2(y − y*)          = 1.0
+∂y/∂W2[0]  = h[0]               = 1.0
+∂L/∂W2[0]  = 1.0 · 1.0          = 1.0</blockquote>
+      <p>The gradient is positive: raising <code>W2[0]</code> would raise the loss, so a step should lower it.</p>
 
-y = W2 · h = 2.0(1.0) + (-1.0)(1.5) = 2.0 - 1.5 = 0.5</blockquote>
-      <p>Every step above is exactly what <code>self.trunk(x)</code> followed by one output head does in the real network, just at a size that fits on paper: a matrix multiply, a ReLU that zeroes out any negative pre-activation (here, nothing needed zeroing — both pre-activations happened to be positive), and a second matrix multiply into the output.</p>
+      <section class="reveal closed" data-for="p5-02">
+        <p class="co-label">The reveal · the greedy call</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">The largest legal output</b></div></div>
+        <div class="co-body">
+          <p>Illegal calls are set to −∞ first, then the agent takes the largest output: the argmax. That is Phase 4's table rule with a network's output in place of a row of cells. Option (c) is the bug the mask exists to prevent: an untrained number for an illegal call can be the largest.</p>
+          <p>The Pit Wall shows the champion's numbers as seconds to the flag, so there the greedy call is the smallest. On lap 9 of race 29: stay out 133.32, box for A 138.62. The greedy call was to stay out, by 5.29 s, and the champion boxed.</p>
+        </div>
+      </section>
 
-      <h2>Loss: how wrong is the prediction, as one number</h2>
-      <p>Given a prediction <code>ŷ</code> and a target <code>y*</code>, a loss function collapses "how wrong" into a single scalar to minimize. Mean-squared error: <code>L = (ŷ − y*)²</code>. The real agent uses <strong>smooth L1 / Huber loss</strong> instead — quadratic for small errors, linear beyond <code>|error| = 1</code> — for reasons <a class="xref" href="08-reward-scale-trap.html">page 08</a> covers once there's a concrete number to explain. For now, either one plays the same role: a differentiable scalar that's small when the prediction is close and large when it isn't.</p>
-      <p>DQN's specific case (developed fully on <a class="xref" href="03-target-network.html">page 03</a> and after): <code>ŷ = Q(s,a;θ)</code>, the network's current prediction; <code>y* = target</code>, the Bellman-derived TD target. The loss is exactly "how far is the current Q-value estimate from where the Bellman equation says it should be" — the same quantity Phase 4's <code>δ</code> measured, now expressed as a loss to be minimized by gradient descent rather than a nudge applied by hand to one table cell.</p>
-
-      <h2>Backpropagation, at the level this project needs</h2>
-      <p>Backpropagation computes <code>∂L/∂θ</code> for every weight in <code>θ</code> — how much, and in which direction, nudging that one weight would change the loss — by applying the chain rule layer by layer, working backward from the output. This page states that fact and works one small piece of it by hand; it does not derive the full chain-rule proof for an arbitrary network, which the real project never needs to do since PyTorch's autograd computes it automatically.</p>
-      <p>One weight's gradient, worked on the tiny network above: take <code>W2</code>'s first entry (the weight connecting hidden unit 1 to the output), currently <code>2.0</code>. If the loss is <code>L = (y − y*)²</code> with <code>y* = 0</code> (target) and <code>y = 0.5</code> (this network's output, computed above):</p>
-      <blockquote class="eq">∂L/∂y = 2(y - y*) = 2(0.5 - 0) = 1.0
-∂y/∂W2[0] = h[0] = 1.0        (y = W2[0]·h[0] + W2[1]·h[1], so ∂y/∂W2[0] = h[0])
-∂L/∂W2[0] = ∂L/∂y · ∂y/∂W2[0] = 1.0 · 1.0 = 1.0</blockquote>
-      <p>Read directly: increasing <code>W2[0]</code> by a small amount would increase the loss (the gradient is positive), so a gradient-descent step should <em>decrease</em> <code>W2[0]</code> a little. That single number, <code>1.0</code>, is exactly the kind of quantity backpropagation computes for every one of <code>θ</code>'s entries — this page only carries the chain rule back one layer; the real network's trunk has several more, each contributing one more application of the same rule.</p>
-
-      <h2>Gradient descent: the same nudge, computed automatically</h2>
-      <p>The update rule: <code>θ ← θ − lr · ∂L/∂θ</code>, applied to every entry of <code>θ</code> at once. This is worth reading side by side with Phase 4's tabular update, because it is <em>the same idea</em>, not a different one:</p>
+      <h2>Gradient descent: Phase 4's nudge, on every weight</h2>
+      <p>The update is <code>θ ← θ − lr · ∂L/∂θ</code>, applied to every weight at once. It is the same idea as Phase 4's update:</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Tabular (Phase 4)</th><th>Function approximation (this page)</th></tr></thead>
+          <thead><tr><th>Tabular (Phase 4)</th><th>Function approximation</th></tr></thead>
           <tbody>
             <tr><td class="mono">Q(s,a) ← Q(s,a) + α·δ</td><td class="mono">θ ← θ − lr·∂L/∂θ</td></tr>
-            <tr><td>One number, one table cell</td><td>Every entry of a (possibly large) weight vector</td></tr>
-            <tr><td><code>δ</code>: how wrong the current cell's estimate is</td><td><code>∂L/∂θ</code>: how wrong the current prediction is, and how each weight contributed to that</td></tr>
-            <tr><td><code>α</code>: how far one sampled transition can move one cell</td><td><code>lr</code>: how far one sampled transition (via its gradient) can move every weight</td></tr>
+            <tr><td>One cell</td><td>Every weight</td></tr>
+            <tr><td><code>δ</code>: how wrong this cell is</td><td><code>∂L/∂θ</code>: how wrong the prediction is, and each weight's part in it</td></tr>
+            <tr><td><code>α</code>: how far one transition moves one cell</td><td><code>lr</code>: how far one transition moves every weight</td></tr>
           </tbody>
         </table>
       </div>
-      <p>This is the page's payoff line, and it's worth carrying forward explicitly: DQN is not a different learning idea from Phase 4's Q-learning. It is the exact same "nudge toward a Bellman-derived target" update rule, with the table cell replaced by a gradient step on a shared function. Every technique from <a class="xref" href="03-target-network.html">page 03</a> onward exists to make that gradient step trainable in practice, not to change what it's trying to accomplish.</p>
+      <p>DQN is Phase 4's "nudge toward a Bellman target" with the cell replaced by a gradient step on a shared function. Pages 03 to 08 make that step trainable; none of them changes what it aims at.</p>
 
-      <h2>Adam, named but not derived</h2>
-      <p>Plain gradient descent uses the same step size (<code>lr</code>) for every weight, every step. <strong>Adam</strong> is an optimizer that adapts the effective step size per-parameter based on that parameter's recent gradient history, converging faster and more reliably in practice for the kind of noisy, mini-batch gradients this project computes. Nothing here derives Adam's update rule — it's enough to recognize <code>torch.optim.Adam(self.online_net.parameters(), lr=lr)</code> in the code walkthrough (<a class="xref" href="11-code-walkthrough.html">page 11</a>) as "gradient descent, with a per-parameter adaptive step size," and to know that <code>lr</code> still means the same thing it meant in the table above — the base step size Adam adapts around.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Adam, named but not derived<span class="dd-len">80 words</span></summary>
+        <div class="dd-body">
+          <p>Plain gradient descent uses one step size for every weight on every step. <strong>Adam</strong> adapts the step per weight from that weight's recent gradients, which converges faster and more reliably on noisy mini-batch gradients like this project's. It is enough to read <code>torch.optim.Adam(self.online_net.parameters(), lr=lr)</code> as "gradient descent with a per-weight step size", where <code>lr</code> is still the base step. Page 08 shows one side effect: each weight moves by roughly <code>lr</code> per step at most, however large its error.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Without exploration, the call is the argmax of the network's legal outputs. On lap 9 the argmax was to stay out, by 5.29 s, and the champion boxed: something other than the argmax made that call. Next: the training machinery, starting with the target network.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-02" data-lab-format="notebook">
         <span class="lab-kicker">Lab p5-02 · Notebook · about 20 min</span>
@@ -142,6 +155,7 @@ y = W2 · h = 2.0(1.0) + (-1.0)(1.5) = 2.0 - 1.5 = 0.5</blockquote>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

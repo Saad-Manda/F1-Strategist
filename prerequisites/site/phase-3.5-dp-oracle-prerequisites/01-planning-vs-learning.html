@@ -13,49 +13,69 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 3.5 · Page 01 of 07 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Page 01 · Planning</p>
       <h1>Planning vs. Learning</h1>
-      <p class="dek">Phase 4 will estimate a good policy from thousands of simulated races. Phase 3.5 computes the optimal one directly, from the model alone, without playing a single episode to learn from.</p>
+      <p class="dek">The oracle has never driven a lap. It still has a call for every situation.</p>
 
-      <h2>Two ways to solve an MDP</h2>
-      <p><a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Page 1</a> of the Phase 1 prerequisites established the RL loop: an agent observes a state, acts, receives a reward, and repeats — learning, over many such interactions, which actions tend to pay off. That framing quietly assumes the agent does <em>not</em> know the transition function or reward function in advance; it has to find out by trying things and observing what happens. Every algorithm downstream of Phase 1 in this project's plan — Q-learning, SARSA, DQN, PPO — is built around that assumption. They are all <strong>model-free</strong> methods: they never see <code>P(s'|s,a)</code> written down anywhere. They infer good behaviour from samples.</p>
-      <p>But this project's MDP isn't actually unknown. <code>dynamics.py</code> <em>is</em> the transition function, in closed form, and the reward is simply <code>-lap_time</code>. Nothing about how a lap plays out is hidden from the person who wrote the simulator. When the model is fully known like this, a different family of methods becomes available: <strong>planning</strong> — compute the optimal policy directly from the model, with no trial and error, no exploration, and no sampling error. <strong>Dynamic programming</strong> is the classic planning method, and it's what Phase 3.5 builds.</p>
+      <section class="cold-open" data-call="p35-01">
+        <p class="co-label">Your call · race #257, lap 8</p>
+        <p class="co-moment">Green flag, 8-lap-old A, B not used yet. The oracle boxes for B. It has never seen a race.</p>
+        <p class="co-ask">Where does that call come from?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p35-01" value="a"> It simulated thousands of races and kept what worked.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-01" value="b"> It worked out every situation from the rules: the lap-time formula, the pit loss, the safety-car odds.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-01" value="c"> Someone wrote "box on lap 8" into it.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>Two ways to find a strategy</h2>
+      <p>Phase 1's agent <strong>learns</strong>. It acts, gets a reward, and slowly works out what pays. Nobody shows it the lap-time formula or the safety-car odds. Q-learning, DQN and PPO, the methods of Phases 4, 5 and 9, all work this way. They are <strong>model-free</strong>: they never see <code>P(s′ | s, a)</code> written down.</p>
+      <p>But this race is no mystery to the person who wrote it. The lap time is a formula in <code>dynamics.py</code> and the reward is <code>-lap_time</code>. With the model written down you can <strong>plan</strong>: compute the best strategy from the model, with no trial and error and no sampling error. <strong>Dynamic programming</strong> is the classic way to plan, and it is what Phase 3.5 builds.</p>
 
       <div class="table-wrap">
         <table>
           <thead><tr><th></th><th>Learning (Phases 4, 5, 9)</th><th>Planning (Phase 3.5)</th></tr></thead>
           <tbody>
-            <tr><td class="mono">Needs the model?</td><td>No — learns from sampled <code>(s,a,r,s')</code> transitions</td><td>Yes — needs <code>P</code> and <code>R</code> written down explicitly</td></tr>
-            <tr><td class="mono">Exploration?</td><td>Yes — epsilon-greedy, has to try things to find out what's good</td><td>None — every consequence is already computable</td></tr>
-            <tr><td class="mono">Answer quality</td><td>Approximate, improves with more training</td><td>Exact, for the model as written</td></tr>
-            <tr><td class="mono">What can go wrong</td><td>Slow convergence, reward hacking, unstable training</td><td>Only: the model itself is wrong, or the state space is too large to enumerate</td></tr>
+            <tr><td class="mono">Needs the model?</td><td>No: learns from sampled <code>(s, a, r, s′)</code></td><td>Yes: <code>P</code> and <code>R</code> written down</td></tr>
+            <tr><td class="mono">Exploration?</td><td>Yes: has to try things to find out</td><td>None: every consequence can be computed</td></tr>
+            <tr><td class="mono">Answer</td><td>Approximate, better with more training</td><td>Exact, for the model as written</td></tr>
+            <tr><td class="mono">What goes wrong</td><td>Slow or unstable training, reward hacking</td><td>The model is wrong, or too big to enumerate</td></tr>
           </tbody>
         </table>
       </div>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>Because Phase 3.5's oracle uses the exact same <code>dynamics.compute_lap_time</code> function the live environment and every learning agent train against, its answer isn't a competing model of the world — it's the provably best possible play <em>within the world the agents already live in</em>. That's what makes "optimality gap" a meaningful number rather than a comparison between two different simulators.</p>
-      </div>
+      <h2>How big a race can you plan?</h2>
+      <p>Exact planning prices every situation the race can be in. The Pit Wall's race has 3,360: 20 laps, two compounds, any tyre age up to the lap, safety car or not, both compounds used or not, wet or dry. The oracle prices all of them in about 10 ms.</p>
+      <p>The real race has six features: lap (about 55), compound (5), tyre age (about 55), compounds used (8), safety car (2) and weather (3). That is 55 × 5 × 55 × 8 × 2 × 3 = 726,000 situations, a few megabytes of table. Exact solving is a size argument: it works when every situation fits in memory. Phase 1 kept the state small and made of counts for this reason. A state full of continuous, finely measured quantities would have made this phase impossible.</p>
 
-      <h2>Why "exact" is possible here at all</h2>
-      <p>Solving an MDP exactly by exhaustively considering every state is, in general, hopeless — most interesting MDPs have astronomically large or continuous state spaces (imagine trying to enumerate every possible pixel-frame of an Atari game). Exact solving is a <em>size</em> argument, not a different kind of intelligence: it works exactly when the number of distinct situations the agent can be in is small enough to fit in memory and iterate over in reasonable time.</p>
-      <p>This project's single-car race state is unusually small for a reason worth naming explicitly: every feature in it was chosen, back in Phase 1, to be a <em>compact, discretizable summary</em> — lap number, which of five compounds is fitted, tyre age in laps, a three-bit used-compound mask, whether a safety car is active, which of three weather regimes is in effect. None of that is an accident of convenience; it's the direct payoff of Phase 1's insistence on a minimal, disciplined state (<a class="xref" href="../phase-1-rl-prerequisites/02-markov-decision-processes.html">page 2</a> of the Phase 1 prerequisites' "sufficient statistic" argument). A state design bloated with continuous, high-precision features would have made this phase impossible.</p>
+      <section class="reveal closed" data-for="p35-01">
+        <p class="co-label">The reveal · lap 8</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">From the rules, by 0.68 s</b></div></div>
+        <div class="co-body">
+          <p>On lap 8 the oracle prices both calls all the way to the flag: boxing for B is worth 152.66 s on average, staying out 153.34 s. It boxes. Both numbers come from the lap-time formula and the 6% safety-car chance, worked through all 3,360 situations. No race was played to get them. Page 02 shows how.</p>
+          <p>Option (c) is the trap. Nobody wrote "lap 8" anywhere. Change the pit loss or the cliff and the oracle's stop moves on its own.</p>
+        </div>
+      </section>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p>Multiplying out <code>lap × compound × tyre_age × used_mask × sc_active × weather</code> gives roughly <strong>55 × 5 × 55 × 8 × 2 × 3 ≈ 726,000</strong> states, times 6 actions. A modern laptop can fill a value table of that size, for every lap of a race, in well under a second using NumPy array operations — <a class="xref" href="02-backward-induction.html">page 2</a> works through exactly why. Most of those 726,000 combinations are actually unreachable (a tyre can't be older than the number of laps run so far, and the used-mask is implied by which compounds could plausibly have been fitted) — a reachability pass typically cuts the real work by another 5–10×.</p>
-      </div>
-
-      <h2>What planning buys that learning can't</h2>
-      <p>The headline reason this phase exists is evaluation. "My RL agent beat the rule-based baseline I also wrote" is a comparison against a strawman of your own construction — the baseline's weaknesses are exactly the weaknesses you happened to think of. "My RL agent came within 0.4 seconds of the provably optimal strategy, and here's exactly where the remaining time is lost" is a claim about the ceiling of the problem itself, independent of anyone's cleverness in writing rules.</p>
-      <p>There's a second, quieter benefit: an exact solver is also the strongest possible test of the simulator. If backward induction — which cannot make a mistake, only report the true optimum of the model as written — discovers a policy that saves an implausible amount of time, that isn't a strategic insight. It's a bug in <code>dynamics.py</code>, found before an RL agent spent three days learning to exploit it and getting blamed for "not really understanding strategy." <a class="xref" href="06-this-project-as-dp.html">Page 6</a> returns to this as the single highest-value test in the whole DP oracle test suite.</p>
+      <h2>What does planning buy?</h2>
+      <p>First, a ruler. "My agent beat my rule" compares against a strawman of your own making. "My agent is 0.4 s from the best possible strategy" is a claim about the problem itself.</p>
+      <p>Second, the strongest test of the simulator you will write. The oracle cannot make a mistake; it can only report the best play in the model it was given. So if it finds a strategy that saves 200 s, the plan says, "the simulator has an exploit — and you found it before an agent did". Page 05's capstone breaks a model on purpose and watches the oracle find the hole.</p>
 
       <div class="note generic">
-        <div class="tag">One discipline to hold onto now</div>
-        <p>The oracle computes an answer; it must never <em>teach</em> one. Training an RL agent to imitate the DP policy's actions is a legitimate technique in its own right (imitation learning), but it is a different project from what Phases 4, 5, and 9 are trying to demonstrate — that an agent can discover good strategy from experience, without being shown the answer first. The oracle's role for the rest of this project is strictly evaluator, never teacher.</p>
+        <div class="tag">The oracle evaluates; it never teaches</div>
+        <p>Training an agent to copy the oracle's calls is a real technique, imitation learning, but it is a different project. Phases 4, 5 and 9 set out to show that an agent can find good strategy from experience without being shown the answer. The oracle only marks the work.</p>
       </div>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why most of the 726,000 situations never happen<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>Many combinations cannot occur. A tyre cannot be older than the race so far, and the compound on the car is always among the compounds used. A <strong>reachability pass</strong>, run forward from the start before solving, marks the situations that can occur, and the backward pass visits only those. The plan expects it to cut the work 5 to 10 times. It is the biggest speed-up, and it also stops the oracle reporting values for situations that cannot happen. The Pit Wall's 3,360 already leave out tyre ages above the lap.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The oracle's calls come from the model, not from races: 3,360 situations, priced in about 10 ms. Nothing yet says why its lap-8 call lost on race #257.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p35-01" data-lab-format="widget">
         <span class="lab-kicker">Lab p35-01 · In page · about 10 min</span>
@@ -125,6 +145,10 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/statespace.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Back to the plan — Phase 1 RL fundamentals · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="1/06">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 1 · Page 06 · Debrief</p>
+      <h1>Back to the Plan</h1>
+      <p class="dek">The real environment, part by part, against the one you built. Where the code will go, what its tests catch, and the verdict on Case 1.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>dynamics.py</code>, <code>f1_strategy_env.py</code> and <code>test_env.py</code> do not exist in <code>src/</code> yet: only Phase 0 of the project is implemented. Read this page as a guide to what those files will contain, per <code>phase-1-gym-environment.md</code>.</p>
+      </div>
+
+      <section class="cold-open" data-call="p1-06">
+        <p class="co-label">Your call · lap 51 of 52</p>
+        <p class="co-moment">Dry. On MEDIUM since the start. No second compound yet.</p>
+        <p class="co-ask">The plan has a −500 penalty for finishing a dry race on one compound. Does it fire in this race?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p1-06" value="a"> Yes, as a lesson: the agent is punished for leaving the stop this late.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-06" value="b"> No. With two laps left the mask has already taken STAY OUT away; the penalty is for code that ignores the mask.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-06" value="c"> Only if the agent stays out on both of the last two laps.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>The real race, part by part</h2>
+      <p><strong>S, the state,</strong> is a 16-number vector, all in [0, 1]:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">Index</th><th>Feature</th><th>Encoding</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">0</td><td>Laps remaining</td><td>Fraction of the race left</td></tr>
+            <tr><td class="mono">1–5</td><td>Tyre compound</td><td>One-hot: SOFT, MEDIUM, HARD, INTERMEDIATE, WET</td></tr>
+            <tr><td class="mono">6</td><td>Tyre age</td><td>Scaled, capped at an assumed 50 laps</td></tr>
+            <tr><td class="mono">7–9</td><td>Weather regime</td><td>One-hot: DRY, DAMP, WET</td></tr>
+            <tr><td class="mono">10</td><td>Track temperature</td><td>Rescaled from 15–65 °C</td></tr>
+            <tr><td class="mono">11</td><td>Safety car active</td><td>Binary</td></tr>
+            <tr><td class="mono">12–14</td><td>Compounds used</td><td>Bitmask over SOFT/MEDIUM/HARD</td></tr>
+            <tr><td class="mono">15</td><td>Mandatory pit needed</td><td>Binary, derived from 12–14 and the two-compound rule</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every feature is on a race broadcast or follows from one: what a strategist has, no calibration constants. Indices 12–15 do the job of the Pit Wall's "both used" flag. <strong>A, the actions,</strong> are six: <code>STAY_OUT</code>, or pit for SOFT, MEDIUM, HARD, INTERMEDIATE or WET.</p>
+      <p><strong>P, the transitions,</strong> live in <code>dynamics.py</code>, and you built their shape on page 05. The real file differs in scale, not structure: calibrated constants, five compounds, a full weather table.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span><code>dynamics.py</code>, function by function, against your stages<span class="dd-len">120 words, 1 table</span></summary>
+        <div class="dd-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>In <code>dynamics.py</code></th><th>What it is for</th><th>Your stage</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">compound_pace_offset</td><td>a fixed pace gap per compound: what makes the choice of tyre matter</td><td>2</td></tr>
+            <tr><td class="mono">tyre_degradation</td><td>linear to <code>cliff_age</code>, then a quadratic capped by <code>cliff_cap</code>; an earlier, uncapped draft let one old tyre swamp every other signal</td><td>3</td></tr>
+            <tr><td class="mono">fuel_effect</td><td>linear in laps remaining</td><td>4</td></tr>
+            <tr><td class="mono">weather_compound_penalty</td><td>a (weather, compound) table: the cost of the wrong tyre</td><td>5</td></tr>
+            <tr><td class="mono">out_lap_warmup</td><td>from <code>tyre_age</code> alone, full at age 1, gone by age 3</td><td>6</td></tr>
+            <tr><td class="mono">compute_lap_time</td><td>composes the rest, with a branch for safety-car and VSC laps; <code>rng=None</code> gives the expected lap time for the oracle</td><td>6, 7</td></tr>
+            <tr><td class="mono">compute_pit_loss</td><td>the stop, discounted under SC or VSC</td><td>7</td></tr>
+            <tr><td class="mono">compute_action_mask</td><td>the five rules below, as one shared function</td><td>8</td></tr>
+          </tbody>
+        </table>
+      </div>
+        </div>
+      </details>
+      <p><code>F1StrategyEnv.step()</code> does the bookkeeping, with page 05's ordering rule: the stop is charged to the lap being finished, on the tyre it started on, and the new tyre and its warm-up start next lap. Two parts of <code>P</code> are drawn at every <code>reset()</code>: weather from real race traces (<code>ScenarioLoader</code>) and safety cars fresh from a hazard rate (<code>SafetyCarSampler</code>), never replayed, for page 01's reason.</p>
+      <p><strong>R</strong> is <code>-lap_time</code> on every lap, safety cars included, plus the −500 backstop. <strong>γ</strong> is 1.0, for pages 02 and 03's reasons.</p>
+
+      <h2>Five rules, one mask</h2>
+      <p><code>compute_action_mask</code> returns one true/false value per action, and the environment and the Phase 3.5 oracle call the same function:</p>
+      <ol>
+        <li>Slicks (SOFT, MEDIUM, HARD) only in DRY or DAMP.</li>
+        <li>INTERMEDIATE only in DAMP or WET.</li>
+        <li>WET only in WET.</li>
+        <li>No pitting for the compound you are on.</li>
+        <li><code>STAY_OUT</code> is switched off when the two-compound rule is not yet met and two laps remain, unless the race is declared wet, which voids the rule (the real regulation).</li>
+      </ol>
+
+      <section class="reveal closed" data-for="p1-06">
+        <p class="co-label">The reveal · lap 51</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">It never fires</b></div></div>
+        <div class="co-body">
+          <p>Rule 5 removes <code>STAY_OUT</code> on lap 51, so any agent that respects <code>action_masks()</code> stops for a second compound and the penalty has nothing to punish. The plan calls the −500 a backstop for consumers that ignore the mask: a raw random policy, an SB3 algorithm without the masking wrapper, a bug in an agent's own masking. Its test bypasses the mask on purpose. In normal play, "the penalty never fired" is the success condition.</p>
+        </div>
+      </section>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>One <code>step()</code>, traced end to end (the lab works from these tables)<span class="dd-len">400 words, 3 tables</span></summary>
+        <div class="dd-body">
+          <p>Page 02's decision, carried through <code>step()</code>: PIT_HARD on lap 30 of 52, 14-lap-old MEDIUM, dry, track at 42 °C, only MEDIUM used.</p>
+          <p><strong>Observation before the call</strong> (<code>laps_remaining = (52−30+1)/52</code>, tyre age <code>14/50</code>, track temperature <code>(42−15)/50</code>, two-compound rule not met yet):</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="mono">Index</th><th>Meaning</th><th class="mono">Value</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">0</td><td>laps_remaining</td><td class="mono">0.4423</td></tr>
+                <tr><td class="mono">1–5</td><td>compound one-hot (S,M,H,I,W)</td><td class="mono">0, 1, 0, 0, 0</td></tr>
+                <tr><td class="mono">6</td><td>tyre_age norm</td><td class="mono">0.2800</td></tr>
+                <tr><td class="mono">7–9</td><td>weather one-hot (DRY,DAMP,WET)</td><td class="mono">1, 0, 0</td></tr>
+                <tr><td class="mono">10</td><td>track_temp norm</td><td class="mono">0.5400</td></tr>
+                <tr><td class="mono">11</td><td>safety_car_active</td><td class="mono">0</td></tr>
+                <tr><td class="mono">12–14</td><td>compounds_used (S,M,H)</td><td class="mono">0, 1, 0</td></tr>
+                <tr><td class="mono">15</td><td>mandatory_pit_needed</td><td class="mono">1.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Call:</strong> <code>obs, reward, terminated, truncated, info = env.step(PIT_HARD)</code>. Inside, in order: the lap is timed on MEDIUM at age 14, 93.582 s as on page 02; the pit loss is added (22.000 s, green flag, total 115.582 s); <em>then</em> the compound switches to HARD and <code>tyre_age</code> resets for next lap; the lap counter moves to 31; <code>terminated</code> stays <code>False</code> (31 ≤ 52).</p>
+          <p><strong>Observation after the call:</strong> HARD fitted at age 1 (its out-lap is next), both dry compounds used, so the mandatory-pit flag clears:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="mono">Index</th><th>Meaning</th><th class="mono">Value</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">0</td><td>laps_remaining</td><td class="mono">0.4231</td></tr>
+                <tr><td class="mono">1–5</td><td>compound one-hot (S,M,H,I,W)</td><td class="mono">0, 0, 1, 0, 0</td></tr>
+                <tr><td class="mono">6</td><td>tyre_age norm</td><td class="mono">0.0200</td></tr>
+                <tr><td class="mono">7–9</td><td>weather one-hot (DRY,DAMP,WET)</td><td class="mono">1, 0, 0</td></tr>
+                <tr><td class="mono">10</td><td>track_temp norm</td><td class="mono">0.5400</td></tr>
+                <tr><td class="mono">11</td><td>safety_car_active</td><td class="mono">0</td></tr>
+                <tr><td class="mono">12–14</td><td>compounds_used (S,M,H)</td><td class="mono">0, 1, 1</td></tr>
+                <tr><td class="mono">15</td><td>mandatory_pit_needed</td><td class="mono">0.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Returned with it:</strong> <code>reward = -115.582</code> (with <code>reward_offset="none"</code>), <code>terminated = False</code>, <code>truncated = False</code>, and <code>info</code>, the plan's public contract:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="mono">Key</th><th>Value this call</th><th>Note</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">lap</td><td class="mono">31</td><td>the lap just started, not the one just finished</td></tr>
+                <tr><td class="mono">compound</td><td class="mono">"HARD"</td><td>the newly fitted tyre</td></tr>
+                <tr><td class="mono">tire_age</td><td class="mono">1</td><td>HARD's out-lap is next</td></tr>
+                <tr><td class="mono">compounds_used</td><td class="mono">["MEDIUM","HARD"]</td><td>both dry compounds now used</td></tr>
+                <tr><td class="mono">two_compound_rule_met</td><td class="mono">True</td><td>the mandatory-pit condition has cleared</td></tr>
+                <tr><td class="mono">track_status</td><td class="mono">0 (GREEN)</td><td>authoritative flag state</td></tr>
+                <tr><td class="mono">pit_laps</td><td class="mono">[30]</td><td>history of pit stops so far</td></tr>
+                <tr><td class="mono">lap_time</td><td class="mono">115.582</td><td>true, uncentred, whatever <code>reward_offset</code> is</td></tr>
+                <tr><td class="mono">pit_done</td><td class="mono">True</td><td>this lap included a pit stop</td></tr>
+                <tr><td class="mono">lap_time_compound</td><td class="mono">"MEDIUM"</td><td>the <strong>old</strong> tyre this lap was driven on, not HARD</td></tr>
+                <tr><td class="mono">lap_time_tyre_age</td><td class="mono">14</td><td>the old tyre's age when that lap was timed</td></tr>
+                <tr><td class="mono">action_masks</td><td class="mono">(recomputed)</td><td>legal actions for lap 31, <em>not</em> for the lap the action was chosen in</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Two entries are easy to get backwards. <code>lap_time_compound</code> is <strong>MEDIUM</strong>: the lap just finished was driven on the old tyre. And <code>action_masks</code> describes what is legal <em>next</em>, on lap 31 on HARD; a consumer reading it for the state the action was taken in is reading the wrong lap's mask.</p>
+        </div>
+      </details>
+
+      <h2>Where the code will go</h2>
+      <p>Everything in <code>dynamics.py</code> is a <strong>pure function</strong>: inputs passed in, a value returned, no class state, no side effects. Three callers need the same physics: the live environment, the hand-written baselines, and the Phase 3.5 oracle, which asks for lap times in states no live race has been in. A pure function can be called from anywhere with the same answer and nothing to keep in sync. A method on the environment would tie the physics to one race.</p>
+      <p>The Definition of Done says it outright: <em>no lap-time or masking logic is duplicated anywhere outside <code>dynamics.py</code></em>. An oracle that solves a slightly different race from the one agents train in gives numbers that look authoritative and are wrong, while both versions look right on their own.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span><code>f1_strategy_env.py</code>, method by method<span class="dd-len">180 words</span></summary>
+        <div class="dd-body">
+          <p>The class holds the state a race has (lap, compound, tyre age, compounds used, this episode's weather and safety-car trace), and each method reads it, calls <code>dynamics.py</code> for any physics, and writes back.</p>
+          <ul>
+            <li><strong><code>__init__</code></strong> loads <code>calibration.json</code> and builds <code>Box(16,)</code> and <code>Discrete(6)</code>. No episode state: that is <code>reset()</code>'s job.</li>
+            <li><strong><code>reset()</code></strong> samples weather and safety car independently, sets <code>tyre_age = 1</code> (lap 1 is an out-lap: cars start on tyres fitted on the grid), and honours <code>options={"starting_compound": ...}</code> and the curriculum hook.</li>
+            <li><strong><code>step()</code></strong> holds the ordering rule: time the lap on the old tyre, add the pit loss, then switch compound and reset the age.</li>
+            <li><strong><code>_get_obs()</code></strong> builds the 16 numbers and asserts their shape and [0, 1] bounds on every call, not only in tests, which catches a scaling bug the moment it appears.</li>
+            <li><strong><code>action_masks()</code></strong> calls <code>dynamics.compute_action_mask</code> and reimplements nothing.</li>
+            <li><strong><code>_get_info()</code></strong> returns the public contract. <code>info.get(...)</code> returns <code>None</code> on a missing key instead of raising, so renaming a key breaks every later phase without an error. Adding keys is safe; renaming or removing one is a breaking change.</li>
+          </ul>
+        </div>
+      </details>
+
+      <h2>What the tests catch</h2>
+      <p>The plan's test list is not a coverage quota. Each test guards one way an earlier draft went wrong:</p>
+      <ul>
+        <li><code>test_return_equals_negative_race_time</code>: page 03's identity, return = −race time, holds in code.</li>
+        <li><code>test_pit_lap_runs_on_old_tyre</code>: the ordering rule was not inverted.</li>
+        <li><code>test_sc_timing_is_not_memorizable</code>: safety cars are drawn fresh each episode (page 01).</li>
+        <li><code>test_cliff_is_capped</code>: the cap caps, on every path.</li>
+        <li><code>test_action_mask_forces_pit_near_end</code> and <code>test_two_compound_rule_violation_penalty</code>: the mask and the backstop each do their half of the two-compound rule.</li>
+      </ul>
+      
+      <div class="case-file">
+        <p class="cf-label">Case 1 · the verdict</p>
+        <h2>The head start is real, the plan removes it, and one test is caught in the crossfire</h2>
+        <p><strong>Is it a problem?</strong> Yes. The plan's own Step 3g says so: with γ = 1 and about −95 a lap over 52 laps, the true Q-values are about −5,000. A table that starts at 0 needs dozens of visits per state to travel that far, and it is "the most likely cause of 'training runs but nothing is learned' in Phases 4 and 5".</p>
+        <p><strong>Is it a bug in the plan?</strong> No. Step 3g fixes it, by default: <code>reward_offset: str = "base_pace"</code> makes the reward <code>-(lap_time - base_pace)</code>, so rewards sit near −5 a lap and Q-values near −250. On the Pit Wall the same move takes the start from −231.92 to −31.92.</p>
+        <p><strong>Does the fix change a single pit stop?</strong> No. It shifts every policy's return by <code>base_pace × total_laps</code>, the same for all of them (page 03), and <code>info["lap_time"]</code> stays in real seconds for everything that reports.</p>
+        <p><strong>The loose end.</strong> The plan's test fixture builds <code>F1StrategyEnv(...)</code> without a <code>reward_offset</code>, so every test gets the centred default. <code>test_return_equals_negative_race_time</code> adds the rewards to the true lap times and expects zero. Under the default it gets <code>total_laps × base_pace</code> instead (52 × 92 = 4,784 with this course's constants) and fails. The Definition of Done already says this test "runs with <code>reward_offset="none"</code>"; the test as written does not. The fix is one line: build that test's environment with <code>reward_offset="none"</code>. The prerequisites do not edit the plan; this goes to whoever implements Phase 1.</p>
+        <p><button class="pw-btn go" type="button" data-close-case="1" data-label="Close Case 1">Close Case 1</button></p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p1-06" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p1-06 · In page · about 20 min</span>
+        <h2>Trace a step, and what each test defends</h2>
+        <p class="lab-goal">The page traced one <code>step()</code> call. Trace a different one yourself, apply the five mask rules to four states, match each planned test to the bug it catches, and run the case against the tests.</p>
+
+        <div class="lab-part">
+          <h3>1 · The observation after a pit stop</h3>
+          <p>Before the call: <strong>lap 18 of 52</strong>, on <strong>SOFT</strong> at tyre age 17, DRY, only SOFT used so far. The agent calls <code>env.step(PIT_HARD)</code>. Using the same encodings as the tables above, fill in the observation <em>returned</em> by that call.</p>
+          <div class="lab-q" data-type="num" data-answer="0.6538" data-tol="0.001" data-explain="The observation describes lap 19: (52 − 19 + 1) / 52." data-nudge="The returned observation is for the lap just started, lap 19. The page's own example used (52 − 31 + 1) / 52.">
+            <label>[0] laps_remaining &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.02" data-tol="0.0005" data-explain="A new tyre whose first lap is next: age 1, over the cap of 50." data-nudge="What age is HARD at when its out-lap is about to begin?">
+            <label>[6] tyre_age (normalized) &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0" data-explain="SOFT was used.">
+            <label>[12] compounds_used: SOFT &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="MEDIUM has not been fitted.">
+            <label>[13] compounds_used: MEDIUM &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1" data-tol="0" data-explain="HARD is fitted now, so it counts as used.">
+            <label>[14] compounds_used: HARD &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="Two dry compounds used: the rule is satisfied and the flag clears." data-nudge="How many dry compounds have been used after this stop?">
+            <label>[15] mandatory_pit_needed &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Two entries of <code>info</code></h3>
+          <div class="lab-q" data-type="choice" data-answer="soft" data-explain="The lap just completed was run on the old tyre. The stop takes effect from the next lap." data-nudge="Which tyre was the lap that just finished actually driven on?">
+            <span class="lab-prompt">After that call, <code>info["lap_time_compound"]</code> is</span>
+            <label class="lab-opt"><input type="radio" name="p106-ltc" value="soft"> "SOFT"</label>
+            <label class="lab-opt"><input type="radio" name="p106-ltc" value="hard"> "HARD"</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="next" data-explain="It is recomputed for the new state: lap 19, on HARD." data-nudge="The page calls this one out as easy to get backward.">
+            <span class="lab-prompt">And <code>info["action_masks"]</code> describes which actions are legal</span>
+            <label class="lab-opt"><input type="radio" name="p106-mask" value="prev"> on lap 18, the state in which PIT_HARD was chosen.</label>
+            <label class="lab-opt"><input type="radio" name="p106-mask" value="next"> on lap 19, the state the agent is in now.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Apply the mask</h3>
+          <p>For each state, tick every action that is <strong>illegal</strong> under the five rules above.</p>
+          <div class="lab-q" data-type="multi" data-answer="i,m,w" data-explain="No repeat of the fitted compound; INTERMEDIATE and WET are not legal in the dry." data-nudge="Rules 2, 3 and 4.">
+            <span class="lab-prompt"><strong>A.</strong> DRY, on MEDIUM, lap 20 of 52, only MEDIUM used.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="h,i,m,s" data-explain="Slicks are illegal in the wet, and INTERMEDIATE is already fitted. STAY_OUT and PIT_WET remain." data-nudge="Rules 1 and 4.">
+            <span class="lab-prompt"><strong>B.</strong> WET, on INTERMEDIATE, mid-race.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="i,m,o,w" data-explain="Rule 5 switches STAY_OUT off: only SOFT or HARD can still satisfy the two-compound rule." data-nudge="Two laps remain and only one dry compound has been used.">
+            <span class="lab-prompt"><strong>C.</strong> DRY, on MEDIUM, only MEDIUM used, 2 laps remaining.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+          <div class="lab-q" data-type="multi" data-answer="i,w" data-explain="A wet-declared race voids the two-compound rule, so STAY_OUT stays legal. In DAMP conditions slicks are allowed and WET tyres are not." data-nudge="Rule 5 has an exception, and DAMP is not WET.">
+            <span class="lab-prompt"><strong>D.</strong> DAMP, on INTERMEDIATE, race declared wet, no dry compound used, 2 laps remaining.</span>
+            <label class="lab-opt"><input type="checkbox" value="o"> STAY_OUT</label><label class="lab-opt"><input type="checkbox" value="s"> PIT_SOFT</label><label class="lab-opt"><input type="checkbox" value="m"> PIT_MEDIUM</label><label class="lab-opt"><input type="checkbox" value="h"> PIT_HARD</label><label class="lab-opt"><input type="checkbox" value="i"> PIT_INTER</label><label class="lab-opt"><input type="checkbox" value="w"> PIT_WET</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Match each planned test to the bug it would catch</h3>
+          <div class="lab-q" data-type="select" data-answer="order" data-explain="The pit-lap ordering rule: time the lap on the old tyre, then fit the new one.">
+            <label><code>test_pit_lap_runs_on_old_tyre</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="replay" data-explain="Fresh sampling per episode, so there is no answer key to memorise.">
+            <label><code>test_sc_timing_is_not_memorizable</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="cap" data-explain="The cap on the cliff term, checked on every path that could let it grow.">
+            <label><code>test_cliff_is_capped</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="sum" data-explain="Page 3's identity, return = −total race time, checked in code.">
+            <label><code>test_return_equals_negative_race_time</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rule" data-explain="The mask's half of the two-compound rule; the −500 penalty is the backstop behind it.">
+            <label><code>test_action_mask_forces_pit_near_end</code><br><select>
+              <option value="">choose…</option>
+              <option value="sum">Adding up an episode's rewards does not give back the race time.</option>
+              <option value="order">A pit stop gets the new tyre's pace on the very lap it was made.</option>
+              <option value="replay">The safety car arrives on the same laps in every episode.</option>
+              <option value="cap">One very old tyre produces a number large enough to swamp every other signal.</option>
+              <option value="rule">An agent can reach the flag on a single dry compound with nothing stopping it.</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Pure function, or method that needs episode state?</h3>
+          <div class="lab-q" data-type="multi" data-answer="a,b,c" data-explain="Everything in dynamics.py takes its inputs explicitly. step(), reset() and _get_obs() read or write the state of one particular race." data-nudge="Which of these live in dynamics.py, and which on the environment class?">
+            <span class="lab-prompt">Tick the ones that are pure functions.</span>
+            <label class="lab-opt"><input type="checkbox" value="a"> <code>compute_lap_time</code></label>
+            <label class="lab-opt"><input type="checkbox" value="b"> <code>tyre_degradation</code></label>
+            <label class="lab-opt"><input type="checkbox" value="c"> <code>compute_action_mask</code></label>
+            <label class="lab-opt"><input type="checkbox" value="d"> <code>step()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="e"> <code>reset()</code></label>
+            <label class="lab-opt"><input type="checkbox" value="f"> <code>_get_obs()</code></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="A pure function can be asked about any state, including ones no live race has visited, and three callers can share it without keeping anything in sync." data-nudge="Think about what the oracle has to evaluate that a running environment never does.">
+            <span class="lab-prompt">Why does the DP oracle in particular need the physics to be pure functions?</span>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="a"> Pure functions run faster than methods.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="b"> It has to evaluate lap times for hypothetical states the live environment was never actually in.</label>
+            <label class="lab-opt"><input type="radio" name="p107-pure" value="c"> Gymnasium's <code>check_env</code> rejects environments whose physics is written as methods.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the tests</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The test adds the centred rewards and the true lap times. Each lap the two differ by base_pace, so the sum misses zero by total_laps × base_pace. Give this one test its own environment built with reward_offset=&quot;none&quot;, as the Definition of Done says." data-nudge="Write out one lap: reward = −(lap_time − base_pace), and the test adds info[&quot;lap_time&quot;] to it.">
+            <span class="lab-prompt">The plan's test fixture builds <code>F1StrategyEnv(...)</code> without <code>reward_offset</code>, so it gets the default, <code>"base_pace"</code>. Run <code>test_return_equals_negative_race_time</code> on it as written. What happens?</span>
+            <label class="lab-opt"><input type="radio" name="p106-case" value="a"> It passes: centring changes no decision, so it changes no test.</label>
+            <label class="lab-opt"><input type="radio" name="p106-case" value="b"> It fails: the summed reward is minus the race time plus total_laps × base_pace (52 × 92 = 4,784 with this course's constants).</label>
+            <label class="lab-opt"><input type="radio" name="p106-case" value="c"> It passes: <code>info["lap_time"]</code> is uncentred, so the test never sees the offset.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> The returned observation is for lap 19 on a new HARD tyre: laps_remaining = (52 − 19 + 1) / 52 = 0.6538; tyre_age = 1 / 50 = 0.02; compounds_used = (1, 0, 1); mandatory_pit_needed = 0.</p>
+          <p><strong>2.</strong> <code>lap_time_compound</code> is "SOFT" (lap 18 was driven on it). <code>action_masks</code> is for lap 19.</p>
+          <p><strong>3.</strong> A: PIT_MEDIUM, PIT_INTER, PIT_WET. B: PIT_SOFT, PIT_MEDIUM, PIT_HARD, PIT_INTER. C: STAY_OUT, PIT_MEDIUM, PIT_INTER, PIT_WET. D: PIT_INTER, PIT_WET.</p>
+          <p><strong>4.</strong> pit-lap ordering; fresh safety car per episode; the cliff cap; return = −race time; the mask's half of the two-compound rule.</p>
+          <p><strong>5.</strong> <code>compute_lap_time</code>, <code>tyre_degradation</code> and <code>compute_action_mask</code> are pure; the oracle needs them because it asks about states no live race has been in.</p>
+          <p><strong>6.</strong> It fails by total_laps × base_pace. That test needs <code>reward_offset="none"</code>.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

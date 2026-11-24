@@ -13,45 +13,67 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 06 of 10 — Six lessons in the shape of ordinary bugs</p>
-      <h1>Six Ways the Plan's Own Pseudocode Breaks Its Own Physics</h1>
-      <p class="dek"><a class="xref" href="05-position-and-blocking.html">Page 05</a> was a missing model. These are six ordinary-looking bugs in the code around it — each one a specific instance of a mistake worth being able to recognize anywhere.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 06 · The bug ledger</p>
+      <h1>Six Ways the Plan's Pseudocode Breaks Its Own Race</h1>
+      <p class="dek">Page 05 was a missing rule. These are ordinary-looking bugs in the code around it, each a mistake worth recognizing anywhere.</p>
 
-      <h2>E1 — Rival lap times are double-counted</h2>
-      <p><code>RivalState.advance_lap</code> already ends with <code>self.total_time += lap_time</code>. The plan's <code>F1MultiCarEnv.step()</code> then loops over every rival and adds the same lap time a second time. Every rival accumulates roughly double its true race time and finishes near-last, every single race.</p>
-      <p><strong>The general lesson:</strong> two different pieces of code, written at different points in the plan, both believing they own the update to the same piece of state. This is an ordinary class of mistake — but here its effect (rivals always finish last) looks <em>exactly like a learning curve succeeding</em>. An agent evaluated against permanently-crippled rivals will "beat" all of them from the very first untrained episode, and a rising reward curve on top of that tells the developer nothing true about whether strategy is being learned. This is precisely why the real plan's Definition of Done asks for a specific regression test on exact-once accumulation, rather than trusting "rivals finish at realistic times" to catch it by eye.</p>
+      <section class="cold-open" data-call="p6-06">
+        <p class="co-label">Your call · a rival counted twice</p>
+        <p class="co-moment">In the plan's code, a rival's lap time is added to its total inside <code>RivalState.advance_lap</code>, and then again in the environment's <code>step()</code>. On the Pit Wall's race the rival's true time is 231.37 s.</p>
+        <p class="co-ask">What does the bug do to the race?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p6-06" value="a"> Nothing visible: positions are still sorted correctly.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-06" value="b"> The rival finishes in about 463 s, behind you in every race, whatever you do.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-06" value="c"> The rival finishes ahead in every race.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>E2 — The overtake result gets silently overwritten</h2>
-      <p>When <code>attempt_overtake</code> succeeds, the plan decrements <code>self._agent_position</code> by one. Two lines later, <code>_update_positions()</code> recomputes every position from scratch from cumulative time — discarding that decrement, since the underlying <code>total_time</code> values never changed.</p>
-      <p><strong>The general lesson:</strong> a stateful, partial update to a quantity, immediately followed by a from-scratch recomputation of that <em>same</em> quantity in the same step, where the recomputation silently wins. This pattern — update, then unconditionally recompute — is worth recognizing on sight as a place bugs like to hide, because both halves individually look correct in isolation; the bug only exists in their sequencing.</p>
+      <h2>E1: rival lap times counted twice</h2>
+      <p><code>RivalState.advance_lap</code> ends with <code>self.total_time += lap_time</code>, and <code>F1MultiCarEnv.step()</code> adds the same lap time again for every rival. Two pieces of code, written at different times, both believe they own one update. The effect looks like a learning curve succeeding: an agent racing crippled rivals beats all of them from its first untrained race. That is why the Definition of Done asks for a test that each total grows by one lap's time per lap.</p>
 
-      <h2>E3 — Dirty air is charged to the reward but not the dynamics</h2>
-      <p>Even once <a class="xref" href="05-position-and-blocking.html">page 05</a>'s blocking fix is in place, the plan's <code>_compute_reward</code> separately subtracts <code>dirty_air</code> from the reward — but <code>dirty_air</code> is never added to <code>agent_lap_time</code>, so it never reaches <code>_agent_total_time</code>, never affects position, and never affects gaps.</p>
-      <div class="note grounded">
-        <div class="tag">The load-bearing lesson of this page</div>
-        <p>The agent is penalized in its reward for a pace loss that its own recorded lap time says never happened. Whenever a reward disagrees with what the dynamics actually did, the fastest way for a learning agent to raise its reward is to exploit the gap between what it's scored on and what actually moves it through the environment — that gap <em>is</em> a reward-hacking surface, not a cosmetic inconsistency. <code>docs/idea.md</code>'s "common pitfalls" section names exactly this shape of failure as the single most common RL debugging trap on this entire project: a rising learning curve isn't proof of anything by itself, because the agent may be exploiting a flaw in the reward function rather than learning good strategy. <a class="xref" href="05-position-and-blocking.html">Page 05</a>'s fix (adding dirty air to the lap time itself, so <code>-lap_time</code> picks it up automatically) is what closes this specific instance of the gap.</p>
-      </div>
+      <h2>E2: the pass that gets overwritten</h2>
+      <p>When <code>attempt_overtake</code> succeeds, the plan lowers <code>self._agent_position</code> by one. Two lines later <code>_update_positions()</code> recomputes every position from total time, which the pass never changed, and the decrement is gone. The pattern is a partial update followed by a from-scratch recompute of the same quantity in the same step: each half looks right, and the bug is in their order. The fix is for a pass to change time, as the Pit Wall's engine does, and for order to be read off time alone.</p>
 
-      <h2>E5 — A principled label on an unprincipled implementation</h2>
-      <p>Directly following from <a class="xref" href="03-potential-based-shaping.html">page 03</a>. The plan's <code>reward_type="potential_shaping"</code> branch computes:</p>
+      <h2>E3: dirty air in the score, not in the race</h2>
+      <p><code>_compute_reward</code> subtracts <code>dirty_air</code> from the reward, but <code>dirty_air</code> is never added to <code>agent_lap_time</code>. It never reaches the total, the gap or the position. The agent is scored for a pace loss its own lap time says never happened. Wherever the reward and the dynamics disagree, the quickest way to raise the reward is to work the gap between them: a surface for reward hacking, not a cosmetic slip. Putting the wake in the lap time, where <code>−lap_time</code> picks it up, closes it.</p>
+
+      <section class="reveal closed" data-for="p6-06">
+        <p class="co-label">The reveal · a rival counted twice</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 463 s, behind every time</b></div></div>
+        <div class="co-body">
+          <p>The rival's total grows by two laps' time per lap, so it finishes in about 2 × 231.37 = 462.74 s. Your worst one-stop is under 270 s. You finish ahead in every race, with any plan.</p>
+          <p>So the place bonus becomes 20 s added to every plan alike, and no rival script can change who finishes ahead. E1 doesn't cause the case, but it would hide it: every reward curve looks like a win.</p>
+        </div>
+      </section>
+
+      <h2>E5: a theorem's name on a flat bonus</h2>
+      <p>The plan's <code>reward_type="potential_shaping"</code> branch computes:</p>
       <blockquote class="eq">return base_reward - dirty_air + (1/n_total if pos_norm &lt; 1.0 else 0)</blockquote>
-      <p>That is a flat bonus for not being in last place — a constant, awarded regardless of whether position improved, worsened, or stayed the same this lap. It stores no <code>Φ(s)</code> from the previous step and computes no difference. <a class="xref" href="03-potential-based-shaping.html">Page 03</a>'s theorem — that potential-based shaping provably cannot change the optimal policy — says nothing whatsoever about this reward, because this reward is not potential-based shaping in the sense the theorem covers. It's ad-hoc shaping (<a class="xref" href="03-potential-based-shaping.html">page 03</a>'s own opening example, a flat bonus unrelated to any state-only potential difference) shipping under the theorem's name.</p>
-      <p><strong>The fix:</strong> store <code>self._prev_potential</code> in <code>reset()</code> and at the end of each <code>step()</code>, and compute the actual difference <code>F = γ·Φ(s') − Φ(s)</code> with <code>Φ(s) = -position_normalized</code>, exactly as <a class="xref" href="03-potential-based-shaping.html">page 03</a> worked through, and with <code>Φ(s′) = 0</code> on the race's final step. Without that zero the fix is incomplete: the last step's leftover potential pays a bonus for the finishing position, and page 03 shows how that can change the optimal policy.</p>
-      <p><strong>The general lesson:</strong> naming a piece of code after a theorem doesn't make the theorem's guarantee apply to it. The guarantee attaches to the specific mathematical form, not the variable or branch name — worth checking that an implementation actually matches the form a cited result depends on, rather than trusting a comment or a config string that claims it does.</p>
+      <p>A flat bonus for not being last, paid every lap whether the position improved or not. No <code>Φ</code> is stored, no difference is taken, and page 03's theorem says nothing about it. The fix: store <code>self._prev_potential</code> in <code>reset()</code> and at the end of each <code>step()</code>, add <code>γ·Φ(s′) − Φ(s)</code> with <code>Φ(s) = −position_normalized</code>, and set <code>Φ(s′) = 0</code> on the final step. Naming code after a theorem doesn't make the theorem apply; the guarantee attaches to the form.</p>
 
-      <h2>E6 — Four smaller items, same discipline of asking "why"</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Item</th><th>What's wrong</th><th>Why it matters</th></tr></thead>
-          <tbody>
-            <tr><td class="mono">E6a</td><td><code>pace_delta = agent_lap_time − car_ahead.total_time / self._current_lap</code></td><td>Compares this lap's agent time to a rival's <em>career-average</em> time-per-lap, not that rival's time <em>this</em> lap (available in <code>rival_lap_times</code>). Silently distorts every overtake-probability calculation from <a class="xref" href="04-overtaking-dirty-air.html">page 04</a>, worst early or late in a race when the average is furthest from current pace.</td></tr>
-            <tr><td class="mono">E6b</td><td><code>super().step()</code> increments <code>_current_lap</code>; rivals then advance using the pre-increment value while gap computations run on the post-increment value</td><td>An off-by-one class of bug where two halves of the same step silently disagree about what lap it currently is — worth an explicit test that agent and rivals are always on the same lap index.</td></tr>
-            <tr><td class="mono">E6c</td><td><code>_compute_gap_to_ahead</code> returns a <code>99.0</code> sentinel when leading, normalized to <code>min(99/60, 1) = 1.0</code></td><td>Identical to the normalized value for "60 seconds behind the car ahead." The network has no way to distinguish "I am winning" from "I am a lap down" — a state-representation bug, a different category from a dynamics bug like E1–E3, worth telling apart. An explicit <code>is_leader</code> feature is the fix.</td></tr>
-            <tr><td class="mono">E6d</td><td>Rivals never react to the safety car</td><td>The agent, via Phase 0.5's calibrated SC pit-loss discount, can exploit an advantage the plan's own rivals are structurally barred from using — flattering every Phase 6 result reported before rivals get a simple "pit under SC if a stop is still due" rule.</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>E6: four smaller items<span class="dd-len">190 words, 1 table</span></summary>
+        <div class="dd-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Item</th><th>What's wrong</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">E6a</td><td><code>pace_delta = agent_lap_time − car_ahead.total_time / self._current_lap</code></td><td>Compares this lap's time with the rival's average lap so far, not its time this lap (in <code>rival_lap_times</code>). It skews every pass probability from page 04, most at the start and end of a race.</td></tr>
+                <tr><td class="mono">E6b</td><td><code>super().step()</code> moves <code>_current_lap</code> on; rivals then advance with the old value while gaps use the new one</td><td>Two halves of one step disagree about the lap. Worth a test that the agent and the rivals are always on the same lap.</td></tr>
+                <tr><td class="mono">E6c</td><td><code>_compute_gap_to_ahead</code> returns 99.0 when leading, which becomes <code>min(99/60, 1) = 1.0</code></td><td>The same number as 60 s behind the car ahead: the network can't tell winning from a lap down. A state bug, not a dynamics bug like E1 to E3. The fix is an <code>is_leader</code> feature.</td></tr>
+                <tr><td class="mono">E6d</td><td>Rivals never react to the safety car</td><td>The agent gets Phase 0.5's cheaper stop under a safety car and the rivals never use it, which flatters every result until rivals get a rule like "stop under the safety car if a stop is still due".</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
+      <h2>How the ledger hides the case</h2>
+      <p>The plan as written is the blocking-off race three ways over: no holding-up line (page 05, E4 in the audit), passes that never stick (E2), and a wake that never touches the lap time (E3). Fix any one alone and the other two still keep position free. E1 then makes the agent win every race, so nothing in the training curves would look wrong.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Three faults each keep track position free: the missing holding-up line, the overwritten pass (E2) and the wake left out of the lap time (E3). E1 would make every race look won, and E5 shapes the reward with a bonus the theorem doesn't cover. Next: why the rivals stay fixed, and what changes when they learn.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-06" data-lab-format="pytest">
         <span class="lab-kicker">Lab p6-06 · Code + tests · about 20 min</span>
@@ -96,6 +118,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

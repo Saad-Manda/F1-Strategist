@@ -13,35 +13,77 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 05 of 10 — The central design gap</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 05 · Position and blocking</p>
       <h1>Why "Position = Sorted by Time" Kills the Undercut</h1>
-      <p class="dek">Not a bug in the usual sense — a missing model that quietly makes this phase's most interesting goal impossible, no matter how long training runs.</p>
+      <p class="dek">Not a bug in the usual sense: a missing rule that makes this phase's most interesting goal impossible, however long training runs.</p>
 
-      <h2>The undercut, as real F1 strategy</h2>
-      <p>A driver pits <em>before</em> a rival running comparable pace. Fresh tyres let them post much faster out-laps than the rival — still on old, worn tyres — can respond to in time. By the time the rival reacts and pits too, the undercutting driver has converted a pit stop into real track position. This only works because of one specific fact about real racing: the rival <strong>cannot simply drive around</strong> the pitted car once it rejoins the track. Track position, once lost in traffic, is genuinely hard to get back — that difficulty is the entire reason the undercut is a strategy worth timing carefully, rather than just an incidental side effect of pitting.</p>
+      <section class="cold-open" data-call="p6-05">
+        <p class="co-label">Your call · the undercut, blocking on</p>
+        <p class="co-moment">Turn blocking on: a car within 1 s of the one ahead drives at its pace unless a pass succeeds. The rival still stops on lap 9. In the plan's race, stopping on lap 6 instead of lap 9 cost you 0.40 s.</p>
+        <p class="co-ask">What does stopping on lap 6 instead of lap 9 do now?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p6-05" value="a"> The same: it costs about 0.40 s.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-05" value="b"> It gains about 3.8 s, and turns P2 into P1.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-05" value="c"> It gains a little, about 0.5 s.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>What the plan's pseudocode actually computes</h2>
-      <p>Every position in the plan's <code>_update_positions()</code> is recomputed each lap by sorting every car's cumulative <code>total_time</code>, ascending. Walk through what that implies directly: if nothing in the model prevents a faster car from instantly passing a slower one — if position is <em>purely</em> a readout of who has accumulated less time — then there is no separate value to timing a pit stop relative to a rival's. "Pit early while you're faster" and "just be faster" become the same statement, because being ahead or behind on track never costs or saves any time on its own. The model has no notion of being <em>stuck</em>.</p>
+      <h2>The undercut in real racing</h2>
+      <p>A driver stops <em>before</em> a rival on similar pace. The fresh tyres give laps the rival, still on worn ones, can't match. By the time the rival stops too, the stop has turned into track position. It works because of one fact about real racing: the rival <strong>can't drive around</strong> the car in front of it. Track position lost in traffic is hard to get back, and that is why the undercut is worth timing.</p>
 
-      <div class="note grounded">
-        <div class="tag">Why this makes attempt_overtake pointless even before any bug</div>
-        <p>An overtake model only has something to <em>do</em> if there's a state — being stuck behind a car you can't get past — that succeeding releases you from. Without a constraint that holds a faster car to a slower one's pace, no car in this simulation is ever stuck behind anything. There is nothing for an overtake to overcome, independent of whether <code>attempt_overtake</code>'s own bookkeeping is correct (<a class="xref" href="06-bug-ledger.html">page 06</a> covers a bug in that bookkeeping too, but fixing that bug alone would not fix this).</p>
-      </div>
+      <h2>What the plan's pseudocode computes</h2>
+      <p>The plan's <code>_update_positions()</code> recomputes every position each lap by sorting the cars' total times. If nothing stops a faster car from going straight past a slower one, position is a readout of who has used less time, and there is nothing to gain from timing a stop against a rival's. "Stop early while you're faster" and "be faster" are the same statement, because being ahead or behind never costs or saves time by itself. The model has no notion of being <em>stuck</em>.</p>
+      <p>That also leaves <code>attempt_overtake</code> nothing to do. A pass is worth something only if it releases you from being stuck behind a car, and nothing in this model ever holds a car back.</p>
 
-      <h2>The fix: one line that turns position into a resource</h2>
-      <p>Add a blocking constraint to the multi-car lap-time model — a car close behind another, that hasn't successfully overtaken it, is held to at best the pace of the car ahead plus the dirty-air cost from <a class="xref" href="04-overtaking-dirty-air.html">page 04</a>:</p>
+      <h2>The fix: one line that makes position a resource</h2>
+      <p>A car close behind another that hasn't passed it is held, at best, to the pace of the car ahead plus page 04's wake:</p>
       <blockquote class="eq">if gap_to_car_ahead &lt; OVERTAKE_ATTEMPT_GAP and not overtake_succeeded:
     lap_time = max(own_lap_time, car_ahead_lap_time + dirty_air_penalty(gap))</blockquote>
-      <p>That single line is the entire difference between a race where position is just a scoreboard reading of accumulated time, and a race where being behind has a real, ongoing cost that only an overtake can end. With it in place, <code>attempt_overtake</code> finally has a job: it's the mechanism that releases a car from the pace cap this line imposes. Positions still ultimately follow from cumulative time — nothing about how position is <em>computed</em> changes — but now the lap times feeding into that computation depend on who's stuck behind whom, which is exactly the missing ingredient the undercut needs to exist at all.</p>
+      <p>Positions are still read off total time. What changes is that the lap times going into the totals now depend on who is stuck behind whom, and a pass is how you get out. The Pit Wall's <em>blocking</em> switch is this line, with the wake in the lap time.</p>
 
-      <h2>Traced forward: why this blocks Phase 8, not just Phase 6</h2>
-      <p>Phase 8's headline Definition of Done is a bimodal undercut/overcut pit-timing histogram emerging from training — pit-lap choices clustering around "just before a rival" and "just after," arising on their own rather than being explicitly programmed. That emergence is unreachable without this fix, for the same reason stated above: an agent cannot learn to exploit a track-position advantage that its simulator doesn't actually grant for being ahead. Phase 8's own Risks table, written before this gap was found, misdiagnoses the eventual symptom (undercut/overcut not appearing) as a possible bug in the out-lap warmup penalty. The warmup penalty is implemented correctly — the missing piece was always here, one phase earlier, in whether position carries any cost or benefit of its own.</p>
+      <div data-widget="pitwall" data-mode="rival" data-seed="1" data-blocking="1"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-      <div class="note generic">
-        <div class="tag">The general shape of this kind of gap</div>
-        <p>This isn't an off-by-one or a typo — it's a case where a system was built with all the visible pieces of a mechanism (overtaking probabilities, dirty air, position tracking) but missing the one structural constraint that makes those pieces interact meaningfully. Worth recognizing the shape: individually-reasonable components can add up to nothing, if the piece connecting them to consequence is never added. A test proving a faster car stuck behind a slower one gains no time until it overtakes is the concrete way to confirm this constraint actually exists, rather than assuming its presence from the existence of the surrounding pieces.</p>
+      <section class="reveal closed" data-for="p6-05">
+        <p class="co-label">The reveal · the undercut, blocking on</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">+3.83 s, and P1 every race</b></div></div>
+        <div class="co-body">
+          <p>Stopping on lap 6 takes 228.14 s and finishes ahead in every race. Stopping on lap 9, with the rival, takes 231.97 s and finishes behind in every race. Stopping together keeps the order: you rejoin about 0.6 s behind, where its wake cancels your 0.3 s edge, and no pass is ever tried. The undercut is worth 3.83 s.</p>
+          <p>In the plan's race the same two plans differ by 0.40 s the other way, because lap 6 is a slightly worse lap to stop on and nothing else. One line made the rival's stop lap part of your best call.</p>
+        </div>
+      </section>
+
+      <h2>The rival's stop now moves yours</h2>
+      <p>The best one-stop against each rival, from the Pit Wall's engine, 1,000 races each with blocking on:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rival stops on</th><th>Blocking off: best stop</th><th>Blocking on: best stop</th></tr></thead>
+          <tbody>
+            <tr><td>laps 5 to 7</td><td>lap 8, 224.79 s</td><td>lap 8, 226.79 to 227.54 s: the rival stops first and you go by</td></tr>
+            <tr><td>lap 8</td><td>lap 8, 224.79 s</td><td>lap 6, 228.17 s</td></tr>
+            <tr><td>lap 9</td><td>lap 8, 224.79 s</td><td>lap 6 or 7, 228.1 s</td></tr>
+            <tr><td>laps 10 to 14</td><td>lap 8, 224.79 s</td><td>lap 7, 227.35 s</td></tr>
+          </tbody>
+        </table>
       </div>
+      <p>With blocking on, stopping on the same lap as the rival finishes behind it in every race, for every rival lap from 5 to 10. With it off, the rival's lap appears nowhere in the left column.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Traced forward: why this blocks Phase 8 too<span class="dd-len">80 words</span></summary>
+        <div class="dd-body">
+          <p><a class="xref" href="../phase-8-self-play-prerequisites/00-overview.html">Phase 8</a>'s headline Definition of Done is a two-humped histogram of pit laps emerging from self-play: stops bunched just before a rival's and just after, learned rather than programmed. An agent can't learn to use a track-position advantage its race never grants, so that histogram is out of reach without this line. Phase 8's Risks table, written before the gap was found, blames a missing undercut on the out-lap warmup penalty. The warmup penalty is fine. The missing piece is here, one phase earlier.</p>
+        </div>
+      </details>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The general shape of this gap<span class="dd-len">70 words</span></summary>
+        <div class="dd-body">
+          <p>This isn't an off-by-one or a typo. Every visible piece of a mechanism is there, pass probabilities, dirty air, positions, and the one rule that connects them to a consequence is missing. Reasonable parts can add up to nothing. The concrete check is a test that a faster car stuck behind a slower one gains no time until it passes, rather than assuming the rule is there because the parts around it are.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Root cause</span><span>Found. Without a rule that holds a car behind the one ahead, track position costs nothing and the rival's stop lap appears in none of your lap times. With the line, the undercut is worth 3.83 s against a lap-9 rival, and your best stop moves from lap 8 to lap 6 or 7 as the rival's does. Next: the plan's other bugs, and how each one hides this.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-05" data-lab-format="widget">
         <span class="lab-kicker">Lab p6-05 · In page · about 15 min</span>
@@ -108,6 +150,12 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/rivalui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/blocking.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

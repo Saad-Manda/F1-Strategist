@@ -13,26 +13,55 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 01 of 10 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 01 · One car to N</p>
       <h1>From One Car to N</h1>
-      <p class="dek">Nothing about how the agent's own tyres or fuel behave changes. What's new is that the agent's outcome now depends on cars it doesn't control.</p>
+      <p class="dek">Nothing about the agent's own tyres changes. What's new is an outcome that depends on cars it doesn't control.</p>
+
+      <section class="cold-open" data-call="p6-01">
+        <p class="co-label">Your call · three new numbers</p>
+        <p class="co-moment">The plan adds three numbers to the state: the gap to the car ahead, the gap to the car behind, and your position. The reward is still minus the lap time, in the plan's race.</p>
+        <p class="co-ask">How much can the best call depend on those three numbers?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p6-01" value="a"> A lot: they are the point of the phase.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-01" value="b"> Not at all.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-01" value="c"> Only in the last few laps, when gaps are small.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>What breaks, and what doesn't</h2>
-      <p>Phase 1's state has 16 features, every one of them about the agent's own car — its tyre compound, tyre age, laps remaining, the weather, whether a safety car is out. Adding four more cars to the same race changes none of that. <code>compute_lap_time</code> is unchanged: the agent's own tyres degrade exactly the way Phase 0's calibration says they do, regardless of who else is on track. What's new is a second question layered on top of the first: it's no longer enough to drive your own race well, because now there's a notion of <em>relative</em> outcome — position, gap to the cars around you — that depends on choices the agent never makes.</p>
+      <p>Phase 1's state has 16 features, every one of them about the agent's own car: compound, tyre age, laps left, weather, safety car. Adding four more cars changes none of that. <code>compute_lap_time</code> is unchanged, and your tyres wear the way Phase 0's calibration says, whoever else is on track. What's new is a second question on top of the first. Driving your own race well is no longer the whole story, because there is now a relative outcome, position and the gap to the cars around you, that depends on choices the agent never makes.</p>
 
       <h2>Three new state features</h2>
-      <p>The real plan adds exactly three: <code>gap_to_car_ahead</code>, <code>gap_to_car_behind</code> (both in seconds, normalized by a 60-second cap), and <code>position_normalized</code> (<code>position / n_cars</code>). The observation grows from Phase 1's 16 dimensions to <code>N_OBS_MULTI = N_OBS_SINGLE + N_NEW_FEATURES = 19</code>.</p>
-      <p>Why these three, and not — say — the full ordered list of every rival's tyre age and compound: the same Markov-sufficiency argument <a class="xref" href="../phase-1-rl-prerequisites/06-this-project-as-mdp.html">Phase 1 page 06</a> made about the single-car state applies again. The agent's next decision only needs to know what's immediately relevant to <em>it</em>: is there a car close enough ahead to be worth attacking or close enough behind to be a threat, and roughly how well is the race going overall. The rest of the field's internal state (what tyres rival #3 is on, four cars back) doesn't change what the agent should do this lap, so it doesn't belong in the state any more than <code>cumulative_race_time_so_far</code> belonged in Phase 1's.</p>
+      <p>The plan adds three: <code>gap_to_car_ahead</code> and <code>gap_to_car_behind</code>, in seconds and divided by a 60-second cap, and <code>position_normalized</code>, <code>position / n_cars</code>. The observation grows from 16 numbers to <code>N_OBS_MULTI = N_OBS_SINGLE + N_NEW_FEATURES = 19</code>.</p>
+      <p>Why these three, and not every rival's tyre age and compound? <a class="xref" href="../phase-1-rl-prerequisites/02-markov-decision-processes.html">Phase 1 page 02</a>'s Markov argument again: the state needs what changes this lap's best call. Is a car close enough ahead to attack or close enough behind to threaten, and how is the race going overall? Rival number 3's tyres, four cars back, don't change what you should do, so they stay out, as total race time stayed out of Phase 1's state.</p>
+
+      <section class="reveal closed" data-for="p6-01">
+        <p class="co-label">The reveal · what the numbers can change</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Not at all, in the plan's race</b></div></div>
+        <div class="co-body">
+          <p>With the reward minus the lap time, the best call is the one that makes the rest of your race fastest. In the plan's race each car's lap time comes from its own tyres, its own age and its own call. Nothing in it reads the gap or the position. So the three new numbers predict nothing about your future lap times, and the best call ignores them.</p>
+          <p>That doesn't make them useless: a reward that pays for position can still make them matter, and page 02 tries one. But it is the first sign of the case. The state now describes the rival; the race never asks about it.</p>
+        </div>
+      </section>
 
       <div class="note grounded">
-        <div class="tag">Consequence for the Phase 5 network</div>
-        <p>The observation width changing from 16 to 19 isn't just a documentation detail — it means <code>DuelingDQN</code>'s first <code>Linear</code> layer, sized for a 16-wide input, has to be rebuilt for 19. A checkpoint trained on the single-car environment cannot be reloaded as-is for Phase 6; a fresh network has to be constructed with the new input width and trained from scratch. This is worth knowing before training day, not discovering as a shape-mismatch error.</p>
+        <div class="tag">A new network, not a reloaded one</div>
+        <p>The observation going from 16 to 19 numbers means <code>DuelingDQN</code>'s first layer, sized for 16 inputs (<a class="xref" href="../phase-5-dqn-prerequisites/05-dueling-architecture.html">Phase 5 page 05</a>), has to be built for 19. A single-car checkpoint can't be reloaded for Phase 6; a fresh network is built with the new input width and trained from scratch. Better known now than met as a shape-mismatch error on training day.</p>
       </div>
 
-      <h2>Rivals as fixed scripts, not learners</h2>
-      <p>The other four (or however many) cars in the race are not RL agents. They follow deterministic, pre-defined pit-stop plans — a strategy is just a starting compound and a list of <code>(lap, new_compound)</code> pairs, chosen before the race and never adapted mid-race based on what the agent does. This is a deliberate simplification with a name and a payoff: it sidesteps the multi-agent non-stationarity problem entirely (<a class="xref" href="07-non-stationarity.html">page 07</a> explains exactly what that problem is and why avoiding it here is the right call), which is precisely why fixed rivals are the sensible first step before Phase 8's self-play, where rivals <em>do</em> learn and adapt.</p>
-      <p>From the agent's point of view, a fixed-script rival's behavior is just one more piece of the environment it needs to react to — no different in kind from the weather trace or the safety-car process it already has to handle. All of it is <em>given</em>, not something the agent's actions can change the rules of.</p>
+      <h2>Rivals as fixed scripts</h2>
+      <p>The other cars are not RL agents. Each follows a pit plan, a starting compound and a list of <code>(lap, new_compound)</code> pairs, chosen before the race and never changed by anything the agent does. To the agent a scripted rival is one more given part of the environment, like the weather trace or the safety car. Page 07 explains the problem this sidesteps, a learning opponent, and why that is the right order before Phase 8.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The Pit Wall's rival, in the same terms<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>The Pit Wall's rival is the labs' two-car race (<code>labs/labkit/duel.py</code>): the 20-lap toy race with the safety car off, a rival 0.3 s a lap slower starting 0.3 s ahead, and a script with one stop for B on lap 9. The labs' observation has eight numbers: four about your car (laps left, tyre age, on B, both compounds used) and four about the duel (gap ahead, gap behind, position and a leader flag). The leader flag isn't in the plan; page 06 shows why it is needed.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The state now carries the gaps and the position. In the plan's race no lap time reads them, so with lap time as the reward the best call can't depend on them. Next: rewards that pay for finishing ahead.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-01" data-lab-format="paper">
         <span class="lab-kicker">Lab p6-01 · In page · about 10 min</span>
@@ -99,6 +128,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

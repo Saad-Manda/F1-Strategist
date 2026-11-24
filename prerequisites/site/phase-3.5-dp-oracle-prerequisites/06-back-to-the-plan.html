@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Back to the plan — Phase 3.5 DP oracle · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="3.5/06">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Page 06 · Back to the plan</p>
+      <h1>Back to the Plan</h1>
+      <p class="dek"><code>phase-3.5-dp-oracle.md</code> against what you built: the real state, the two oracles, how agents are scored, the tests, and the verdict.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>dp_oracle.py</code>, <code>weather_markov.py</code>, <code>run_dp_oracle.py</code> and <code>test_dp_oracle.py</code> are not in the repository yet: only Phase 0 of the project is implemented. Read this page as a guide to what those files will contain, per the plan.</p>
+      </div>
+
+      <section class="cold-open" data-call="p35-06">
+        <p class="co-label">Your call · a results table in Phase 5</p>
+        <p class="co-moment">Over the 500 shared seeds, the DQN agent's mean race time is 0.6 s below Oracle B's. The paired confidence interval runs from −0.9 to −0.3 s.</p>
+        <p class="co-ask">What does that say?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p35-06" value="a"> DQN has found a strategy better than the optimum.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-06" value="b"> DQN was lucky on these seeds. Run more and it will go away.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-06" value="c"> Something is wrong: a bug, or Oracle B was solved for a different race from the one DQN was measured in.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>What is the real oracle's state?</h2>
+      <p>A small tuple that can be hashed and enumerated, not a vector shaped for a network:</p>
+      <pre><code>@dataclass(frozen=True)
+class DPState:
+    lap: int              # 1..total_laps
+    compound: int         # 0..4  (SOFT/MEDIUM/HARD/INTER/WET)
+    tyre_age: int         # 1..total_laps
+    used_mask: int        # 0..7 -- bits for SOFT/MEDIUM/HARD
+    sc_active: int        # 0 or 1
+    weather: int          # 0..2  -- Oracle B only; fixed per lap in Oracle A</code></pre>
+      <p>Each field is something your toy solver already has: <code>lap</code> is the backward-pass index, <code>tyre_age</code> stage 1's age, <code>sc_active</code> stage 2's, <code>weather</code> stage 4's. <code>compound</code> and <code>used_mask</code> are the real rules' version of stage 3's <code>has_pitted</code>. The plan sizes the table at "≈ 363,000 states", but its own six factors multiply to 55 × 5 × 55 × 8 × 2 × 3 = 726,000, twice that. Either fits in a few megabytes, and the reachability pass cuts it 5 to 10 times before solving.</p>
+      <p>The oracle works in cost, total race time to make small; the agent maximises <code>reward = -lap_time</code>. The same calls win either way. The plan negates once, where the oracle's policy is wrapped for the evaluation harness, and nowhere inside the solver.</p>
+
+      <h2>Which oracle judges the agents?</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Oracle A</th><th>Oracle B</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">Weather</td><td>One historical template, known in advance</td><td><code>DPState.weather</code>, moving by the fitted 3 × 3 chain</td></tr>
+            <tr><td class="mono">Answers</td><td>"Best time for a strategist who knows this race's weather"</td><td>"Best time for a strategist who sees only today's weather, like the agent"</td></tr>
+            <tr><td class="mono">Can an agent reach it?</td><td>No: it is a bound</td><td>Yes, in principle: it is the optimum of the agent's own race</td></tr>
+            <tr><td class="mono">An agent's gap to it</td><td>information + mistakes</td><td>mistakes only: the number to report</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>F1StrategyEnv</code> gains <code>weather_mode</code>: <code>"template"</code>, the default, replays a real race's weather, and <code>"markov"</code> draws it from the chain. Oracle B is the optimum of the <code>"markov"</code> race.</p>
+
+      <h2>How is the oracle scored?</h2>
+      <p><code>DPOraclePolicy</code> wraps the solved table behind <code>act(obs, action_mask)</code>, the interface every agent has, so <code>evaluate.py</code>'s paired-seed harness runs it unchanged. Its race time comes from rolling it out in the real environment with noise on, not from reading <code>V[s₀]</code>. <code>V[s₀]</code> is the expectation under the model. The rollout mean is a measurement, with luck in it, and the two should agree within that luck. Every results table from Phase 4 on gains one column:</p>
+      <blockquote class="eq">optimality_gap(agent) = mean_race_time(agent) − mean_race_time(oracle_B)</blockquote>
+      <p>in seconds, with a paired bootstrap confidence interval over the shared seeds. "Paired" is what tames the luck of page 03: every policy meets the same safety cars. In the toy race, a "box for B on lap 8" baseline is only 0.23 s slower than the oracle on average, yet over 200 sets of 500 paired seeds its mean never once beats the oracle's.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why one shared implementation<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p>An oracle that prices a different race from the one agents train in does not fail loudly. It writes confident, wrong numbers into a results table. So the plan routes every lap cost through <code>dynamics.compute_lap_time</code> (with noise off, which page 03 showed is exact) and every legality check through <code>dynamics.compute_action_mask</code>, the function <code>F1StrategyEnv.action_masks()</code> also calls. Neither is restated in the oracle.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>One backward-induction cell at the real scale<span class="dd-len">130 words</span></summary>
+        <div class="dd-body">
+          <p>Lap 50 of 55, a 6-lap-old MEDIUM, DRY, green, both dry compounds used. The <code>STAY</code> branch, with the real names in place of the toy ones:</p>
+          <blockquote class="eq">this_lap = dynamics.compute_lap_time(compound=MEDIUM, tyre_age=6, laps_remaining=6,
+                                      weather=DRY, sc_active=False, rng=None)
+expected_next = Σ_sc′ Σ_w′ P(sc′ | green) · P(w′ | DRY) · V[51, MEDIUM, 7, mask, sc′, w′]
+
+V[50, MEDIUM, 6, mask, green, DRY] = min(
+    this_lap + expected_next,                                              # STAY
+    this_lap + dynamics.compute_pit_loss(sc_active=False) + expected_next_after_pit   # each legal PIT_*
+)</blockquote>
+          <p>Nothing here is new against your stage 4: the double sum is <code>expect_both</code>, the <code>min</code> over legal calls is stage 3's masked comparison. Only the scale differs: five compounds, a fitted weather matrix, a calibrated hazard. If any part of this cell feels unfamiliar, build that part as a toy on page 05 before reading <code>dp_oracle.py</code>.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The files, in reading order<span class="dd-len">170 words</span></summary>
+        <div class="dd-body">
+          <ul>
+            <li><strong><code>src/evaluation/dp_oracle.py</code></strong>. <code>DPState</code>, indexed into a flat NumPy array by strides: <code>np.full(n_states, -np.inf)</code> is the whole value table. Then the reachability pass, forward from the start. Then the backward loop, your stage 4: <code>V[T+1, ·] = 0</code> plus the two-compound terminal penalty where the rule is unmet, and for each lap from <code>T</code> down, each reachable state, each legal call, <code>cost + E[V(s′)]</code>, keep the minimum. γ = 1, as in the environment. Lap costs from <code>compute_lap_time(..., rng=None)</code>, legality from <code>compute_action_mask</code>. Last, <code>DPOraclePolicy</code>.</li>
+            <li><strong><code>src/env/weather_markov.py</code></strong>. Page 04's count-and-divide fit per circuit, with the uniform-row fallback for a regime never seen; the fit-quality report; and sampling, shared by Oracle B and the environment's <code>"markov"</code> mode.</li>
+            <li><strong><code>scripts/run_dp_oracle.py</code></strong>. Solves every circuit in both modes, caches each policy to <code>data/processed/{circuit}/dp_policy.npz</code>, and reports solve time against the plan's target of under 10 s. Re-run it whenever <code>dynamics.py</code> or the calibration changes: a policy cached against older physics is the same silent drift as a second implementation.</li>
+          </ul>
+        </div>
+      </details>
+
+      <h2>What the tests catch</h2>
+      <p>Each test in <code>tests/test_dp_oracle.py</code> guards one way this phase can go wrong:</p>
+      <ul>
+        <li><code>test_oracle_no_absurd_exploit</code>: within 15% of the best hand-computed one-stop plan. Your stage 5. The plan calls it "the highest-value test in the repository": it catches a wrong-sign warm-up penalty before anyone blames DQN.</li>
+        <li><code>test_oracle_value_matches_rollout</code>: <code>V[s₀]</code> and the mean of 500 rollouts agree within 3 standard errors. It catches wrong expectation weights, or a model that has drifted from the environment.</li>
+        <li><code>test_dp_action_mask_matches_env</code>: on 1,000 sampled reachable states, the oracle's mask equals <code>env.action_masks()</code>.</li>
+        <li><code>test_oracle_a_dominates_oracle_b</code>: knowing the weather never makes an exact solver slower (page 04).</li>
+        <li><code>test_oracle_respects_two_compound_rule</code> and <code>test_oracle_pit_count_plausible</code>: the rule binds, and the oracle makes 1 to 3 stops on a dry circuit.</li>
+        <li><code>test_oracle_beats_every_baseline</code>: the oracle's mean is at or below every Phase 3 baseline's on the shared seeds.</li>
+      </ul>
+
+      <section class="reveal closed" data-for="p35-06">
+        <p class="co-label">The reveal · Phase 5's results table</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Something is wrong</b></div></div>
+        <div class="co-body">
+          <p>On one race, beating the oracle means nothing: page 03's waiting strategy does it on 12% of races. On the mean of 500 paired seeds, with the whole interval below zero, luck is not the answer. Either an oracle or the evaluation has a bug, or DQN was measured in a race Oracle B did not solve.</p>
+          <p>The verdict below shows how the plan, as written, can produce that second case.</p>
+        </div>
+      </section>
+
+      <div class="case-file">
+        <p class="cf-label">Case 2 · the verdict</p>
+        <h2>The oracle is best on average, and three of the plan's lines must say so</h2>
+        <p><strong>How did you beat the optimal strategy?</strong> On luck. Your time is the oracle's expected time plus the cost of your calls plus luck (page 03). On race #257 your calls cost 2.47 s and your luck beat the oracle's by 4.83 s. "Optimal" means best on average over the dice, which is the most a strategist who cannot see the future can aim for.</p>
+        <p><strong>And when an agent beats it?</strong> On one race, nothing follows. On the mean over paired seeds, with a confidence interval below zero, something is wrong, and the plan leaves three places for it to hide. The prerequisites do not edit the plan; these go to whoever implements Phase 3.5.</p>
+        <p><strong>1. Which race is the gap measured in?</strong> Templates stay the environment's default, and Step 6 defines <code>optimality_gap</code> against Oracle B without naming a weather mode. Oracle B is the optimum of the Markov-weather race only. Under replayed templates, an agent that recognises the template knows the weather to come, which is foresight B does not have: worth 1.37 s on average in the toy race. Measure the gap with <code>weather_mode="markov"</code>.</p>
+        <p><strong>2. Compare the oracles on the same weather.</strong> <code>test_oracle_a_dominates_oracle_b</code> holds when Oracle A's value on a template is compared with Oracle B's policy scored on that same template. Compared with B's <code>V[s₀]</code>, it fails for two correct oracles whenever the template is wetter than average: on 871 of 2,000 sampled histories in the toy race. The Definition of Done's "value of perfect foresight (Oracle A − Oracle B)" has the same need: a paired difference per template, and in race times B − A, which is positive.</p>
+        <p><strong>3. Which standard error?</strong> <code>test_oracle_value_matches_rollout</code> allows 3 × "noise standard error". It has to be the standard error of the 500 race times themselves, safety cars and weather included. In the toy race there is no lap noise at all, and the oracle's race times still spread with a standard deviation of 8.19 s: 3 standard errors over 500 races is 1.10 s, and the test passed 40 of 40 such blocks. A tolerance built from lap noise alone would be zero there, and a correct oracle would fail every run.</p>
+        <p><button class="pw-btn go" type="button" data-close-case="3.5" data-label="Close Case 2">Close Case 2</button></p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p35-06" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p35-06 · In page · about 25 min</span>
+        <h2>Size it, name the oracle, and what each test defends</h2>
+        <p class="lab-goal">Size the real state space, prune it, say which oracle a claim is about, match each planned test to the bug it catches, and run the case against the tests.</p>
+
+        <div class="lab-part">
+          <h3>1 · A longer race</h3>
+          <p>A different circuit runs <strong>70 laps</strong>. Everything else about <code>DPState</code> is as above.</p>
+          <div class="lab-q" data-type="num" data-answer="1176000" data-tol="0" data-explain="70 × 5 × 70 × 8 × 2 × 3. Laps appear twice in the product, once as the lap and once as the cap on tyre age." data-nudge="Two of the six factors change, not one.">
+            <label>How many states, before pruning? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="1.62" data-tol="0.02" data-explain="(70 / 55)² ≈ 1.62. The table grows with the square of the race length, because lap and tyre age both scale with it." data-nudge="Divide your answer by the 55-lap count, 726,000.">
+            <label>How many times larger is that than the 55-lap table? &nbsp; <input type="text" inputmode="decimal"> ×</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Reachable or not?</h3>
+          <p>A 55-lap race that starts on a new MEDIUM. For each state, say whether the reachability pass would keep it. <code>used_mask</code> is written as the set of dry compounds fitted so far.</p>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="A tyre cannot be older than the number of laps run." data-nudge="Compare tyre_age with lap.">
+            <label>lap 10, MEDIUM, tyre_age 12, used {MEDIUM} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="The fitted compound is always in the set of compounds used." data-nudge="Is the tyre on the car in the used set?">
+            <label>lap 30, HARD, tyre_age 5, used {MEDIUM, SOFT} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="yes" data-explain="A stop for HARD at the end of lap 32 gives exactly this, safety car and weather being whatever the dice say.">
+            <label>lap 40, HARD, tyre_age 8, used {MEDIUM, HARD}, safety car out, DAMP &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="no" data-explain="A tyre as old as the race has never been changed, so only the starting compound can have been used." data-nudge="What does tyre_age = lap tell you about pit stops so far?">
+            <label>lap 20, MEDIUM, tyre_age 20, used {MEDIUM, HARD} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="yes" data-explain="This is the start state. The forward sweep begins here.">
+            <label>lap 1, MEDIUM, tyre_age 1, used {MEDIUM} &nbsp; <select><option value="">choose…</option><option value="yes">reachable</option><option value="no">unreachable</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · Oracle A or Oracle B?</h3>
+          <div class="lab-q" data-type="select" data-answer="b" data-explain="Only the current regime is observed, which is all the agent ever sees.">
+            <label>"Its state includes the current weather regime and nothing about future laps." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="a" data-explain="Knowing lap 31's weather on lap 1 is foresight no agent has.">
+            <label>"It already knows on lap 1 that lap 31 will be DAMP." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="b" data-explain="optimality_gap is defined against Oracle B, because that gap is purely the agent's own shortfall." data-nudge="Which one solves exactly the problem the agent faces?">
+            <label>"An agent's reported optimality gap is measured against it." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="a" data-explain="More information can never hurt an exact solver, so A's time is never above B's. The difference is the value of perfect foresight." data-nudge="Which one can always copy the other's decisions?">
+            <label>"Its expected race time is the lower of the two, or equal." &nbsp; <select><option value="">choose…</option><option value="a">Oracle A</option><option value="b">Oracle B</option></select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="V[s₀] comes from the model with noise switched off. The rollout is the measurement in the real environment. Agreement between the two is itself a test." data-nudge="Reread “The rollout harness and the optimality-gap metric”.">
+            <span class="lab-prompt">How is the oracle's race time obtained for a results table?</span>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="a"> It is read from <code>V[s₀]</code>, the solved value at the start state.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="b"> It is the best time found over many random rollouts.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-score" value="c"> Its policy is rolled out in the real environment on the shared seeds, like any other agent, and the mean is reported.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Which test catches it?</h3>
+          <div class="lab-q" data-type="select" data-answer="exploit" data-explain="The oracle would pit on every lap and report a race far faster than any sensible plan. Only a comparison with a hand-reasoned baseline shows that." data-nudge="The solver itself is working perfectly here. What is wrong is the model.">
+            <label>The warm-up penalty in <code>dynamics.py</code> has the wrong sign, so a fresh tyre is faster on its out-lap than it should be. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="mask" data-explain="Two mask implementations that each look right and disagree in one corner. Comparing them state by state is the only direct check." data-nudge="Which test compares the oracle's idea of “legal” with the environment's?">
+            <label>The oracle's own copy of the legality rules allows PIT_WET in DAMP conditions; the environment does not. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rollout" data-explain="The table's value would be computed with the wrong weights, so it would no longer match what happens when the policy is actually driven." data-nudge="The model is right and the mask is right. The expectation is wrong. What does that make disagree?">
+            <label>The expectation over the safety car uses the hazard where it should use the continue probability. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="dominates" data-explain="Knowing the future can never make an exact solver slower. If it does, one of the two oracles is solving the wrong problem." data-nudge="This one is a relationship between the two oracles.">
+            <label>On one circuit, the oracle that knows the whole race's weather reports a slower expected time than the one that knows only the current regime. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="rule" data-explain="Without the terminal penalty or the forced stop, a dry race on one compound looks legal to the solver." data-nudge="Which test is about the mandatory-service constraint actually binding?">
+            <label>The terminal condition is plain zero everywhere, with nothing added where the two-compound rule is unmet. &nbsp; <select><option value="">choose…</option><option value="rollout">test_oracle_value_matches_rollout</option><option value="mask">test_dp_action_mask_matches_env</option><option value="exploit">test_oracle_no_absurd_exploit</option><option value="dominates">test_oracle_a_dominates_oracle_b</option><option value="rule">test_oracle_respects_two_compound_rule</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Reading the files</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The noise is additive with mean zero, so the expected lap time is the noise-free lap time exactly. Page 03 has the two-line argument." data-nudge="Page 03, “Why compute_lap_time(noise=0) is exact”.">
+            <span class="lab-prompt">The oracle calls <code>compute_lap_time(..., rng=None)</code>, with no noise. That is</span>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="a"> an approximation, accepted because the noise is small.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="b"> exact, because the noise is added on and averages to zero.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-noise" value="c"> a bug the rollout test is there to catch.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="A cached policy solved against older physics is silent drift, the same failure as a second implementation, one step removed." data-nudge="What does the cached policy depend on?">
+            <span class="lab-prompt">When must <code>run_dp_oracle.py</code> be run again?</span>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="a"> Before every evaluation of every agent.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="b"> Only when a new circuit is added.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-rerun" value="c"> Whenever <code>dynamics.py</code> or the calibration changes.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="It keeps the backward pass off states that cannot occur, which is most of them, and it stops values being reported for impossible states." data-nudge="Page 06 gave the size of the saving.">
+            <span class="lab-prompt">What is the reachability pass for?</span>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="a"> Speed, and not reporting values for states that can never happen.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="b"> Correctness: without it the optimal value at the start state would be wrong.</label>
+            <label class="lab-opt"><input type="radio" name="p3507-reach" value="c"> Exploration: it finds states the agent has not tried yet.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the tests</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Oracle A's value is an expectation over the safety car on one fixed weather history; Oracle B's V[s₀] is an expectation over all histories. A wet template is slower for everyone. Score B's policy on the same template and A is never worse. In the toy race the naive comparison fails on 871 of 2,000 sampled histories with both oracles correct; the paired one never does." data-nudge="Is a wet template's race slower than an average race, whoever is calling it?">
+            <span class="lab-prompt">On one circuit, Oracle A's value on a wet template is 4 s above Oracle B's <code>V[s₀]</code>, and <code>test_oracle_a_dominates_oracle_b</code>, comparing those two numbers, fails. What is wrong?</span>
+            <label class="lab-opt"><input type="radio" name="p3506-dom" value="a"> Oracle A: knowing the future can never cost time.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-dom" value="b"> The comparison: the two numbers are about different weather. Compare A's value with B's policy scored on that same template.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-dom" value="c"> Oracle B: it should have been fitted to that template.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Oracle B is the optimum of the Markov-weather race. Under replayed templates the agent can learn which race it is in and what weather is coming, which is foresight B does not have. The gap is a pure algorithmic gap only when it is measured in weather_mode=&quot;markov&quot;." data-nudge="Which race is Oracle B the optimum of?">
+            <span class="lab-prompt">Measured in the default <code>weather_mode="template"</code>, an agent's optimality gap is −0.6 s, with a confidence interval of −0.9 to −0.3. The most likely reading?</span>
+            <label class="lab-opt"><input type="radio" name="p3506-mode" value="a"> The agent has found a strategy better than the optimum.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-mode" value="b"> It was measured in a race Oracle B did not solve. Measure the gap with <code>weather_mode="markov"</code>.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-mode" value="c"> Lucky seeds: run more of them.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The rollout mean wanders because of everything random in a race: lap noise, but mostly safety cars and weather. In the toy race there is no lap noise at all, and the oracle's 500 race times still have a standard deviation of 8.19 s, so 3 standard errors is 1.10 s. A tolerance built from lap noise alone would be zero there." data-nudge="What makes two rollouts of the same policy finish at different times?">
+            <span class="lab-prompt"><code>test_oracle_value_matches_rollout</code> allows 3 standard errors between <code>V[s₀]</code> and the mean of 500 rollouts. The standard error should come from</span>
+            <label class="lab-opt"><input type="radio" name="p3506-se" value="a"> the lap-time noise alone, since that is what the oracle switched off.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-se" value="b"> the spread of the 500 race times themselves, safety cars and weather included.</label>
+            <label class="lab-opt"><input type="radio" name="p3506-se" value="c"> nothing: the two should agree to 1e-9.</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Worked solution</summary>
+          <p><strong>1.</strong> 70 × 5 × 70 × 8 × 2 × 3 = 1,176,000. Divided by 726,000 that is 1.62, which is (70 / 55)².</p>
+          <p><strong>2.</strong> Unreachable: tyre older than the race so far; fitted compound missing from the used set; a never-changed tyre with two compounds used. Reachable: the lap-40 state and the start state.</p>
+          <p><strong>3.</strong> B, A, B, A. The oracle is scored by rolling its policy out in the real environment.</p>
+          <p><strong>4.</strong> Wrong-sign warm-up: <code>test_oracle_no_absurd_exploit</code>. Disagreeing mask: <code>test_dp_action_mask_matches_env</code>. Wrong expectation weights: <code>test_oracle_value_matches_rollout</code>. Foresight slower than no foresight: <code>test_oracle_a_dominates_oracle_b</code>. Missing terminal penalty: <code>test_oracle_respects_two_compound_rule</code>.</p>
+          <p><strong>5.</strong> Exact, because the noise is additive and zero-mean. Re-run when the physics or calibration changes. The reachability pass is for speed and for not reporting impossible states; the value at the start state does not depend on it.</p>
+          <p><strong>6.</strong> Compare the oracles on the same weather; measure the gap in Markov-weather mode; take the standard error from the rollouts themselves.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>

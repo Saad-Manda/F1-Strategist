@@ -13,28 +13,60 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 01 of 11 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 01 · Table to function</p>
       <h1>From a Table Cell to a Function</h1>
-      <p class="dek">Nothing about the TD-error idea ever required a table. It only ever needed something that could store and update a number per state-action pair — Phase 5 changes what that something is.</p>
+      <p class="dek">The TD update never needed a table. It needed somewhere to keep a number for each state and call.</p>
 
-      <h2>The tabular update, restated as what it actually is</h2>
-      <p><a class="xref" href="../phase-4-q-learning-prerequisites/02-q-learning-derived.html">Phase 4 page 02</a>'s update rule: <code>Q(s,a) ← Q(s,a) + α·δ</code>, where <code>δ = target − Q(s,a)</code>. Read mechanically, that line does exactly one thing — it overwrites <em>one cell</em> of a lookup table with a slightly nudged value. Nothing in the derivation of <code>δ</code>, or in the reasoning behind why nudging toward a sampled target eventually converges, depended on the table being the storage mechanism. The table was simply the most direct way to associate a number with each <code>(s,a)</code> pair, not a requirement of the underlying idea.</p>
+      <section class="cold-open" data-call="p5-01">
+        <p class="co-label">Your call · the real agent's size</p>
+        <p class="co-moment">Phase 4's plan keys its table on 172,800 states, with six calls each. The real plan's DQN replaces that table with a network.</p>
+        <p class="co-ask">How many adjustable numbers does the network have?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-01" value="a"> About 1,036,800: one per cell, as before.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-01" value="b"> About 35,700, shared by every state.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-01" value="c"> 16, one per number in the observation.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The curse of dimensionality, with this project's own numbers</h2>
-      <p><a class="xref" href="../phase-4-q-learning-prerequisites/05-state-discretization-tradeoff.html">Phase 4 page 05</a> already did the arithmetic: eight binned observation dimensions produce a table with <strong>172,800 states</strong>, each needing its own independently-learned number per action. Two states that differ by exactly one lap of tyre age, everything else equal, get assigned to completely unrelated table cells — the table has no way to know they're similar situations, so a hundred visits to one cell teach it nothing whatsoever about the neighbouring cell one lap over. Phase 6's plan (adding per-rival gap features) only multiplies this further: every new continuous-ish dimension that needs binning multiplies the total state count by however many bins it's given, while learning a good estimate for any one cell still takes roughly the same number of visits regardless of how many other cells now exist.</p>
-      <p>This is the general shape of the <strong>curse of dimensionality</strong>: the size of a discretized state space grows exponentially in the number of dimensions binned, while the training budget (episodes × steps per episode) stays fixed. A table that was already straining to get enough visits per cell in Phase 4's 8-dimensional space becomes hopeless once a 9th or 10th dimension is added — not because the algorithm got worse, but because the representation's cost scales in a way the training budget can't keep up with.</p>
+      <h2>The table was one choice of storage</h2>
+      <p><a class="xref" href="../phase-4-q-learning-prerequisites/02-q-learning-derived.html">Phase 4 page 02</a>'s update, <code>Q(s, a) ← Q(s, a) + α·δ</code> with <code>δ = target − Q(s, a)</code>, overwrites one cell with a nudged value. Nothing in the reasoning behind <code>δ</code>, or behind why many small nudges converge, depended on the storage being a table. A table was the simplest way to keep a number per <code>(s, a)</code>.</p>
 
-      <h2>Function approximation, defined generally</h2>
-      <p>Replace the table lookup <code>Q(s,a)</code> with a <strong>parameterized function</strong> <code>Q(s,a;θ)</code>, where <code>θ</code> is a (large) vector of adjustable numbers — the network's weights. Instead of an update overwriting one cell, an update nudges <em>all</em> of <code>θ</code> a little in a direction that reduces error on the transition just seen. Because the same weights are shared across every state the function is ever asked about, a nudge from training on lap 27 also moves the function's output for lap 26 and lap 28, even though neither was directly involved in that update. This sharing — one update changing predictions at states it never directly visited — is what <strong>generalization</strong> means here, concretely, and it's the property no table can ever have: a table's cells are, by construction, completely independent of one another.</p>
+      <h2>The curse of dimensionality</h2>
+      <p>The plan's table has 172,800 states, each with its own number per call, learned alone. Two states one lap of tyre age apart, everything else equal, are unrelated cells: a hundred visits to one teach the other nothing. Every dimension that needs bins multiplies the count by its number of bins, and each cell still needs about as many visits as before. Phase 6 adds a gap to each rival, and a table that was already short of visits per cell becomes hopeless. The algorithm hasn't got worse; the storage grows faster than any training budget.</p>
+
+      <section class="reveal closed" data-for="p5-01">
+        <p class="co-label">The reveal · the network's size</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">35,655 numbers</b></div></div>
+        <div class="co-body">
+          <p>The real network's layers hold 2,176 + 16,512 numbers in the shared trunk, 8,256 + 65 in the value head and 8,256 + 390 in the advantage head: 35,655 in all (page 10 counts them). The table it replaces holds 172,800 × 6 = 1,036,800, about thirty times more.</p>
+          <p>The size isn't the main difference. No number in the network belongs to one state: every weight takes part in every state's answer.</p>
+        </div>
+      </section>
+
+      <h2>Function approximation</h2>
+      <p>Replace the lookup <code>Q(s, a)</code> with a <strong>parameterized function</strong> <code>Q(s, a; θ)</code>, where <code>θ</code> is a vector of adjustable numbers, the network's weights. An update no longer overwrites one cell. It nudges all of <code>θ</code> a little, in the direction that reduces the error on the transition it has seen. Because the same weights serve every state, training on lap 27 also moves the answers for laps 26 and 28. That is <strong>generalization</strong>: one update changing predictions at states it never visited. A table can't do it, because its cells are independent by construction.</p>
 
       <div class="note generic">
-        <div class="tag">The catch, named up front</div>
-        <p>Sharing information across states cuts both ways. An update that helps the function's prediction at a nearby state can just as easily <em>hurt</em> its prediction at a state it previously handled well, if the two states are treated as more similar than they should be, or if the update is allowed to move <code>θ</code> too far in one step. Choosing <code>θ</code> so the function actually improves overall, rather than forgetting what it just learned elsewhere every time it's nudged, is what the rest of this set is about: gradient descent (<a class="xref" href="02-neural-networks-primer.html">page 02</a>) is the mechanism that nudges <code>θ</code> at all; the target network (<a class="xref" href="03-target-network.html">page 03</a>) and experience replay (<a class="xref" href="04-experience-replay.html">page 04</a>) exist specifically because training a network online, without them, destabilizes that nudging badly enough to prevent learning altogether.</p>
+        <div class="tag">The catch</div>
+        <p>Sharing cuts both ways. An update that helps one state can hurt another the network handled well, if it treats the two as more alike than they are, or if one step moves <code>θ</code> too far. Pages 02 to 04 are about keeping those nudges from undoing each other: gradient descent moves <code>θ</code> at all, and the target network and the replay memory keep training a network online from coming apart.</p>
       </div>
 
       <h2>What carries over unchanged</h2>
-      <p>Everything about <em>what</em> is being learned stays exactly as Phase 4 left it. The Bellman-derived target — <code>r + γ·max_a' Q(s',a')</code> for the off-policy case <a class="xref" href="../phase-4-q-learning-prerequisites/02-q-learning-derived.html">Phase 4 page 02</a> derived — is still the thing every update tries to close the gap toward. The TD-error idea, <code>δ = target − Q(s,a)</code>, is still the signal driving every update. Even the ε-greedy exploration schedule from <a class="xref" href="../phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Phase 4 page 03</a>, decay arithmetic and all, is reused without modification (<a class="xref" href="10-this-project-formalized.html">page 10</a> confirms the real agent's <code>epsilon_start</code>/<code>epsilon_end</code>/<code>epsilon_decay_steps</code> values). The only thing this phase changes is <em>how the number gets stored and updated</em> — a function with shared parameters instead of independent table cells, updated by a gradient step instead of an overwrite. <a class="xref" href="02-neural-networks-primer.html">Page 02</a> makes that gradient step concrete.</p>
+      <p>What is learned stays as Phase 4 left it. The target is still <code>r + γ·max_a′ Q(s′, a′)</code>, and the TD error is still the signal. ε-greedy exploration carries over too, with the same straight-line decay as <a class="xref" href="../phase-4-q-learning-prerequisites/03-epsilon-greedy-exploration.html">Phase 4 page 03</a>, down to a floor of 0.05 and no further. Only how the number is stored and updated changes.</p>
+
+      <h2>The champion is a function</h2>
+      <p>Give the champion a state, its five numbers, and it returns three Q-values. Give it the same state again and it returns the same three. The Pit Wall's replay is a recording of those answers, made once in Python for all 1,680 states the race can reach: the network's three numbers and its greedy call in each. In evaluation the network doesn't change.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why 1,680 states, and why a recording is the whole policy<span class="dd-len">80 words</span></summary>
+        <div class="dd-body">
+          <p>Laps 1 to 20, two compounds, a tyre age from 1 up to the lap number, safety car or not, both compounds used or not: <code>2 × (1 + 2 + … + 20) × 2 × 2 = 1,680</code> dry states. The greedy policy only ever asks the network about these, so a table of its answers is the policy, exact. The export script checks the recording against Python: the expected race time it gives in the browser matches Python's to 1e-9.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>A function gives the same state the same answer every time. The champion's unplanned stops land on different laps in different races, and on lap 9 its numbers favour staying out by 5.29 s. Whatever makes those stops is not in the numbers alone. Next: how a network turns its numbers into a call.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-01" data-lab-format="notebook">
         <span class="lab-kicker">Lab p5-01 · Notebook · about 15 min</span>
@@ -61,6 +93,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

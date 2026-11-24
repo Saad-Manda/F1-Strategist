@@ -13,56 +13,67 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Page 03 of 10 — A little math</p>
-      <h1>Potential-Based Shaping: The Principled Version</h1>
-      <p class="dek">Ng, Harada &amp; Russell (1999) found the one shape a shaping bonus can take without ever being able to change what's optimal.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Page 03 · Potential-based shaping</p>
+      <h1>Potential-Based Shaping</h1>
+      <p class="dek">Ng, Harada &amp; Russell (1999) found the one form a shaping bonus can take without being able to change what's best.</p>
+
+      <section class="cold-open" data-call="p6-03">
+        <p class="co-label">Your call · a shaped chain</p>
+        <p class="co-moment">From A, either go via B to the end C (rewards −3 then −1) or straight to C (−10). Add a bonus to each step: the potential of where you land minus the potential of where you left, with Φ(A) = 5, Φ(B) = 2, Φ(C) = 0.</p>
+        <p class="co-ask">What does the bonus add to each route's total?</p>
+        <div class="lab-q" data-type="choice" data-answer="a">
+          <label class="lab-opt"><input type="radio" name="co-p6-03" value="a"> −5 to both routes.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-03" value="b"> −5 to the direct route, −3 to the route via B.</label>
+          <label class="lab-opt"><input type="radio" name="co-p6-03" value="c"> It depends on the rewards on each step.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>Ad-hoc shaping can change the answer</h2>
-      <p>Nothing stops a designer from adding <em>any</em> extra term to a reward to make learning faster — a bonus for exploring a certain area, a penalty for a certain action. But nothing about an arbitrary extra term guarantees it leaves the optimal policy alone. A quick illustration: imagine adding a flat bonus for making any pit stop at all, meant only to encourage the agent to try pitting early in training. If that bonus is large enough, it can make pitting look attractive <em>regardless of tyre age</em> — the shaped optimum genuinely becomes "pit constantly," a different, worse policy than the true optimum. Ad-hoc shaping doesn't just risk slowing learning down; done carelessly, it risks teaching the wrong thing outright.</p>
+      <p>Nothing stops a designer adding any extra term to a reward to speed learning up. Nothing guarantees it leaves the best policy alone either. Add a flat bonus for any pit stop, meant to encourage trying stops early in training. Make it large enough and pitting looks good at any tyre age: the shaped optimum becomes "pit constantly", a different and worse policy. Careless shaping can teach the wrong thing outright.</p>
 
       <h2>The theorem</h2>
-      <p>Ng, Harada &amp; Russell (1999) show that shaping terms of one specific form are safe. Given any function of state alone, <code>Φ(s)</code> — a "potential function" — define the shaping reward as the discounted difference in potential between consecutive states:</p>
-      <blockquote class="eq">F(s, a, s') = γ·Φ(s') − Φ(s)</blockquote>
-      <p>Add this to the base reward at every step. The claim: no matter what <code>Φ</code> is, the <strong>optimal policy under the shaped reward is identical to the optimal policy under the unshaped reward</strong> — only how fast that optimal policy is found changes.</p>
+      <p>Take any function of the state alone, <code>Φ(s)</code>, a <strong>potential</strong>, and add the discounted difference in potential to every step's reward:</p>
+      <blockquote class="eq">F(s, a, s′) = γ·Φ(s′) − Φ(s)</blockquote>
+      <p>Then, whatever <code>Φ</code> is, the best policy under the shaped reward is the best policy under the unshaped one. Only how fast it is found can change. The reason in one line: for every policy, <code>Q′(s, a) = Q(s, a) − Φ(s)</code>. Every call at a state shifts by the same amount, and a shift that is the same for every call can't change which call is largest.</p>
 
-      <h2>Why, without the full proof</h2>
-      <p>Take any policy <code>π</code> and check what the shaped action-value function <code>Q'^π(s,a)</code> works out to, using the ordinary Bellman equation with the shaped reward substituted in:</p>
-      <blockquote class="eq">Q'^π(s,a) = E[ r + F(s,a,s') + γ·V'^π(s') ]
-
-Try the guess  V'^π(s) = V^π(s) − Φ(s)  (shift every value by the potential at that state)
-and check it's self-consistent:
-
-Q'^π(s,a) = E[ r + γ·Φ(s') − Φ(s) + γ·(V^π(s') − Φ(s')) ]
-          = E[ r + γ·V^π(s') ] − Φ(s)      (the γ·Φ(s') terms cancel)
-          = Q^π(s,a) − Φ(s)</blockquote>
-      <p>The guess checks out: <code>Q'^π(s,a) = Q^π(s,a) − Φ(s)</code>, for <em>every</em> policy <code>π</code>, including the optimal one. This holds state by state, not just at the start of an episode. Since <code>Φ(s)</code> doesn't depend on the action <code>a</code>, subtracting it from every <code>Q(s,a)</code> at a given state shifts all of that state's action-values by the same amount — which can never change which action has the <em>highest</em> value there:</p>
-      <blockquote class="eq">argmax_a Q'*(s,a) = argmax_a [ Q*(s,a) − Φ(s) ] = argmax_a Q*(s,a)</blockquote>
-      <p>The optimal action at every single state is unchanged. This is the same "subtracting something constant across the choice being compared can't change the argmax" move <a class="xref" href="../phase-5-dqn-prerequisites/08-reward-scale-trap.html">Phase 5 page 08</a> used for reward centring — reused here in a per-state rather than per-episode form.</p>
-
-      <h2>One hand-worked example</h2>
-      <p>A toy 3-state chain: start at <code>A</code>, choose either a two-step route through <code>B</code> or a one-step direct route to the terminal state <code>C</code>. <code>γ = 1</code>. Potential: <code>Φ(A) = 5</code>, <code>Φ(B) = 2</code>, <code>Φ(C) = 0</code> (terminal potential zero: as the next section shows, this one is required).</p>
-      <blockquote class="eq">Unshaped rewards:      A→B: −3        B→C: −1        A→C (direct): −10
-Unshaped returns:      via B: −3 + −1 = −4          direct: −10
-  → Optimal choice: via B (−4 beats −10 by 6)
-
-Shaping terms, F(s,s') = Φ(s') − Φ(s), since γ=1:
-  F(A,B) = 2 − 5 = −3        F(B,C) = 0 − 2 = −2        F(A,C) = 0 − 5 = −5
-
-Shaped rewards:        A→B: −3 + −3 = −6      B→C: −1 + −2 = −3     A→C: −10 + −5 = −15
-Shaped returns:        via B: −6 + −3 = −9            direct: −15
-  → Optimal choice: via B (−9 beats −15 by 6 — same gap, same winner)</blockquote>
-      <p>Both routes' returns shift by exactly <code>−Φ(A) = −5</code> — the same constant, because <code>Φ(C) = 0</code> cancels the far end of the telescoping sum and only the shared starting potential is left over. The <em>ranking</em> between the two options — the only thing that determines which policy is optimal — is untouched. This is the numeric face of the algebra above: shift every value at a state by the same amount, and nothing about which action looks best there can change.</p>
+      <section class="reveal closed" data-for="p6-03">
+        <p class="co-label">The reveal · the shaped chain</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">−5 to both</b></div></div>
+        <div class="co-body">
+          <p>Via B: F(A,B) = 2 − 5 = −3 and F(B,C) = 0 − 2 = −2, so the route goes from −4 to −9. Direct: F(A,C) = 0 − 5 = −5, from −10 to −15. Both shift by −5 = Φ(C) − Φ(A), because the middle potential is added on one step and taken back on the next. The gap between the routes stays 6, and via B still wins.</p>
+          <p>The steps' own rewards never enter the shift. Only the start and the end do, which is where the one condition comes from.</p>
+        </div>
+      </section>
 
       <h2>The one condition: every ending has the same potential</h2>
-      <p>The algebra above quietly assumed something about the end of an episode. At a terminal state there is no next value: <code>V(terminal) = 0</code> under both rewards, and the guess <code>V' = V − Φ</code> only holds there if <code>Φ(terminal) = 0</code> too. The telescoping sum says the same thing. Over a whole episode with <code>γ = 1</code> the shaping terms add up to <code>Φ(s_T) − Φ(s_0)</code>. The <code>Φ(s_0)</code> part is shared by every route from the same start. The <code>Φ(s_T)</code> part is not, unless every way of ending has the same potential.</p>
-      <p>Give the chain a second ending to see it. Suppose the direct route ended at a different terminal state <code>C′</code> with <code>Φ(C′) = 8</code>. Then <code>F(A,C′) = 8 − 5 = 3</code> and the direct route's shaped return is <code>−10 + 3 = −7</code>, which now beats the route via B at <code>−9</code>. The ranking flipped, though every term was still a potential difference. A non-zero potential at the end is a bonus for ending there, and a bonus for an outcome is ordinary ad-hoc shaping.</p>
-      <p>So the rule is: <strong>every state where an episode can end gets the same potential, conventionally 0</strong>. In code that means setting <code>Φ(s') = 0</code> on the step that ends the episode, whatever the state looks like. (With <code>γ &lt; 1</code> the same reasoning holds; the zero still has to be there.)</p>
+      <p>Over a whole episode with <code>γ = 1</code> the bonuses add up to <code>Φ(end) − Φ(start)</code>. Every route shares the start. They share the end only if every way of ending has the same potential. Give the direct route its own ending <code>C′</code> with <code>Φ(C′) = 8</code>: its shaped total becomes <code>−10 + 3 = −7</code>, which now beats −9. Every term was still a potential difference, and the ranking flipped. A potential left at the end is a bonus for ending there. So <strong>every state where an episode can end gets the same potential, conventionally 0</strong>: in code, <code>Φ(s′) = 0</code> on the step that ends the race.</p>
 
       <div class="note generic">
-        <div class="tag">The real plan's choice of Φ</div>
-        <p>The real plan's <code>potential_shaping</code> reward design uses <code>Φ(s) = -position_normalized = -(position / n_cars)</code> — "being in a better position is a better potential," so a car that moves from P4 to P2 gets a positive shaping bump exactly when it improves its standing, and by the theorem above, this can never change what the truly optimal racing policy is, only how quickly an agent finds it. Two conditions make that true. The code has to compute a real difference <code>γ·Φ(s′) − Φ(s)</code>, which the plan's code does not (<a class="xref" href="06-bug-ledger.html">page 06</a>, E5). And <code>Φ</code> has to be 0 on the final step. With <code>Φ = −position/n_cars</code> kept at the finish, the leftover <code>Φ(s_T)</code> is worth <code>1/n_cars</code> per place gained by the end: a hidden finishing-position bonus, on top of whatever the base reward already pays. The plan does not set it to 0, so even with E5 fixed, its own Definition-of-Done test (shaped and unshaped optima agree) is not guaranteed to pass.</p>
+        <div class="tag">The plan's Φ</div>
+        <p>The plan's <code>potential_shaping</code> design names <code>Φ(s) = −position / n_cars</code>: a better place is a better potential. Two conditions make the theorem cover it. The code must compute a real difference <code>γ·Φ(s′) − Φ(s)</code>, and the plan's code does not (page 06, E5). And <code>Φ</code> must be 0 on the final step, which the plan doesn't say: kept at the finish, the leftover potential pays <code>1/n_cars</code> per place gained by the end, a hidden finishing bonus. Even with E5 fixed, its Definition-of-Done test, that the shaped and unshaped optima agree, isn't guaranteed.</p>
       </div>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The algebra behind Q′ = Q − Φ<span class="dd-len">120 words</span></summary>
+        <div class="dd-body">
+          <p>Take any policy <code>π</code> and guess <code>V′(s) = V(s) − Φ(s)</code>. Put it into the Bellman equation with the shaped reward:</p>
+          <blockquote class="eq">Q′(s,a) = E[ r + γ·Φ(s′) − Φ(s) + γ·(V(s′) − Φ(s′)) ]
+        = E[ r + γ·V(s′) ] − Φ(s)        (the γ·Φ(s′) terms cancel)
+        = Q(s,a) − Φ(s)</blockquote>
+          <p>The guess is consistent, state by state, for every policy, the best one included, so <code>argmax_a Q′*(s,a) = argmax_a Q*(s,a)</code>. At a terminal state there is no next value, <code>V = 0</code> under both rewards, and the guess holds there only if <code>Φ(terminal) = 0</code>: the algebra's version of the condition above. It is the move <a class="xref" href="../phase-5-dqn-prerequisites/08-reward-scale-trap.html">Phase 5 page 08</a> used for centring, per state instead of per race.</p>
+        </div>
+      </details>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The four designs on the plan's race<span class="dd-len">130 words</span></summary>
+        <div class="dd-body">
+          <p>On the Pit Wall's race with blocking off, the place bonus, <code>gap_change</code>, the potential with its zero at the finish, the potential without it, and the plan's flat bonus (page 06, E5) all put the lap-8 stop first. The flat bonus pays 0.5 for every lap you are ahead, so it moves lap 9 up to second, ahead of lap 7: a stop on lap 9 is ahead for 19 laps, lap 8 for 18. None of them can move the top. With blocking on, the place bonus, <code>gap_change</code> and all three shapings put lap 6 first, and lap time alone has laps 6 and 7 level to within 0.01 s. The lab below and stage 7 of the capstone test which shapings leave every plan's ranking alone.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Shaping done right can't change the best policy, by construction; shaping done wrong pays for something extra. Neither can make the rival's stop lap matter when nothing in your race reads it. Next: the two formulas that do read the other car.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p6-03" data-lab-format="pytest">
         <span class="lab-kicker">Lab p6-03 · Code + tests · about 20 min</span>
@@ -115,6 +126,7 @@ Shaped returns:        via B: −6 + −3 = −9            direct: −15
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

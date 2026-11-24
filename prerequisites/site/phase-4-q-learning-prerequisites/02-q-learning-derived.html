@@ -13,46 +13,74 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 4 · Page 02 of 09 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 4 · Page 02 · Q-learning</p>
       <h1>Q-Learning: The Update Rule, Derived and Hand-Run</h1>
-      <p class="dek">One equation, traced back to <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s general TD-error form, then run by hand for four steps on a toy table small enough to track cell by cell.</p>
+      <p class="dek">Page 01's update with one choice made: the target assumes the best call comes next, whatever the learner does.</p>
+
+      <section class="cold-open" data-call="p4-02">
+        <p class="co-label">Your call · lap 8, in training</p>
+        <p class="co-moment">The learner stayed out on lap 8. On lap 9 it explores: it boxes for A, a call its own table rates as poor. Now it updates lap 8.</p>
+        <p class="co-ask">Lap 8's target uses which value for lap 9?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p4-02" value="a"> The value of boxing for A, the call it made.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-02" value="b"> The value of the best call on lap 9, by its own table.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-02" value="c"> The race's final time, once the flag falls.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>The full update</h2>
-      <p>Q-learning's update fills in <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s <code>target</code> with a specific choice:</p>
-      <blockquote class="eq">Q(s, a) ← Q(s, a) + α [ r + γ · max_a' Q(s', a')  −  Q(s, a) ]
-                    \_______________/   \__________/
-                        target              δ</blockquote>
-      <p>Matched against <a class="xref" href="01-from-equation-to-update-rule.html">page 1</a>'s general form: <code>target = r + γ · max_a' Q(s', a')</code>, and <code>δ = target − Q(s, a)</code>, exactly as before. Everything here is one concrete instance of the shape already introduced — nothing new in the mechanics, only in what <code>target</code> is built from.</p>
+      <blockquote class="eq">Q(s, a) ← Q(s, a) + α [ r + γ · max_a′ Q(s′, a′)  −  Q(s, a) ]
+                      \______________________/
+                              target</blockquote>
+      <p>This is page 01's form with <code>target = r + γ · max_a′ Q(s′, a′)</code>, the max taken over the next state's legal calls. The learner's code works in rewards, <code>reward = −lap time</code>, so the best call is the largest value; the oracle worked in time and took the smallest. The same calls win either way.</p>
 
-      <h2>Why <code>max_a'</code>: this is what "off-policy" means</h2>
-      <p>The target assumes the agent will play <em>optimally</em> from <code>s'</code> onward — it takes the best Q-value available at <code>s'</code>, regardless of which action the agent actually ends up taking next while it's still exploring. That's a deliberate mismatch: the policy generating the data (ε-greedy, <a class="xref" href="03-epsilon-greedy-exploration.html">page 3</a>) is not the same policy the update assumes will be followed afterward (purely greedy). This mismatch — updating toward a different policy than the one producing the experience — is precisely what <strong>off-policy</strong> means. The agent can take a random exploratory action next and the update still credits <code>(s,a)</code> as if the best follow-up action were coming, because <code>max_a'</code> doesn't care what was actually sampled.</p>
+      <h2>Why the max: off-policy</h2>
+      <p>The target assumes the best call follows, whatever the learner does next. While it explores, it will sometimes do something else, and the update ignores that. Learning about one policy (the greedy one) from data made by another (the exploring one) is called <strong>off-policy</strong>. α sets how far one lap moves a cell, as on page 01. γ stays at 1, as in every phase: a race has a fixed number of laps, so a lap-40 second counts the same as a lap-5 one.</p>
 
-      <h2>Learning rate and discount, in their learning-specific role</h2>
-      <p><code>α</code> (learning rate) and <code>γ</code> (discount) were both named in Phase 1 and used by Phase 3.5, but they do a different job here. <code>α</code> controls how far a single sampled transition is allowed to move an estimate: too high and the table chases noise from one race to the next without settling; too low and learning proceeds at a crawl, needing many more visits to the same cell before it reflects reality. <code>γ</code> stays at <code>1.0</code>, unchanged from every earlier phase, for the same fixed-horizon reason <a class="xref" href="../phase-1-rl-prerequisites/03-value-functions-bellman.html">Phase 1 page 3</a> gave: a race is a finite number of laps, and there's no reason to discount a lap 40 reward less than a lap 5 one just because it's further away in time.</p>
-
-      <h2>Worked example: a 3-state toy, hand-run for four steps</h2>
-      <p>A tiny MDP, small enough to track every table cell by hand. Two non-terminal states, <code>s1</code> and <code>s2</code>; a terminal state <code>s3</code>; two actions, <code>a0</code> and <code>a1</code>, in every state:</p>
+      <h2>Work it: a 3-state toy by hand</h2>
+      <p>Two states, <code>s1</code> and <code>s2</code>, a terminal state, and two calls in each:</p>
       <blockquote class="eq">s1, a0  →  r = −1,  next = s2
-s1, a1  →  r = −3,  next = s3 (terminal)
-s2, a0  →  r = −1,  next = s3 (terminal)
-s2, a1  →  r = −2,  next = s3 (terminal)</blockquote>
-      <p>Backward induction (<a class="xref" href="../phase-3.5-dp-oracle-prerequisites/02-backward-induction.html">page 2</a> of the Phase 3.5 set) would solve this exactly in one pass: <code>Q*(s2,a0) = −1</code>, <code>Q*(s2,a1) = −2</code>, so the best move from <code>s2</code> is <code>a0</code>; then <code>Q*(s1,a0) = −1 + (−1) = −2</code>, <code>Q*(s1,a1) = −3</code>, so the optimal policy is <code>a0</code> at <code>s1</code>, then <code>a0</code> at <code>s2</code>. Q-learning is given none of this — only four sampled transitions, in this order, with <code>α = 0.5</code>, <code>γ = 1</code>, and every table cell starting at <code>0</code>:</p>
+s1, a1  →  r = −3,  terminal
+s2, a0  →  r = −1,  terminal
+s2, a1  →  r = −2,  terminal</blockquote>
+      <p>Backward induction solves it at once: <code>Q*(s2, a0) = −1</code>, <code>Q*(s1, a0) = −2</code>, <code>Q*(s1, a1) = −3</code>. Q-learning gets four sampled transitions instead, with α = 0.5, γ = 1, every cell starting at 0:</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th class="mono">#</th><th>Sampled transition</th><th>Target</th><th class="mono">δ</th><th>Updated cell</th><th class="mono">New value</th></tr></thead>
+          <thead><tr><th>#</th><th>Sampled transition</th><th>Target</th><th>δ</th><th>Cell</th><th>New value</th></tr></thead>
           <tbody>
             <tr><td class="mono">1</td><td class="mono">(s1, a0, r=−1, s2)</td><td class="mono">−1 + max(0, 0) = −1</td><td class="mono">−1</td><td class="mono">Q(s1,a0)</td><td class="mono">0 + 0.5(−1) = −0.5</td></tr>
-            <tr><td class="mono">2</td><td class="mono">(s2, a0, r=−1, s3, terminal)</td><td class="mono">−1 (terminal)</td><td class="mono">−1</td><td class="mono">Q(s2,a0)</td><td class="mono">0 + 0.5(−1) = −0.5</td></tr>
-            <tr><td class="mono">3</td><td class="mono">(s1, a1, r=−3, s3, terminal)</td><td class="mono">−3 (terminal)</td><td class="mono">−3</td><td class="mono">Q(s1,a1)</td><td class="mono">0 + 0.5(−3) = −1.5</td></tr>
+            <tr><td class="mono">2</td><td class="mono">(s2, a0, r=−1, terminal)</td><td class="mono">−1</td><td class="mono">−1</td><td class="mono">Q(s2,a0)</td><td class="mono">0 + 0.5(−1) = −0.5</td></tr>
+            <tr><td class="mono">3</td><td class="mono">(s1, a1, r=−3, terminal)</td><td class="mono">−3</td><td class="mono">−3</td><td class="mono">Q(s1,a1)</td><td class="mono">0 + 0.5(−3) = −1.5</td></tr>
             <tr><td class="mono">4</td><td class="mono">(s1, a0, r=−1, s2)</td><td class="mono">−1 + max(−0.5, 0) = −1</td><td class="mono">−1 − (−0.5) = −0.5</td><td class="mono">Q(s1,a0)</td><td class="mono">−0.5 + 0.5(−0.5) = −0.75</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Two things worth reading carefully out of this trace. First, every cell is moving in the right <em>direction</em> — toward the true values <code>Q*(s1,a0)=−2</code>, <code>Q*(s1,a1)=−3</code>, <code>Q*(s2,a0)=−1</code> — without landing on them exactly after only one or two visits; convergence is a many-episode process, and four steps only establishes the trend. Second, step 4's target used <code>max(Q(s2,a0), Q(s2,a1)) = max(−0.5, 0) = 0</code> — picking the <em>still-untouched</em> <code>Q(s2,a1)</code> over the already-updated <code>Q(s2,a0)</code>, purely because nothing has pulled it down from its optimistic zero initialization yet. That's not a bug; it's the mechanism <a class="xref" href="08-this-project-formalized.html">page 8</a> leans on when discussing why a table's initial values matter, and a preview of why an all-zero start is mildly optimistic until enough transitions have been seen to correct it.</p>
+      <p>Every cell moves toward its true value without reaching it: four steps set the trend, not the answer. And step 4's max picked the untouched <code>Q(s2, a1) = 0</code> over the updated −0.5, because nothing has pulled it down yet. A table that starts at 0 when every reward is negative is <em>optimistic</em>: calls it hasn't tried look best. Page 03 shows that optimism doing some of the exploring.</p>
 
-      <h2>Convergence, stated but not proven</h2>
-      <p>Q-learning is provably guaranteed to converge to <code>Q*</code> given two conditions: every state-action pair is visited infinitely often, and the learning rate <code>α</code> decays appropriately over time (a fixed <code>α</code>, as used throughout this project's plan, converges to a small neighborhood of <code>Q*</code> rather than exactly to it — acceptable in practice, and the reason "train for a lot of episodes" is the theoretical justification behind the real plan's 10,000-episode training runs, not a proof this page needs to reproduce). What matters practically is the shape of the guarantee: nothing here promises fast convergence, only that enough visits eventually get there.</p>
+      <h2>Watch it fill in</h2>
+      <p>The same update on the 20-lap race. Press <em>Train 1,000 more races</em> a few times. The rows show each learner's call on every lap while still on the starting tyres: one table cell per box, so the coarse rows change in blocks.</p>
+
+      <div data-widget="pitwall" data-mode="learner" data-seed="12"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <section class="reveal closed" data-for="p4-02">
+        <p class="co-label">The reveal · lap 8's target</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">The best call on lap 9</b></div></div>
+        <div class="co-body">
+          <p>Q-learning's target is the lap time plus the <em>largest</em> value its table holds for lap 9's legal calls. The exploratory box for A on lap 9 gets its own update; it doesn't drag lap 8 down.</p>
+          <p>Option (a) is the other rule in this phase: SARSA uses the call actually made, and page 04 shows why that can be the more cautious choice. Option (c) is Monte Carlo, from page 01.</p>
+        </div>
+      </section>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Convergence: what is promised, and what isn't<span class="dd-len">70 words</span></summary>
+        <div class="dd-body">
+          <p>Q-learning provably converges to <code>Q*</code> if every state-action pair is visited infinitely often and α shrinks over time at the right rate. With a fixed α, as in this project's plan, the table ends up hovering near <code>Q*</code> rather than on it. That is one reason the Learner's gap wobbles from checkpoint to checkpoint. Nothing promises speed: only that enough visits get there. That is the theory behind the real plan's 10,000-race runs.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Q-learning's target is the lap time plus the best value the table holds for the next state. Every cell is only as good as the cells it borrows from. Next: is the coarse learner exploring enough?</span></p>
 
       <section class="lab" id="lab" data-lab-id="p4-02" data-lab-format="pytest">
         <span class="lab-kicker">Lab p4-02 · Code + tests · about 15 min</span>
@@ -106,6 +134,12 @@ s2, a1  →  r = −2,  next = s3 (terminal)</blockquote>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/learner.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/learnerui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

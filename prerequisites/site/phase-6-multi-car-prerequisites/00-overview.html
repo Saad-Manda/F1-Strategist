@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>00 · Overview — Phase 6 Multi-car · F1 Prereqs</title>
+<title>00 · Case brief — Phase 6 Multi-car · F1 Prereqs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -13,23 +13,44 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 6 · Overview</p>
-      <h1>Phase 6 Multi-Car Prerequisites</h1>
-      <p class="dek">Everything — and only what — you need to build the multi-car environment and rule-based rivals described in <code>phase-6-multi-car-rivals.md</code>, assuming you already have the Phase 1, Phase 3.5, Phase 4, and Phase 5 prerequisite sets and nothing more.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 6 · Case brief</p>
+      <h1>The Undercut That Doesn't Exist</h1>
+      <p class="dek">Phase 6 puts other cars on the track. First, race one.</p>
 
-      <h2>Why this phase is different from everything before it</h2>
-      <p>Every phase through Phase 5 had exactly one car on track. The state, the reward, and the very notion of "doing well" were all about that one car's own race — a faster lap was always simply better, no matter what anyone else on track was doing. Phase 6 is the first time another agent's behavior enters the picture at all, even though that other agent is a fixed script, not something learning alongside the RL agent. That single change — one more car existing, with its own pace and its own pit stops, sharing the same track — turns out to touch the state, the reward, and the dynamics all at once, and each of those three gets its own trouble spot in this set.</p>
+      <p>The Pit Wall now has a rival. It is 0.3 s a lap slower than you, starts 0.3 s ahead, and stops once for B on lap 9, whatever you do. This is the race the real plan builds, with one rule the plan keeps: each car drives its own lap time, and position is whoever has used less time. Try the classic move. Stay out to lap 6, box for B three laps before the rival, and come out ahead when it stops. Then race it again with a stop on lap 8. Then open the board under the race and change the lap the rival stops on.</p>
+
+      <div data-widget="pitwall" data-mode="rival" data-seed="1" data-blocking="0" data-fixed="1"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p>The undercut works, in the sense that you finish ahead: 226.07 s against the rival's 231.37 s. But a stop on lap 8 is 1.28 s quicker, and the board shows why that matters: lap 8 is the best stop when the rival stops on lap 5, on lap 9 or on lap 14. The rival's stop never moves yours. Every race time on this page counts the 0.3 s you start behind.</p>
+
+      <div class="case-file">
+        <p class="cf-label">Case 5 · open</p>
+        <h2>Why does stopping before the rival never gain anything?</h2>
+        <p>In real racing the undercut is the most-timed call in a pit stop: stop a lap or two before the car you are fighting, use the fresh tyres while it is still on old ones, and come out in front. In the plan's race, stopping before the rival is worth nothing that stopping on your own best lap doesn't give you anyway. Is the toy race too small to show it, is the reward missing something, or is something missing from the race? And what should the real plan change?</p>
+        <p>You will collect the evidence one page at a time:</p>
+        <ol class="cf-trail">
+          <li><div><a href="01-multi-car-mdp.html">One car to N</a>: what the state gains, and what the dynamics read.</div></li>
+          <li><div><a href="02-credit-assignment.html">Credit assignment</a>: does a reward for position make the rival matter?</div></li>
+          <li><div><a href="03-potential-based-shaping.html">Potential-based shaping</a>: what a shaping term can and can't change.</div></li>
+          <li><div><a href="04-overtaking-dirty-air.html">Overtaking and dirty air</a>: two formulas, and where they act.</div></li>
+          <li><div><a href="05-position-and-blocking.html">Position and blocking</a>: one missing line, and the undercut appears.</div></li>
+          <li><div><a href="06-bug-ledger.html">The bug ledger</a>: the plan's other faults, and how each one hides this one.</div></li>
+          <li><div><a href="07-non-stationarity.html">Non-stationarity</a>: why fixed rivals first, and what a learning rival changes.</div></li>
+          <li><div><a href="08-build-it-yourself.html">The build</a>: you write the two-car race, one stage at a time.</div></li>
+          <li><div><a href="09-back-to-the-plan.html">Back to the plan</a>: the real files, their tests, and the verdict.</div></li>
+        </ol>
+      </div>
+
+      <h2>What changes in Phase 6</h2>
+      <p>Through Phase 5 the agent raced alone, and the reward, minus the lap time, was the race. Phase 6 adds rivals that follow fixed pit plans, three new numbers in the state about the cars around you, rewards that care about finishing ahead, and two small models of racing: losing time in another car's wake, and passing. None of it changes how your own tyres wear. All of it is about outcomes that depend on cars you don't control.</p>
 
       <div class="note generic">
-        <div class="tag">Scope, precisely</div>
-        <p>This set teaches exactly what <code>phase-6-multi-car-rivals.md</code> needs: the multi-car state extension (gaps to the cars ahead and behind, race position), the reward-shaping problem that a "finish as high as possible" goal creates instead of "go as fast as possible," potential-based shaping as the principled version of that shaping, a probabilistic overtaking and dirty-air model, and — because the phase's own audit found something serious enough to teach directly rather than leave buried in a plan — the finding that the plan's pseudocode, as written, has no way for the undercut to ever emerge, plus the six smaller bugs that ship alongside that design gap. It does not cover self-play, PettingZoo, or anything else from Phase 8/9, beyond one deliberate exception: a short dedicated page on non-stationarity, scoped tightly to <em>why fixed-script rivals sidestep it</em>, since the real plan names that as the reason this phase is the sensible step before Phase 8.</p>
+        <div class="tag">What Phase 6 does and does not do</div>
+        <p>This set covers the multi-car environment of <code>phase-6-multi-car-rivals.md</code>: the bigger state, credit assignment and reward shaping, the overtaking and dirty-air formulas, the model of track position, the plan's recorded bugs, and why rivals stay fixed for now. Learning rivals and self-play belong to Phase 8. The files are not in the repository yet, so the last page reads the plan's own pseudocode.</p>
       </div>
 
-      <div class="note grounded">
-        <div class="tag">Read this before anything else</div>
-        <p>This set is unusual among the five built so far. The code it eventually points to — <code>f1_multi_env.py</code>, <code>rival.py</code>, <code>overtaking.py</code> — does not exist in <code>src/</code> yet, because Phase 6 hasn't been implemented. <a class="xref" href="09-this-project-formalized.html">Pages 9</a> and <a class="xref" href="10-reading-the-plan.html">10</a> read the <em>plan's own pseudocode</em>, not a real, running file, and part of what they teach is the project's own audit findings against that pseudocode: a design gap serious enough that, unfixed, this phase's most interesting goal (undercut/overcut strategy) literally cannot happen, plus six smaller bugs. Reading a plan critically, before a single line of it is implemented, is itself the skill this set is trying to build alongside the RL content.</p>
-      </div>
+      <p class="evidence"><span class="ev-tag">Case 5</span><span>Opened. In the plan's race the best stop is lap 8, 224.79 s, against a rival stopping on any lap from 4 to 15. Stopping on lap 6, before the rival, costs 1.28 s, the same 1.28 s it costs with no rival on track. Next: what the state gains when rivals are added.</span></p>
 
       <div class="pagenav" id="pagenav"></div>
       <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
@@ -39,5 +60,12 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/duel.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/rivalui.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
 </body>
 </html>

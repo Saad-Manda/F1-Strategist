@@ -13,43 +13,51 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 04 of 10 — Implementation background</p>
-      <h1>Two Ways to Formalize "Everyone Acts": AEC and Parallel</h1>
-      <p class="dek">PettingZoo offers two genuinely different multi-agent APIs. F1 strategy only needs one of them — but understanding both makes clear why.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 04 · PettingZoo</p>
+      <h1>Two Ways to Say "Everyone Acts": AEC and Parallel</h1>
+      <p class="dek">PettingZoo has two multi-agent APIs. F1 strategy needs one of them, and knowing both shows why.</p>
 
-      <h2>AEC — Agent Environment Cycle</h2>
-      <p>Agents act strictly one at a time, in a cycle: each agent observes the state <em>as left by the previous agent's action</em>, chooses its own action, the environment updates, and the cycle moves to the next agent. This is the natural formalization for turn-based games — card games, board games — where seeing what the previous player just did is exactly the information the next player is supposed to have.</p>
-      <p>A tiny worked example: a sequential (turn-based) variant of rock-paper-scissors, where player A moves first and player B can see A's move before choosing:</p>
+      <section class="cold-open" data-call="p8-04">
+        <p class="co-label">Your call · who moves second</p>
+        <p class="co-moment">PettingZoo's <code>parallel_to_aec</code>, which the plan imports, turns a simultaneous game into a turn-based one: agents step one after the other. Wrap rock-paper-scissors this way and play many rounds.</p>
+        <p class="co-ask">How much does moving second win?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p8-04" value="a"> Every round: the second agent sees the first one's move.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-04" value="b"> Nothing beyond noise.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-04" value="c"> About two rounds in three.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>AEC: Agent Environment Cycle</h2>
+      <p>Agents act one at a time in a cycle: <code>env.agent_selection</code> names whose turn it is, <code>env.last()</code> returns that agent's own latest observation, reward and done flags, and one <code>step</code> call is made per agent in turn. It is the natural shape for turn-based games.</p>
       <blockquote class="eq">env.reset()
-env.agent_selection   → "player_A"
-action_A = "rock"
-env.step(action_A)                       # player A's move is now recorded
-env.agent_selection   → "player_B"
-obs_B = env.last()                       # obs_B sees that A played "rock"
-action_B = "paper"                       # B, seeing A's move, always wins by playing paper
-env.step(action_B)
-# In sequential play, going second with full information of the other's move
-# is a structural advantage — a fact that wouldn't even make sense to ask
-# about in the simultaneous version below.</blockquote>
-      <p>The <code>agent_selection</code> attribute names whose turn it is; <code>.last()</code> returns that agent's own most recent observation/reward/done state. This ordering, one <code>step</code> call per agent in turn, is the defining feature of AEC.</p>
-      <p>What each agent <em>sees</em> when its turn comes is a separate question, and the environment answers it, not the API. In the example above, the environment chose to show player B player A's move, so moving second is worth something: lab p8-04 measures B winning every round. PettingZoo's own <code>parallel_to_aec</code>, which the real plan imports, makes the other choice. It turns a simultaneous game into an AEC one in which the second agent's observation shows nothing of the first agent's move this cycle (rock-paper-scissors wrapped this way: both agents see "no move yet" on their first turn and only the previous round's moves after that, and the second mover's edge measures 0.02, which is noise). So "AEC" says who steps when, and "later agents see more" is true only of environments built to show them more.</p>
+env.agent_selection  → "player_A";   env.step("rock")
+env.agent_selection  → "player_B";   obs_B = env.last()    # what B sees is the env's choice
+env.step("paper")</blockquote>
+      <p>What each agent <em>sees</em> on its turn is a separate question, and the environment answers it, not the API. An environment that shows B the move A made makes moving second worth something: lab p8-04 measures B winning every round.</p>
 
       <h2>Parallel</h2>
-      <p>All agents submit actions <em>simultaneously</em> each timestep; the environment resolves every action together and returns a single batch of observations, rewards, terminations, and truncations, each as a <code>dict</code> keyed by agent id. Neither agent sees the other's action before committing to their own.</p>
+      <p>All agents submit actions at once; the environment resolves them together and returns observations, rewards, terminations, truncations and infos, each a <code>dict</code> keyed by agent id. Nobody acts second, so nobody has an information edge.</p>
       <blockquote class="eq">observations, infos = env.reset()
-actions = {"player_A": "rock", "player_B": "paper"}   # chosen independently, same instant
-observations, rewards, terminations, truncations, infos = env.step(actions)
-# Both actions are submitted together — player_B's "paper" was not chosen
-# in response to seeing player_A's "rock"; it's the real, simultaneous
-# rock-paper-scissors, not the sequential-advantage version above.</blockquote>
-      <p>The direct contrast with the AEC example above: nobody has an information advantage from acting second, because nobody acts second — every agent commits blind to what everyone else is doing this timestep.</p>
+actions = {"player_A": "rock", "player_B": "paper"}     # chosen independently
+observations, rewards, terminations, truncations, infos = env.step(actions)</blockquote>
 
-      <h2>Why F1 strategy needs Parallel, not AEC</h2>
-      <p>Every car on track makes its per-lap pit/stay decision independently, at the same point in the lap, without having observed what any other car decided <em>this</em> lap. Nothing about one car's decision this lap causally depends on having already seen another car's decision this lap — any interaction between cars (gaps closing, dirty air, an overtake attempt) is a <em>consequence</em>, computed after all of this lap's actions have been submitted and resolved together, via Phase 6's dynamics (assumed background). That's exactly Parallel's shape, and exactly not AEC's: F1 strategy has no natural "whose turn is it" ordering the way a card game does.</p>
+      <section class="reveal closed" data-for="p8-04">
+        <p class="co-label">The reveal · who moves second</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Nothing: 0.02, noise</b></div></div>
+        <div class="co-body">
+          <p><code>parallel_to_aec</code> gives the second agent no sight of the first agent's move in the same cycle: both see “no move yet” on their first turn and only the previous round's moves after that. The second mover's edge measures 0.02, which is noise.</p>
+          <p>So AEC says who steps when. “Later agents see more” is true only of environments built to show them more.</p>
+        </div>
+      </section>
 
-      <h2>The shared API surface both build on</h2>
-      <p><code>possible_agents</code> lists every agent id that can ever appear (<code>["agent_0", "agent_1", ...]</code>); <code>observation_spaces</code> and <code>action_spaces</code> are dicts keyed by agent id rather than single spaces, since different agents can in principle have different spaces (though here they're identical for every car); <code>reset()</code> and <code>step()</code> in the Parallel API return dicts keyed by agent id for every one of observations, rewards, terminations, truncations, and infos. This is set up generically here so <a class="xref" href="09-this-project-formalized.html">page 09</a> can show the real plan's <code>F1PettingZooEnv</code> as a direct, unsurprising instantiation of exactly this surface.</p>
+      <h2>Why F1 strategy needs Parallel</h2>
+      <p>Every car makes its stay-or-pit call at the same point in the lap, without seeing what any other car decided this lap. Gaps closing, the wake, a pass: all are consequences computed after every car's action is in, by the race's dynamics. That is Parallel's shape. F1 strategy has no natural "whose turn is it".</p>
+      <p>Both APIs share one surface: <code>possible_agents</code> lists every agent id (<code>["agent_0", "agent_1", …]</code>), and <code>observation_spaces</code> and <code>action_spaces</code> are dicts keyed by agent id, identical for every car here. Page 09 shows the plan's <code>F1PettingZooEnv</code> as a plain instance of it.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The API is the right one: the plan's env is Parallel, as the race needs. Nothing here crashes or decides what the cars can do to each other; that is inside <code>step()</code>. Next: the first opponent the pool hands out.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-04" data-lab-format="pytest">
         <span class="lab-kicker">Lab p8-04 · Code + tests · about 20 min</span>
@@ -76,6 +84,7 @@ observations, rewards, terminations, truncations, infos = env.step(actions)
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

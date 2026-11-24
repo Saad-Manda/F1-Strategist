@@ -47,7 +47,7 @@ def test_combine_mean_is_per_row():
     want = torch.tensor([[-1.0, 0.0, 1.0], [-10.0, 0.0, 10.0]])
     assert torch.allclose(got, want), (
         f"Each row's advantages must be centred on that row's own mean. Expected {want.tolist()}, got {got.tolist()}. "
-        "A mean over the batch dimension runs without error and subtracts the same numbers from every row (page 11)."
+        "A mean over the batch dimension runs without error and subtracts the same numbers from every row (page 10)."
     )
 
 

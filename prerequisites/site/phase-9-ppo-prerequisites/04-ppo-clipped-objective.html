@@ -13,52 +13,64 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 04 of 11 — A little math</p>
-      <h1>PPO's Clipped Surrogate Objective</h1>
-      <p class="dek">The last of idea.md's four listed concepts, and the trick that makes reusing one batch of experience for multiple gradient steps safe.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 04 · The clip</p>
+      <h1>PPO's Clipped Objective</h1>
+      <p class="dek">The trick that makes it safe to reuse one batch of races for several passes of updates.</p>
 
-      <h2>The problem: a small step in parameters can be a huge step in behavior</h2>
-      <p><a class="xref" href="01-policy-gradients-reinforce.html">Pages 01</a>–<a class="xref" href="03-generalized-advantage-estimation.html">03</a> built a gradient estimator, but nothing about it prevents a single update from moving <code>θ</code> far enough to change the policy's <em>behavior</em> catastrophically. If the policy is already fairly close to deterministic — say, "almost always pit on lap 18" — a small change in the underlying logits can flip it to "almost never pit on lap 18," with no way back, since the next batch of experience is now collected under a badly broken policy. This is qualitatively different from a bad update in Q-learning (Phase 4/5, assumed background): a wrong TD update to one state's Q-value doesn't usually cause this kind of behavioral collapse, because acting greedily against a slightly-wrong value function is comparatively forgiving.</p>
+      <section class="cold-open" data-call="p9-04">
+        <p class="co-label">Your call · one cell of the clip</p>
+        <p class="co-moment">PPO's objective for one sample is min( r · A, clip(r, 0.8, 1.2) · A ), where r is how much more likely the call has become since the batch was collected. Here r = 1.3 and A = −1.</p>
+        <p class="co-ask">What is the objective's value?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p9-04" value="a"> −1.2: the clip caps it.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-04" value="b"> −1.3: the unclipped term is smaller.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-04" value="c"> −0.8</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The probability ratio</h2>
-      <p>PPO measures how far a candidate update has moved the policy, for a given <code>(s,a)</code>, using the ratio between the new and old action probabilities:</p>
-      <blockquote class="eq">r_t(θ) = π_θ(a_t|s_t) / π_θ_old(a_t|s_t)</blockquote>
-      <p><code>π_θ_old</code> is the fixed policy that actually collected the current batch of experience — the ratio is only ever computed relative to that snapshot. This is exactly why PPO is <strong>on-policy</strong>: <code>r_t(θ)</code> is only meaningful for data collected under a policy close to the current one, unlike Phase 5's replay buffer, which reuses arbitrarily old off-policy transitions without any such correction.</p>
-
-      <h2>The surrogate objective, and why it's dangerous unclipped</h2>
-      <p>The natural objective to maximize is <code>r_t(θ) · A_t</code> (using <a class="xref" href="03-generalized-advantage-estimation.html">page 03</a>'s GAE estimate for <code>A_t</code>) — increase the probability of actions with positive advantage, decrease it for negative advantage, weighted by how much the ratio has already moved. Left unclipped, this is exactly as dangerous as the naive gradient from <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>: a large ratio times a large positive advantage produces an enormous, destabilizing push in exactly the direction that risks the collapse described above.</p>
-
-      <h2>The clip</h2>
-      <blockquote class="eq">L^CLIP(θ) = min( r_t(θ)·A_t ,  clip(r_t(θ), 1−ε, 1+ε)·A_t )</blockquote>
-      <p>with the real plan's <code>ε = 0.2</code> (<code>clip_range</code> in <code>configs/ppo.yaml</code>), so the clip range is <code>[0.8, 1.2]</code>. The clip is deliberately asymmetric in effect, depending on the sign of <code>A_t</code> — worked through both signs below at <code>ε = 0.2</code>:</p>
+      <h2>A small step in θ can be a large step in behaviour</h2>
+      <p>Nothing in pages 01 to 03 stops one update from moving the policy too far. A policy that almost always stops on lap 8 can be pushed to almost never, and the next batch of races is then collected by the broken policy. PPO measures how far an update has moved each sample with the <strong>probability ratio</strong> against the policy that collected the batch:</p>
+      <blockquote class="eq">r<sub>t</sub>(θ) = π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) / π<sub>θ_old</sub>(a<sub>t</sub> | s<sub>t</sub>)        L<sup>CLIP</sup> = min( r<sub>t</sub> A<sub>t</sub>,  clip(r<sub>t</sub>, 1 − ε, 1 + ε) A<sub>t</sub> )</blockquote>
+      <p>The ratio is only meaningful for data from a policy close to the current one, which is why PPO is on-policy: unlike Phase 5's replay buffer, old races go stale. The plan's ε is 0.2 (<code>clip_range</code>), so the band is [0.8, 1.2].</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th class="mono">r_t(θ)</th><th class="mono">r_t·A_t (A=+1)</th><th class="mono">clip(r_t)·A_t</th><th class="mono">min() result</th><th>Clip binding?</th></tr></thead>
+          <thead><tr><th class="mono">r</th><th class="mono">A = +1: min(r·A, clip·A)</th><th>binds?</th><th class="mono">A = −1: min(r·A, clip·A)</th><th>binds?</th></tr></thead>
           <tbody>
-            <tr><td class="mono">0.7</td><td class="mono">0.7</td><td class="mono">0.8·1 = 0.8</td><td class="mono">0.7</td><td>No — unclipped is smaller</td></tr>
-            <tr><td class="mono">1.0</td><td class="mono">1.0</td><td class="mono">1.0</td><td class="mono">1.0</td><td>No</td></tr>
-            <tr><td class="mono">1.3</td><td class="mono">1.3</td><td class="mono">1.2·1 = 1.2</td><td class="mono">1.2</td><td><strong>Yes</strong> — caps the upside</td></tr>
-            <tr><td class="mono">1.8</td><td class="mono">1.8</td><td class="mono">1.2</td><td class="mono">1.2</td><td><strong>Yes</strong></td></tr>
+            <tr><td class="mono">0.7</td><td class="mono">min(0.7, 0.8) = 0.7</td><td>no</td><td class="mono">min(−0.7, −0.8) = −0.8</td><td><strong>yes</strong></td></tr>
+            <tr><td class="mono">1.0</td><td class="mono">1.0</td><td>no</td><td class="mono">−1.0</td><td>no</td></tr>
+            <tr><td class="mono">1.3</td><td class="mono">min(1.3, 1.2) = 1.2</td><td><strong>yes</strong></td><td class="mono">min(−1.3, −1.2) = −1.3</td><td>no</td></tr>
+            <tr><td class="mono">1.8</td><td class="mono">1.2</td><td><strong>yes</strong></td><td class="mono">−1.8</td><td>no</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th class="mono">r_t(θ)</th><th class="mono">r_t·A_t (A=−1)</th><th class="mono">clip(r_t)·A_t</th><th class="mono">min() result</th><th>Clip binding?</th></tr></thead>
-          <tbody>
-            <tr><td class="mono">0.7</td><td class="mono">−0.7</td><td class="mono">0.8·(−1) = −0.8</td><td class="mono">−0.8</td><td><strong>Yes</strong> — caps the downside</td></tr>
-            <tr><td class="mono">1.0</td><td class="mono">−1.0</td><td class="mono">−1.0</td><td class="mono">−1.0</td><td>No</td></tr>
-            <tr><td class="mono">1.3</td><td class="mono">−1.3</td><td class="mono">1.2·(−1) = −1.2</td><td class="mono">−1.3</td><td>No — unclipped is smaller (more negative)</td></tr>
-            <tr><td class="mono">1.8</td><td class="mono">−1.8</td><td class="mono">−1.2</td><td class="mono">−1.8</td><td>No</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>The pattern the two tables reveal: for a <em>positive</em> advantage, the clip only ever binds when <code>r_t</code> has grown past <code>1+ε</code> — it caps how much the objective can reward pushing an already-good action's probability even higher, but never penalizes pushing it lower than the old policy had it. For a <em>negative</em> advantage, the clip only ever binds when <code>r_t</code> has shrunk past <code>1−ε</code> — it caps how much the objective can reward suppressing an already-bad action's probability further, but never penalizes raising it. In both cases the effect is the same: once a change has moved far enough in the direction the advantage already favors, the objective stops offering any further reward for moving it more — precisely the behavior that prevents an enormous, destabilizing update.</p>
+      <p>The clip binds only once r has moved past the band <em>in the direction the advantage favours</em>. From there, moving it further earns nothing, so the gradient on that sample is zero. Moving it back is never penalised.</p>
 
-      <h2>Why this makes reusing a batch across multiple epochs safe</h2>
-      <p>The real plan's <code>n_epochs: 10</code> means each collected batch of rollout data is used for 10 separate passes of gradient updates before new data is collected. For a vanilla, unclipped policy gradient this would be unsound — after a few epochs of updates on the same batch, the policy could drift far enough from the one that actually collected the data that the whole estimator becomes meaningless. The clip is exactly what makes this safe: however many epochs are spent on one batch, no single step can push <code>r_t(θ)</code> usefully far outside <code>[1−ε, 1+ε]</code>, so the policy is structurally prevented from drifting too far from <code>π_θ_old</code> no matter how many epochs are spent trying.</p>
-      <p>One correction to "structurally prevented". The clip makes the gradient <em>zero</em> once a ratio is past the band on the side the advantage favours; it does not stop a step that starts inside the band from landing outside it. A step from r = 1 with p_old = 0.1 and A = 5 lands at r ≈ 2.15 (lab p9-04 works it by hand), and on the toy race twenty clipped steps left one ratio at 4.95 (lab p9-cap, stage 5). What the clip guarantees is that later steps stop rewarding the push, so the overshoot stays where it is instead of growing. On the toy race that was enough: at ten epochs per batch the clipped learner ended 1.7 s from the optimum and the unclipped one 7.2 s. SB3 lets you watch it happen and act on it: <code>train/clip_fraction</code> (the share of samples whose ratio left the band) and <code>train/approx_kl</code> (how far the policy moved) are in its logs, and the optional <code>target_kl</code> stops an update's remaining epochs once the policy has moved too far. It is off by default.</p>
+      <section class="reveal closed" data-for="p9-04">
+        <p class="co-label">The reveal · one cell of the clip</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">−1.3</b></div></div>
+        <div class="co-body">
+          <p>With A &lt; 0 the clip binds only below 0.8. At r = 1.3 the call has become more likely though it was worse than average; the unclipped −1.3 is the smaller term, and the gradient keeps pushing r back down.</p>
+          <p>That asymmetry is the whole design: the objective stops rewarding a push once it has gone far enough, and never stops a correction.</p>
+        </div>
+      </section>
+
+      <h2>Ten passes per batch, and the brake in the case</h2>
+      <p>The plan's <code>n_epochs: 10</code> reuses each batch for ten passes, which plain policy gradient can't do safely. On the toy race, at ten passes the mini PPO ended 1.43 to 1.71 s from the optimum with the clip and 7.19 to 10.65 s without (centred, three seeds). Below, seed 0 of each.</p>
+      <div data-widget="pitwall" data-mode="training" data-learner="ppo10" data-reward="centred" data-seed="0" data-show="ppo10|centred|0,noclip10|centred|0"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p>So is the clip what holds the raw MaskablePPO still? No. At the end of the raw run its logs show a clip fraction of 0.0, no sample past the band at all, and an approximate KL between old and new policy of 0.0002 (centred: 0.007 and 0.001). The clip is the brake for updates that are too large. The raw run's updates are too small.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>What the clip does not do<span class="dd-len">180 words</span></summary>
+        <div class="dd-body">
+          <p>The clip zeroes the gradient once a ratio is past the band; it doesn't stop a step that starts inside the band from landing outside it. One step from r = 1 with p<sub>old</sub> = 0.1 and A = 5 lands at r ≈ 2.15 (lab p9-04 works it by hand), and on the toy race twenty clipped steps left one ratio at 4.95 (p9-cap, stage 5). What the clip guarantees is that later steps stop rewarding the push. SB3 logs <code>train/clip_fraction</code> (the share of samples whose ratio left the band) and <code>train/approx_kl</code> (how far the policy moved); its optional <code>target_kl</code> stops an update's remaining passes once the policy has moved too far, and is off by default.</p>
+          <p>One caution on the Training room's numbers: with the raw reward the mini PPO without the clip did better at ten passes on two seeds of three (1.93, 1.93, 6.46 s). The clip's value is clear on the centred runs, where the plan would use it; three seeds of a table learner are not a law.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The clip limits updates that are too large. In the raw MaskablePPO run it never binds (clip fraction 0.0, KL 0.0002): its updates are too small, not too big. Next: what kind of failure this is.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-04" data-lab-format="widget">
         <span class="lab-kicker">Lab p9-04 · In page · about 15 min</span>
@@ -161,6 +173,12 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/training_data.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/trainingui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/clip.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

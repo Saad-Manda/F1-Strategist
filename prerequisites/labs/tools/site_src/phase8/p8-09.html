@@ -1,5 +1,5 @@
-<!-- page: phase-8-self-play-prerequisites/09-this-project-formalized.html | title: Parameters, pages, lines | format: quiz | minutes: 10 -->
-        <p class="lab-goal">Put each of the plan's pool parameters next to the page that explains it, do the recency arithmetic for the real pool sizes, and find the lines of <code>F1PettingZooEnv</code> that repeat earlier findings.</p>
+<!-- page: phase-8-self-play-prerequisites/09-back-to-the-plan.html | title: Parameters, lines, and what catches what | format: quiz | minutes: 20 -->
+        <p class="lab-goal">Put each of the plan's pool parameters next to the page that explains it, do the recency arithmetic for the real pool sizes, find the lines of <code>F1PettingZooEnv</code> that repeat earlier findings, decide what each Definition-of-Done item catches and where each fix goes, and run the case against the plan.</p>
 
         <div class="lab-part">
           <h3>1 · Which page explains each parameter?</h3>
@@ -61,5 +61,76 @@
             <label>The <code>-lap_times[agent]</code> term repeats…<br><select>
               <option value="">choose…</option><option value="e3">E3: dirty air in the reward but not in the lap time</option><option value="c">Finding C: an uncentred reward</option><option value="none">neither</option>
             </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · What each item catches</h3>
+          <div class="lab-q" data-type="select" data-answer="s2" data-explain="Any training run catches S2, in seconds: the first episodes sample from a one-entry pool, and about seven calls in ten raise ValueError. Item I, S4 and S9 all train without complaint." data-nudge="Which of the four stops a run?">
+            <label>"Self-play loop trains agent_0 while opponents are sampled from pool"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It checks the save schedule and the eviction. A pool that saves and evicts correctly can still crash at n = 1 when sampled, and can still be seeded with a fixed policy." data-nudge="What does the item exercise: adding, or sampling?">
+            <label>"Checkpoint saved every 1000 episodes; pool max size = 50"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="A floor: a learner can beat a random agent on pace and tyre management alone, with or without interaction between cars, and whatever it trained against first." data-nudge="Could a learner pass it in a world where the cars never affect each other?">
+            <label>"After 20K episodes: learner's mean finishing position &lt; random agent's"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="s4" data-explain="It cannot pass while no car affects another: there is nothing to undercut. It is the item S4 blocks. With blocking off, the capstone's equilibrium puts every delta at 0." data-nudge="Which finding makes it unreachable?">
+            <label>"Undercut/overcut emergence visible in pit timing distribution (bimodal histogram)"<br><select>
+              <option value="">choose…</option><option value="s2">S2, the n = 1 crash</option><option value="i">item I, the first opponent</option><option value="s4">S4, no interaction</option><option value="s9">S9, one seed</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="multi" data-answer="seeds,strat,control" data-explain="Several seeds, because one run's histogram can be anything (the capstone report: the follower-first share ran from 0.09 to 0.78 across four seeds of one configuration). The stratified null, because cars that share a race's scenario look linked without reacting (lab p8-07). And a blocking-off run, because a shape that also appears without blocking is not evidence of strategy. A sharper picture of one run adds none of these." data-nudge="Three of the four make the item evidence; one only makes it prettier.">
+            <span class="lab-prompt">Once S4 is fixed, what does the histogram item still need before anyone reads a result off it? (Choose all that apply.)</span>
+            <label class="lab-opt"><input type="checkbox" value="seeds"> several training seeds, not one run</label>
+            <label class="lab-opt"><input type="checkbox" value="strat"> the null shuffled only within races that shared the same conditions</label>
+            <label class="lab-opt"><input type="checkbox" value="control"> the same training with blocking switched off, for comparison</label>
+            <label class="lab-opt"><input type="checkbox" value="bins"> finer histogram bins</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Where each fix goes</h3>
+          <div class="lab-q" data-type="select" data-answer="sample" data-explain="One guard at the top of sample(): a pool of one returns its only entry." data-nudge="Where is the crash raised?">
+            <label>The n = 1 guard<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="train" data-explain="pool.add(learner, episode=0) is in train_self_play. Seed with ε = 1 opponents or Phase 3's rule-based agents instead." data-nudge="Which line puts the untrained network in the pool?">
+            <label>The first opponent (item I)<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="pz" data-explain="F1PettingZooEnv sums independent single-car envs and never calls F1MultiCarEnv, so a fix in Phase 6's file does not reach it. The rule goes into this env's step (or the env is rebuilt on F1MultiCarEnv)." data-nudge="Which file computes the lap times Phase 8's agents race on?">
+            <label>The blocking rule, for Phase 8<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="pz" data-explain="base_reward = -lap_times[agent] - dirty_air is built in step(); centre it there." data-nudge="Where is base_reward computed?">
+            <label>The reward offset (Finding C)<br><select>
+              <option value="">choose…</option><option value="sample">self_play_trainer.py, CheckpointPool.sample</option><option value="train">self_play_trainer.py, train_self_play</option><option value="pz">f1_pettingzoo_env.py, step</option><option value="mc">Phase 6's f1_multi_car_env.py only</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the plan</h3>
+          <div class="lab-q" data-type="num" data-answer="0.7" data-tol="0.01" data-explain="0.7: with one checkpoint, cut = max(1, int(0.8)) = 1, so checkpoints[1:] is empty, and every call that takes the 0.7 branch asks np.random.choice to pick from nothing. The run holds one checkpoint for its first 1,000 episodes, so it stops within its first few." data-nudge="Which slice does the 0.7 branch pick from when n = 1, and what is in it?">
+            <label>With one checkpoint in the pool, what fraction of the plan's <code>sample()</code> calls raise <code>ValueError</code>? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The shared safety car links the two cars' stops without either reacting to the other. Shuffling only among races with the same safety-car lap keeps that shared cause in every shuffle, so only a real reaction is left for the test to find: p = 0.67 on this data, and still p = 0.002 when a reaction is added." data-nudge="What did the two cars share in each race, besides each other?">
+            <span class="lab-prompt">In 2,000 races both cars stop under the same safety car, and neither reacts to the other. A plain shuffle test rejects at p = 0.002. What should be shuffled instead?</span>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="a"> the same pairs, with more shuffles</label>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="b"> the rival's stop laps, only among races with the same safety-car lap</label>
+            <label class="lab-opt"><input type="radio" name="p809-strat" value="c"> nothing: the test is right, the cars reacted</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="0.256" data-tol="0.002" data-explain="−0.513 − (−0.769) = 0.256, about 5 seconds of margin at 0.05 a second. The plan's pool weights its newest snapshots, which are still chasing, so the mixture it leaves can be beaten; the equilibrium can't." data-nudge="The best reply's payoff minus the equilibrium's value.">
+            <label>After 1,000 rounds of the duel, the plan's pool rule leaves the leader a mixture that lap 4 beats for −0.513. At the equilibrium the follower's best is −0.769. How much payoff does the plan's pool give away? &nbsp; <input type="text" inputmode="decimal"></label>
           </div>
         </div>

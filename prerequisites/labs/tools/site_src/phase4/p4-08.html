@@ -1,5 +1,5 @@
-<!-- page: phase-4-q-learning-prerequisites/08-this-project-formalized.html | title: Decode, count, and measure the gap | format: quiz | minutes: 10 -->
-        <p class="lab-goal">Three hand calculations on this page's three arguments: what key an observation becomes, how many random actions an "evaluated" agent takes, and how far a table cell has to travel.</p>
+<!-- page: phase-4-q-learning-prerequisites/08-back-to-the-plan.html | title: Decode, count, and what the tests catch | format: quiz | minutes: 25 -->
+        <p class="lab-goal">Decode an observation into its table key, count an evaluated agent's random calls, measure how far a cell travels, match each planned test to the failures it catches, and run the case against the plan.</p>
 
         <div class="lab-part">
           <h3>1 · From observation to table key</h3>
@@ -61,8 +61,71 @@
           </div>
         </div>
 
+        <div class="lab-part">
+          <h3>4 · Which test catches it?</h3>
+          <div class="lab-q" data-type="select" data-answer="update" data-explain="The cell would be the same before and after, which is exactly what this test compares.">
+            <label>A typo makes <code>update()</code> compute the target and never write it to the table. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="random" data-explain="A learner that maximises race time prefers a pit stop on every lap, and finishes behind an agent that acts at random. This is the one test that trains an agent end to end and looks at the result." data-nudge="Which test runs the whole pipeline and compares race times?">
+            <label>The reward reaches the agent with the wrong sign, <code>+lap_time</code>, so it learns to make races as slow as possible. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="Everything runs and the curve looks plausible. The table simply has no cell in which lap 27 and lap 29 differ. Only a test on discretize_obs itself, the one page 06 asks for, would see it." data-nudge="Would any of the three notice that two different laps share a key?">
+            <label><code>tire_age</code> is cut into 10 bins, so the oracle's optimal pit lap and its neighbours share a table key. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="Read the test in the plan: it does the decay arithmetic itself, inside the test, and never calls update(). It would pass with the decay lines deleted from the agent." data-nudge="Open the plan and look at what test_epsilon_decays actually calls.">
+            <label>The two lines that lower <code>epsilon</code> are deleted from <code>update()</code>, so the agent explores at 100% forever. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="No test runs an evaluation twice on one seed and compares the races, which is the check the plan's Risks table asks for." data-nudge="Do any of the three look at how a trained agent is evaluated?">
+            <label>Evaluation runs with <code>ε = 0.05</code> still on, so every reported race time includes a few random actions. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="None of the three tests uses SARSAAgent at all." data-nudge="Which agent class do the three tests construct?">
+            <label>A race is cut short, and <code>SARSAAgent</code>'s pre-committed action is used as the first move of the next race. &nbsp; <select><option value="">choose…</option><option value="update">test_q_learning_update_changes_q_values</option><option value="decay">test_epsilon_decays</option><option value="random">test_trained_q_agent_beats_random</option><option value="none">none of the three</option></select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Reading the files</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="An illegal action's cell is never updated, so it sits at its starting value of 0 while real values are large and negative. An unmasked max would pick it every time." data-nudge="What value does a never-visited cell hold, next to cells near −250?">
+            <span class="lab-prompt">In <code>update()</code>, why must the next state's illegal actions be set to <code>−inf</code> <em>before</em> the max?</span>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="a"> Their cells are never trained and still hold 0, which is higher than every real value.</label>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="b"> NumPy cannot take the max of an array that has untrained entries.</label>
+            <label class="lab-opt"><input type="radio" name="p409-mask" value="c"> It makes the update faster.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="It is deliberately weak: it shows the pieces are connected, not that the agent is good. Passing it says nothing about the gap to the oracle." data-nudge="The page calls it a smoke test.">
+            <span class="lab-prompt">What does a pass of <code>test_trained_q_agent_beats_random</code> show?</span>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="a"> That the agent has learned a good pit strategy.</label>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="b"> That the agent beats the threshold baseline.</label>
+            <label class="lab-opt"><input type="radio" name="p409-smoke" value="c"> That environment, discretization, update and exploration are wired together and something is being learned.</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the plan</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="The key is the whole tuple, and laps_remaining is binned too: 12 bins over a 52-lap race, about 4.3 laps each. In the toy race, 2-lap tyre-age bins with 5-lap laps-remaining bins still left a median gap of 5.76 s, against about 1 s with 1-lap bins for both. Test that the oracle's pit lap and its neighbours get distinct keys, all dimensions together." data-nudge="Which other dimension of the key counts laps?">
+            <span class="lab-prompt">You move <code>tire_age</code> to 25 bins and leave <code>laps_remaining</code> at 12. A distinct-bins test written on <code>tire_age</code> alone passes. Is the binning fixed?</span>
+            <label class="lab-opt"><input type="radio" name="p408-both" value="a"> Yes: the oracle's pit lap and its neighbours now get distinct tyre-age bins.</label>
+            <label class="lab-opt"><input type="radio" name="p408-both" value="b"> Not shown yet: test the whole key, laps remaining included, for the pit lap and its neighbours.</label>
+            <label class="lab-opt"><input type="radio" name="p408-both" value="c"> Not shown yet: it needs more training episodes to tell.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="In the toy race the coarse learner's median gap went 9.14 s at 5,000 races, 12.52 s at 20,000, 13.07 s at 40,000 and 12.95 s at 80,000, and no exploration schedule brought it near the fine learner's 1 s. A table that cannot tell the laps apart is the first thing to rule out." data-nudge="Page 06: what did 80,000 races do for the coarse learner?">
+            <span class="lab-prompt">A tabular learner's gap to Oracle B stops improving after 5,000 races and sits well above zero. What should you check first?</span>
+            <label class="lab-opt"><input type="radio" name="p408-train" value="a"> Nothing: train to 50,000 races.</label>
+            <label class="lab-opt"><input type="radio" name="p408-train" value="b"> The exploration schedule: decay ε more slowly.</label>
+            <label class="lab-opt"><input type="radio" name="p408-train" value="c"> Whether <code>discretize_obs</code> gives the oracle's pit lap and its neighbours distinct keys.</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Phase 1's reset reads options.get(&quot;curriculum&quot;) and ignores any other key. Nothing fails: the first 3,000 episodes run on the full scenario library, and the Definition of Done's curriculum line looks done." data-nudge="Phase 1 reads (options or {}).get(&quot;curriculum&quot;). What does it do with a key it doesn't read?">
+            <span class="lab-prompt">The plan's training loop passes <code>options["curriculum_dry_only"] = True</code>. Phase 1's environment reads <code>options.get("curriculum")</code> and expects <code>"dry_no_sc"</code>. What happens?</span>
+            <label class="lab-opt"><input type="radio" name="p408-curr" value="a"> <code>reset()</code> raises an error on the unknown key.</label>
+            <label class="lab-opt"><input type="radio" name="p408-curr" value="b"> Training runs with no curriculum at all, and nothing says so.</label>
+            <label class="lab-opt"><input type="radio" name="p408-curr" value="c"> The curriculum works: both keys ask for dry races.</label>
+          </div>
+        </div>
+
         <details class="lab-solution"><summary>Worked solution</summary>
           <p><strong>1.</strong> laps_remaining: int(7.85) = 7. tire_age: int(0.36 × 25) = 9, or int(3.6) = 3 under 10 bins. compounds_used: 4 + 2 + 0 = 6. tire_compound: 1. The full key is (7, 1, 9, 0, 1, 0, 6, 0).</p>
           <p><strong>2.</strong> 0.95⁵² = 6.9%. 0.02 × 52 = 1.04.</p>
           <p><strong>3.</strong> −95 × 52 = −4,940. −5 × 52 = −260. 0.9²¹ = 0.109 and 0.9²² = 0.098, so 22 visits.</p>
+          <p><strong>4.</strong> The no-op update: <code>test_q_learning_update_changes_q_values</code>. The wrong-sign reward: <code>test_trained_q_agent_beats_random</code>. The other four are caught by none of the three: the coarse bins, the deleted decay (the planned test repeats the arithmetic itself and never calls <code>update()</code>), evaluation with exploration on, and the SARSA leak. Four tests would close those gaps: distinct keys for the optimal pit lap and its neighbours; <code>epsilon</code> lower after real calls to <code>update()</code>; two evaluation runs on one seed giving identical races; and a pre-committed action not surviving a <code>reset()</code>.</p>
+          <p><strong>5.</strong> Untrained cells hold 0 and would win every max. The beats-random test is a smoke test of the wiring.</p>
+          <p><strong>6.</strong> Test the whole key; rule out the binning before training longer; pass <code>options={"curriculum": "dry_no_sc"}</code>, the key Phase 1 reads.</p>
         </details>

@@ -13,24 +13,33 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 1 · Page 05 of 07 — Building it yourself</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 1 · Page 05 · The build</p>
       <h1>Building the Environment, Step by Step</h1>
-      <p class="dek">The same piece-by-piece method <a class="xref" href="04-gymnasium-api.html">page 4</a> used on GridWorld, applied to a new, race-flavoured toy — one complication added at a time, never a whole class dumped at once.</p>
+      <p class="dek">You build the race the Pit Wall runs, one complication at a time, under names of your own.</p>
 
-      <div class="note grounded">
-        <div class="tag">This page is the brief for the capstone lab</div>
-        <p>Read each stage for what it adds and why, then build it in <code>prerequisites/labs/phase1/p1_cap_toy_race/toy_race.py</code>, where every stage has checks. The code listings below are collapsed on purpose: they are the same shapes with different numbers, so open one only when the hints have run out. The lab block is <a class="inline-link" href="#lab">at the end of this page</a>.</p>
+      <div class="case-file">
+        <p class="cf-label">Capstone brief</p>
+        <h2>Ten stages, one race</h2>
+        <p>Build it in <code>prerequisites/labs/phase1/p1_cap_toy_race/toy_race.py</code>, where every stage has checks. The lab's constants are the Pit Wall's: 20 laps, a 10 s base lap, a 4 s stop, A and B with their cliffs after 6 and 11 laps, a 6% safety car. So when you finish, your environment and the Pit Wall should agree lap for lap. Each stage below says what it adds and why. The code is collapsed on purpose and uses different numbers from the lab: open a snippet only when the hints have run out. The lab block is <a class="inline-link" href="#lab">at the end of this page</a>.</p>
       </div>
 
-      <p><a class="xref" href="04-gymnasium-api.html">Page 4</a> built <code>GridWorldEnv</code> — a standard, domain-agnostic environment — piece by piece: constants and spaces first, then <code>reset()</code>, then <code>step()</code> split into its movement half and its reward/termination half. This page uses the same piece-by-piece method on a new, race-flavoured toy, adding one real-world complication at a time: multiple tyre compounds trading pace for life, a wear <em>cliff</em>, fuel burning off, weather punishing the wrong tyre, a pit stop charged to the <em>old</em> tyre rather than the new one, a safety car that arrives at random, and rules about which actions are even legal.</p>
+      <section class="cold-open" data-call="p1-05">
+        <p class="co-label">Your call · Stage 6, before you write it</p>
+        <p class="co-moment">Lap 13, never stopped: your A tyres are 13 laps old, far past their cliff. You box for B. In <code>step()</code>, you switch the tyre first and time the lap second.</p>
+        <p class="co-ask">Compared with timing the lap first, what happens to the cost of that pit lap?</p>
+        <div class="lab-q" data-type="choice" data-answer="a">
+          <label class="lab-opt"><input type="radio" name="co-p1-05" value="a"> It gets cheaper. The stop looks better than it is.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-05" value="b"> It gets dearer. The new tyre is cold.</label>
+          <label class="lab-opt"><input type="radio" name="co-p1-05" value="c"> Nothing changes: the same terms are added either way.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <p>Every function and class name below is invented for this page (<code>toy_pace</code>, <code>toy_wear</code>, <code>ToyRaceEnv</code>, and so on) and deliberately does <strong>not</strong> match any name in <code>dynamics.py</code> or <code>f1_strategy_env.py</code>. The goal is to arrive at the same <em>shape</em> of solution independently, so that when you later open the real files (<a class="xref" href="06-this-project-as-mdp.html">page 6</a> grounds them, <a class="xref" href="07-code-walkthrough.html">page 7</a> reads them) you recognise the structure because you built something like it yourself.</p>
-
-      <p>At every stage, only the <em>new or changed</em> piece is shown — never the whole class again. Assemble each piece into the running script yourself as you go; typing it in rather than copy-pasting a finished block is a large part of where the understanding comes from.</p>
+      <p>Page 04's GridWorld method, applied to a race. Every name is invented (<code>toy_pace</code>, <code>ToyRaceEnv</code>) and matches nothing in the real files, so that you reach their shape on your own and <a class="xref" href="06-back-to-the-plan.html">page 06</a> looks familiar. Each stage shows only the new piece. Type it in rather than pasting.</p>
 
       <h2>Stage 1 — one compound, the GridWorld way</h2>
-      <p>Start from exactly the shape <a class="xref" href="04-gymnasium-api.html">page 4</a> used: constants and spaces, then <code>reset()</code> with a <code>_get_obs()</code> helper, then <code>step()</code> split into two halves.</p>
+      <p>Start from the shape <a class="xref" href="04-gymnasium-api.html">page 04</a> used: constants and spaces, then <code>reset()</code> with a <code>_get_obs()</code> helper, then <code>step()</code> split into two halves.</p>
       <p><strong>Constants and the class shell:</strong></p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>import numpy as np
@@ -50,7 +59,7 @@ class ToyRaceEnv(gym.Env):
         self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(1,), dtype=np.float32)
         self.action_space = spaces.Discrete(2)   # STAY_OUT | PIT</code></pre>
       </details>
-      <p><strong><code>reset()</code> and its <code>_get_obs()</code> helper</strong> — the same pattern as GridWorld, for the same reason: one place builds the observation vector, called from everywhere that needs one.</p>
+      <p><strong><code>reset()</code> and its <code>_get_obs()</code> helper</strong> : the same pattern as GridWorld, for the same reason. One place builds the observation.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>    def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -61,7 +70,7 @@ class ToyRaceEnv(gym.Env):
     def _get_obs(self):
         return np.array([min(self._age / HORIZON, 1.0)], dtype=np.float32)</code></pre>
       </details>
-      <p><strong><code>step()</code>, the timing half first</strong> — compute this lap's time from the <em>current</em> tyre age, before anything about the action changes state:</p>
+      <p><strong><code>step()</code>, the timing half first.</strong> Compute this lap's time from the <em>current</em> tyre age, before the action changes anything:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>    def step(self, action):
         assert self.action_space.contains(action)
@@ -69,7 +78,7 @@ class ToyRaceEnv(gym.Env):
         if action == PIT:
             lap_time += PIT_LOSS</code></pre>
       </details>
-      <p><strong>Then the bookkeeping half</strong> — apply the action, advance the lap, and return:</p>
+      <p><strong>Then the bookkeeping half:</strong> apply the action, advance the lap, return.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        if action == PIT:
             self._age = 0
@@ -81,11 +90,11 @@ class ToyRaceEnv(gym.Env):
         info = {"lap_time": lap_time, "age": self._age}
         return self._get_obs(), reward, terminated, False, info</code></pre>
       </details>
-      <p>Assemble those four pieces under <code>class ToyRaceEnv(gym.Env):</code> in order, add a small <code>if __name__ == "__main__":</code> driver like <a class="xref" href="04-gymnasium-api.html">page 4</a>'s (reset, loop <code>step()</code> for <code>HORIZON</code> laps, print each lap's reward), and run it. Everything from here modifies this skeleton.</p>
+      <p>Assemble those four pieces under <code>class ToyRaceEnv(gym.Env):</code> in order, add a small <code>if __name__ == "__main__":</code> driver like <a class="xref" href="04-gymnasium-api.html">page 04</a>'s (reset, loop <code>step()</code> for <code>HORIZON</code> laps, print each lap's reward), and run it. Everything from here modifies this skeleton.</p>
 
-      <h2>Stage 2 — more than one tyre: pace vs. life</h2>
-      <p>Real tyres aren't interchangeable — a grippier compound is faster when fresh and wears out sooner; a harder compound is slower but lasts. Without that trade-off, "which tyre" isn't a real decision.</p>
-      <p><strong>First, just the data and the two pure functions</strong> — no class changes yet:</p>
+      <h2>Stage 2 — two tyres: pace against life</h2>
+      <p>A grippier compound is faster when fresh and wears out sooner; a harder one is slower and lasts. Without that trade-off, "which tyre" is not a decision. On the Pit Wall, B is 0.6 s a lap slower than A and wears at less than half the rate.</p>
+      <p><strong>First the data and two pure functions</strong>, no class changes yet:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code># Each compound: (pace_penalty, wear_rate). A is faster but wears quicker than B.
 COMPOUNDS = {
@@ -101,7 +110,7 @@ def toy_wear(compound: str, age: int) -> float:
     """Quadratic wear, rate depends on which compound is fitted."""
     return COMPOUNDS[compound]["wear_rate"] * (age ** 2)</code></pre>
       </details>
-      <p><strong>Now the three places <code>ToyRaceEnv</code> has to change to use them.</strong> The spaces grow by two (one-hot for which compound is fitted), and the action space grows by one (<code>PIT_A</code>/<code>PIT_B</code> instead of a single undifferentiated <code>PIT</code>):</p>
+      <p><strong>Then the three places <code>ToyRaceEnv</code> changes.</strong> The observation grows by two (a one-hot for the fitted compound), and the action space by one (<code>PIT_A</code> and <code>PIT_B</code> instead of one <code>PIT</code>):</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>STAY_OUT, PIT_A, PIT_B = 0, 1, 2
 
@@ -126,10 +135,10 @@ def toy_wear(compound: str, age: int) -> float:
         elif action == PIT_B:
             self._compound, self._age = "B", 0</code></pre>
       </details>
-      <p>(<code>reset()</code> additionally sets <code>self._compound = "A"</code> alongside <code>self._age = 1</code>.) Run it with a policy that switches to B partway through and watch the total return change — that's the same compound-choice trade-off <a class="xref" href="02-markov-decision-processes.html">page 2</a>'s worked example computed by hand.</p>
+      <p>(<code>reset()</code> additionally sets <code>self._compound = "A"</code> alongside <code>self._age = 1</code>.) Run it with a policy that switches to B partway through and watch the total change: the compound trade-off that <a class="xref" href="02-markov-decision-processes.html">page 02</a>'s worked example priced by hand.</p>
 
       <h2>Stage 3 — a wear cliff, capped</h2>
-      <p>Real degradation isn't smoothly quadratic forever — tyres are fine for a while, then fall off a cliff, then the damage plateaus. Model that as two pieces: gentle linear wear below an age threshold, a steep — but <em>capped</em> — penalty above it. Only <code>toy_wear</code> and the <code>COMPOUNDS</code> data change; nothing else in the class does:</p>
+      <p>Real tyres are fine for a while, then fall off a cliff, then the damage levels off. Model it in two pieces: gentle linear wear below an age threshold, and a steep but <em>capped</em> penalty above it. On the Pit Wall, A at age 10 is four laps past its cliff: 0.15 × 4² = 2.4 s on top of its linear wear. Only <code>toy_wear</code> and the <code>COMPOUNDS</code> data change:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>COMPOUNDS = {
     "A": {"pace": 0.0, "wear_rate": 0.05, "cliff_age": 4, "cliff_severity": 0.15, "cliff_cap": 4.0},
@@ -149,10 +158,10 @@ def toy_wear(compound: str, age: int) -> float:
     cliff = min(c["cliff_severity"] * (over ** 2), c["cliff_cap"])
     return linear + cliff</code></pre>
       </details>
-      <p>Before wiring it back in, print <code>toy_wear("A", age)</code> on its own for <code>age = 1..16</code> and look at the numbers: flat-ish, then a knee around the cliff age, then flattening out again as the cap takes over — never blowing up further no matter how old the tyre gets. Only once that shape looks right does it make sense to rerun the full environment (with a longer <code>HORIZON</code>, say 16, so the cliff has room to show up in an episode).</p>
+      <p>Before wiring it back in, print <code>toy_wear("A", age)</code> on its own for <code>age = 1..16</code> and look at the shape: nearly flat, a knee at the cliff age, then level again once the cap takes over, however old the tyre gets. Only when that looks right should you rerun the full environment (with a longer <code>HORIZON</code>, say 16, so the cliff has room to show up in an episode).</p>
 
       <h2>Stage 4 — fuel burning off</h2>
-      <p>A car gets faster as it burns fuel over the race — a real, separate effect from tyre wear, and one that doesn't depend on which tyre is fitted at all. One new function:</p>
+      <p>A car gets faster as it burns fuel, whatever tyre is fitted. On the Pit Wall that is 0.03 s for every lap still to go: 0.57 s on lap 1, nothing on lap 20. One new function:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>def toy_fuel_penalty(laps_left: int) -> float:
     """Heavier car = slower lap. Burns off linearly as the race goes on."""
@@ -164,10 +173,10 @@ def toy_wear(compound: str, age: int) -> float:
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        lap_time += toy_fuel_penalty(HORIZON - self._lap)</code></pre>
       </details>
-      <p>Print <code>toy_fuel_penalty(laps_left)</code> for <code>laps_left = HORIZON</code> down to <code>0</code> before wiring it in — it should shrink smoothly to exactly zero at the finish, which is the toy equivalent of the real project's fuel effect vanishing on the last lap.</p>
+      <p>Print <code>toy_fuel_penalty(laps_left)</code> for <code>laps_left = HORIZON</code> down to <code>0</code> before wiring it in. It should shrink in a straight line to zero at the finish, as the real project's fuel effect does on the last lap.</p>
 
       <h2>Stage 5 — weather, and the wrong tyre for it</h2>
-      <p>Introduce a second axis entirely separate from tyre choice: track conditions. First, just the penalty table and its lookup function:</p>
+      <p>A second axis, separate from tyre choice: the track. First the penalty table and its lookup:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>DRY, WET = 0, 1
 
@@ -182,15 +191,15 @@ WEATHER_PENALTY = {
 def toy_weather_penalty(weather: int, compound: str) -> float:
     return WEATHER_PENALTY[weather][compound]</code></pre>
       </details>
-      <p>Then the observation grows by two more (a weather one-hot), <code>reset()</code> samples a weather value for the episode (held fixed for the whole toy episode to keep this stage simple — the real plan varies it lap-by-lap from a historical trace, which you don't need to reproduce to get the idea: <code>self._weather = self.np_random.integers(0, 2)</code>), and <code>step()</code>'s timing half gets one more added term:</p>
+      <p>Then the observation grows by two more (a weather one-hot), <code>reset()</code> samples a weather value for the episode (held for the whole episode to keep the stage small; the real plan varies it lap by lap from a historical trace: <code>self._weather = self.np_random.integers(0, 2)</code>), and <code>step()</code>'s timing half gets one more added term:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        lap_time += toy_weather_penalty(self._weather, self._compound)</code></pre>
       </details>
-      <p>Run one episode with <code>self._weather</code> forced to <code>WET</code> and watch every lap get visibly slower regardless of which compound is fitted — that's the mismatch penalty doing its job.</p>
+      <p>Run one episode with <code>self._weather</code> forced to <code>WET</code> and every lap gets slower whatever compound is fitted: the mismatch penalty at work.</p>
 
       <h2>Stage 6 — the pit-lap ordering rule</h2>
-      <p>This is the subtlest stage, and the easiest one to get backward by accident. A pit stop happens at the <em>end</em> of a lap: the driver completes the whole lap on the <em>old</em> tyre, then peels into the pits. So the lap just driven should be timed on the old compound at its old age, and only the <em>next</em> lap should reflect the new tyre — including a fresh out-lap warmup penalty for being cold.</p>
-      <p><strong>First, the warmup function on its own:</strong></p>
+      <p>The subtlest stage, and the easiest to get backwards. A stop happens at the <em>end</em> of a lap: the whole lap is driven on the <em>old</em> tyre, then the car peels into the pits. So that lap is timed on the old compound at its old age, and only the <em>next</em> lap gets the new tyre, cold, with its out-lap warm-up. On the Pit Wall, boxing on lap 14 on eight-lap-old A costs 11.18 s on the old tyre plus the 4 s stop, and lap 15 pays 1.2 s of warm-up on B.</p>
+      <p><strong>First the warm-up function, on its own:</strong></p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>def toy_warmup(age: int) -> float:
     """Cold-tyre penalty: full on the out-lap, half the next lap, gone after."""
@@ -200,7 +209,7 @@ def toy_weather_penalty(weather: int, compound: str) -> float:
         return 0.5
     return 0.0</code></pre>
       </details>
-      <p><strong>Then the timing half of <code>step()</code>, now complete</strong> — every term so far, all evaluated against the state <em>before</em> any pit stop is applied:</p>
+      <p><strong>Then the timing half of <code>step()</code>, complete:</strong> every term so far, all read from the state <em>before</em> any stop is applied.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        lap_time = (1.0
                     + toy_pace(self._compound)
@@ -211,7 +220,7 @@ def toy_weather_penalty(weather: int, compound: str) -> float:
         if action != STAY_OUT:
             lap_time += PIT_LOSS</code></pre>
       </details>
-      <p><strong>And only now, the bookkeeping half</strong> — the pit stop takes effect strictly <em>after</em> <code>lap_time</code> above has already been computed:</p>
+      <p><strong>Only then the bookkeeping half.</strong> The stop takes effect <em>after</em> <code>lap_time</code> has been computed:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        if action == PIT_A:
             self._compound, self._age = "A", 0
@@ -220,10 +229,18 @@ def toy_weather_penalty(weather: int, compound: str) -> float:
         self._age += 1
         self._lap += 1</code></pre>
       </details>
-      <p>Try writing it the wrong way round — switch the compound <em>before</em> computing <code>lap_time</code> — and watch what happens to a pit lap's cost: it drops, because the pit lap would then get the new tyre's fresh pace <em>and</em> dodge the old tyre's wear <em>and</em> dodge the out-lap warmup, all at once, while also paying pit loss. Comparing the two versions side by side is the fastest way to feel why this ordering is a real bug class, not a stylistic preference.</p>
+      <p>Now write it the wrong way round, switching the compound <em>before</em> computing <code>lap_time</code>, and watch a pit lap's cost.</p>
+      <section class="reveal closed" data-for="p1-05">
+        <p class="co-label">The reveal · Stage 6</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Cheaper, by a lot</b></div></div>
+        <div class="co-body">
+          <p>Timed first, the lap is driven on the 13-lap-old A: 14.86 s, with the 4 s cliff cap, plus the stop, 18.86 s. Switched first, it is timed on a fresh B instead: 12.03 s plus the stop, 16.03 s. The stop looks 2.83 s cheaper than it is, because the bug hides the very cliff the car pitted to escape. An agent trained on it learns to leave stops late.</p>
+          <p>The bug does not always flatter the stop. On eight-lap-old A, barely past the cliff, switching first makes the pit lap 0.82 s dearer, since B's pace gap and warm-up outweigh A's wear. Either way it charges the lap to the wrong tyre. That is why the order is a class of bug, not a matter of style.</p>
+        </div>
+      </section>
 
-      <h2>Stage 7 — a safety car that isn't scripted</h2>
-      <p>So far every episode with the same starting conditions plays out identically except for the agent's own choices. Add something genuinely random. First, the sampler on its own, completely separate from the environment class:</p>
+      <h2>Stage 7 — a safety car nobody scripted</h2>
+      <p>So far, two episodes with the same start play out the same except for the agent's choices. Now add real chance. First the sampler, on its own, outside the class:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>HAZARD_PER_LAP = 0.06     # chance any given green lap starts a safety car
 SC_DURATION_MEAN = 3
@@ -246,11 +263,11 @@ def sample_sc_trace(horizon: int, rng: np.random.Generator) -> np.ndarray:
             lap += 1
     return trace</code></pre>
       </details>
-      <p>Before touching the environment, call this on its own five times with different seeds and print the resulting trace each time — confirm the safety car really does land on different laps almost every call. Only once that's visibly true does it earn a place in <code>reset()</code>:</p>
+      <p>Before touching the environment, call it five times with different seeds and print each trace. The safety car should land on different laps almost every time. Only then does it earn a place in <code>reset()</code>:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        self._sc_trace = sample_sc_trace(HORIZON, self.np_random)</code></pre>
       </details>
-      <p>Then <code>step()</code> gets one new branch at the very top, before any of Stage 6's terms:</p>
+      <p>Then <code>step()</code> gets one new branch at the top, before Stage 6's terms:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>        if self._sc_trace[self._lap - 1]:
             lap_time = 8.0   # fixed, slow flag-lap time -- no term above applies
@@ -261,10 +278,10 @@ def sample_sc_trace(horizon: int, rng: np.random.Generator) -> np.ndarray:
             if action != STAY_OUT:
                 lap_time += PIT_LOSS</code></pre>
       </details>
-      <p>The point of sampling fresh every episode rather than reusing one fixed trace: an agent that could memorise "the SC always comes on lap 6" would learn a lookup table, not a strategy.</p>
+      <p>Why fresh every episode? An agent that could memorise "the safety car always comes on lap 6" would learn a lookup table, not a strategy. That is race #49 on page 01, played again with <em>Same dice again</em>.</p>
 
       <h2>Stage 8 — action masking</h2>
-      <p>Not every action is legal in every situation. Build the mask function up rule by rule rather than all at once. <strong>First, just the "can't repeat the current compound" rule:</strong></p>
+      <p>Not every call is legal in every situation. Build the mask rule by rule. <strong>First, "you cannot pit for the compound you are on":</strong></p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>def toy_action_mask(compound, weather, laps_left, compounds_used) -> np.ndarray:
     mask = np.array([True, True, True])   # STAY_OUT, PIT_A, PIT_B
@@ -274,26 +291,26 @@ def sample_sc_trace(horizon: int, rng: np.random.Generator) -> np.ndarray:
         mask[PIT_B] = False
     return mask</code></pre>
       </details>
-      <p><strong>Then add the weather rule</strong> — suppose B is unsafe in the wet in this toy world:</p>
+      <p><strong>Then the weather rule.</strong> In this toy world, B is unsafe in the wet:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>    if weather == WET:
         mask[PIT_B] = False</code></pre>
       </details>
-      <p><strong>Then the "must use both compounds eventually" rule:</strong></p>
+      <p><strong>Then "use both compounds before the flag":</strong></p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>    if len(compounds_used) &lt; 2 and laps_left &lt;= 1:
         mask[STAY_OUT] = False</code></pre>
       </details>
-      <p><strong>And finally a safety net</strong>, so the function never returns "nothing is legal":</p>
+      <p><strong>And a safety net</strong>, so the function never returns "nothing is legal":</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>    if not mask.any():
         mask[STAY_OUT] = True
     return mask</code></pre>
       </details>
-      <p>Wire this up as an <code>action_masks()</code> method, the convention <a class="xref" href="04-gymnasium-api.html">page 4</a> described (its GridWorld clamped instead of masking; the page 4 lab is where you first write one). This time it actually forbids things. Try running a random policy (<code>env.action_space.sample()</code>) with and without respecting the mask, and compare how often each version ends the toy race having never used compound B — that's the concrete difference masking makes.</p>
+      <p>Expose it as an <code>action_masks()</code> method, the convention from <a class="xref" href="04-gymnasium-api.html">page 04</a> (GridWorld clamped instead; the page 04 lab is where you first write one). These are the Pit Wall's grey buttons. Run a random policy (<code>env.action_space.sample()</code>) with and without the mask, and count how often each ends the race never having run B. That count is what masking is for.</p>
 
       <h2>Stage 9 — centring the reward</h2>
-      <p>With enough laps and consistently negative per-lap rewards, the total return can get large in magnitude (<a class="xref" href="03-value-functions-bellman.html">page 3</a> covers why that's a learning-speed problem). The fix doesn't need to live inside the environment's core logic — wrap it:</p>
+      <p>The case from page 00, fixed in code. Every lap's reward is negative, so the return grows large: −231.92 at the start of this race, about −5,000 in the real one (<a class="xref" href="03-value-functions-bellman.html">page 03</a>). The fix does not belong in the environment's physics. Wrap it:</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: the lab uses different numbers)</summary>
       <pre><code>class RewardCentringWrapper(gym.Wrapper):
     """Subtracts a fixed constant from every step's reward. Does not change
@@ -307,12 +324,13 @@ def sample_sc_trace(horizon: int, rng: np.random.Generator) -> np.ndarray:
         info["true_reward"] = reward          # keep the real number available
         return obs, reward + self.offset, terminated, truncated, info</code></pre>
       </details>
-      <p><code>env = RewardCentringWrapper(ToyRaceEnv(), offset=1.5)</code> shifts every episode's return by the same fixed amount without touching the environment's own code at all — a clean illustration of an important general pattern: a transformation that changes <em>training signal</em> without changing the environment's actual physics belongs in a wrapper, not baked into <code>step()</code>.</p>
+      <p><code>env = RewardCentringWrapper(ToyRaceEnv(), offset=1.5)</code> shifts every episode's return by the same amount without touching the environment's code. That is a general rule: a change to the <em>training signal</em> that leaves the physics alone belongs in a wrapper, not in <code>step()</code>.</p>
 
-      <h2>Stage 10 — what you've built</h2>
-      <p>Stages 1 through 9, assembled, form a small but complete environment with the same <em>shape</em> as a real pit-strategy MDP: multiple compounds trading pace for life, a capped wear cliff, fuel burn-off, weather mismatch, correctly-ordered pit stops with warmup, a freshly-sampled safety car with a discounted pit, action masking, and an optional reward-centring wrapper. Nothing about the numbers, the exact function names, or the file organisation matches the real project — and it shouldn't. The value of this stage isn't a finished script sitting in front of you; it's that every piece of it passed through your own hands, in an order where each new complication made sense on its own before the next one was added.</p>
+      <h2>Stage 10 — what you have built</h2>
+      <p>Stages 1 to 9 together are a small, complete environment with the shape of a real pit-strategy MDP: compounds trading pace for life, a capped cliff, fuel burn-off, weather, correctly ordered stops with warm-up, a fresh safety car with a cheaper stop, a mask, and an optional centring wrapper. With the lab's constants it is the Pit Wall's race. Try it: play race #49 on page 01 and open its MDP trace. Then reset your environment with <code>options={"weather": DRY, "sc_trace": ...}</code>, the safety car on lap 6 only, and make the same calls. Your lap times match the Pit Wall's to the last digit; the reference solution does on three strategies.</p>
+      <p>The names and the file layout match nothing in the real project, and they should not. What matters is that every piece passed through your hands in an order where each complication made sense before the next arrived. <a class="xref" href="06-back-to-the-plan.html">Page 06</a> does not repeat this code. It names which part of the real <code>dynamics.py</code> and <code>f1_strategy_env.py</code> matches which stage here, so you read the real files already knowing what each part is for.</p>
 
-      <p>That's the preparation <a class="xref" href="06-this-project-as-mdp.html">page 6</a> assumes. It won't repeat any of the code above — instead it names which piece of the real <code>dynamics.py</code> and <code>f1_strategy_env.py</code> corresponds to which stage here, so you can go read the real files already knowing what each part is <em>for</em>.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The offset lives in a wrapper you wrote yourself, and <code>info</code> keeps the true reward. Last stop: the real plan's reward line.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p1-cap" data-lab-format="pytest">
         <span class="lab-kicker">Lab p1-cap · Code + tests · about 90 min</span>
@@ -340,6 +358,7 @@ def sample_sc_trace(horizon: int, rng: np.random.Generator) -> np.ndarray:
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

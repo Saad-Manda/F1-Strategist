@@ -13,15 +13,27 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 09 of 11 — Building it yourself</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 09 · The build</p>
       <h1>Build It Yourself: Policy Gradient on the Toy Race</h1>
-      <p class="dek">Seven stages on the 20-lap toy race of the earlier capstones: a table policy over the legal actions, REINFORCE, GAE and a critic, one destructive update, the clip that stops it, a small PPO, and what the clip is really for when each batch is reused ten times.</p>
+      <p class="dek">Seven stages: a table policy over the legal calls, REINFORCE, GAE and a critic, one destructive update, the clip, a small PPO, and what the clip is for at ten passes per batch.</p>
 
-      <p>This page is the brief for the capstone lab below. The world is the one the Phase 3.5, 4 and 5 capstones used: the quiet toy race (no safety car, dry), three actions (stay out, pit onto A, pit onto B), and a ruler that evaluates a greedy policy <em>exactly</em> and subtracts the optimum, 224.49 s. A gap of 0.00 means optimal; a uniformly random legal policy is 43.45 s away. The reward of a lap is <code>−(lap time − 10)</code>, centred, for the reason <a class="xref" href="02-actor-critic-advantage.html">page 02</a> and lab p9-02 part D give. Each stage is checked on its own, and your learners must reproduce the reference's numbers seed for seed, so the given loops call your functions in a fixed order.</p>
+      <section class="cold-open" data-call="p9-09">
+        <p class="co-label">Your call · one destructive update</p>
+        <p class="co-moment">Start from a PPO table 1.93 s from the optimum after 1,000 races. Take one race and, on each lap, one large plain policy-gradient step towards the call the policy liked least.</p>
+        <p class="co-ask">Where does the table end up?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p9-09" value="a"> About 2 s: one race can't undo a thousand.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-09" value="b"> About 5 s.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-09" value="c"> About 21 s.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>Stage 1 — a policy that only puts weight on legal actions</h2>
-      <p>The policy is a table: one row of three logits per state (lap, compound, tyre age, used both compounds). The probabilities are a softmax over the <em>legal</em> actions only, which is what <code>MaskablePPO</code> does with its −1e8 logits (<a class="xref" href="06-stable-baselines3-api.html">page 06</a>). Write <code>masked_probs</code> and <code>log_grad</code>, <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>'s log-gradient with zeros on the illegal actions. The check compares it with finite differences.</p>
+      <p>The world is the quiet toy race of the Phase 3.5, 4 and 5 capstones: no safety car, dry, three calls, and an exact ruler that scores a greedy policy against the optimum, 224.49 s. A uniformly random legal policy is 43.45 s away. The reward is −(lap time − 10), centred, for this phase's case. Every stage is checked on its own, and your learners must reproduce the reference's numbers seed for seed.</p>
+
+      <h2>Stage 1: a policy over the legal calls only</h2>
+      <p>One row of three logits per state; a softmax over the legal calls, which is what <code>MaskablePPO</code> does with its −1e8 logits. Write <code>masked_probs</code> and <code>log_grad</code>, page 01's log-gradient with zeros on illegal calls; the check compares it with finite differences.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>def masked_probs(logits, mask):
     z = np.where(mask, logits, -np.inf)
@@ -34,16 +46,15 @@ def log_grad(logits, mask, action):
     g[action] += 1.0
     return np.where(mask, g, 0.0)</code></pre></details>
 
-      <h2>Stage 2 — REINFORCE, and a sign error that is loud</h2>
-      <p>Page 01's update, lap by lap: <code>θ[s_t] += α · G_t · ∇log π(a_t | s_t)</code>, with G_t the return from lap t to the flag. After 2,000 races it should be well clear of a random policy, and with the sign flipped clearly worse. That second check is the point: a sign error is the kind of bug the learning curve shows you.</p>
+      <h2>Stage 2: REINFORCE, and a loud sign error</h2>
+      <p>θ[s<sub>t</sub>] += α · G<sub>t</sub> · ∇log π(a<sub>t</sub> | s<sub>t</sub>). After 2,000 races it should be well clear of random, and with the sign flipped clearly worse: the bug a curve shows you. It stalls 3.5 to 13 s from the optimum, and more races don't rescue it.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>G = returns_to_go(race.rewards)
 for key, mask, action, g in zip(race.keys, race.masks, race.actions, G):
     theta[key] = theta[key] + sign * alpha * g * log_grad(theta[key], mask, action)</code></pre></details>
-      <p>Measured in the build: REINFORCE stalls between 3.5 and 13 s from the optimum, and more races do not rescue it. Its choices stop being random before it has found the good pit lap. The report shows this as the policy's entropy falling to zero.</p>
 
-      <h2>Stage 3 — GAE and a critic</h2>
-      <p><a class="xref" href="03-generalized-advantage-estimation.html">Page 03</a>'s backward recursion for one complete race: <code>δ_t = r_t + γV(s_t+1) − V(s_t)</code>, with the value after the last lap 0, and <code>A_t = δ_t + γλ · A_t+1</code>. The check uses page 03's own numbers. The critic is a table too: each update moves <code>V[s]</code> a fraction of the way towards its target.</p>
+      <h2>Stage 3: GAE and a critic</h2>
+      <p>Page 03's backward recursion for one complete race, checked on page 03's numbers. The critic is a table too: each update moves V[s] a fraction of the way to its target.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>values = list(values) + [0.0]
 adv, run = np.zeros(len(rewards)), 0.0
@@ -52,19 +63,27 @@ for t in reversed(range(len(rewards))):
     run = delta + gamma * lam * run
     adv[t] = run</code></pre></details>
 
-      <h2>Stage 4 — one destructive update</h2>
-      <p><a class="xref" href="04-ppo-clipped-objective.html">Page 04</a>'s motivating problem, on purpose. Start from a good PPO table (1.93 s from the optimum after 1,000 races), take one race, and on each of its laps take one large plain policy-gradient step towards the action the policy liked least. Measured: the gap goes from 1.93 to 21.28 s. One step on one race undid a thousand races of learning.</p>
+      <h2>Stage 4: one destructive update</h2>
+      <p>Page 04's motivating problem, on purpose: the cold open's scenario.</p>
+      <section class="reveal closed" data-for="p9-09">
+        <p class="co-label">The reveal · one destructive update</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 21 s</b></div></div>
+        <div class="co-body">
+          <p>Measured: from 1.93 to 21.28 s. One race of plain steps undid a thousand races of learning, because nothing limited how far each step moved the calls it touched.</p>
+          <p>Stage 5 repeats it with the clip.</p>
+        </div>
+      </section>
 
-      <h2>Stage 5 — the clip, and what it does not do</h2>
-      <p>Write one step on page 04's clipped objective for one sample. Its gradient is <code>ratio · A · ∇log π</code> while the unclipped term is the smaller one, and <strong>exactly zero</strong> once the clip binds: A &gt; 0 and the ratio at or above 1 + ε, or A &lt; 0 and the ratio at or below 1 − ε. Then repeat stage 4's scenario with twenty clipped steps per lap instead of one plain one. The policy is left where it was. But look at the largest ratio reached: measured 4.95, far past 1.2. The clip stops the <em>pushing</em>; it does not undo the step that crossed the line. Lab p9-04 part 3 works the same overshoot by hand.</p>
+      <h2>Stage 5: the clip, and what it doesn't do</h2>
+      <p>One step on page 04's objective for one sample: ratio · A · ∇log π while the unclipped term is the smaller, zero once the clip binds. Repeat stage 4 with twenty clipped steps per lap: the policy stays where it was. But the largest ratio reached is 4.95, far past 1.2. The clip stops the pushing; it doesn't undo the step that crossed the line.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>ratio = masked_probs(logits, mask)[action] / p_old
 if clip and ((advantage &gt; 0 and ratio &gt;= 1 + eps) or (advantage &lt; 0 and ratio &lt;= 1 - eps)):
     return logits
 return logits + step * ratio * advantage * log_grad(logits, mask, action)</code></pre></details>
 
-      <h2>Stage 6 — a small PPO</h2>
-      <p>Collect ten races, compute GAE advantages with the critic, standardise them across the batch (one of <a class="xref" href="05-build-vs-buy.html">page 05</a>'s details that matter), then make a few passes over the batch in a shuffled order, a clipped step and a critic update for each sample. The probability of each action under the policy that <em>ran</em> the race is frozen at collection time: recomputing it each epoch is one of page 05's quiet bugs (lab p9-05). Measured: 1.93 s from the optimum after 2,000 races, about eight seconds a run.</p>
+      <h2>Stage 6: a small PPO</h2>
+      <p>Collect ten races, compute GAE advantages, standardise them across the batch, then make a few shuffled passes, a clipped step and a critic update per sample. The old probability is frozen at collection time; re-reading it each pass is page 05's quiet bug. Measured: 1.93 s after 2,000 races, about eight seconds a run.</p>
       <details class="snippet"><summary>Reference snippet (a last-resort hint: try the stage first)</summary>
       <pre><code>used = (advs - advs.mean()) / (advs.std() + 1e-8)
 for _ in range(epochs):
@@ -74,11 +93,19 @@ for _ in range(epochs):
                                        used[i], b["p_old"], eps, alpha, clip)
         critic_update(V, b["key"], b["ret"], v_lr)</code></pre></details>
 
-      <h2>Stage 7 — ten epochs per batch</h2>
-      <p>No new code: run your PPO with <code>epochs=10</code>, the real config's <code>n_epochs</code>, with and without the clip. At four epochs the two are close (after 2,000 races, 1.93 and 2.96 s on seeds 0 and 1 without the clip, 1.93 on both with it). At ten they are not: after 1,000 races, 1.71 s with the clip and 7.19 s without on seed 0, and over four seeds 1.67 to 2.37 s against 2.81 to 10.65 s. Reusing each batch many times is what PPO is for, and the clip is what makes it safe.</p>
+      <h2>Stage 7: ten passes per batch</h2>
+      <p>No new code: <code>epochs=10</code>, the plan's <code>n_epochs</code>, with and without the clip. At four passes the two are close; at ten, after 1,000 races, 1.71 s with the clip and 7.19 s without on seed 0, and over four seeds 1.67 to 2.37 s against 2.81 to 10.65.</p>
 
-      <h2>The report</h2>
-      <p>The lab's report notebook, about six minutes of given cells, puts the four learners side by side with their entropy, plots the largest ratio in every update at ten epochs (70% of updates pass 1.2, the largest 2.61), and trains Stable-Baselines3's <code>MaskablePPO</code> on the same race twice. With the reward centred it finds the exact optimum (0.00 s) in 1,000 races. With the raw reward, −lap time, it learns nothing measurable (38.48 s, the gap of an untrained network). That is audit finding J3, measured.</p>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The report: four learners, the ratio, and the library<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>The report notebook, about six minutes of given cells, puts REINFORCE, the actor-critic, the PPO and the unclipped PPO side by side with their entropy (the first two stall when their calls stop being random), plots the largest ratio in every update at ten passes (70% of updates pass 1.2, the largest 2.61), and trains <code>MaskablePPO</code> on the same race twice: 0.00 s with the reward centred, 38.48 s with it raw. The Training room holds the same runs on three seeds each, with the raw reward too.</p>
+        </div>
+      </details>
+
+      <div data-widget="pitwall" data-mode="training" data-learner="ppo4" data-reward="centred" data-seed="0" data-show="reinforce|centred|0,ac|centred|0,noclip4|centred|0,ppo4|centred|0"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Built and measured: REINFORCE and the actor-critic stall, PPO's batches, standardised advantages and clip get within 2 s, and the clip earns its keep at ten passes. Next: back to the plan, and the verdict.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-cap" data-lab-format="pytest">
         <span class="lab-kicker">Lab p9-cap · Code + tests · about 90 min</span>
@@ -106,6 +133,12 @@ for _ in range(epochs):
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/training_data.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/trainingui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

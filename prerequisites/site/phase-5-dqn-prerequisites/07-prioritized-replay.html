@@ -13,108 +13,78 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 5 · Page 07 of 11 — What the real agent adds, part three</p>
-      <h1>Prioritized Experience Replay: Not All Transitions Are Equally Worth Replaying</h1>
-      <p class="dek">Pit stops decide the race and make up about 3% of the data. Uniform sampling shows them to the network about 3% of the time. Prioritized replay samples by how wrong the network was, then corrects for having done so.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 5 · Page 07 · Prioritized replay</p>
+      <h1>Prioritized Experience Replay</h1>
+      <p class="dek">Pit stops decide the race and are about 3% of the data. Prioritized replay samples by how wrong the network was, then corrects for having done so.</p>
 
-      <h2>How rare the decisive transitions are</h2>
-      <p><a class="xref" href="04-experience-replay.html">Page 04</a>'s buffer samples every stored transition with equal probability. Put this project's numbers into that:</p>
-      <blockquote class="eq">laps per race:                 52
-pit stops per race, average:   about 1.5
-share of steps that are pits:  1.5 / 52 ≈ 2.9%      about 1 step in 35
+      <section class="cold-open" data-call="p5-07">
+        <p class="co-label">Your call · a uniform batch</p>
+        <p class="co-moment">A real race is 52 laps with about 1.5 pit stops on average. Page 04's memory draws a batch of 64 transitions uniformly.</p>
+        <p class="co-ask">About how many pit-stop transitions does a batch hold?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p5-07" value="a"> None, most of the time.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-07" value="b"> About 1.8.</label>
+          <label class="lab-opt"><input type="radio" name="co-p5-07" value="c"> About 10.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-a uniform batch of 64 contains, on average:   64 × 0.029 ≈ 1.8 pit transitions
-                                              and about 62 "stay out" transitions</blockquote>
-      <p>The 62 look much alike: one more lap on slightly older tyres. The network learns to predict those well quite early. The two that carry the strategy are outvoted in every batch.</p>
-
-      <h2>TD error as a measure of surprise</h2>
-      <p><a class="xref" href="../phase-4-q-learning-prerequisites/01-from-equation-to-update-rule.html">Phase 4 page 01</a> introduced the TD error <code>δ = target − Q(s,a)</code> as the size of an update. It can be read a second way: how surprised the network was by this transition. A transition with a small <code>|δ|</code> is one the network already predicts well, and replaying it teaches little. A transition with a large <code>|δ|</code> is one it got badly wrong. Prioritized experience replay (<strong>PER</strong>) uses <code>|δ|</code> as a sampling signal, so the buffer hands back more of what the network currently gets wrong.</p>
-
-      <h2>From priority to probability</h2>
-      <p>Each stored transition <code>i</code> gets a priority and a sampling probability:</p>
-      <blockquote class="eq">p_i  = |δ_i| + ε                  ε is a tiny constant, so no priority is ever exactly 0
-P(i) = p_i^α / Σ_k p_k^α          each priority raised to α, divided by the sum over the buffer</blockquote>
-      <p>The exponent <code>α</code> sets how much the priorities count. At <code>α = 0</code> every <code>p_i^α</code> is <code>1</code> and sampling is uniform again. At <code>α = 1</code> probability is directly proportional to error. The real plan uses <code>α = 0.6</code>, in between.</p>
-      <p>Work it for a buffer of four transitions: three routine laps the network predicts to within half a second, and one pit stop it got wrong by eight seconds.</p>
+      <h2>Surprise as a sampling signal</h2>
+      <p>The 62 or so other transitions in that batch look much alike: one more lap on slightly older tyres, which the network learns early. The two that carry the strategy are outvoted in every batch. Phase 4's TD error <code>δ = target − Q(s, a)</code> can be read as how surprised the network was. A small <code>|δ|</code> is a transition it already predicts; a large one is a transition it got badly wrong. <strong>Prioritized experience replay</strong> (PER) samples by <code>|δ|</code>:</p>
+      <blockquote class="eq">p_i  = |δ_i| + ε                 ε is tiny, so no priority is ever 0
+P(i) = p_i^α / Σ_k p_k^α         α sets how much priorities count</blockquote>
+      <p>At α = 0 sampling is uniform again; at α = 1 it is in proportion to the error. The plan uses α = 0.6. With three routine laps at <code>|δ| = 0.5</code> and one pit stop at 8.0:</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th></th><th>Three routine laps, each</th><th>The pit stop</th></tr></thead>
+          <thead><tr><th></th><th>Each routine lap</th><th>The pit stop</th></tr></thead>
           <tbody>
-            <tr><td><code>|δ|</code></td><td class="mono">0.5</td><td class="mono">8.0</td></tr>
-            <tr><td><code>α = 0</code> (uniform)</td><td class="mono">25.0%</td><td class="mono">25.0%</td></tr>
-            <tr><td><code>α = 0.6</code> (the real plan)</td><td class="mono">12.1%</td><td class="mono">63.8%</td></tr>
-            <tr><td><code>α = 1</code> (fully proportional)</td><td class="mono">5.3%</td><td class="mono">84.2%</td></tr>
+            <tr><td>α = 0 (uniform)</td><td class="mono">25.0%</td><td class="mono">25.0%</td></tr>
+            <tr><td>α = 0.6 (the plan)</td><td class="mono">12.1%</td><td class="mono">63.8%</td></tr>
+            <tr><td>α = 1</td><td class="mono">5.3%</td><td class="mono">84.2%</td></tr>
           </tbody>
         </table>
       </div>
-      <blockquote class="eq">The α = 0.6 row, step by step:
+      <p>At α = 0.6 the pit stop is drawn about 5.3 times as often as a routine lap (<code>8.0^0.6 / 0.5^0.6 = 3.482 / 0.660</code>), not 16 times. The exponent softens the ratio on purpose: a priority is only refreshed when its transition is drawn, so sampling by error alone would starve transitions that went stale, and training on the same few would fit those and forget the rest. A new transition has no <code>δ</code> yet, so it is stored at the <em>largest priority in the memory</em>, to be drawn at least once soon.</p>
 
-0.5^0.6 = 0.660          8.0^0.6 = 3.482
-sum = 3 × 0.660 + 3.482 = 5.461
-
-P(routine) = 0.660 / 5.461 = 12.1%
-P(pit)     = 3.482 / 5.461 = 63.8%</blockquote>
-      <p>The error was 16 times larger, and at <code>α = 0.6</code> the pit stop is sampled about 5.3 times as often as a routine lap (<code>3.482 / 0.660</code>). The exponent softens the ratio on purpose, for two reasons.</p>
-      <ul>
-        <li><strong>Priorities go stale.</strong> A transition's <code>|δ|</code> is only recomputed when that transition is sampled. A transition that was unsurprising long ago keeps its low priority even if the network has since changed and would now get it wrong. Sampling by error alone would starve it for good.</li>
-        <li><strong>Diversity.</strong> Training on the same few high-error transitions again and again fits those few and forgets the rest, which is <a class="xref" href="04-experience-replay.html">page 04</a>'s correlated-data problem coming back in another form.</li>
-      </ul>
-      <p>One more rule follows from stale priorities. A new transition has no <code>δ</code> yet, because it has never been through the network. It is stored at the <em>largest priority currently in the buffer</em>, so that it is sampled at least once and gets a real priority.</p>
+      <section class="reveal closed" data-for="p5-07">
+        <p class="co-label">The reveal · pits per batch</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About 1.8</b></div></div>
+        <div class="co-body">
+          <p>1.5 stops in 52 laps is about 2.9% of transitions, 1 in 35. A uniform batch of 64 holds <code>64 × 0.029 ≈ 1.8</code> pit stops on average, and about 62 laps of staying out.</p>
+          <p>Option (a) is close to true of a single batch drawn from one race in order: page 04's problem.</p>
+        </div>
+      </section>
 
       <h2>The correction: importance-sampling weights</h2>
-      <p>Sampling by priority changes what the network is trained on. If pit stops are 3% of experience and 15% of training batches, the network is fitting a world in which pit stops are five times more common than they are. Its estimates drift toward that distorted world. The fix is to shrink the loss of each sampled transition by how over-represented it was:</p>
-      <blockquote class="eq">w_i = ( N · P(i) )^(−β)          N is the number of transitions in the buffer
-                                  then divide every w_i in the batch by the largest one,
-                                  so that weights only ever scale a loss down</blockquote>
-      <p><code>N · P(i)</code> is how many times more likely transition <code>i</code> was to be drawn than under uniform sampling. Under uniform sampling it is exactly <code>1</code>. Continue the four-transition example at <code>α = 0.6</code>:</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th></th><th>Routine lap</th><th>Pit stop</th></tr></thead>
-          <tbody>
-            <tr><td><code>N · P(i)</code>, with <code>N = 4</code></td><td class="mono">0.483</td><td class="mono">2.550</td></tr>
-            <tr><td><code>w</code> at <code>β = 0.4</code>, after dividing by the largest</td><td class="mono">1.000</td><td class="mono">0.514</td></tr>
-            <tr><td><code>w</code> at <code>β = 1</code>, after dividing by the largest</td><td class="mono">1.000</td><td class="mono">0.189</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>At <code>β = 1</code> the correction is complete: the pit stop is drawn 5.3 times as often and each draw counts <code>0.189</code> as much, and <code>5.3 × 0.189 = 1.0</code>. At <code>β = 0.4</code> the correction is partial: <code>5.3 × 0.514 ≈ 2.7</code>, so the pit stop still has 2.7 times the influence of a routine lap.</p>
-      <p>That raises a fair question. If full correction cancels the extra sampling, what was gained? Two things. First, the pit stop's influence now arrives as several small steps spread over many batches, where uniform sampling would deliver it as one large step on the rare occasion it is drawn. Many small steps are much easier for gradient descent to absorb. Second, <code>β</code> is not held at 1. It starts at <code>0.4</code> and is raised toward <code>1</code> over training. Early on, estimates are poor everywhere and extra attention on surprising transitions is worth a little distortion. Late in training, the network is settling on final values and the distortion matters, so it is corrected away.</p>
+      <p>Sampling by priority changes the world the network fits: if pit stops are 3% of experience and 15% of batches, it fits a race with five times as many pit stops. Each sampled transition's loss is scaled down by how over-represented it was, <code>w_i = (N·P(i))^(−β)</code>, then divided by the batch's largest weight so weights only ever shrink a loss. In the four-transition example at α = 0.6, the pit stop's weight is 0.514 at β = 0.4 and 0.189 at β = 1. At β = 1 the correction is complete: drawn 5.3 times as often, each draw counting 0.189, and <code>5.3 × 0.189 = 1.0</code>. The plan starts β at 0.4 and raises it toward 1 over training, accepting some distortion early, when every estimate is poor, and removing it late.</p>
+      <p>Each update samples a batch by priority, computes each transition's <code>δ</code> in the loss, multiplies each loss by its weight, then writes the new <code>|δ|</code> back as the priority. Once a pit stop is learned, its <code>|δ|</code> falls and it is drawn less.</p>
 
-      <h2>Where the priorities come from during training</h2>
-      <p>Each training step does four things with the buffer, in this order: sample a batch by priority, compute each transition's TD error as part of the loss, multiply each transition's loss by its weight <code>w_i</code>, then write the new <code>|δ|</code> values back as those transitions' priorities. The write-back is what keeps the buffer honest. Once the network has learned a pit stop, its <code>|δ|</code> falls, and it stops being sampled so often.</p>
-
-      <h2>The sum tree</h2>
-      <p>Sampling "in proportion to priority" from 100,000 transitions has an obvious method: add up priorities from the start until the running total passes a random number. That costs up to 100,000 additions per sample, and updating a priority means recomputing the total. A <strong>sum tree</strong> does both in about 17 steps, the depth of a binary tree with 100,000 leaves.</p>
-      <p>Every leaf holds one transition's <code>p^α</code>. Every node above holds the sum of its two children, so the root holds the total. A four-leaf tree with leaf values <code>3, 1, 4, 2</code>:</p>
-      <blockquote class="eq">                 [10]                   root = total
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The sum tree: sampling by priority in 17 steps<span class="dd-len">280 words</span></summary>
+        <div class="dd-body">
+          <p>Sampling in proportion to priority from 100,000 transitions by adding up priorities from the start costs up to 100,000 additions per draw. A <strong>sum tree</strong> does a draw or an update in about 17 steps, the depth of a binary tree with 100,000 leaves. Each leaf holds one transition's <code>p^α</code> and each node the sum of its two children, so the root holds the total:</p>
+          <blockquote class="eq">                 [10]
                /      \
-            [4]        [6]              each node = sum of its two children
+            [4]        [6]
            /   \      /   \
-         [3]   [1]  [4]   [2]           leaves, one per stored transition
+         [3]   [1]  [4]   [2]
         leaf0 leaf1 leaf2 leaf3</blockquote>
-      <p><strong>Drawing a sample.</strong> Pick a random number between <code>0</code> and the root's total, say <code>6.5</code>, and walk down. At each node, go left if the number is no larger than the left child's value. Otherwise subtract the left child's value and go right.</p>
-      <blockquote class="eq">at root:      left child = 4.   6.5 &gt; 4   →  subtract: 6.5 − 4 = 2.5, go right
-at node [6]:  left child = 4.   2.5 ≤ 4   →  go left
-arrived at leaf2 (value 4)
-
-Leaf2 owns the stretch from 4 to 8 of the total 10, so it is reached 4 times in 10.
-That is exactly "probability proportional to its value".</blockquote>
-      <p><strong>Updating a priority.</strong> Change leaf1 from <code>1</code> to <code>5</code>. The change is <code>+4</code>. Add it to every node on the path from that leaf up to the root, and touch nothing else:</p>
-      <blockquote class="eq">leaf1:        1 → 5
-its parent:   4 → 8
-root:        10 → 14</blockquote>
-      <p>The real buffer stores the tree in one flat array, with the root at index <code>0</code>, the children of node <code>k</code> at <code>2k+1</code> and <code>2k+2</code>, and the leaves in the last <code>capacity</code> slots. That is why its code converts between a transition's index and a tree index by adding or subtracting <code>capacity − 1</code>. It also draws a batch by cutting the total into as many equal segments as the batch has slots and drawing one number from each, which spreads a batch across the whole range of priorities.</p>
+          <p><strong>A draw.</strong> Pick a number between 0 and the total, say 6.5. At each node go left if the number is no larger than the left child; otherwise subtract the left child and go right. At the root, 6.5 &gt; 4, so 6.5 − 4 = 2.5 and right; at [6], 2.5 ≤ 4, so left: leaf2. Leaf2 owns the stretch from 4 to 8 of 10, so it is reached 4 times in 10.</p>
+          <p><strong>An update.</strong> Change leaf1 from 1 to 5, a change of +4, and add it on the path to the root: the parent 4 → 8, the root 10 → 14. The real buffer stores the tree in one flat array, the root at index 0 and the children of node <code>k</code> at <code>2k+1</code> and <code>2k+2</code>, leaves in the last <code>capacity</code> slots, which is why its code adds or subtracts <code>capacity − 1</code>. It draws a batch by cutting the total into one equal segment per slot and drawing once from each.</p>
+          <p>Optional: Tom Schaul, John Quan, Ioannis Antonoglou and David Silver, <a class="inline-link" href="https://arxiv.org/abs/1511.05952">Prioritized Experience Replay</a> (2015), the source of α = 0.6 and a starting β of 0.4.</p>
+        </div>
+      </details>
 
       <div class="note grounded">
-        <div class="tag">A bug to watch for, recorded against the real plan</div>
-        <p>The leaves hold <code>p^α</code>, not <code>p</code>. The plan's <code>add()</code> reads the largest leaf to find "the current maximum priority", then raises that number to <code>α</code> a second time before storing it. With a largest leaf of <code>3.482</code> (the pit stop above), a new transition should also be stored at <code>3.482</code>. The buggy version stores <code>3.482^0.6 = 2.114</code>, about 40% too low, so new transitions do not get the "at least once, soon" treatment they were promised. <a class="xref" href="09-build-it-yourself.html">Page 09</a> has you reproduce this in your own buffer, and <a class="xref" href="10-this-project-formalized.html">page 10</a> places it among the plan's recorded issues.</p>
+        <div class="tag">A bug recorded against the real plan</div>
+        <p>The leaves hold <code>p^α</code>, not <code>p</code>. The plan's <code>add()</code> reads the largest leaf as "the current maximum priority" and raises it to α a second time before storing it. With a largest leaf of 3.482, a new transition should be stored at 3.482; the buggy version stores <code>3.482^0.6 = 2.114</code>, about 40% too low. Page 09's report shows a fault like this leaves the race unchanged; only a test that reads the memory catches it.</p>
       </div>
 
-      <div class="note generic">
-        <div class="tag">Further reading — optional</div>
-        <p>Nothing later in this set depends on it. Tom Schaul, John Quan, Ioannis Antonoglou and David Silver, <a class="inline-link" href="https://arxiv.org/abs/1511.05952">Prioritized Experience Replay</a> (2015), is the source of everything on this page, including <code>α = 0.6</code> and a starting <code>β</code> of <code>0.4</code> for this proportional form.</p>
-      </div>
+      <h2>Prioritized replay in the case</h2>
+      <p>Prioritized replay decides what training sees, and its recorded bug changes which transitions are drawn. Neither does anything once training stops, and the champion was trained with a uniform memory in any case. A memory fault could leave a wrong number in the network, which would show in every race, as on page 06.</p>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Ruled out: the ranked memory and its bug. Both act on training, and a wrong number they left behind would show at a fixed state in every race. Next: whether the network learned numbers of the right size at all.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p5-07" data-lab-format="pytest">
         <span class="lab-kicker">Lab p5-07 · Code + tests · about 25 min</span>
@@ -141,6 +111,7 @@ root:        10 → 14</blockquote>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

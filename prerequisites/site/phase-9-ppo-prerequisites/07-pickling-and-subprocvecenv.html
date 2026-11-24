@@ -13,44 +13,49 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 07 of 11 — An audit finding, tested and corrected (J1)</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 07 · Processes</p>
       <h1>Lambdas, Processes, and the Guard Windows Needs</h1>
-      <p class="dek">A general lesson about functions crossing a process boundary, then what actually happens to the plan's code on this machine, measured. The audit's finding turns out to point at the wrong line.</p>
+      <p class="dek">An audit finding, tested on this machine. It points at the wrong line; the right line is one most people forget.</p>
 
-      <h2>The general lesson</h2>
-      <p><code>SubprocVecEnv</code> (<a class="xref" href="06-stable-baselines3-api.html">page 06</a>) has to get "how to build this environment" into each of its worker <em>processes</em>. Separate processes do not share memory, so the only way to hand one a function is to <strong>serialize</strong> it: turn it into bytes, send them, and rebuild the function on the other side. Python's standard <code>pickle</code> serializes a module-level function by name, storing only "import this module, look up this name". A <code>lambda</code> or a closure has no importable name, so plain <code>pickle</code> refuses it with a <code>PicklingError</code>. That part of the lesson is true, and the lab measures it.</p>
+      <section class="cold-open" data-call="p9-07">
+        <p class="co-label">Your call · the plan's lambda</p>
+        <p class="co-moment">The plan builds each environment with <code>ActionMasker(env, lambda e: e.action_masks())</code> and runs four of them in <code>SubprocVecEnv</code>. On Windows, workers start by <em>spawn</em>: a fresh Python that receives everything it needs as bytes. Plain <code>pickle</code> refuses lambdas.</p>
+        <p class="co-ask">What happens when the plan's code runs?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p9-07" value="a"> <code>PicklingError</code>: the workers never start.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-07" value="b"> It runs.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-07" value="c"> It runs on Linux only.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>What the audit claimed</h2>
-      <p>The real plan's <code>make_vec_masked_envs</code> contains:</p>
-      <pre><code>masked_env = ActionMasker(env, lambda e: e.action_masks())</code></pre>
-      <p>Audit finding J1 says this lambda cannot cross into the <code>SubprocVecEnv</code> workers, so the line raises <code>PicklingError</code> on Windows, while Linux hides the bug because its <code>fork</code> start method copies the parent's memory.</p>
+      <h2>Functions across a process boundary</h2>
+      <p>Processes don't share memory, so a worker can only receive “how to build this environment” as bytes. Plain <code>pickle</code> stores a module-level function by name (“import this module, look up this name”); a lambda has no importable name, so <code>pickle</code> raises <code>PicklingError</code>. The audit's finding J1 says the plan's lambda fails this way on Windows, while Linux hides it by forking.</p>
 
-      <h2>What actually happens</h2>
-      <div class="note grounded">
-        <div class="tag">Measured on this machine</div>
-        <p>The plan's code runs. Stable-Baselines3 does not use plain <code>pickle</code> for environment factories: it wraps each one in a <code>CloudpickleWrapper</code>, and <strong>cloudpickle</strong> serializes lambdas and closures by value, code and captured variables included. The plan's exact factory, lambda and all, built four <code>SubprocVecEnv</code> workers and trained <code>MaskablePPO</code> under <code>spawn</code>. The Linux half of the story is off too: SB3 defaults to <code>forkserver</code> there, not <code>fork</code>, so Linux does not hide anything.</p>
-      </div>
-      <p>The start method does matter, for a different reason. Under <code>spawn</code>, the only method Windows has, each worker is a fresh Python interpreter that <strong>re-imports the main module</strong>, the script you ran. If that script creates the <code>SubprocVecEnv</code> at the top level, every worker reaches the same line while importing it and tries to start workers of its own. Python stops this with a <code>RuntimeError</code> ("An attempt has been made to start a new process before the current process has finished its bootstrapping phase"); in some setups the run hangs instead. The fix is the standard one:</p>
-      <pre><code>def main():
+      <section class="reveal closed" data-for="p9-07">
+        <p class="co-label">The reveal · the plan's lambda</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">It runs</b></div></div>
+        <div class="co-body">
+          <p>SB3 doesn't use plain pickle for environment factories. It wraps each in <code>CloudpickleWrapper</code>, and cloudpickle serialises lambdas by value. The plan's factory, lambda and all, built four workers and trained <code>MaskablePPO</code> under spawn. Linux isn't hiding anything either: SB3 defaults to <code>forkserver</code> there, not fork.</p>
+          <p>A claim about what breaks across a process boundary depends on which serialiser and which start method are in use. A three-line script answers it faster than reading; lab p9-07 runs three.</p>
+        </div>
+      </section>
+
+      <h2>What does break: the guard</h2>
+      <p>Under spawn every worker is a fresh interpreter that re-imports the script you ran. If that script builds the <code>SubprocVecEnv</code> at the top level, every worker reaches the same line while importing and tries to start workers of its own. Python stops it with a <code>RuntimeError</code> (“An attempt has been made to start a new process before the current process has finished its bootstrapping phase”), or the run hangs. The fix lives in the training script, the module that is run:</p>
+      <blockquote class="eq">def main():
     venv = make_vec_masked_envs(...)
-    model = MaskablePPO("MlpPolicy", venv, ...)
-    model.learn(...)
+    MaskablePPO("MlpPolicy", venv, ...).learn(...)
 
 if __name__ == "__main__":
-    main()</code></pre>
-      <p>That guard belongs in the <em>training script</em>, the module that is run. Nothing inside <code>sb3_wrapper.py</code> can add it.</p>
+    main()</blockquote>
+      <p>Still worth doing: a named module-level <code>_mask_fn(env)</code> instead of the lambda, which also works with plain pickle and any tool less forgiving than cloudpickle.</p>
 
-      <h2>Still worth doing: a named mask function</h2>
-      <p>The lambda is harmless inside SB3, but a module-level function is the better habit, because it also works with plain <code>multiprocessing</code>, with <code>pickle</code>, and with any tool that is not as forgiving as cloudpickle:</p>
-      <pre><code>def _mask_fn(env) -> np.ndarray:
-    return env.action_masks()
+      <h2>The better answer for this race: <code>DummyVecEnv</code></h2>
+      <p>One step of this environment is a handful of arithmetic, so shipping actions and observations between processes costs more than the work. Measured with four copies of a comparably cheap environment: 41,468 steps a second in <code>DummyVecEnv</code> against 3,010 in <code>SubprocVecEnv</code>, about 14 times faster, before the 3 to 6 seconds <code>SubprocVecEnv</code> takes to start its workers. Nothing crosses a process boundary, and no guard is needed.</p>
 
-masked_env = ActionMasker(env, _mask_fn)</code></pre>
-      <p>The lesson generalizes. A claim about what breaks across a process boundary depends on which serializer and which start method are actually in use, and both are details of the library. Here a short script answers it faster than reading about it, which is what lab p9-07 does: three claims, each run in a fresh process with <code>spawn</code> forced.</p>
-
-      <h2>The better option for this environment: DummyVecEnv</h2>
-      <p>The plan's own Risks table names a fallback worth taking seriously. One <code>F1StrategyEnv.step()</code> is a handful of arithmetic operations, so the cost of sending each step's actions and observations between processes can exceed the work being parallelised. <code>DummyVecEnv</code> runs every copy in one process: nothing crosses a boundary, no guard is needed, and it is faster. Measured with four copies of a comparable cheap environment: <strong>41,468 steps per second</strong> with <code>DummyVecEnv</code> against <strong>3,010</strong> with <code>SubprocVecEnv</code>, about 14 times faster, before counting the 3 to 6 seconds each <code>SubprocVecEnv</code> takes to start its workers. <a class="xref" href="06-stable-baselines3-api.html">Page 06</a>'s general trade-off, settled for this environment.</p>
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Not this: the case's run doesn't crash, and the plan's lambda wouldn't stop one. The real J1 is a missing <code>__main__</code> guard, and <code>DummyVecEnv</code> avoids it while running 14 times faster. Next: what the plan's comparison would conclude.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-07" data-lab-format="pytest">
         <span class="lab-kicker">Lab p9-07 · Code + tests · about 20 min</span>
@@ -77,6 +82,7 @@ masked_env = ActionMasker(env, _mask_fn)</code></pre>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

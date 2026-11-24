@@ -13,44 +13,77 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 4 · Page 03 of 09 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 4 · Page 03 · Exploration</p>
       <h1>Exploration: ε-Greedy</h1>
-      <p class="dek">Nothing said so far explains how the agent decides what to actually do. ε-greedy is the simplest answer that works, and it resolves the exploration/exploitation tradeoff <a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Phase 1 page 1</a> only named.</p>
+      <p class="dek">A learner has to try calls it thinks are worse, or it never finds out it was wrong.</p>
 
-      <h2>Why greedy-only fails</h2>
-      <p>An agent that always takes whatever action its current Q-table says is best can get permanently stuck on a mediocre policy — not because the table is wrong in some abstract sense, but because it never tries the action that would have revealed something better. If an early, still-unreliable estimate happens to rank a mediocre pit lap above the genuinely optimal one, a purely greedy agent will keep confirming its own mistaken belief forever: it only ever revisits the action it already prefers, so the estimate for the better action never gets the chance to improve. This is the exploration/exploitation tradeoff named on <a class="xref" href="../phase-1-rl-prerequisites/01-rl-fundamentals.html">Phase 1 page 1</a> — <em>exploit</em> what looks best so far, or <em>explore</em> to find out whether something else is actually better — resolved concretely here for the first time.</p>
+      <section class="cold-open" data-call="p4-03">
+        <p class="co-label">Your call · the plan's settings</p>
+        <p class="co-moment">The real plan lowers ε from 1.0 to 0.05 over 500,000 steps. A race at the reference circuit is 52 laps, one step per lap, and training runs 10,000 races.</p>
+        <p class="co-ask">In which race does ε reach its floor of 0.05?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p4-03" value="a"> About race 500.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-03" value="b"> About race 5,000, halfway through training.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-03" value="c"> About race 9,600, near the end of training.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>Why greedy alone gets stuck</h2>
+      <p>A learner that always takes the call its table rates best can lock in a mediocre one. If an early, unreliable estimate ranks a poor pit lap above the right one, it keeps choosing the poor lap, and the right lap's estimate never gets the visits that would correct it. This is the exploration/exploitation tradeoff Phase 1 named: use what looks best, or try something else to find out.</p>
 
       <h2>ε-greedy, defined</h2>
-      <blockquote class="eq">with probability ε:      act uniformly at random, among LEGAL actions
-with probability 1 − ε:  act greedily — argmax Q(s, ·), among LEGAL actions</blockquote>
-      <p>"Among legal actions" matters in both branches, tying back to the action mask introduced in the Phase 1 and Phase 3.5 sets: a random draw has to be restricted to actions that are actually available in the current state, and the greedy argmax has to ignore illegal actions' Q-values entirely (masked out, typically by setting them to <code>−∞</code> before taking the max) rather than accidentally selecting one just because its untrained Q-value happens to look high.</p>
+      <blockquote class="eq">with probability ε:      a call chosen at random, among the LEGAL calls
+with probability 1 − ε:  the best call by the table, among the LEGAL calls</blockquote>
+      <p>"Legal" matters in both branches. The random draw must come from the calls the mask allows, and the best call must ignore illegal calls' values (set to −∞ before the max) rather than pick one because its untrained value looks high.</p>
 
-      <h2>Linear decay, worked with the real plan's numbers</h2>
-      <p>A fixed <code>ε</code> never stops exploring as much as it did on day one, which wastes training time once the agent already knows roughly what's good. The real plan decays <code>ε</code> linearly from <code>ε_start = 1.0</code> (pure exploration at the very start of training) down to a floor <code>ε_end = 0.05</code> (never fully greedy — always a small chance of trying something else) over <code>decay_steps = 500,000</code> environment steps:</p>
+      <h2>Linear decay, with the plan's numbers</h2>
+      <p>A fixed ε keeps exploring as hard at the end as at the start. The plan lowers it in a straight line:</p>
       <blockquote class="eq">ε_t = max( ε_end,  ε_start − t · (ε_start − ε_end) / decay_steps )
+step = (1.0 − 0.05) / 500,000 = 1.9 × 10⁻⁶ per lap</blockquote>
 
-per-step decrement = (1.0 − 0.05) / 500,000 = 0.95 / 500,000 = 1.9 × 10⁻⁶</blockquote>
-      <p>A race at this project's reference circuit is 52 laps, so 52 steps. 500,000 steps at 52 steps per race is <code>500,000 / 52 ≈ 9,615</code> races before ε reaches its floor, out of the real plan's 10,000-race training run. So with these numbers the agent is still decaying its exploration for 96% of training, and spends only the last few hundred races at the 5% floor. The plan's config comment describes the same setting as "~5K eps", which would be true of a 100-lap race. The design the comment has in mind, exploring for about the first half of the run and refining for the second, needs <code>decay_steps</code> near <code>5,000 × 52 = 260,000</code>. This is worth settling before training, and lab p4-03 below shows what each choice costs.</p>
+      <section class="reveal closed" data-for="p4-03">
+        <p class="co-label">The reveal · the floor</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">About race 9,615</b></div></div>
+        <div class="co-body">
+          <p>500,000 steps at 52 per race is 500,000 / 52 ≈ 9,615 races, out of 10,000. The agent is still lowering ε for 96% of training. The plan's config comment calls it "~5K eps", which would be true of a 100-lap race. If the intent is to explore for the first half and refine in the second, <code>decay_steps</code> should be near 5,000 × 52 = 260,000.</p>
+          <p>Which is better is a question for measurement, not for the comment. The Learner below lets you measure it on the toy race.</p>
+        </div>
+      </section>
 
-      <div class="note grounded">
-        <div class="tag">Common pitfall</div>
-        <p>Decaying <code>ε</code> too fast locks in whatever policy the table happened to prefer early, before enough states have been visited to trust it — the exact same failure mode as the greedy-only case above, just delayed rather than avoided. If a trained agent's learning curve flattens early at a mediocre level, checking whether <code>epsilon_decay_steps</code> was too small relative to the total training budget is one of the first things worth trying, ahead of anything more exotic (this is also why the real plan's risk table names "increase <code>epsilon_decay_steps</code> to 1M" as a mitigation for premature convergence).</p>
-      </div>
+      <h2>Measure it</h2>
+      <p>Open <em>Settings</em> and change how long exploration lasts, then train to 20,000. Over 20 learners with fine bins, a decay over the first 2,000 races ends with a median gap of 0.92 s (13 of 20 within 1 s), over 6,000 races 1.05 s (10 of 20), and over 15,000 races 1.24 s (6 of 20).</p>
 
-      <h2>Why masking has to apply inside exploration, not just at evaluation time</h2>
-      <p>It's tempting to think of the action mask as something that only matters for the greedy branch — after all, isn't a random exploratory action supposed to be random? The problem is that "random over all 6 actions" wastes exploration budget on moves that are illegal in the current state and get rejected or corrupt training, when only a handful of those 6 are actually legal here (say, only one valid pit compound is available because the mandatory-service rule restricts choices, or every pit action is illegal on the parade lap). Masking has to narrow the random draw itself to the legal set, not just filter the final choice afterward.</p>
-      <p>A concrete comparison makes the cost precise. Suppose 6 actions total, of which exactly 3 are legal in some state, and exactly one of those 3 is the useful pit action the agent needs to discover. Over 10 exploratory visits to that state, the chance of trying that one useful action at least once:</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Exploration scheme</th><th>P(pick the useful action), one draw</th><th>P(tried at least once in 10 draws)</th></tr></thead>
-          <tbody>
-            <tr><td>Unmasked — random over all 6 actions</td><td class="mono">1/6 ≈ 0.167</td><td class="mono">1 − (5/6)¹⁰ ≈ 0.838</td></tr>
-            <tr><td>Masked — random over the 3 legal actions</td><td class="mono">1/3 ≈ 0.333</td><td class="mono">1 − (2/3)¹⁰ ≈ 0.983</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>Both numbers look reasonably high over 10 draws, but the gap compounds badly at states that are visited rarely (exactly the coarse-table cells <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a> and 6 worry about) or where more than one of the 6 actions is illegal — a state with only 2 legal actions out of 6 more than doubles the masked scheme's per-draw hit rate over the unmasked one. Masking inside exploration isn't a correctness nicety; it's what makes the exploration budget actually land on the decisions the agent needs to learn.</p>
+      <div data-widget="pitwall" data-mode="learner" data-seed="12" data-tune="1"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <p>One more result. A fine learner that never explores at all, ε = 0 from the first race, ends with a median gap of 1.18 s, not stuck. Its table starts at 0 and every centred reward is negative, so any call it hasn't tried looks best (page 02's step 4), and it tries it. That is <strong>optimistic initialisation</strong>, the same lever as the plan's "+10" idea for pit calls.</p>
+      <p>The coarse learner doesn't respond the same way. Over 20 learners its median gap is 12.74 s with a decay over 2,000 races and 11.91 s over 15,000. With no exploring at all it does better, 4.92 s, and is still about four times the fine learner's gap. A shared cell holds a blend of every situation that lands in it, weighted by how often each one comes up, and exploring changes that mix. More or less exploring moves the coarse number about; neither fixes it.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why masking belongs inside the random draw<span class="dd-len">130 words, 1 table</span></summary>
+        <div class="dd-body">
+          <p>"Random over all 6 actions" wastes exploration on calls that are illegal here, when perhaps only 3 are allowed and one of them is the stop the agent needs to discover. Over 10 exploratory visits to that state, the chance of trying the useful call at least once:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Exploration</th><th>One draw</th><th>At least once in 10</th></tr></thead>
+              <tbody>
+                <tr><td>Unmasked: random over all 6</td><td class="mono">1/6 ≈ 0.167</td><td class="mono">1 − (5/6)¹⁰ ≈ 0.838</td></tr>
+                <tr><td>Masked: random over the 3 legal</td><td class="mono">1/3 ≈ 0.333</td><td class="mono">1 − (2/3)¹⁰ ≈ 0.983</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The gap grows in states that are visited rarely, the sparse cells of pages 05 and 06, and where more calls are illegal: with 2 legal calls out of 6, the masked draw finds the useful one three times as often as the unmasked one.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Decaying too fast<span class="dd-len">80 words</span></summary>
+        <div class="dd-body">
+          <p>Lowering ε too soon locks in whatever the table preferred early, before enough states were visited to trust it: the greedy failure, delayed. If a learning curve flattens early at a mediocre level, check <code>epsilon_decay_steps</code> against the training budget before anything more exotic. The plan's risk table names the same fix: "increase epsilon_decay_steps to 1M". On the toy race the faster schedule did better, so the toy says to measure, not which way to move.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Exploration is not the coarse learner's problem: every schedule leaves it far off, and switching exploration off moves it to 4.92 s, not to the fine learner's 1 s. The plan's decay lasts to race 9,615, not 5,000. Next: SARSA, the learner that prices its own exploring.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p4-03" data-lab-format="notebook">
         <span class="lab-kicker">Lab p4-03 · Notebook · about 20 min</span>
@@ -77,6 +110,12 @@ per-step decrement = (1.0 − 0.05) / 500,000 = 0.95 / 500,000 = 1.9 × 10⁻⁶
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/learner.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/learnerui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

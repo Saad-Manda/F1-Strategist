@@ -1,5 +1,5 @@
-<!-- page: phase-6-multi-car-prerequisites/09-this-project-formalized.html | title: Tag, compute, match | format: quiz | minutes: 10 -->
-        <p class="lab-goal">Put the page's three reward configs and five Definition-of-Done items next to the findings they answer, and do two pieces of arithmetic the plan's own code implies.</p>
+<!-- page: phase-6-multi-car-prerequisites/09-back-to-the-plan.html | title: Tag, compute, and what the tests can see | format: quiz | minutes: 20 -->
+        <p class="lab-goal">Put the plan's three reward configs and five Definition-of-Done items next to the findings they answer, do two pieces of arithmetic its code implies, say what its tests can see, and run the case against the plan.</p>
 
         <div class="lab-part">
           <h3>1 · What each reward_type really is</h3>
@@ -71,6 +71,60 @@
           </div>
         </div>
 
+        <div class="lab-part">
+          <h3>4 · The plan's five tests against E1 to E5</h3>
+          <div class="lab-q" data-type="num" data-answer="0" data-tol="0" data-explain="None. Positions stay a valid permutation under E1 and E2; the dirty-air formula is right under E3; the observation shape is unaffected by everything; the pit-lap test reads tire_age. E4 and E5 are about what the race and the reward mean, which none of the five tests ask." data-nudge="For each finding, which quantity goes wrong? Is it one of the quantities the five tests read?">
+            <label>How many of the five findings E1 to E5 is caught by at least one of the plan's five tests? &nbsp; <input type="text" inputmode="numeric"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="The two dirty-air tests check the formula's output. E3 is about where that output goes: the number is right, it just never reaches the lap time.">
+            <span class="lab-prompt">Why do the two dirty-air tests pass with E3 present?</span>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="a"> they use the wrong constants</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="b"> E3 only appears under a safety car</label>
+            <label class="lab-opt"><input type="radio" name="p610-e3" value="c"> they test the penalty's value, and E3 is about the value never being applied to the car</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · Reading order</h3>
+          <div class="lab-q" data-type="select" data-answer="rival" data-explain="RivalState.advance_lap still calls compute_lap_time with Phase 1's original arguments (laps_since_pit, safety_car_active), and reads params['pit_loss'] directly. It will not run against the revised dynamics module until that is fixed.">
+            <label>Which file has to be brought up to date with Phase 1's revised <code>compute_lap_time</code> before anything else can run?<br><select>
+              <option value="">choose…</option>
+              <option value="rival">rival.py</option>
+              <option value="overtaking">overtaking.py</option>
+              <option value="env">f1_multi_env.py</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="a" data-explain="The line caps a car's lap time, so it belongs where lap times are computed, before they are added to the totals. Positions are then read off the totals as before. As a comment or a post-processing step it changes nothing.">
+            <span class="lab-prompt">Where does page 05's blocking line belong?</span>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="a"> in f1_multi_env.py's lap-time computation, before the times are accumulated</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="b"> in _update_positions, after sorting</label>
+            <label class="lab-opt"><input type="radio" name="p610-where" value="c"> in overtaking.py's attempt_overtake</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="With Φ = −position/n_cars kept at the finish, the leftover term is a bonus of 1/n_cars per place gained by the end. A plan that trades a little time for a better finish can now beat the unshaped optimum. Setting Φ = 0 on the last step makes the shift the same for every race, and the test passes.">
+            <span class="lab-prompt">The Definition of Done says the fixed potential_shaping and the unshaped reward must agree on the optimal policy. E5 is fixed (a real Φ(s′) − Φ(s)), but Φ is not set to 0 at the finish. Is the test guaranteed to pass?</span>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="a"> yes: it is now potential-based shaping</label>
+            <label class="lab-opt"><input type="radio" name="p610-f4" value="b"> no: the finishing potential depends on the finishing position, which works as a hidden position bonus</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>6 · The case, against the plan</h3>
+          <div class="lab-q" data-type="num" data-answer="224.79" data-tol="0.01" data-explain="224.79 s, the same as before. With blocking off each car drives its own lap time, so the rival's stop lap appears nowhere in yours: lap 8 is the best stop against every rival lap from 4 to 15." data-nudge="With blocking off, which of your lap times reads anything about the rival?">
+            <label>In the plan's race (blocking off) your best one-stop plan is lap 8, 224.79 s, against a rival stopping on lap 9. The rival moves its stop to lap 12. What is your best plan's time now, in seconds? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Only the holding-up line couples one car's lap time to the other's. E1 changes the rival's total, the place bonus changes the score, and neither touches your lap times." data-nudge="Which change makes one car's lap time depend on the other car?">
+            <span class="lab-prompt">Which single change to the plan's race makes the rival's stop lap change your best stop?</span>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="a"> fixing E1, so each rival lap is counted once</label>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="b"> adding the holding-up line, with passes that stick</label>
+            <label class="lab-opt"><input type="radio" name="p609-fix" value="c"> raising the place bonus from 20 to 100</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="3.83" data-tol="0.01" data-explain="231.97 − 228.14 = 3.83 s, and the finish goes from P2 in every race to P1 in every race. In the plan's race the same two plans differ by 0.40 s the other way: lap 6 is just a worse lap to stop on." data-nudge="Time when covering on the rival's lap minus time when stopping three laps earlier.">
+            <label>Blocking on, the rival stops on lap 9. Stopping on lap 6 takes 228.14 s; stopping on lap 9 with it takes 231.97 s. How many seconds is the undercut worth? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+        </div>
+
         <details class="lab-solution"><summary>Worked solution</summary>
           <p>lap_time_plus_position is the dense signal plus a finishing bonus; gap_change telescopes to the final margin; potential_shaping as written is ad-hoc (E5). gap_change sums to −3.2. The unzeroed potential gives P2 0.4 more than P4. DoD items: blocking E4, overtaking-changes-positions E2, exact-once E1, dirty air in lap time E3, shaped/unshaped agreement E5. No rival script reads the agent.</p>
+          <p><strong>4–5.</strong> None of E1 to E5 is caught by the plan's five tests. The dirty-air tests check the value, not where it goes. rival.py needs the revised signature first. The blocking line belongs where lap times are computed, before accumulation. Without Φ = 0 at the finish the agreement test is not guaranteed: the leftover term rewards finishing position.</p>
+          <p><strong>6.</strong> 224.79 s, unchanged; the holding-up line; 3.83 s.</p>
         </details>

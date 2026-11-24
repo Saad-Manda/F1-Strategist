@@ -13,36 +13,47 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 3.5 · Page 04 of 07 — Foundations</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 3.5 · Page 04 · Markov chains</p>
       <h1>Markov Chains</h1>
-      <p class="dek">Oracle B needs a weather model the agent could plausibly know in advance — not "here is what actually happened," but "here is how likely each condition is to follow the current one." A Markov chain is exactly that model, fit from nothing more than counting.</p>
+      <p class="dek">Oracle B knows the odds of rain. Oracle A knows the rain. The gap between them is the price of not seeing the future.</p>
 
-      <h2>The same idea page 2 of the Phase 1 prerequisites already taught you</h2>
-      <p>An MDP's Markov property says the next state depends only on the <em>current</em> state, not on the full history of how you got there — that's what made <code>laps_remaining</code>, not <code>cumulative_race_time_so_far</code>, the right state feature back in Phase 1. A <strong>Markov chain</strong> is the same idea, stripped of actions and rewards entirely: just a set of states and the probability of moving from each one to each other one at each step. Weather regime is a natural fit — tomorrow's conditions depend mostly on today's, not on the conditions three days ago — which is exactly the assumption Oracle B's weather model makes explicit and calibrates.</p>
+      <section class="cold-open" data-call="p35-04">
+        <p class="co-label">Your call · rain race #728, lap 6</p>
+        <p class="co-moment">Dry, 6-lap-old A, B not used yet. Rain comes with a 10% chance each lap. In the wet B is banned, and you cannot box for A while on A: a car on A when the rain comes stays on A until it stops.</p>
+        <p class="co-ask">Do you box for B now, before any rain?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p35-04" value="a"> Box. Being stuck on A in the rain costs far more than one early stop.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-04" value="b"> Stay out one more lap. On these odds that is cheaper on average.</label>
+          <label class="lab-opt"><input type="radio" name="co-p35-04" value="c"> It cannot be called without knowing whether it rains on lap 7.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The transition matrix</h2>
-      <p>With <code>n</code> states, a Markov chain is completely described by an <code>n × n</code> <strong>transition matrix</strong> <code>P</code>, where each entry is a conditional probability:</p>
-      <blockquote class="eq">P[i, j] = P(next state = j | current state = i)</blockquote>
-      <p>Every row of <code>P</code> must sum to 1 — from state <code>i</code>, the chain has to go <em>somewhere</em> at the next step, possibly back to <code>i</code> itself. A matrix with this property is called <strong>row-stochastic</strong>. For this project, <code>n = 3</code>: DRY, DAMP, WET.</p>
+      <h2>What does Oracle B know about the weather?</h2>
+      <p>The odds, and only the odds. Its weather model is a <strong>Markov chain</strong>: the weather on the next lap depends only on the weather now, not on the laps before. A chain is a table of probabilities, one row for each weather now, one column for each weather next. The Pit Wall's:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">now \ next lap</th><th class="mono">dry</th><th class="mono">wet</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">dry</td><td class="mono">0.90</td><td class="mono">0.10</td></tr>
+            <tr><td class="mono">wet</td><td class="mono">0.30</td><td class="mono">0.70</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each row sums to 1: the matrix is <strong>row-stochastic</strong>. The real project uses three regimes, DRY, DAMP and WET, so its matrix is 3 × 3.</p>
 
-      <h2>Fitting a chain from data: count, then normalize</h2>
-      <p>Given a log of observed weather sequences, the transition matrix that makes those exact sequences most probable (its <strong>maximum-likelihood estimate</strong>) has a famously simple closed form: count how many times each transition <code>i → j</code> actually occurred, then divide by how many times state <code>i</code> occurred as a starting point at all:</p>
-      <blockquote class="eq">n_ij = number of observed transitions from state i to state j
-n_i  = Σ_j n_ij    (total number of times state i was the starting point of a transition)
-
-P̂[i, j] = n_ij / n_i</blockquote>
-      <p>No optimization, no iteration — just counting and dividing. This is the standard estimator for a Markov chain's transition probabilities, and it falls directly out of maximizing the likelihood of the observed sequences under a Markov-chain model (a classical result, e.g. Anderson &amp; Goodman 1957). One practical edge case worth knowing before it surprises you: a state that was never observed as a starting point has <code>n_i = 0</code>, making the division undefined — the standard fix is to fall back to a uniform row (equal probability to every state) rather than leaving that row undefined or crashing on it.</p>
-
-      <h2>Worked example: fitting a 3×3 matrix from three toy races</h2>
-      <p>Three short, invented 6-lap weather logs (D = DRY, P = DAMP, W = WET), one letter per lap:</p>
+      <h2>How do you fit one? Count, then divide</h2>
+      <p>Given logged weather sequences, the matrix that makes them most likely (the <strong>maximum-likelihood estimate</strong>) is a count. Tally each observed move from <code>i</code> to <code>j</code>, then divide by how often <code>i</code> was the starting point:</p>
+      <blockquote class="eq">P̂[i, j] = n_ij / n_i         n_ij = moves from i to j,   n_i = Σ_j n_ij</blockquote>
+      <p>Three short, invented 6-lap logs (D = DRY, P = DAMP, W = WET):</p>
       <blockquote class="eq">Race 1:  D D D P P D
 Race 2:  D D P W W P
 Race 3:  D P P D D D</blockquote>
-      <p>Read off every consecutive pair <em>within</em> each race (never across race boundaries — race 1's last lap says nothing about race 2's first) and tally them by starting state:</p>
+      <p>Count the consecutive pairs inside each race, never across two races, since race 1's last lap says nothing about race 2's first:</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th class="mono">From</th><th class="mono">→ D</th><th class="mono">→ P</th><th class="mono">→ W</th><th class="mono">Row total (n_i)</th></tr></thead>
+          <thead><tr><th class="mono">From</th><th class="mono">→ D</th><th class="mono">→ P</th><th class="mono">→ W</th><th class="mono">n_i</th></tr></thead>
           <tbody>
             <tr><td class="mono">D</td><td class="mono">5</td><td class="mono">3</td><td class="mono">0</td><td class="mono">8</td></tr>
             <tr><td class="mono">P</td><td class="mono">2</td><td class="mono">2</td><td class="mono">1</td><td class="mono">5</td></tr>
@@ -50,7 +61,7 @@ Race 3:  D P P D D D</blockquote>
           </tbody>
         </table>
       </div>
-      <p>Divide each row by its total to get the fitted transition matrix <code>P̂</code>:</p>
+      <p>Divide each row by its total:</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th class="mono">From \ To</th><th class="mono">DRY</th><th class="mono">DAMP</th><th class="mono">WET</th></tr></thead>
@@ -61,28 +72,50 @@ Race 3:  D P P D D D</blockquote>
           </tbody>
         </table>
       </div>
-      <p>Every row sums to 1, as required. Notice what the matrix quietly encodes just from three short races: DRY is "sticky" (62.5% chance of staying DRY), WET never jumped straight back to DRY in this small sample (a real fit, with far more than three races of data, would likely assign that transition a small but nonzero probability rather than exactly zero — a reminder that a fitted chain is only as good as the data behind it, a point Oracle B's fit-quality reporting takes seriously; see below).</p>
+      <p>WET never went straight to DRY here, but three races are thin evidence: more data would likely give that move a small chance, not zero. One edge case: a state never seen as a starting point has <code>n_i = 0</code>. The standard fix is a uniform row, not a division by zero.</p>
 
-      <h2>Sampling a trace from a fitted chain</h2>
-      <p>To generate a new, synthetic weather trace lap by lap: start in some initial state, then at each step draw the next state from the current row of <code>P̂</code>, treated as a probability distribution over the three states — a single random draw weighted by that row's three numbers, then move to whichever state was drawn and repeat using <em>its</em> row next. Two traces sampled this way, even starting identically, will almost always diverge after a few laps, precisely because each step re-samples the randomness fresh — the same "no memorisable answer key" property <a class="xref" href="01-planning-vs-learning.html">page 1</a> flagged as the reason safety cars can't just be replayed from history.</p>
+      <h2>How does the oracle use the chain?</h2>
+      <p>As page 03 used the safety car. The next lap now has two independent random things, weather and safety car, so there are four next situations, each weighted by the product of its two chances. On a dry, green lap of the Pit Wall: 0.94 × 0.90, 0.94 × 0.10, 0.06 × 0.90 and 0.06 × 0.10.</p>
+      <p>The chance of rain alone moves Oracle B's stop. With rain possible and none falling, it boxes for B on lap 7, not lap 8: B is banned once it is wet, so getting B fitted early is worth something.</p>
 
-      <div class="note generic">
-        <div class="tag">Worth knowing, not needed for this project</div>
-        <p>Multiplying the matrix by itself, <code>P²</code>, gives two-step transition probabilities; <code>P^k</code> gives <code>k</code>-step ones. As <code>k</code> grows large, most well-behaved chains converge to a fixed <strong>stationary distribution</strong> — the long-run fraction of time spent in each state, independent of where the chain started. The oracle never needs this (races are short and the exact lap-by-lap distribution is what backward induction consumes, not a long-run average), but it's the concept you'll see if you read further about Markov chains anywhere else.</p>
-      </div>
+      <h2>What does Oracle A know?</h2>
+      <p>The whole race's weather, before lap 1. It is solved by the same backward pass on that one fixed weather history, with the safety car still left to chance. Race #728 below is the rain race from the cold open. Play it, then compare the oracle and Oracle A rows at the flag.</p>
 
-      <h2>Why this is what makes Oracle B "achievable" and Oracle A only a "bound"</h2>
-      <p>This is the piece that makes the two-oracle design in the Phase 3.5 plan precise rather than hand-wavy:</p>
-      <ul>
-        <li><strong>Oracle A</strong> conditions the backward induction on one <em>specific, fixed</em> historical weather trace — lap 12 really was DAMP in that particular real race, and Oracle A is allowed to know that in advance while solving. No RL agent, which only observes weather up to the current lap, could ever know that. Oracle A is provably an upper bound the agent cannot reach — not because the agent isn't good enough, but because it's being asked a harder question than the agent is ever asked.</li>
-        <li><strong>Oracle B</strong> instead conditions on the <em>fitted transition matrix</em> above, tracking <code>weather_regime</code> as part of the DP state exactly the way the live environment does, and computing the expectation over next-lap weather using <code>P̂</code>'s row for the current regime — precisely the mechanism <a class="xref" href="03-stochastic-transitions.html">page 3</a> introduced for the safety car, applied to a second, independent random process. Because the agent, too, only ever observes the <em>current</em> regime and has to reason probabilistically about what comes next, Oracle B is solving <em>exactly</em> the MDP the agent actually faces. Its value is a target the agent could, in principle, actually reach.</li>
-        <li>The gap between them — <code>Oracle A − Oracle B</code> — is the value of knowing the future in advance: a genuinely interesting number in its own right, not RL underperformance. <a class="xref" href="06-this-project-as-dp.html">Page 6</a> returns to this with the real project's numbers.</li>
-      </ul>
+      <div data-widget="pitwall" data-mode="oracle" data-seed="728" data-weather="markov"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-      <div class="note grounded">
-        <div class="tag">This project</div>
-        <p><code>weather_markov.py</code> fits one 3×3 matrix like the one above <em>per circuit</em>, from every historical race template Phase 0.5 extracted for that circuit — the exact counting-and-normalizing procedure above, just with far more than three races and far more than six laps behind it. It also reports fit quality (per-transition counts, held-out likelihood): if a circuit's historical sample is too thin for the fitted chain to be trustworthy, the honest response is to say so and lean on Oracle A's information-gap framing instead of quietly presenting a poorly-fit Oracle B as the tight benchmark.</p>
-      </div>
+      <p>Rain falls from lap 7 to lap 19. Oracle A boxes for B on lap 6, the lap before it, and finishes in 297.27 s. Oracle B stays out, is caught on A for thirteen wet laps, and finishes in 344.15 s: 46.88 s behind.</p>
+      <p>Averaged over 2,000 sampled weather histories, knowing the weather is worth 1.37 s (± 0.09). The capstone report draws 60 histories and gets 0.88 s, which is what a small sample gives. On no history is Oracle A slower than Oracle B's policy on the same weather: knowing more can never cost an exact solver time.</p>
+      <p>No agent can be Oracle A, because an agent sees only today's weather. So an agent's gap to A mixes information it could never have with its own mistakes. Its gap to B is mistakes only. That is why the real project scores agents against B and reports A separately, as <strong>the value of perfect foresight</strong>.</p>
+
+      <section class="reveal closed" data-for="p35-04">
+        <p class="co-label">The reveal · lap 6</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Stay out, by 0.39 s</b></div></div>
+        <div class="co-body">
+          <p>On lap 6 staying out is worth 190.52 s to the flag on average and boxing 190.91 s. Oracle B stays out. On race #728 it rained from the next lap, and that call cost 46.88 s against the oracle that knew.</p>
+          <p>Option (c) asks for the forecast. Nobody has it, which is the whole difference between the two oracles. B's call is the best one for anyone who sees only today's weather: the same answer page 03 gave about the safety car, on a bigger scale.</p>
+        </div>
+      </section>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Several laps ahead<span class="dd-len">100 words</span></summary>
+        <div class="dd-body">
+          <p>If it is wet now, what is the chance it is wet three laps later? Not 0.7<sup>3</sup> = 34%, which counts only the paths that stay wet every lap. The rain can stop and come back. Multiplying the matrix by itself gives the two-step chances; three times gives three steps, and the answer is 41.2%. As the number of steps grows, most chains settle to a <strong>stationary distribution</strong>, the long-run share of time in each state, whatever the start. The oracle never needs it: the backward pass uses one row per lap, and the steps take care of themselves.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Sampling a weather trace from a chain<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>Start in some state. At each lap, draw the next state from the current state's row, treated as a probability distribution, then move there and use that state's row next time. Two traces started the same way will usually part within a few laps, because each step draws fresh. That is the same "no answer key to memorise" property Phase 1 wanted for the safety car. The real <code>weather_markov.py</code> uses this both for Oracle B's model and for the environment's <code>weather_mode="markov"</code>, so the two draw from the same chain.</p>
+        </div>
+      </details>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>When the fitted chain cannot be trusted<span class="dd-len">70 words</span></summary>
+        <div class="dd-body">
+          <p><code>weather_markov.py</code> fits one matrix per circuit from every historical weather template Phase 0.5 extracted, and reports the fit's quality alongside it: the count behind each move, and the likelihood on held-out races. If a circuit has too little rain history for its chain to be trusted, the plan says to say so and lean on Oracle A with its information-gap caveat, rather than present a poorly fitted Oracle B as the tight benchmark.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>Even the oracle loses to one that knows more: 46.88 s on race #728, 1.37 s on average. That gap is information, not error. Next: you build the solver.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p35-04" data-lab-format="notebook">
         <span class="lab-kicker">Lab p35-04 · Notebook · about 20 min</span>
@@ -109,6 +142,10 @@ Race 3:  D P P D D D</blockquote>
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

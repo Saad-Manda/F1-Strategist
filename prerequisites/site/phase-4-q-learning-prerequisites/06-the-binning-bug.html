@@ -13,41 +13,82 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 4 · Page 06 of 09 — An audit finding, read before you code</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 4 · Page 06 · The binning bug</p>
       <h1>The Binning Bug: When Coarseness Erases the Decision</h1>
-      <p class="dek">A binning scheme that runs without error and produces a plausible-sized table is not the same thing as a binning scheme that can represent the optimal policy. This page exists because the real plan's first draft got this wrong, and the fix has to land in <code>discretize_obs</code> before anything else in Phase 4 can be trusted.</p>
+      <p class="dek">A table that runs, trains and has a sensible size can still be unable to hold the right strategy. The real plan's first table is one.</p>
 
-      <div class="note grounded">
-        <div class="tag">Audit finding, quoted directly from the real plan</div>
-        <p><code>phase-4-q-learning-sarsa.md</code> flags its own Step 1: <em>"The binning below is too coarse to represent the decision... The agent is structurally prevented from representing the optimum, and no amount of training fixes that."</em> This page exists to make sure that warning is understood before <code>discretize_obs</code> gets written, not discovered afterward from a confusing learning curve.</p>
+      <section class="cold-open" data-call="p4-06">
+        <p class="co-label">Your call · the coarse learner</p>
+        <p class="co-moment">After 20,000 races the coarse learner boxes on lap 1. The oracle boxes on lap 8. In the coarse table, laps 6 to 9 on the starting tyres are one cell.</p>
+        <p class="co-ask">Train it another 60,000 races?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p4-06" value="a"> Yes: with enough races it finds lap 8.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-06" value="b"> It can't reach lap 8, but more races will get it to lap 6, the first lap of that cell, close to the best it can hold.</label>
+          <label class="lab-opt"><input type="radio" name="co-p4-06" value="c"> It won't get near lap 6 either: its gap stays about where it is.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>What the coarse table can't tell apart</h2>
+      <p>The coarse learner's cells are 5 laps of laps-to-go by 5 laps of tyre age. On the starting tyres, age equals the lap, so the first stint crosses these cells: laps 1–4, lap 5, laps 6–9, lap 10, laps 11–14, lap 15, laps 16–19, lap 20. The oracle's stop on lap 8 is inside the laps 6–9 cell, and one cell holds one call for all four laps. Stopping on lap 8 cannot be written in this table. The nearest it can hold is a stop on lap 6, the first lap of the cell. A search of the coarse table's strategies finds one 1.10 s from the optimum, stopping on lap 6.</p>
+      <p>Below, page 00's pair, trained to 20,000 races. A thick line marks where a coarse cell changes.</p>
+
+      <div data-widget="pitwall" data-mode="learner" data-seed="12" data-start="20000"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
+
+      <h2>Why it learns worse than its table allows</h2>
+      <p>The coarse learner doesn't reach 1.10 s. It ends 12.70 s off, boxing on lap 1. Each cell's number is a blend of every situation that shares it, and each update bootstraps from a neighbouring cell's blend (page 01's warning, come due).</p>
+      <p>On lap 1, its table rates boxing for B 1.88 s better than staying out. Played out with its own later calls, the stop is 0.47 s <em>worse</em>. The error comes from the cell the stop lands in: "on B, laps 2 to 5, tyres 1 to 4 laps old". Its four laps have real values 7.55 s apart, the table stores one number for all of them, and that number is 2.48 s kinder than lap 2's. A stop on lap 1 borrows the optimism.</p>
+      <p>Training more makes the blend more accurate as a blend. It never splits it. Over 20 coarse learners the median gap is 9.14 s after 5,000 races and 12.52 s after 20,000; over 10, it is 13.07 s after 40,000 and 12.95 s after 80,000.</p>
+
+      <section class="reveal closed" data-for="p4-06">
+        <p class="co-label">The reveal · 60,000 more races</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">It stays far off</b></div></div>
+        <div class="co-body">
+          <p>Two losses stack. The table cannot hold the lap-8 stop, which costs at least 1.10 s. And learning from blended neighbours costs far more: 8 to 12 s on top, at every training length tried.</p>
+          <p>This is not underfitting. More races, a different learning rate, a longer exploration schedule: none of them gives back what the key threw away before the agent saw it.</p>
+        </div>
+      </section>
+
+      <h2>The real plan's numbers</h2>
+      <p>The plan's <code>tire_age</code> bin is <code>min(int(age / 50 × 10), 9)</code>, which is <code>age // 5</code>. The Phase 0 audit measured 5 to 10 laps within 1 s of the oracle's best stop. If the best stop is lap 27, laps 27 and 29 share bin 5, and <code>Q(bin 5, PIT)</code> has to stand for both. The plan's Step 1 warning says so, and adopts 1 to 2 laps per <code>tire_age</code> bin (25 to 50 bins), finer near the cliff.</p>
+
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>What the fix costs, and the plan's warning<span class="dd-len">90 words</span></summary>
+        <div class="dd-body">
+          <p>Phase 0.5 requires the window of laps within 1 s of the best stop to be at most 12 laps wide, so a 5-lap bin is often a large share of the whole window. The plan's warning on Step 1: "The agent is structurally prevented from representing the optimum, and no amount of training fixes that." Going from 10 to 40 tyre-age bins multiplies the table by 4, about 33 MB in full, and the <code>defaultdict</code> only stores cells that are visited. The coarseness never bought back memory worth having.</p>
+        </div>
+      </details>
+
+
+      <h2>Which bins matter?</h2>
+      <p>Which dimension does the damage? Median gaps over 20 learners after 20,000 races, varying the bin width of each:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Laps to go</th><th>Tyre age</th><th class="mono">Median gap</th><th>Within 1 s</th></tr></thead>
+          <tbody>
+            <tr><td>1 lap</td><td>1 lap</td><td class="mono">1.05 s</td><td class="mono">10 of 20</td></tr>
+            <tr><td>1 lap</td><td>5 laps</td><td class="mono">1.23 s</td><td class="mono">9 of 20</td></tr>
+            <tr><td>2 laps</td><td>2 laps</td><td class="mono">1.94 s</td><td class="mono">7 of 20</td></tr>
+            <tr><td>5 laps</td><td>1 lap</td><td class="mono">2.80 s</td><td class="mono">0 of 20</td></tr>
+            <tr><td>5 laps</td><td>2 laps</td><td class="mono">5.76 s</td><td class="mono">0 of 20</td></tr>
+            <tr><td>5 laps</td><td>5 laps</td><td class="mono">12.53 s</td><td class="mono">0 of 20</td></tr>
+          </tbody>
+        </table>
       </div>
+      <p>Coarse tyre age alone barely hurts here, because on the first stint the exact lap gives the age away. It is the two together that erase the window, and fixing age to 2 laps while laps-to-go stays at 5 still leaves 5.76 s. The real race restarts tyre age at every stop, so don't read "age alone is harmless" into this. Read: the key is the whole tuple, and the plan's <code>laps_remaining</code> bins are about 4.3 laps wide.</p>
 
-      <h2>The concrete numbers</h2>
-      <p>The real plan's <code>tire_age</code> dimension gets <strong>10 bins</strong> over a normalization capped at 50 laps of tire age — one bin per 5 laps:</p>
-      <blockquote class="eq">tire_age_bin = min( int(normalized_age × 10), 9 )     # normalized_age = age / 50
+      <h2>The test this calls for</h2>
+      <p><code>discretize_obs</code> must give the oracle's best pit lap and its neighbours distinct keys. In the toy race, laps 7, 8 and 9 on the starting tyres are one coarse key and three fine ones. Without it, Phase 4 measures the binning, not the algorithm, and its gap to Oracle B means little.</p>
 
-bin 0: ages 0–5      bin 1: ages 5–10     bin 2: ages 10–15    ...
-bin 5: ages 25–30     bin 6: ages 30–35    ...</blockquote>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>How the 1.10 s was found<span class="dd-len">100 words</span></summary>
+        <div class="dd-body">
+          <p>A coarse table's greedy strategy is one call per cell. Starting from the oracle's call in each cell's first situation, a search changed one cell's call at a time and kept any change that lowered the exact expected race time (Phase 3.5's <code>expectedTime</code>), until no single change helped. It ended at 1.10 s above the optimum, stopping on lap 6. A search like this can miss a better combination, so 1.10 s is the best found, not a proven floor. Started from "stay out everywhere", the same search stopped at 9.15 s: the coarse table's strategies are hard to search, too.</p>
+        </div>
+      </details>
 
-      <h2>Why that's fatal, connected directly to Phase 3.5's own numbers</h2>
-      <p>This isn't an abstract concern — it can be checked directly against numbers this project has already validated. Phase 0.5's non-degeneracy check requires the 1-second-optimal pit window (the range of laps within one second of the exact optimal pit lap, as computed by the Phase 3.5 DP oracle) to be <strong>≤12 laps wide</strong>, and the Phase 0 audit actually measured windows of <strong>5–10 laps</strong>. A 5-lap-wide <code>tire_age</code> bin is frequently <em>narrower than the entire optimal window is wide</em> — meaning two laps the oracle considers meaningfully different can land in the very same table cell.</p>
-      <p>Concretely: suppose the DP oracle's exact optimal pit lap for some scenario is lap 27, with the 1-second-optimal window running from roughly lap 25 to lap 32 (an 8-lap window, well within the measured 5–10 lap range). Consider two candidate pit laps inside that window, lap 27 and lap 31, both close to optimal but four laps apart:</p>
-      <blockquote class="eq">tire age at lap 27  ≈ 27  →  normalized ≈ 0.54  →  int(0.54 × 10) = 5   →  bin 5
-tire age at lap 31  ≈ 31  →  normalized ≈ 0.62  →  int(0.62 × 10) = 6   →  bin 6</blockquote>
-      <p>Those two happen to land in adjacent bins here — but shift the same window four laps earlier (optimal lap 23, candidates lap 23 and lap 27) and both fall inside bin 4 (ages 20–25) and bin 5 (ages 25–30) respectively only by luck of where the window sits relative to a bin edge; shift it by two laps instead of four (candidates lap 27 and lap 29, both well inside a typical 5–10 lap window) and both round into <strong>the same bin 5</strong> (ages 25–30). The table then has no cell in which "pit now" and "wait 2–4 more laps" are different entries — <code>Q(state_with_bin5, PIT)</code> is a single number that has to simultaneously represent the value of pitting at lap 27 <em>and</em> the value of pitting at lap 29, even though the DP oracle can tell these apart and the real cost of picking wrong is real seconds of race time.</p>
-      <p>This is not underfitting. More training episodes, a better learning rate, a longer epsilon decay — none of it helps, because the representation itself has a ceiling: two states that are genuinely different, with genuinely different optimal actions, are mapped to the same dictionary key before the agent ever sees them. No update rule can recover information the state representation already discarded.</p>
-
-      <h2>The fix the real plan adopts</h2>
-      <p>Use <strong>1–2 lap resolution on <code>tire_age</code> (25–50 bins)</strong>, non-uniform if convenient — fine-grained near the cliff, where the decision is genuinely sensitive to a lap or two either way, coarser far from it, where nothing close to the boundary is at stake and a wider bin costs nothing in decision quality.</p>
-      <p>The natural objection is that finer binning means a bigger table, but <a class="xref" href="05-state-discretization-tradeoff.html">page 5</a> already computed the actual cost: even the deliberately coarse original scheme comes to roughly 172,800 states (a few megabytes as a float64 table). Widening <code>tire_age</code> from 10 bins to, say, 40 bins multiplies the total by 4×, landing well under 100 MB either way — and because <code>self.Q</code> is a <code>defaultdict</code> (<a class="xref" href="08-this-project-formalized.html">page 8</a>), memory is only ever allocated for states that are actually <em>visited</em> during training, not for the full enumerated space. The aggressive coarseness was never buying back meaningful memory savings; it was only costing the ability to represent the optimum.</p>
-
-      <h2>The general lesson</h2>
-      <p>Echoing <a class="xref" href="../phase-3.5-dp-oracle-prerequisites/05-build-a-toy-solver.html">Phase 3.5 page 5</a>'s own discipline — a clean pipeline isn't a validated pipeline — a binning scheme that runs without error and produces a plausible-sized table is not the same thing as a binning scheme that <em>can represent</em> the optimal policy. The two properties are independent: a scheme can be perfectly bug-free, produce a sensible-looking state count, train without crashing, and still be structurally incapable of distinguishing the decisions that matter.</p>
-      <div class="note grounded">
-        <div class="tag">The concrete test this motivates</div>
-        <p><code>discretize_obs</code> must map the Phase 3.5 DP oracle's optimal pit lap, and its immediate neighboring laps, to <strong>distinct</strong> bins. If it doesn't, Phase 4 isn't measuring the algorithm's ability to learn a good policy — it's measuring the discretization's inability to represent one, and the optimality gap it eventually reports against Oracle B is meaningless regardless of how well Q-learning or SARSA converges on top of it. This test belongs early in <code>tests/test_agents.py</code>, run before any learning-curve result is trusted, in the same spirit as Phase 3.5's <code>test_oracle_no_absurd_exploit</code> sanity check.</p>
-      </div>
+      <p class="evidence"><span class="ev-tag">Case 3 · the maths</span><span>Closed. Coarse cells blend laps the oracle tells apart: the table can't hold the lap-8 stop (best found 1.10 s), and learning from blended neighbours ends about 12.5 s off at every training length tried. The damage comes from laps-to-go and tyre age together. Next: build the learners yourself.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p4-06" data-lab-format="widget">
         <span class="lab-kicker">Lab p4-06 · In page · about 10 min</span>
@@ -107,6 +148,12 @@ tire age at lap 31  ≈ 31  →  normalized ≈ 0.62  →  int(0.62 × 10) = 6  
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/learner.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/learnerui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/widgets/binexplorer.js"></script>
 <script src="../assets/labs.js"></script>
 </body>

@@ -142,7 +142,7 @@ predict.reveal(LAB, "fault", f"the start value moved from {rows['full']['q']:.1f
 # The race is a few seconds worse, which on its own looks like the near-miss of section 2. The
 # value is the giveaway: more than twice the true scale. Every lap's target now includes a
 # made-up number for "after the race", and since that number is never corrected toward
-# anything, it drifts, and the drift is passed backward through all twenty laps. Page 11's
+# anything, it drifts, and the drift is passed backward through all twenty laps. Page 10's
 # second proposed test, "a terminal transition's target equals its reward", catches this
 # before any training is run.
 #

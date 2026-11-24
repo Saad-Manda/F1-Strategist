@@ -13,47 +13,58 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 01 of 11 — A little math</p>
-      <h1>Policy Gradients From Scratch: The REINFORCE Idea</h1>
-      <p class="dek">Everything through Phase 8 learned a value function and acted greedily. Phase 9's whole family of algorithms starts from a different question: why not just optimize the policy directly?</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 01 · Policy gradients</p>
+      <h1>Policy Gradients From Scratch: REINFORCE</h1>
+      <p class="dek">Stop learning values and adjust the policy directly: make the calls that led to good races more likely.</p>
+
+      <section class="cold-open" data-call="p9-01">
+        <p class="co-label">Your call · one race of REINFORCE</p>
+        <p class="co-moment">The plan's reward: each lap pays −lap time, so the return from any lap to the flag is somewhere between about −11 and −263. REINFORCE moves each call it made by α · G<sub>t</sub> · ∇log π(a<sub>t</sub>), with G<sub>t</sub> that return.</p>
+        <p class="co-ask">After one race, what has happened to the calls it made?</p>
+        <div class="lab-q" data-type="choice" data-answer="b">
+          <label class="lab-opt"><input type="radio" name="co-p9-01" value="a"> Made more likely, if the race was fast.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-01" value="b"> Made less likely, every one, however good the race.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-01" value="c"> Left alone: only the difference from an average counts.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
       <h2>A different objective</h2>
-      <p>Phase 4 and Phase 5 both learn <code>Q(s,a)</code> and then act by taking <code>argmax_a Q(s,a)</code> — the policy is never a first-class object, it's a byproduct of the value function. Policy gradient methods flip this around: parameterize the policy itself, <code>π_θ(a|s)</code>, a function of state with learnable parameters <code>θ</code> that outputs a probability over actions, and adjust <code>θ</code> directly so that actions which led to high return become more likely, and actions that led to low return become less likely. The objective is the expected return under the current policy:</p>
-      <blockquote class="eq">J(θ) = E_τ~π_θ [ G(τ) ]</blockquote>
-      <p>where <code>τ</code> is a full trajectory (state/action/reward sequence) and <code>G(τ)</code> is its total return. Compare this to Phase 4/5's objective, which was never phrased as maximizing anything about <code>θ</code> directly — it was minimizing TD error toward a bootstrapped target. Here there is one objective, <code>J(θ)</code>, and the whole derivation below is about how to compute <code>∇_θ J(θ)</code> so gradient ascent can be run on it directly.</p>
+      <p>Phases 4 and 5 learn Q(s, a) and act by its argmax; the policy is a by-product. A policy gradient method makes the policy the thing learned: π<sub>θ</sub>(a | s), probabilities over the calls with parameters θ, and it climbs the expected return directly.</p>
+      <blockquote class="eq">J(θ) = E<sub>τ ~ π<sub>θ</sub></sub>[ G(τ) ]        ∇<sub>θ</sub>J(θ) = E<sub>π</sub>[ Σ<sub>t</sub> ∇<sub>θ</sub> log π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) · G<sub>t</sub> ]</blockquote>
+      <p>The second line is the <strong>policy gradient theorem</strong>, and its point is what is missing from it: the race's dynamics. You need only the policy's own log-probabilities and returns you have sampled.</p>
 
-      <h2>The policy gradient theorem</h2>
-      <p>The obstacle: <code>J(θ)</code> is an expectation over trajectories whose probabilities depend on the environment's (unknown) transition dynamics as well as on <code>θ</code>. Differentiating through unknown dynamics looks impossible. The policy gradient theorem shows it isn't necessary. Start by writing the expectation as a sum over trajectories weighted by their probability:</p>
-      <blockquote class="eq">∇_θ J(θ) = ∇_θ Σ_τ P(τ; θ) · G(τ)
-           = Σ_τ ∇_θ P(τ; θ) · G(τ)</blockquote>
-      <p>Now apply the log-derivative trick — for any differentiable, strictly positive function <code>P</code>, <code>∇_θ P = P · ∇_θ log P</code> (this is just the chain rule run in reverse: <code>∇_θ log P = ∇_θ P / P</code>). Substituting:</p>
-      <blockquote class="eq">∇_θ J(θ) = Σ_τ P(τ; θ) · ∇_θ log P(τ; θ) · G(τ)
-           = E_τ~π_θ [ ∇_θ log P(τ; θ) · G(τ) ]</blockquote>
-      <p>This is now an expectation again — exactly the form Monte Carlo sampling can estimate from trajectories actually rolled out. The last step removes the dependence on the environment's dynamics entirely: a trajectory's probability factors as <code>P(τ;θ) = ρ(s_0) · Π_t π_θ(a_t|s_t) · P(s_{t+1}|s_t,a_t)</code>, and taking <code>log</code> turns the product into a sum, of which only the <code>π_θ(a_t|s_t)</code> terms depend on <code>θ</code> — every transition-probability term's gradient with respect to <code>θ</code> is exactly zero. What survives is:</p>
-      <blockquote class="eq">∇_θ J(θ) = E_π [ Σ_t ∇_θ log π_θ(a_t|s_t) · G ]</blockquote>
-      <p>The gradient of the expected return equals the expected value of the policy's own log-probability gradient, scaled by the return — computable purely from the policy's known functional form and a sampled return, with no knowledge of how the environment works required at all.</p>
+      <h2>REINFORCE, one step by hand</h2>
+      <p>Run a race; for every lap, nudge θ along ∇log π(a<sub>t</sub> | s<sub>t</sub>) · G<sub>t</sub>. Take two calls with logits z<sub>R</sub> = 1, z<sub>P</sub> = 0: π(R) = 0.731, π(P) = 0.269. For a softmax, ∂ log π(a) / ∂z<sub>a</sub> = 1 − π(a) and ∂ log π(a) / ∂z<sub>b</sub> = −π(b). R was taken and the race returned G = +4; with α = 0.1:</p>
+      <blockquote class="eq">z_R ← 1.0 + 0.1 · 4 · 0.269  = 1.108
+z_P ← 0.0 + 0.1 · 4 · (−0.269) = −0.108</blockquote>
+      <p>The call taken becomes more likely because G was positive. Had G been negative, both moves flip: the call taken becomes <em>less</em> likely. That one step, repeated over every lap of every race, is all of REINFORCE.</p>
 
-      <h2>REINFORCE</h2>
-      <p>The algorithm built directly on this result: run a full episode under the current policy, and for every <code>(s, a)</code> visited, nudge <code>θ</code> in the direction of <code>∇_θ log π_θ(a|s) · G</code> — increasing the log-probability of actions that were followed by high return, decreasing it for actions followed by low return. This is a <strong>Monte Carlo</strong> method: it uses the full realized return <code>G</code> for the whole episode (the same quantity Phase 3.5's oracle computes exactly, by brute force, rather than a bootstrapped one-step target the way Phase 4's TD update does).</p>
+      <section class="reveal closed" data-for="p9-01">
+        <p class="co-label">The reveal · one race of REINFORCE</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">All made less likely</b></div></div>
+        <div class="co-body">
+          <p>Under the raw reward every G<sub>t</sub> is negative, so every call made is pushed down, a fast race's a little less than a slow one's. The only learning signal is the difference between races, a few seconds out of about 225, carried on steps sized by the whole 225.</p>
+          <p>Measured over three seeds, 2,000 races each: REINFORCE ends 20.37 to 42.05 s from the optimum with the raw reward, against 3.46 to 13.23 s with the reward centred (each lap −(lap time − 10)). A uniformly random policy is 43.45 s away. Below, seed 0 both ways.</p>
+        </div>
+      </section>
 
-      <h2>A hand-worked example: the softmax gradient</h2>
-      <p>A tiny 2-action policy: two logits <code>z_R</code>, <code>z_P</code>, and <code>π(a) = softmax(z)_a = e^{z_a} / (e^{z_R} + e^{z_P})</code>. Suppose <code>z_R = 1.0</code>, <code>z_P = 0.0</code>:</p>
-      <blockquote class="eq">π(R) = e^1 / (e^1 + e^0) = 2.718 / 3.718 = 0.731
-π(P) = e^0 / (e^1 + e^0) = 1.000 / 3.718 = 0.269</blockquote>
-      <p>The softmax log-gradient has a clean closed form worth deriving once: for the action actually taken, <code>∂ log π(a)/∂z_a = 1 − π(a)</code>; for every other action <code>b</code>, <code>∂ log π(a)/∂z_b = −π(b)</code>. Suppose action <code>R</code> was sampled and the episode returned <code>G = +4</code>:</p>
-      <blockquote class="eq">∂ log π(R)/∂z_R = 1 − π(R) = 1 − 0.731 = 0.269
-∂ log π(R)/∂z_P = −π(P)     = −0.269
+      <div data-widget="pitwall" data-mode="training" data-learner="reinforce" data-reward="raw" data-seed="0" data-show="reinforce|raw|0,reinforce|centred|0"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-Update (learning rate α = 0.1):
-  z_R ← z_R + α · G · 0.269  = 1.0 + 0.1 · 4 · 0.269  = 1.0 + 0.1076 = 1.108
-  z_P ← z_P + α · G · (−0.269) = 0.0 + 0.1 · 4 · (−0.269) = 0.0 − 0.1076 = −0.108</blockquote>
-      <p>The logit for the action that was actually taken increases, and the logit for the action not taken decreases — both because the return was positive. If <code>G</code> had been negative, both updates would flip sign: the action taken would become <em>less</em> likely. This one step is the entire content of REINFORCE, repeated over every timestep of every episode.</p>
+      <p>Even centred, REINFORCE stalls: the entropy reading falls towards zero while the plan is still several seconds off. Its calls stop being random before it has found the good stop, and a call it never makes again can never be learned to be good. Page 02 attacks the noise.</p>
 
-      <div class="note generic">
-        <div class="tag">Why this isn't the end of the story</div>
-        <p>Raw returns <code>G</code> are noisy — the same action in the same state can be followed by wildly different total returns across episodes, purely from what happens later (Phase 3.5's DP oracle already showed how much variance exists across scenario draws; here the concern is variance in the <em>training signal itself</em>, not just in evaluation). REINFORCE as derived above is correct in expectation but can be very slow to converge in practice as a direct result. <a class="xref" href="02-actor-critic-advantage.html">Page 02</a> fixes exactly this, without changing what the gradient estimator is aiming at.</p>
-      </div>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The policy gradient theorem, derived<span class="dd-len">170 words</span></summary>
+        <div class="dd-body">
+          <p>Write the expectation as a sum over trajectories and use the log-derivative trick, ∇P = P · ∇log P:</p>
+          <blockquote class="eq">∇J = Σ<sub>τ</sub> ∇P(τ; θ) · G(τ) = Σ<sub>τ</sub> P(τ; θ) · ∇log P(τ; θ) · G(τ) = E<sub>τ</sub>[ ∇log P(τ; θ) · G(τ) ]</blockquote>
+          <p>A trajectory's probability is ρ(s<sub>0</sub>) · Π<sub>t</sub> π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) · P(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>). Its log is a sum, and only the π<sub>θ</sub> terms depend on θ: the transition terms' gradients are zero. That leaves E[ Σ<sub>t</sub> ∇log π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) · G ]. Replacing G with the return from step t on, G<sub>t</sub>, drops terms whose expectation is zero (a call can't change rewards earned before it), which is the form above.</p>
+          <p>REINFORCE is a Monte Carlo method: it uses the full sampled return, as Phase 3.5's oracle uses the full expected one, rather than Phase 4's one-step bootstrapped target.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>With the raw reward every REINFORCE push is downwards, and the signal is the small difference between races: 20 to 42 s from the optimum, against 3.5 to 13 centred. Next: subtracting a baseline.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-01" data-lab-format="notebook">
         <span class="lab-kicker">Lab p9-01 · Notebook · about 20 min</span>
@@ -126,6 +137,12 @@ Update (learning rate α = 0.1):
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/training_data.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/trainingui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

@@ -88,7 +88,7 @@ plt.tight_layout(); plt.show()
 # %% [markdown]
 # Read the grid by columns before rows. If one seed's histogram looked like a finding ("two
 # modes!", "the follower undercuts!"), the other three seeds of the same configuration say how much
-# of that is the seed. This is why page 10 asks for several seeds before anyone reads a shape.
+# of that is the seed. This is why page 09 asks for several seeds before anyone reads a shape.
 #
 # Blocking off has a pure equilibrium at (8, 8), every delta 0. Whatever the learners show away
 # from 0 there is learning noise or exploration, not strategy, and it is the control the

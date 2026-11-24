@@ -13,43 +13,51 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 9 · Page 02 of 11 — A little math</p>
-      <h1>Actor-Critic and the Advantage Function</h1>
-      <p class="dek">Fixing REINFORCE's variance problem without changing what its gradient estimator is aiming at.</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 02 · Actor-critic</p>
+      <h1>Actor-Critic and the Advantage</h1>
+      <p class="dek">Subtract what a state is worth on average. The gradient keeps its aim and loses most of its noise.</p>
 
-      <h2>Baselines don't change the target, only the noise</h2>
-      <p><a class="xref" href="01-policy-gradients-reinforce.html">Page 01</a> ended with a real limitation: the raw return <code>G</code> in <code>∇_θ log π_θ(a|s) · G</code> is a noisy training signal. The general fix: subtract any <strong>state-dependent baseline</strong> <code>b(s)</code> from <code>G</code> before scaling the log-gradient by it. This doesn't change the expected gradient at all — the correction term itself has expectation exactly zero:</p>
-      <blockquote class="eq">E_a~π[ ∇_θ log π_θ(a|s) · b(s) ] = b(s) · E_a~π[ ∇_θ log π_θ(a|s) ]
-                                = b(s) · ∇_θ Σ_a π_θ(a|s)
-                                = b(s) · ∇_θ (1) = 0</blockquote>
-      <p>The middle step uses the same log-derivative identity as <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a> in reverse (<code>∇_θ log π · π = ∇_θ π</code>), and the last step uses the fact that a probability distribution always sums to 1 regardless of <code>θ</code>, so its gradient is exactly zero. Because <code>b(s)</code> doesn't depend on which action was sampled, subtracting it changes nothing about where the gradient points on average — only how much it varies from one sampled trajectory to the next, and a well-chosen baseline can cut that variance sharply.</p>
+      <section class="cold-open" data-call="p9-02">
+        <p class="co-label">Your call · two races through one state</p>
+        <p class="co-moment">Two races pass through the same state. In one, call a<sub>1</sub> is made and the race returns G = 8; in the other, a<sub>2</sub> and G = 2. The state is worth 5 on average.</p>
+        <p class="co-ask">With page 01's raw-return update, what happens to a<sub>2</sub>?</p>
+        <div class="lab-q" data-type="choice" data-answer="a">
+          <label class="lab-opt"><input type="radio" name="co-p9-02" value="a"> Pushed up, less than a<sub>1</sub>.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-02" value="b"> Pushed down.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-02" value="c"> Left alone.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The natural baseline: the state-value function</h2>
-      <p>The obvious choice of <code>b(s)</code> is <code>V(s)</code> — "how good is this state on average, regardless of which action gets taken from here." This is a second function that has to be learned alongside the policy: the <strong>critic</strong>. The policy being improved is the <strong>actor</strong>. The critic is trained with the same TD/Bellman machinery already assumed as background from Phase 4/5 — bootstrapped value learning — just repurposed here as a variance-reduction tool for a policy gradient, rather than as the thing an agent acts on directly by taking its argmax.</p>
+      <h2>A baseline changes the noise, not the aim</h2>
+      <p>Subtract any b(s) that doesn't depend on the call from G before scaling the log-gradient. The expected gradient doesn't move, because the extra term averages to zero:</p>
+      <blockquote class="eq">E<sub>a ~ π</sub>[ ∇log π(a | s) · b(s) ] = b(s) · ∇ Σ<sub>a</sub> π(a | s) = b(s) · ∇1 = 0</blockquote>
+      <p>The natural baseline is V(s), what the state is worth on average. It has to be learned alongside the policy, with Phase 4's machinery: that learned V is the <strong>critic</strong>, and the policy is the <strong>actor</strong>. What is left after subtracting it is the <strong>advantage</strong>:</p>
+      <blockquote class="eq">A(s, a) = Q(s, a) − V(s)        ∇J = E<sub>π</sub>[ ∇log π(a | s) · A(s, a) ]</blockquote>
 
-      <h2>The advantage function</h2>
-      <p>Subtracting <code>V(s)</code> from <code>Q(s,a)</code> (rather than from the sampled return directly) gives exactly idea.md's stated concept:</p>
-      <blockquote class="eq">A(s,a) = Q(s,a) − V(s)</blockquote>
-      <p>"How much better was taking action <code>a</code> in state <code>s</code>, compared to the state's own average outcome." Substituting the advantage in for the raw return in <a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>'s gradient gives the actor-critic policy gradient:</p>
-      <blockquote class="eq">∇_θ J(θ) = E_π [ ∇_θ log π_θ(a|s) · A(s,a) ]</blockquote>
-      <p>The intuition sharpens directly: push up the log-probability of actions with positive advantage (better than average for that state), push down actions with negative advantage — rather than chasing the raw, noisy magnitude of <code>G</code>, which says nothing on its own about whether a given action was actually a <em>good choice</em> relative to the alternatives available in that state.</p>
+      <section class="reveal closed" data-for="p9-02">
+        <p class="co-label">The reveal · two races through one state</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">Pushed up, less than a<sub>1</sub></b></div></div>
+        <div class="co-body">
+          <p>Both returns are positive, so the raw update pushes both calls up, a<sub>2</sub> by less. With the baseline, A = 8 − 5 = +3 for a<sub>1</sub> and 2 − 5 = −3 for a<sub>2</sub>: a<sub>2</sub> is pushed down. The advantage says which call was worse than the state's average, not only which was less good.</p>
+          <p>Page 01's raw reward is this picture with every return near −225: all pushes down. A baseline near −225 would turn them into ± a few seconds. The question is how soon the critic gets there.</p>
+        </div>
+      </section>
 
-      <h2>A hand-worked comparison: advantage vs. raw return</h2>
-      <p>Two trajectories pass through the same state <code>s</code>. In the first, action <code>a1</code> is taken and the episode returns <code>G = 8</code>. In the second, action <code>a2</code> is taken and the episode returns <code>G = 2</code>. Suppose the critic has learned <code>V(s) = 5</code>.</p>
-      <blockquote class="eq">Raw-return update (<a class="xref" href="01-policy-gradients-reinforce.html">page 01</a>):
-  a1: push log π(a1|s) up,  scaled by  G = +8   (positive push)
-  a2: push log π(a2|s) up,  scaled by  G = +2   (also a positive push — just smaller)
+      <h2>A baseline that arrives late</h2>
+      <p>The actor-critic below uses a table critic that moves 10% of the way to each return it sees. With the raw reward, by race 100 its value of lap 1 is already −254 to −261, close to the race's return. But by then the policy's calls have gone nearly deterministic: entropy 0.03 to 0.11 along its plan, against 0.66 at the start and 0.36 for the same learner centred. The first races' huge downward pushes have already settled it. It ends 23.49 to 33.94 s from the optimum, against 7.23 to 9.43 s centred.</p>
 
-Advantage update (this page):
-  A(s,a1) = 8 − 5 = +3   →  push log π(a1|s) UP
-  A(s,a2) = 2 − 5 = −3   →  push log π(a2|s) DOWN</blockquote>
-      <p>The raw-return version pushes <em>both</em> actions' probabilities up — it never actually says a2 was a comparatively bad choice for this state, only that it was somewhat less good than a1. The advantage version correctly identifies that a2 underperformed this state's average and pushes its probability down, a qualitatively sharper and more useful training signal than a magnitude difference in an all-positive update.</p>
+      <div data-widget="pitwall" data-mode="training" data-learner="ac" data-reward="raw" data-seed="0" data-show="ac|raw|0,ac|centred|0"><noscript><p>The Pit Wall needs JavaScript. The rules are on <a href="../pitwall.html">the Pit Wall page</a>.</p></noscript></div>
 
-      <div class="note generic">
-        <div class="tag">What's still missing</div>
-        <p>Nothing here has said <em>how</em> to estimate <code>Q(s,a)</code> (or the advantage directly) from a single rollout — only that doing so beats using the raw return. There's more than one way to estimate it, and the choice trades off bias against variance exactly like Phase 4/5's n-step-vs-Monte-Carlo TD tradeoff (assumed background) generalizes. <a class="xref" href="03-generalized-advantage-estimation.html">Page 03</a> works through the specific estimator Stable-Baselines3 actually uses.</p>
-      </div>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>Why the baseline term is zero, step by step<span class="dd-len">110 words</span></summary>
+        <div class="dd-body">
+          <p>∇log π · π = ∇π, the log-derivative identity of page 01 in reverse. So Σ<sub>a</sub> π(a | s) ∇log π(a | s) · b(s) = b(s) Σ<sub>a</sub> ∇π(a | s) = b(s) ∇ Σ<sub>a</sub> π(a | s). The probabilities add up to 1 for every θ, so the gradient of the sum is 0. Nothing here needs b to be a good estimate: any b(s) keeps the gradient unbiased. A good one only makes it less noisy, and lab p9-02 measures both halves. Its part D adds a constant to every reward of a bandit, which is this phase's case in two arms.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>A baseline turns all-negative pushes into ± a few seconds, but only once the critic has the scale. The table critic got there within 100 races, after the policy had stopped exploring: 23 to 34 s raw, 7 to 9 centred. Next: how PPO builds its advantages.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p9-02" data-lab-format="notebook">
         <span class="lab-kicker">Lab p9-02 · Notebook · about 20 min</span>
@@ -76,6 +84,12 @@ Advantage update (this page):
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/pitwall/engine.js"></script>
+<script src="../assets/pitwall/oracle.js"></script>
+<script src="../assets/pitwall/training_data.js"></script>
+<script src="../assets/pitwall/ui.js"></script>
+<script src="../assets/pitwall/trainingui.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

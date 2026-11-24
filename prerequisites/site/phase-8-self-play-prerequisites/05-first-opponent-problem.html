@@ -13,42 +13,55 @@
     <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
   </nav>
   <main>
-    <div class="doc">
-      <p class="eyebrow">Phase 8 · Page 05 of 10 — A lesson in disguised determinism</p>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 8 · Page 05 · The first opponent</p>
       <h1>Why the Pool's First Member Matters</h1>
-      <p class="dek">"Epsilon = 0.0" and "random opponent" sound similar. They are not the same thing, and confusing them poisons the very first round of training.</p>
+      <p class="dek">"ε = 0" and "a random opponent" sound alike. They aren't, and mixing them up shapes the first thousand races of training.</p>
 
-      <h2>What the real plan does</h2>
-      <p>The real plan's <code>train_self_play</code> seeds the checkpoint pool before any training happens: <code>pool.add(learner, episode=0)</code> stores a freshly initialized, entirely untrained network. Then <code>pool.sample()</code> sets <code>epsilon = 0.0</code> — fully greedy — on whatever checkpoint it returns, including this very first one.</p>
+      <section class="cold-open" data-call="p8-05">
+        <p class="co-label">Your call · an untrained opponent</p>
+        <p class="co-moment">Thirty freshly initialised copies of the plan's network, <code>DuelingDQN(19, 6, 128)</code>, each played greedily (ε = 0) through one 52-lap race, with the lap and tyre age moving.</p>
+        <p class="co-ask">How many of the thirty pick the same action on every lap?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p8-05" value="a"> About 3: untrained networks act at random.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-05" value="b"> About 15.</label>
+          <label class="lab-opt"><input type="radio" name="co-p8-05" value="c"> About 23.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
 
-      <h2>The general lesson, before the specific bug</h2>
-      <p>A greedy policy over a <em>randomly initialized</em> network is not noisy, varied, or weak-but-fair. It is a <strong>deterministic</strong> function of that network's fixed random weights: given the same observation, it picks the same action, every single time, for as long as that checkpoint stays in the pool's rotation. "Untrained" describes how good the policy is. It says nothing about how <em>varied</em> the policy is — and those are independent properties that are easy to conflate.</p>
+      <h2>What the plan does</h2>
+      <p><code>train_self_play</code> seeds the pool before training with <code>pool.add(learner, episode=0)</code>: a freshly initialised, untrained network. <code>pool.sample()</code> then sets <code>epsilon = 0.0</code> on whatever it returns, this first entry included.</p>
 
-      <div class="note grounded">
-        <div class="tag">Concretely, what goes wrong</div>
-        <p>If the untrained network's fixed initial weights happen to favor the "pit" action for whatever observation values it's fed, the very first opponent in the pool pits on lap 1 — and every lap after that, forever, because greedy selection over a network that never updates always returns the same answer. That's not merely a bad opponent; it's a bad opponent in a fixed, entirely predictable, non-representative way. The learner's very first training signal comes from a degenerate, repeatable game, not from anything resembling the range of strategies it will eventually have to handle.</p>
-      </div>
+      <h2>Untrained is not random</h2>
+      <p>A greedy policy over randomly initialised weights isn't noisy or varied. It is a <strong>deterministic</strong> function of those fixed weights: the same observation gives the same action every time, for as long as the checkpoint is in the pool. "Untrained" says how good a policy is. It says nothing about how varied it is, and the two are easy to conflate.</p>
 
-      <div class="note grounded">
-        <div class="tag">Measured, on the plan's own architecture</div>
-        <p>Thirty freshly initialised copies of the plan's <code>DuelingDQN(19, 6, 128)</code>, each played greedily through one 52-lap race (lap and tyre age moving, everything else fixed): <strong>23 of the 30 pick the same action on every lap</strong>. Over 2,000 random observations, the most common greedy action takes a median 95% of them (the lowest, 51%). The action entropy of an untrained greedy network is 0.20 nats, against 1.79 for a uniformly random policy (lab p8-05).</p>
-        <p>Two qualifications. The plan's <code>step</code> replaces an illegal action with the first legal one, so a network stuck on "pit onto the compound I already have" alternates between two behaviours rather than pitting 52 times; it is still a fixed, exploitable script. And with the plan as written, this problem never shows up, because something else stops the run first: the pool's <code>sample()</code> crashes on a one-entry pool (<a class="xref" href="03-checkpoint-pool.html">page 03</a>). Fix the crash first, then the seed.</p>
-      </div>
+      <section class="reveal closed" data-for="p8-05">
+        <p class="co-label">The reveal · an untrained opponent</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">23 of 30</b></div></div>
+        <div class="co-body">
+          <p>23 of the 30 pick the same action on every lap. Over 2,000 random observations the most common greedy action takes a median 95% of them (the lowest, 51%). The action entropy of an untrained greedy network is 0.20 nats, against 1.79 for a uniformly random policy (lab p8-05).</p>
+          <p>The plan's <code>step</code> replaces an illegal action with the first legal one, so a network stuck on “pit onto the compound I already have” alternates between two behaviours rather than pitting 52 times. It is still a fixed, exploitable script.</p>
+        </div>
+      </section>
 
-      <h2>Why this is easy to miss</h2>
-      <p>It looks superficially reasonable: "of course an untrained network makes a weak opponent to start with — that's fine, the learner will quickly outgrow it." That framing is about to be wrong in a way that isn't about weakness at all. The danger isn't that the first opponent is weak — a weak-but-varied opponent would be a perfectly fine, even useful, starting point. The danger is that it has <em>zero variance</em>: every one of the (up to) 1000 episodes before the next checkpoint is added is spent playing against the exact same fixed response, which teaches the learner to exploit one specific quirk of one specific random initialization rather than anything general.</p>
+      <h2>Why it matters, and why it comes second</h2>
+      <p>The danger isn't that the first opponent is weak. A weak but varied opponent is a fine start. The danger is that it has no variance: every race before the next checkpoint arrives, up to 1,000 of them, is played against the same fixed answer, and the learner is trained to exploit one quirk of one random initialisation. But with the plan as written, this never shows up. The pool's <code>sample()</code> fails first (page 03). Fix the crash, then the seed.</p>
 
       <h2>The fix</h2>
-      <p>Either of two changes genuinely fixes this, for different reasons:</p>
       <ul>
-        <li><strong>Seed with a stochastic policy</strong> — <code>epsilon = 1.0</code>, literally uniform-random action selection, for the pool's earliest entries. This restores genuine variance immediately, at the cost of the opponent being uniformly unskilled rather than merely simple.</li>
-        <li><strong>Seed with Phase 3's rule-based agents</strong> (assumed background) — the real plan's stronger suggestion. These are simultaneously <em>competent</em> and <em>diverse</em> (several different named strategies), giving the learner a meaningful curriculum from episode 0 rather than either noise or a degenerate greedy trap.</li>
+        <li><strong>Seed with a stochastic policy</strong>: <code>epsilon = 1.0</code>, uniformly random calls, for the pool's earliest entries. Variety at once, at the cost of an opponent that is unskilled throughout.</li>
+        <li><strong>Seed with Phase 3's rule-based agents</strong>, the plan's stronger suggestion: competent and diverse at once, a curriculum from episode 0.</li>
       </ul>
 
-      <div class="note generic">
-        <div class="tag">The reusable shape of this trap</div>
-        <p>"A greedy policy over an untrained or random function is not automatically a random baseline" generalizes well past self-play. Anywhere code substitutes "hasn't learned yet" for "behaves like noise" — an untrained classifier used as a control group, an unfitted model used as a null hypothesis — the same gap can hide: the thing that's supposed to represent variety may in fact be a single, silently repeatable answer.</p>
-      </div>
+      <details class="deep">
+        <summary><span class="dd-kind">Deep dive</span>The same trap elsewhere<span class="dd-len">60 words</span></summary>
+        <div class="dd-body">
+          <p>"A greedy policy over an untrained function is not a random baseline" reaches well past self-play. Anywhere code uses "hasn't learned yet" for "behaves like noise", such as an untrained classifier as a control group or an unfitted model as a null, the same gap can hide: the thing meant to supply variety may be one silently repeated answer.</p>
+        </div>
+      </details>
+
+      <p class="evidence"><span class="ev-tag">Evidence so far</span><span>The seed opponent is a fixed script: 23 of 30 untrained networks make the same call every lap. It matters once the crash is fixed, not before. Next: what the race lets two cars do to each other.</span></p>
 
       <section class="lab" id="lab" data-lab-id="p8-05" data-lab-format="notebook">
         <span class="lab-kicker">Lab p8-05 · Notebook · about 15 min</span>
@@ -75,6 +88,7 @@
 <script src="../assets/course.js"></script>
 <script src="../assets/progress.js"></script>
 <script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
 <script src="../assets/labs.js"></script>
 </body>
 </html>

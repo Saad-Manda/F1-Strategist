@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Back to the plan — Phase 9 PPO · F1 Prereqs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="9/10">
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <noscript><a class="brand" href="../index.html"><span class="kicker">F1 Strategy Agent</span><span class="title">Prerequisites — course map</span></a></noscript>
+  </nav>
+  <main>
+    <div class="doc v2">
+      <p class="eyebrow">Phase 9 · Page 10 · Back to the plan</p>
+      <h1>Back to the Plan</h1>
+      <p class="dek"><code>phase-9-ppo-sb3.md</code> against what you measured: the wrapper, the agent, the config, what its checklist catches, and the verdict.</p>
+
+      <div class="note grounded">
+        <div class="tag">Planned, not built yet</div>
+        <p><code>src/env/sb3_wrapper.py</code>, <code>src/agents/ppo_agent.py</code> and <code>configs/ppo.yaml</code> are not in the repository yet. This page reads the plan's pseudocode.</p>
+      </div>
+
+      <section class="cold-open" data-call="p9-10">
+        <p class="co-label">Your call · the plan's checklist</p>
+        <p class="co-moment">The plan's Definition of Done for PPO: “MaskablePPO trains for 2M timesteps without crashing”, “PPOAgent.select_action() respects action masks during evaluation”, and “DQN vs PPO comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick”.</p>
+        <p class="co-ask">Which of them catches the case: a PPO that learns nothing from an uncentred reward?</p>
+        <div class="lab-q" data-type="choice" data-answer="c">
+          <label class="lab-opt"><input type="radio" name="co-p9-10" value="a"> The first: training would fail.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-10" value="b"> The third: the oracle's gap would show it.</label>
+          <label class="lab-opt"><input type="radio" name="co-p9-10" value="c"> None of them.</label>
+        </div>
+        <p class="co-status"></p>
+      </section>
+
+      <h2>The wrapper, the agent, the config</h2>
+      <p><code>make_masked_env</code> wraps one <code>F1StrategyEnv</code> in <code>ActionMasker</code> with the env's own <code>action_masks()</code>. <code>make_vec_masked_envs</code> is where page 07 lands: the lambda works, a named <code>_mask_fn</code> is the better habit, and <code>DummyVecEnv</code> is the right class for a step this cheap. If <code>SubprocVecEnv</code> stays, the training script needs the <code>__main__</code> guard.</p>
+      <p><code>PPOAgent.select_action</code> calls <code>model.predict(obs, action_masks=masks, deterministic=True)</code>: no exploration at evaluation, by construction. The earlier agents still branch on ε when evaluated, about 2.6 random calls in a 52-lap race (Finding D, <a class="xref" href="../phase-5-dqn-prerequisites/10-back-to-the-plan.html">Phase 5's case</a>). That fix belongs in their files, and it has to land before the comparison means anything.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Key</th><th>Value</th><th>Page</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">clip_range</td><td class="mono">0.2</td><td>04: the band [0.8, 1.2]</td></tr>
+            <tr><td class="mono">n_steps / n_envs / batch_size</td><td class="mono">256 / 4 / 64</td><td>06: 1,024 per update, 16 minibatches; nothing checks that 64 divides it</td></tr>
+            <tr><td class="mono">n_epochs</td><td class="mono">10</td><td>04 and the build's stage 7: what the clip is for</td></tr>
+            <tr><td class="mono">lr</td><td class="mono">0.0003</td><td>06: the critic's pace, the same for any reward scale</td></tr>
+            <tr><td class="mono">gamma</td><td class="mono">1.0</td><td>Fixed-length races, so the critic's targets are whole-race returns: the case</td></tr>
+            <tr><td class="mono">ent_coef</td><td class="mono">0.01</td><td>An entropy bonus to keep calls random; on the toy race it didn't reliably cure the early learners' stall (0.9 to 9.6 s across settings and seeds)</td></tr>
+            <tr><td class="mono">gae_lambda</td><td>not set: 0.95</td><td>03: a value chosen by nobody</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section class="reveal closed" data-for="p9-10">
+        <p class="co-label">The reveal · the plan's checklist</p>
+        <div class="co-pair"><div><span>You called</span><b data-slot="mine">no call made</b></div><div><span>The numbers say</span><b class="t-purple">None of them</b></div></div>
+        <div class="co-body">
+          <p>An uncentred run trains for 2M steps without a crash, masks correctly, and goes into the 100-seed comparison, which passes as long as it runs: nothing in the item says what gap counts as failure. The case's run would satisfy the whole checklist.</p>
+          <p>What would have caught it is in the run's own logs: <code>train/explained_variance</code> stuck at 0.0 and <code>train/value_loss</code> in the thousands (8,025 at the end of the raw toy run, 3.8 centred).</p>
+        </div>
+      </section>
+
+      <h2>Reading order, and where each fix goes</h2>
+      <p><strong><code>sb3_wrapper.py</code> first</strong>: the vector class and the mask function. <strong>Then <code>configs/ppo.yaml</code></strong>: pages 03, 04 and 06's keys and the missing <code>gae_lambda</code>. <strong>Then <code>ppo_agent.py</code>'s <code>train_ppo</code></strong>: page 06's <code>.learn()</code> with real arguments, and the env config it trains on, which is where the reward offset lives. <strong>Then <code>scripts/compare_dqn_ppo.py</code></strong>, which means nothing until J2, J3 and D are fixed.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Catches</th><th>Misses</th></tr></thead>
+          <tbody>
+            <tr><td>“MaskablePPO trains for 2M timesteps without crashing”</td><td>A broken env or wrapper; under spawn, a training script without the <code>__main__</code> guard</td><td>A run that learns nothing (J3); whether 2M is a fair budget (J2). Not the lambda: it runs</td></tr>
+            <tr><td>“PPOAgent.select_action() respects action masks during evaluation”</td><td>A masking regression</td><td>J2, J3, and DQN's ε at evaluation (D), which is in other files</td></tr>
+            <tr><td>“DQN vs PPO comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick”</td><td>Evaluation luck across scenarios</td><td>Everything decided at training time: J2, J3 and D change its numbers, and it has no threshold to fail them</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="case-file">
+        <p class="cf-label">Case 7 · the verdict</p>
+        <h2>The algorithm was fine; its critic was asked to walk too far</h2>
+        <p><strong>Why does PPO learn nothing?</strong> With γ = 1 and the raw reward, the critic's targets are whole-race returns near −263 on the toy race (about −4,700 on the real one), and SB3's critic is a network trained by Adam, whose steps don't grow with the error: 9.9 every 10,000 steps here, centred or raw. Until the critic is in range, the advantages are its error, the same for every call, and the policy doesn't move. The clip never binds, nothing crashes, and the run ends on the plan that never chooses to stop: 38.48 s at 2,000 races, within 1 s only after 130,000 steps. The same algorithm with a table critic learned from the same raw reward, which is why the fault is the scale, not PPO.</p>
+        <p><strong>What should the plan change?</strong> The prerequisites don't edit the plan; these go to whoever implements Phase 9.</p>
+        <p><strong>1. Fix the scale.</strong> Train on the env with <code>reward_offset: "base_pace"</code> (Finding C), or wrap it in <code>VecNormalize(norm_reward=True)</code>, the plan's own fallback. Both measured: 0.00 s on three seeds by 2,000 races. Say in the write-up which one, as the audit asks.</p>
+        <p><strong>2. Make the checklist able to fail.</strong> Add an item a learner that learns nothing can't pass: <code>train/explained_variance</code> well above 0 within the first updates, and a PPO optimality gap below a stated threshold before the comparison runs.</p>
+        <p><strong>3. Make the comparison fair.</strong> Match the training budgets or compare at matched steps (J2), and turn ε off when evaluating the DQN agents (D).</p>
+        <p>Also: <code>DummyVecEnv</code>, or the <code>__main__</code> guard if <code>SubprocVecEnv</code> stays (J1), and <code>gae_lambda</code> written down.</p>
+        <p><button class="pw-btn go" type="button" data-close-case="9" data-label="Close Case 7">Close Case 7</button></p>
+      </div>
+
+      <section class="lab" id="lab" data-lab-id="p9-10" data-lab-format="quiz">
+        <span class="lab-kicker">Lab p9-10 · In page · about 20 min</span>
+        <h2>Keys, lines, and what catches what</h2>
+        <p class="lab-goal">Put each key of <code>configs/ppo.yaml</code> next to the page that explains it, answer the questions the config raises, decide what each Definition-of-Done item catches and where each fix goes, and run the case against the plan.</p>
+
+        <div class="lab-part">
+          <h3>1 · Which page explains each key?</h3>
+          <div class="lab-q" data-type="select" data-answer="p04" data-explain="ε of the clipped objective, the band [0.8, 1.2].">
+            <label><code>clip_range: 0.2</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p06" data-explain="256 steps × 4 environments = 1,024 transitions per update, cut into minibatches of 64 and passed over n_epochs times.">
+            <label><code>n_steps</code>, <code>batch_size</code>, <code>n_epochs</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p10" data-explain="The entropy bonus is new on page 10. The capstone report measured it on the toy race: it did not reliably cure the early learners' stall (gaps of 0.9 to 9.6 s across settings and seeds).">
+            <label><code>ent_coef: 0.01</code><br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="p03" data-explain="The key is missing, so SB3's default 0.95 is used: the λ of page 03, chosen by nobody.">
+            <label><code>gae_lambda</code>, absent from the file<br><select>
+              <option value="">choose…</option><option value="p03">page 03, GAE-λ</option><option value="p04">page 04, the clipped objective</option><option value="p06">page 06, the SB3 API and its rollout arithmetic</option><option value="p10">page 10 and the capstone report's section 1</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>2 · Three questions the config raises</h3>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="1,024 / 96 is not a whole number. Plain PPO warns about it once at construction; MaskablePPO says nothing at all, and both quietly train on a short last minibatch (measured in p9-06 part E: one warning against zero, minibatches of 64 and 36 for a buffer of 100). Only a test or a read of the code would catch it.">
+            <span class="lab-prompt">Someone changes <code>batch_size</code> to 96 with n_steps 256 and 4 environments. What does <code>MaskablePPO</code> do?</span>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="a"> raises an error when the model is built</label>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="b"> prints a warning, then trains</label>
+            <label class="lab-opt"><input type="radio" name="p910-batch" value="c"> says nothing, and trains with a short last minibatch</label>
+          </div>
+          <div class="lab-q" data-type="num" data-answer="2.6" data-tol="0.01" data-explain="0.05 × 52 = 2.6 random actions per race, any of which can be a pit stop nobody chose. PPO's deterministic predict has none (Finding D)." data-nudge="Each lap, a 5% chance of a random action.">
+            <label>A DQN agent is evaluated with ε = 0.05 still on, over a 52-lap race. How many random actions does it take per race, on average? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="c" data-explain="Page 02 explains the mechanism: advantages are returns minus a baseline, and a value head that starts near 0 must fit returns near −4,700 before its baseline is any use. Page 10 says that with γ = 1 this is Finding C again, fixed by the same reward offset. p9-02 part D showed it on the bandit, and the capstone report on the toy race: MaskablePPO reached 0.00 s with the reward centred and 38.48 s, no learning at all, without.">
+            <span class="lab-prompt">Which page explains why reward centring matters for PPO on this project?</span>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="a"> page 02 only: it is a baseline question</label>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="b"> page 10 only: it is a config question</label>
+            <label class="lab-opt"><input type="radio" name="p910-centre" value="c"> both: page 02 for the mechanism, page 10 for where it bites in this config</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>3 · What each item catches</h3>
+          <div class="lab-q" data-type="select" data-answer="j1" data-explain="Without the guard, each SubprocVecEnv worker re-imports the training script under spawn and the run stops with a RuntimeError, or hangs (p9-07, claim 3). An uncentred reward, an unmatched budget and an ε left on all train without crashing.">
+            <label>"MaskablePPO trains for 2M timesteps without crashing"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It checks PPO's masking, which is already correct. D is a bug in the DQN agents' evaluation, not in PPOAgent.">
+            <label>"PPOAgent.select_action() respects action masks during evaluation"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="none" data-explain="It passes as long as the comparison runs. An unfixed J2, J3 or D changes the numbers it reports, and an uncentred PPO would show a gap near 38 s, but nothing in the item says what number counts as a failure.">
+            <label>"Comparison runs on 100 paired seeds, with the DP oracle's optimality gap as the shared yardstick"<br><select>
+              <option value="">choose…</option><option value="j1">J1, the missing guard</option><option value="j2">J2, the budget</option><option value="j3">J3, the uncentred reward</option><option value="d">D, ε at evaluation</option><option value="none">none of the four</option>
+            </select></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="SB3 wraps each environment factory in CloudpickleWrapper, and cloudpickle serialises lambdas by value. The plan's lambda works (p9-07, claim 2). What the first item would catch is a missing __main__ guard: under spawn, the workers re-import the script that started them.">
+            <span class="lab-prompt">Would "trains for 2M timesteps without crashing" have caught the lambda the audit's J1 originally pointed at?</span>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="a"> yes: the lambda cannot be pickled, so the workers never start</label>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="b"> there is nothing to catch: SB3 pickles the lambda with cloudpickle and it works</label>
+            <label class="lab-opt"><input type="radio" name="p911-lambda" value="c"> only on Linux, where the start method is fork</label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>4 · Where each fix goes</h3>
+          <div class="lab-q" data-type="select" data-answer="script" data-explain="The guard belongs in the module that is run, because that is what spawn re-imports. No change inside the wrapper can add it.">
+            <label>The <code>if __name__ == "__main__":</code> guard<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="wrapper" data-explain="make_vec_masked_envs chooses the vector class. On an environment this cheap DummyVecEnv stepped about 14 times faster (41,468 against 3,010 steps per second, p9-07) and needs no guard.">
+            <label>Using <code>DummyVecEnv</code> instead of <code>SubprocVecEnv</code><br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="config" data-explain="Either set total_timesteps to DQN's step count, or read both learners at matched step budgets in the notebook. Re-plotting against steps without matching the budgets does not change the ranking (p9-08 warm-up).">
+            <label>Matching the training budgets<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+          <div class="lab-q" data-type="select" data-answer="agents" data-explain="PPOAgent already predicts deterministically. The agents that still branch on ε at evaluation are the earlier ones.">
+            <label>Turning exploration off at evaluation<br><select>
+              <option value="">choose…</option><option value="script">the script that starts training</option><option value="wrapper"><code>src/env/sb3_wrapper.py</code></option><option value="config"><code>configs/ppo.yaml</code> or the comparison notebook</option><option value="agents">the Phase 4/5 DQN and Q-learning agents</option>
+            </select></label>
+          </div>
+        </div>
+
+        <div class="lab-part">
+          <h3>5 · The case, against the plan</h3>
+          <div class="lab-q" data-type="num" data-answer="4.17" data-tol="0.1" data-explain="263 / 63 ≈ 4.2. The plan the learner starts on takes 262.97 s; centred, its return is −(262.97 − 200) = −63, raw it is −263. SB3's critic covers both at the same pace, 9.9 every 10,000 steps on the toy race, so the raw one waits about four times as long before its advantages mean anything, and in the measured run it first came within 1 s after 130,000 steps instead of 14,000 to 18,000." data-nudge="Each lap pays −(lap time − 10) centred and −lap time raw; the race has 20 laps.">
+            <label>The toy race's untrained plan takes 262.97 s. How many times further from 0 is the critic's target for lap 1 with the raw reward than with the centred one? &nbsp; <input type="text" inputmode="decimal"></label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="Both standardise their advantages and both clip. The mini PPO's critic is a table moved a tenth of its error per visit, so it reached −242 to −254 within 100 races and the policy learned (0.88 to 5.21 s raw). SB3's critic is a network trained by Adam, whose step is set by the learning rate, not the error: −14.6 after 500 races raw and −14.7 centred." data-nudge="Look at how each one's critic moves when its error is large.">
+            <span class="lab-prompt">With the raw reward, the capstone's mini PPO ends 0.88 to 5.21 s from the optimum and <code>MaskablePPO</code> 38.48 s. What is the difference that matters?</span>
+            <label class="lab-opt"><input type="radio" name="p910-why" value="a"> the mini PPO has no clip</label>
+            <label class="lab-opt"><input type="radio" name="p910-why" value="b"> the critic: a table that moves a tenth of its error per visit, against a network whose Adam steps don't grow with the error</label>
+            <label class="lab-opt"><input type="radio" name="p910-why" value="c"> only the mini PPO standardises its advantages</label>
+          </div>
+          <div class="lab-q stack" data-type="choice" data-answer="b" data-explain="explained_variance compares the critic's values with the returns. In the raw toy run it was 0.0 at the end, with value_loss at 8,025; centred, 0.94 and 3.8. clip_fraction was 0.0 and approx_kl 0.0002: the updates were tiny, not wild." data-nudge="Which log says how well the critic predicts the returns?">
+            <span class="lab-prompt">Which of SB3's training logs shows the case within the first minutes of a run?</span>
+            <label class="lab-opt"><input type="radio" name="p910-log" value="a"> <code>train/clip_fraction</code>, near 1</label>
+            <label class="lab-opt"><input type="radio" name="p910-log" value="b"> <code>train/explained_variance</code>, stuck near 0</label>
+            <label class="lab-opt"><input type="radio" name="p910-log" value="c"> <code>train/approx_kl</code>, far above 0.01</label>
+          </div>
+        </div>
+
+        <details class="lab-solution"><summary>Answers</summary>
+          <p><code>clip_range</code> → 04; <code>n_steps</code>, <code>batch_size</code>, <code>n_epochs</code> → 06; <code>ent_coef</code> → 10 and the capstone report; the missing <code>gae_lambda</code> → 03. A batch of 96 gets silence from MaskablePPO. ε = 0.05 over 52 laps is 2.6 random actions per race. Centring needs both pages 02 and 10.</p>
+          <p>The crash item catches J1 as corrected, the missing guard, and nothing else. The masking item and the comparison item catch none of the four. The plan's lambda needed no fix. The guard goes in the training script, <code>DummyVecEnv</code> in <code>sb3_wrapper.py</code>, the budget in <code>ppo.yaml</code> or the notebook, and the evaluation fix in the Phase 4/5 agents.</p>
+          <p>The raw target is about 4.2 times as far (263 against 63). What matters is the critic's pace: a table moves a tenth of its error, Adam a fixed step. <code>explained_variance</code> stuck near 0 shows it first.</p>
+        </details>
+        <p class="lab-status"></p>
+      </section>
+
+      <div class="pagenav" id="pagenav"></div>
+      <noscript><p><a class="inline-link" href="../index.html">Back to the course map</a></p></noscript>
+    </div>
+  </main>
+</div>
+<script src="../assets/course.js"></script>
+<script src="../assets/progress.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/story.js"></script>
+<script src="../assets/labs.js"></script>
+</body>
+</html>
