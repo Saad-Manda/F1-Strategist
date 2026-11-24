@@ -77,6 +77,21 @@
     '<span><i style="background:rgba(242,201,76,.6)"></i>safety car</span>' +
     '<span><i style="background:rgba(90,169,255,.5)"></i>wet</span></div>';
 
+  // A chart's numbers as a table, for screen readers and for anyone who wants the values: a closed
+  // <details> under the chart. state.open keeps it open across the widget's redraws (they replace innerHTML).
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function table(state, caption, head, rows) {
+    return '<details class="pw-table" data-pw-table' + (state.open ? " open" : "") + "><summary>Show the chart as a table</summary>" +
+      '<div class="table-wrap"><table><caption>' + esc(caption) + "</caption><thead><tr>" +
+      head.map(function (c) { return '<th scope="col">' + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      rows.map(function (r) { return "<tr>" + r.map(function (c, i) { return i ? "<td>" + esc(c) + "</td>" : '<th scope="row">' + esc(c) + "</th>"; }).join("") + "</tr>"; }).join("") +
+      "</tbody></table></div></details>";
+  }
+  function keepTable(node, state) {
+    var d = node.querySelector("[data-pw-table]");
+    if (d) d.addEventListener("toggle", function () { state.open = d.open; });
+  }
+
   function mount(node) {
     var mode = node.getAttribute("data-mode") || "race";
     if (mode === "learner") { if (PW.mountLearner) PW.mountLearner(node); return; }
@@ -282,7 +297,8 @@
   }
 
   PW.mount = mount;
-  PW.ui = { strip: strip, LEGEND: LEGEND, fx: fx, signed: signed, load: load, save: save, tyre: tyre };
+  PW.ui = { strip: strip, LEGEND: LEGEND, fx: fx, signed: signed, load: load, save: save, tyre: tyre,
+    table: table, keepTable: keepTable };
   root.LAB_WIDGETS = root.LAB_WIDGETS || {};
   root.LAB_WIDGETS.pitwall = mount;
 })(this);

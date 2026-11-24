@@ -23,7 +23,7 @@
     var blocking = node.getAttribute("data-blocking") !== "0";
     var rivalLap = parseInt(node.getAttribute("data-rival") || "9", 10);
     var fixed = node.getAttribute("data-fixed") === "1";
-    var duel, msg, result, boardOpen = false;
+    var duel, msg, result, boardOpen = false, tbl = { open: false };
     node.classList.add("pw-panel", "pitwall", "pw-rival");
     node.setAttribute("tabindex", "-1");
 
@@ -158,12 +158,19 @@
           " Practice races (blocking off) don't count for points.") + "</p>";
       }
       h += gapChart();
+      if (duel.log.length) {
+        h += U.table(tbl, "Your race time minus the rival's after each lap, in seconds (positive: you are behind)",
+          ["Lap", "Gap to the rival", "Rival"], duel.log.map(function (e) {
+            return [e.lap, signed(e.totals[0] - e.totals[1]), e.rivalAction !== PW.STAY_OUT ? "stops" : ""];
+          }));
+      }
       h += U.strip(duel.log, H, duel.done ? 0 : s.lap, "you") +
         U.strip(duel.log.map(function (e) { return { state: e.rival, action: e.rivalAction, time: e.rivalTime }; }), H, 0, "rival") + U.LEGEND;
       h += '<div class="pw-actions">' + (duel.done ? '<button type="button" class="pw-btn go" data-pw="new">New race</button>' : "") +
         '<button type="button" class="pw-btn" data-pw="again">' + (duel.done ? "Same dice again" : "Restart") + "</button></div>";
       h += board();
       node.innerHTML = h;
+      U.keepTable(node, tbl);
 
       Array.prototype.forEach.call(node.querySelectorAll("[data-pw-call]"), function (b) {
         b.addEventListener("click", function () { call(parseInt(b.getAttribute("data-pw-call"), 10)); });

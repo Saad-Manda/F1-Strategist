@@ -54,7 +54,7 @@
     var blocking = node.getAttribute("data-blocking") !== "0";
     var show = node.getAttribute("data-show") === "1";
     var r = PW.rngFrom(parseInt(node.getAttribute("data-seed") || "8", 10));
-    var rounds = [], prev = null, last = null;
+    var rounds = [], prev = null, last = null, tbl = { open: false };
     node.classList.add("pw-panel", "pitwall", "pw-duel");
 
     function sol() { return blocking ? DATA.on : DATA.off; }
@@ -107,7 +107,9 @@
         h += '<div class="pw-dcol"><i style="height:' + Math.round(46 * (c[d] || 0) / max) + 'px"' + (d === 0 ? ' class="zero"' : "") + "></i><span>" + (d > 0 ? "+" : "") + d + "</span></div>";
       }
       return '<div class="pw-kicker" style="margin:10px 0 0"><b>Your stop minus the leader\'s, ' + rounds.length + " rounds</b><span>negative: you stopped first</span></div>" +
-        '<div class="pw-deltas" role="img" aria-label="pit-delta histogram">' + h + "</div>";
+        '<div class="pw-deltas" role="img" aria-label="pit-delta histogram">' + h + "</div>" +
+        U.table(tbl, "Rounds by your stop lap minus the leader's (negative: you stopped first)", ["Your stop minus the leader's", "Rounds"],
+          Object.keys(c).map(Number).sort(function (a, b) { return a - b; }).map(function (d) { return [(d > 0 ? "+" : "") + d, c[d]]; }));
     }
 
     function draw() {
@@ -147,6 +149,7 @@
       h += '<p class="pw-msg">' + (pb ? "Best session: <b>" + fx(Math.max(0, pb.gap), 1) + " s</b> from the best against " + LEADERS[pb.leader] + "." : "No session of " + SESSION + " rounds with blocking on yet.") +
         " Ten rounds with blocking on, within 1 s of the best any follower can hold against that leader (0.05 of payoff), score 5 championship points.</p>";
       node.innerHTML = h;
+      U.keepTable(node, tbl);
 
       Array.prototype.forEach.call(node.querySelectorAll("[data-pw-lap]"), function (b) {
         b.addEventListener("click", function () { play(parseInt(b.getAttribute("data-pw-lap"), 10)); });

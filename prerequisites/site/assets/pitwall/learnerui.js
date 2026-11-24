@@ -41,7 +41,7 @@
     var seed = parseInt(node.getAttribute("data-seed") || "1", 10);
     var tune = node.getAttribute("data-tune") === "1";
     var alpha = 0.1, decayRaces = 6000;
-    var learners, curves, busy = false, target = 0, msg = "";
+    var learners, curves, busy = false, target = 0, msg = "", tbl = { open: false };
 
     node.classList.add("pw-panel", "pitwall", "pw-learner");
 
@@ -168,6 +168,11 @@
           (s ? " · expects " + fx(s.expected) : "") + "</small></div>";
       });
       h += "</div>" + chart();
+      if (curves.fine.length) {
+        h += U.table(tbl, "Gap to the optimum in seconds at each checkpoint (1 s is the goal)",
+          ["Races trained"].concat(KINDS.map(function (k) { return k.name + " (" + k.sub + ")"; })),
+          curves.fine.map(function (p, i) { return [comma(p[0])].concat(KINDS.map(function (k) { return "+" + fx(curves[k.id][i][1]); })); }));
+      }
       h += '<div class="pw-actions">' +
         '<button class="pw-btn go" data-pw="more"' + (busy || learners.fine.races >= BUDGET ? " disabled" : "") + ">Train 1,000 more races</button>" +
         '<button class="pw-btn" data-pw="all"' + (busy || learners.fine.races >= BUDGET ? " disabled" : "") + ">Train to " + comma(BUDGET) + "</button>" +
@@ -187,6 +192,7 @@
         comma(best.races) + " races, seed " + best.seed + ")." : "No learner trained yet.") +
         " A learner within 1 s of the optimum scores 5 championship points.</p>";
       node.innerHTML = h;
+      U.keepTable(node, tbl);
 
       function on(sel, ev, fn) { var e = node.querySelector('[data-pw="' + sel + '"]'); if (e) e.addEventListener(ev, fn); }
       on("more", "click", function () { trainTo(learners.fine.races + 1000); });

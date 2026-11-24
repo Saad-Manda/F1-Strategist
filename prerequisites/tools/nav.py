@@ -533,34 +533,12 @@ def migrate() -> None:
 # --------------------------------------------------------------------------- check
 
 
-REDIRECTS = {
-    "phase-1-rl-prerequisites/06-this-project-as-mdp.html": "06-back-to-the-plan.html",
-    "phase-1-rl-prerequisites/07-code-walkthrough.html": "06-back-to-the-plan.html",
-    "phase-3.5-dp-oracle-prerequisites/06-this-project-as-dp.html": "06-back-to-the-plan.html",
-    "phase-3.5-dp-oracle-prerequisites/07-code-walkthrough.html": "06-back-to-the-plan.html",
-    "phase-4-q-learning-prerequisites/08-this-project-formalized.html": "08-back-to-the-plan.html",
-    "phase-4-q-learning-prerequisites/09-code-walkthrough.html": "08-back-to-the-plan.html",
-    "phase-5-dqn-prerequisites/10-this-project-formalized.html": "10-back-to-the-plan.html",
-    "phase-5-dqn-prerequisites/11-code-walkthrough.html": "10-back-to-the-plan.html",
-    "phase-6-multi-car-prerequisites/09-this-project-formalized.html": "09-back-to-the-plan.html",
-    "phase-6-multi-car-prerequisites/10-reading-the-plan.html": "09-back-to-the-plan.html",
-    "phase-8-self-play-prerequisites/09-this-project-formalized.html": "09-back-to-the-plan.html",
-    "phase-8-self-play-prerequisites/10-reading-the-plan.html": "09-back-to-the-plan.html",
-    "phase-9-ppo-prerequisites/10-this-project-formalized.html": "10-back-to-the-plan.html",
-    "phase-9-ppo-prerequisites/11-reading-the-plan.html": "10-back-to-the-plan.html",
-}
 
 
 def check() -> int:
     course = load_manifest()
     errors: list[str] = []
     listed = {"index.html", "glossary.html", "pitwall.html"}
-    # old URLs kept as redirect stubs after pages were merged: (file, where it now points)
-    for rel, target in REDIRECTS.items():
-        listed.add(rel)
-        path = ROOT / rel
-        if path.exists() and f'url={target}' not in path.read_text(encoding="utf-8"):
-            errors.append(f"{rel}: redirect stub does not point to {target}")
 
     for ph in course["phases"]:
         numbers = [p["n"] for p in ph["pages"]]

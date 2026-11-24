@@ -44,7 +44,7 @@
   function mountTraining(node) {
     var learner = node.getAttribute("data-learner") || "sb3", reward = node.getAttribute("data-reward") || "raw";
     var seed = parseInt(node.getAttribute("data-seed") || "0", 10), fixed = node.getAttribute("data-fixed") === "1";
-    var shown = [], cur = null, at = N, timer = null, msg = "";
+    var shown = [], cur = null, at = N, timer = null, msg = "", tbl = { open: false };
     (node.getAttribute("data-show") || "").split(",").forEach(function (k) {
       k = k.trim();
       if (k && D.runs[k]) shown.push({ key: k, upto: N });
@@ -91,6 +91,18 @@
       }).join("") + "</div>";
     }
 
+    function chartTable() {
+      if (!shown.length) return "";
+      var rows = [];
+      for (var j = 0; j <= N; j++) {
+        rows.push([(j * D.every).toLocaleString("en-GB")].concat(shown.map(function (s) {
+          return j <= s.upto ? "+" + fx(D.runs[s.key].gap[j]) : "";
+        })));
+      }
+      return U.table(tbl, "Gap to the optimum in seconds after each 100 races (within 1 s is the goal; 38.48 never stops)",
+        ["Races trained"].concat(shown.map(function (s) { return label(s.key); })), rows);
+    }
+
     function detail() {
       if (!cur) return '<p class="pw-msg">Pick a learner and a reward, then press <b>Train</b>. Each run is one the labs recorded; you watch it happen.</p>';
       var p = cur.split("|"), r = D.runs[cur], j = Math.min(at, upto(cur)), run = planRun(r.plan[j]);
@@ -122,11 +134,12 @@
       h += '<p class="pw-msg">' + ABOUT[learner] + "</p>";
       h += '<div class="pw-actions"><button class="pw-btn go" type="button" data-pw="train"' + (timer ? " disabled" : "") + ">Train " + D.races.toLocaleString("en-GB") + " races</button>" +
         '<button class="pw-btn" type="button" data-pw="clear"' + (shown.length && !timer ? "" : " disabled") + ">Clear the chart</button></div>";
-      h += chart() + legend() + detail();
+      h += chart() + legend() + chartTable() + detail();
       h += '<p class="pw-msg" aria-live="polite">' + msg + "</p>";
       h += '<p class="pw-msg">' + (best ? "Best run trained here: <b>+" + fx(best.gap) + " s</b> (" + NAMES[best.learner] + ", " + best.reward + " reward)." : "No run trained here yet.") +
         " A run that ends within 1 s of the optimum scores 5 championship points.</p>";
       node.innerHTML = h;
+      U.keepTable(node, tbl);
 
       function on(sel, ev, fn) { var e = node.querySelector('[data-pw="' + sel + '"]'); if (e) e.addEventListener(ev, fn); }
       on("learner", "change", function (e) { learner = e.target.value; if (learner !== "sb3" && reward === "vecnorm") reward = "raw"; draw(); });
