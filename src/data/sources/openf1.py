@@ -47,6 +47,7 @@ def track_status(messages: list[dict[str, Any]], feed_start: pd.Timestamp) -> pd
     changes = [(0.0, "1")]
     neutral = "1"  # the safety car, VSC or red flag now in force, or "1" for none
     yellow_sectors: set[int] = set()
+    starts_behind_safety_car = False
     for message in sorted(messages, key=lambda m: m["date"]):
         text, flag = message["message"], message["flag"]
         sector = message["sector"]
@@ -61,7 +62,15 @@ def track_status(messages: list[dict[str, Any]], feed_start: pd.Timestamp) -> pd
         elif text == "TRACK CLEAR":
             neutral = "1"
             yellow_sectors.clear()
-        elif text == "SESSION STARTED" and neutral == "5":
+        elif text == "RACE WILL START BEHIND THE SAFETY CAR":
+            starts_behind_safety_car = True
+        elif text == "SESSION STARTED":
+            if starts_behind_safety_car:
+                neutral = "4"
+                starts_behind_safety_car = False
+            elif neutral == "5":
+                neutral = "1"
+        elif text == "ROLLING START" and neutral == "4":
             neutral = "1"
         elif flag in ("YELLOW", "DOUBLE YELLOW") and sector is not None:
             yellow_sectors.add(sector)

@@ -72,6 +72,16 @@ def test_red_flag_ends_at_the_restart():
     ) == [(0, "1"), (10, "5"), (900, "1")]
 
 
+def test_race_started_behind_the_safety_car():
+    # Fails if a rolling start is green, or the safety car never leaves (2025 Spa).
+    assert codes(
+        message(10, "RACE WILL START BEHIND THE SAFETY CAR", category="Other"),
+        message(50, "SESSION STARTED", category="SessionStatus"),
+        message(700, "ROLLING START", category="Other"),
+        message(900, "SESSION STARTED", category="SessionStatus"),
+    ) == [(0, "1"), (50, "4"), (700, "1")]
+
+
 def test_stewards_notes_do_not_deploy_the_safety_car():
     # Fails if the text is searched instead of the category and exact message.
     note = "FIA STEWARDS: SAFETY CAR DEPLOYED INFRINGEMENT"

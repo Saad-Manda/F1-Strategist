@@ -1,6 +1,6 @@
 # Stage 1: raw files -> data/interim/<race id>/*.parquet
 
-version: 1   # raise this when the output format changes, so every race is rebuilt
+version: 2   # raise this when the output format changes, so every race is rebuilt
 
 paths:
   raw: data/raw
