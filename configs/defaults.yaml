@@ -11,6 +11,23 @@ calibration:
     consumption_kg_per_lap: 1.9
     sensitivity_s_per_kg: 0.033
 
+  tyres:
+    fit_seasons: [2022, 2023, 2024]  # D11, D32
+    min_lap: 4
+    min_tyre_age: 3
+    max_gap_to_median_s: 3.0
+    long_stint_quantile: 0.95
+    cliff_cap: 4.0
+    cliff:
+      SOFT: {age: 18, severity: 0.35}
+      MEDIUM: {age: 28, severity: 0.30}
+      HARD: {age: 38, severity: 0.25}
+      INTERMEDIATE: {age: 28, severity: 0.30}
+      WET: {age: 28, severity: 0.30}
+    rain_tyre_wear:
+      INTERMEDIATE: 0.05
+      WET: 0.05
+
   warmup_second_lap_share: 0.3
 
   warmup_defaults:
