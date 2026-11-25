@@ -29,6 +29,7 @@ _TOY_PARAMS: dict[str, Any] = {
     "pit_loss": 20.0,
     "pit_loss_sc_multiplier": 0.4,
     "pit_loss_vsc_multiplier": 0.6,
+    "warmup_second_lap_share": 0.3,
     "fuel": {"consumption_kg_per_lap": 2.0, "sensitivity_s_per_kg": 0.05},
     "compound_pace_offset": dict(zip(COMPOUNDS, (-1.0, 0.0, 1.0, 5.0, 8.0))),
     "compounds": {

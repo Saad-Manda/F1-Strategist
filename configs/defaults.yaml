@@ -11,6 +11,8 @@ calibration:
     consumption_kg_per_lap: 1.9
     sensitivity_s_per_kg: 0.033
 
+  warmup_second_lap_share: 0.3
+
   warmup_defaults:
     SOFT: 1.0
     MEDIUM: 1.5
