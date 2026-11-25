@@ -1,4 +1,12 @@
 calibration:
+  conditions:
+    min_known_tyre_share: 0.5     # D29
+    damp_start_share: 0.3         # D28
+    damp_end_share: 0.7           # D28
+    wet_share: 0.5
+    median_filter_laps: 3
+    max_padded_laps: 3
+
   fuel:
     consumption_kg_per_lap: 1.9
     sensitivity_s_per_kg: 0.033
