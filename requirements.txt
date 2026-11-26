@@ -1,30 +1,31 @@
 # Core API and Web Server
-fastapi>=0.100.0
-uvicorn>=0.22.0
+fastapi==0.139.0
+uvicorn==0.51.0
 
 # Gym Environment & Reinforcement Learning
-gymnasium>=0.28.1
-torch>=2.0.0
-stable-baselines3>=2.0.0
-sb3-contrib>=2.0.0           # MaskablePPO for action-masked training
+gymnasium==1.3.0
+pettingzoo==1.27.0           # self-play stretch phase; already installed
+torch==2.13.0
+stable-baselines3==2.9.0
+sb3-contrib==2.9.0           # MaskablePPO for action-masked training
 
 # Data Science & F1 Data Integration
-fastf1>=3.0.0
-pandas>=2.0.0
-pyarrow>=12.0.0
-numpy>=1.24.0
-scipy>=1.10.0                # curve_fit for tyre degradation cliff calibration
-pyyaml>=6.0
+fastf1==3.8.3                # the cache in data/raw is version-locked: back up before upgrading
+pandas==2.3.3
+pyarrow==25.0.0
+numpy==2.5.1
+scipy==1.18.0
+pyyaml==6.0.3
 
 # Visualization & Logging
-matplotlib>=3.7.0
-seaborn>=0.12.0
-tensorboard>=2.13.0
+matplotlib==3.11.0
+seaborn==0.13.2
+tensorboard==2.21.0
 
 # Notebooks
-jupyterlab>=4.0.0
+jupyterlab==4.6.1
 
 # Testing
-pytest>=7.3.0
-pytest-cov>=4.1.0
-httpx>=0.24.0                # FastAPI async test client
+pytest==9.1.1
+pytest-cov==7.1.0
+httpx==0.28.1                # FastAPI async test client

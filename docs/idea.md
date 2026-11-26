@@ -13,7 +13,7 @@ You learn each concept immediately before the phase that needs it, then implemen
 
 The dashboard is not a separate final phase — it starts in Phase 2, right after the simulator exists, and grows with every subsequent phase. This matches what you asked for.
 
-**Rough total effort:** Phases 0–7 (the complete, demo-able project) run roughly 22–36 focused days spread over however many weeks suits you. Phases 8–9 are open-ended stretch goals on top of that. Treat every estimate below as a rough dial, not a deadline — the point of learning-while-building is that Phases 4 and 5 (your first real RL algorithms) will take as long as they take.
+**Rough total effort:** Phases 0–7 including the inserted Phases 0.5 and 3.5 (the complete, demo-able project) run roughly 25–41 focused days spread over however many weeks suits you. Phases 8–9 are open-ended stretch goals on top of that. Treat every estimate below as a rough dial, not a deadline — the point of learning-while-building is that Phases 4 and 5 (your first real RL algorithms) will take as long as they take.
 
 ---
 
@@ -71,9 +71,15 @@ Notice `cumulative_race_time_so_far` is **not** in the state. It has no effect o
 **Reward (v1, single agent, Phases 1–5):** `-lap_time_this_lap` every step, where the pit-lap's `lap_time` already includes the real pit-lane time loss. Summed over an episode, this literally equals `-total_race_time` — the dense, per-step reward *is* the true objective, not a proxy for it. This is the cleanest version of a reward function you'll get in this whole project; savor it, because Phase 6 (rivals) forces a harder tradeoff.
 
 **Transition dynamics:**
-`lap_time = base_pace(circuit) + tyre_degradation(compound, tyre_age) + fuel_effect(laps_remaining) + weather_penalty(regime) + noise`
+`lap_time = base_pace(circuit) + compound_pace_offset(compound) + tyre_degradation(compound, tyre_age) + fuel_effect(laps_remaining) + weather_penalty(regime, compound) + out_lap_warmup(tyre_age, compound) + noise`
 
-**A key design trick for realism without reinventing weather/incident modeling:** rather than hand-building a full stochastic weather/safety-car model from scratch, treat entire historical races as **scenario templates**. Phase 0 extracts real weather traces and real safety-car timing from actual races via FastF1; each simulated episode samples one of these real traces as the "exogenous" backdrop (things outside the strategist's control), while tyre degradation and the agent's choices are what actually varies. This keeps randomness genuinely grounded in history instead of invented, and it's much less work than building a full weather Markov chain from scratch. You can add a parametric model later if you want more scenario variety than your historical sample provides.
+The `compound_pace_offset` term is the one that is easy to leave out and expensive to leave out. It is the *grip* half of the grip-vs-life tradeoff: a fresh SOFT is roughly 0.6 s/lap faster than a fresh MEDIUM and pays for it by degrading faster and cliffing sooner. Omit it and your compounds differ only in how fast they get worse, which means "which tyre" stops being a decision — the agent just picks whichever lasts longest. Phase 0 omitted it by accident (its fitting method subtracted it), and that single missing term hollowed out half the action space. Watch for it.
+
+**A key design trick for realism without reinventing weather/incident modeling:** rather than hand-building a full stochastic weather model from scratch, treat entire historical races as **scenario templates**. Phase 0 extracts real weather traces from actual races via FastF1; each simulated episode samples one of these real traces as the "exogenous" backdrop (things outside the strategist's control), while tyre degradation and the agent's choices are what actually varies. This keeps randomness genuinely grounded in history instead of invented.
+
+**One important amendment, learned the hard way (Phase 0.5): safety cars must *not* be replayed this way.** Weather is a slow-moving backdrop and replaying it is fine. Safety car timing is a discrete event the strategist gambles on — and with `laps_remaining` in the state and a handful of deterministic templates, replaying it teaches the agent "the safety car arrives on lap 12 of this template" rather than "a safety car might arrive, and pitting under one is cheap." The first is a lookup table wearing an RL costume. So: weather comes from history, safety cars are sampled each episode from a calibrated arrival process (hazard per green lap, plus a duration distribution). Same "grounded in history" property, no memorisable answer key.
+
+The related decision is how a safety car shows up in the reward. The tempting move is to zero the reward on safety car laps, reasoning that the agent has no pace control under one. The reasoning is right but the implementation backfires: zeroing the lap also zeroes the pit loss charged to it, making an SC pit *free* rather than *cheap*, and collapsing the optimal policy to "always wait for a safety car." It also breaks the lovely property that episode return equals `-total_race_time` exactly. The better encoding keeps reward at `-lap_time` throughout and makes the SC pit *discounted* (roughly 40% of the usual loss, because the whole field is circulating slowly). Then the agent faces the real question: pit now at full price, or gamble on a safety car that may never come.
 
 **Sequencing tip (this is itself an RL concept — curriculum learning):** build the simulator to support full complexity (weather, safety cars, all compounds) from day one, but for your *first* training runs in Phase 4, restrict the scenario library to dry, no-safety-car races. Get a clean signal that Q-learning works at all before layering stochastic complexity back in. Training agents on an easy version of a task before the full version is a real, recognized technique, not just "start simple" generic advice.
 
@@ -123,6 +129,49 @@ Start with 1–2 circuits and one season to get the whole pipeline working end-t
 **Definition of done:** a `calibration_params.json`/parquet per circuit with degradation curves, SC rate, pit loss, and a library of at least ~10 scenario templates; an EDA notebook with the degradation and SC-rate plots.
 
 *(One line for your eventual README: FastF1 is an unofficial, community-built library, not an official FIA/F1 data product — standard practice in this space, worth a passing disclaimer.)*
+
+---
+
+## Phase 0.5 — Calibration remediation (added after auditing Phase 0's output)
+
+Phase 0 ran, produced well-formed output, and met the definition of done above. An audit of
+what it actually produced found the calibration could not support a meaningful MDP. This is
+worth recording as a lesson rather than quietly patching, because it is the exact trap the
+"common pitfalls" section below warns about, arriving one layer earlier than expected.
+
+**What went wrong, in order of importance:**
+
+1. **No per-compound pace offset.** The fitter baselined every stint against its own
+   5th-percentile lap, which structurally subtracts the pace difference *between* compounds.
+   What survived was three near-identical degradation slopes (Silverstone: 0.0363 / 0.0326 /
+   0.0341 s/lap) and no reason to prefer one tyre over another. The grip-vs-life tradeoff —
+   the thing F1 tyre strategy *is* — was absent from the simulator. Half the action space
+   carried no signal.
+2. **Degradation ordering inverted** on two of three circuits. SOFT must degrade fastest and
+   HARD slowest; unconstrained per-compound curve fits produced whatever the noise suggested.
+3. **An unbounded quadratic cliff.** `deg(MEDIUM, age=45)` came to 39 seconds on a single
+   lap. Real cliffs are 1–3 s/lap. One artefact dominated the entire reward landscape.
+4. **Zero weather variety.** All 9 ingested races classified DRY — including the 2021
+   Belgian GP, the wettest race in modern F1 — because the regime classifier keyed on the
+   modal compound across the grid rather than the rainfall sensor. Six of sixteen state
+   features were constant and two of six actions were permanently masked.
+5. **Three deterministic scenario templates per circuit**, replayed lap-for-lap with
+   `laps_remaining` in the state. The agent would have memorised safety car lap numbers.
+   That is not a risk, it is arithmetic.
+6. Plus three outright crashers: an `INTER` / `INTERMEDIATE` key mismatch, scenario traces
+   whose length did not match `total_laps` (one 3-lap trace filed against a 44-lap circuit),
+   and a hardcoded `safety_car_lap_time` presented as calibrated.
+
+**The generalisable lesson:** *a pipeline that runs cleanly and produces well-formed output
+is not a validated pipeline.* Every one of these defects would have surfaced downstream as
+"my agent isn't learning anything interesting," three phases and two weeks later, with the
+RL code as the prime suspect. The fix is to validate the **decision landscape**, not the fit
+residuals: brute-force the best 1-stop and 2-stop plans straight from the calibration and
+assert they differ meaningfully, that pitting pays at all, and that the optimal pit window is
+narrow enough for timing to matter. Those three checks take an hour to write and would have
+caught all of it.
+
+Full detail: `.antigravity/plans/phase-0.5-calibration-remediation.md`.
 
 ---
 
@@ -185,6 +234,50 @@ This is where the dashboard starts — right after the simulator exists, not at 
 **What you'll build:** A reactive baseline (e.g., "pit when the tyre-age-adjusted pace delta crosses a threshold," or simple fixed one-stop/two-stop plans) to compare every future RL agent against. Wire it into the Phase 2 dashboard so you can watch it race.
 
 **Definition of done:** baseline agent produces sensible, explainable strategies across your scenario library; its race-time distribution (run across many seeds) is recorded as your benchmark to beat.
+
+---
+
+## Phase 3.5 — The exact optimality oracle (added; ~1 day)
+
+**Concepts you need:** dynamic programming / backward induction, and the distinction between
+a *bound* and an *achievable target*. If you have seen value iteration, you already have this.
+
+Here is the thing worth noticing about this project: the single-car MDP is **small enough to
+solve exactly**. Lap × compound × tyre age × compounds-used bitmask × track status × weather
+regime is about 360,000 states, and backward induction over a fixed horizon runs in under a
+second. You do not have to *approximate* the optimal strategy — you can compute it.
+
+That reframes the entire evaluation story. Instead of "my RL agent beat the rule I also
+wrote" — a comparison against a strawman of your own construction — you get "my agent came
+within 0.4 s of provable optimum, and here is precisely where it loses time." One of those is
+a benchmark; the other is a claim.
+
+Two oracles, and the gap between them is itself interesting:
+
+- **Oracle A** knows the weather trace in advance (per-template DP). The agent cannot, so
+  this is an *upper bound it provably cannot reach*. The gap to Oracle A is an information
+  gap plus an algorithmic gap, and reporting it as pure RL underperformance would be wrong.
+- **Oracle B** treats weather as a fitted 3-state Markov chain the agent observes, so it is
+  the true optimal policy of exactly the MDP the agent faces — **exactly achievable**. The
+  gap to Oracle B is the honest number.
+
+Oracle A minus Oracle B is the value of perfect foresight, which is a genuinely interesting
+F1 quantity in its own right.
+
+The oracle also does something the tests cannot: it is the strongest possible probe for
+simulator flaws. If backward induction finds a policy that saves 200 seconds, your dynamics
+have an exploit — and you found it before an agent did, and before you spent three days
+blaming DQN for a bug in `dynamics.py`. `test_oracle_no_absurd_exploit` is, by some distance,
+the highest-value test in the repository.
+
+One discipline: **the oracle is an evaluator, never a teacher.** Training the RL agent to
+imitate the DP policy is a different project (imitation learning) and would hollow out the
+entire point of the RL phases.
+
+**Definition of done:** all circuits solved; the oracle runs through the unmodified
+paired-seed harness; `optimality_gap` becomes a column in every results table from here on.
+
+Full detail: `.antigravity/plans/phase-3.5-dp-oracle.md`.
 
 ---
 
@@ -296,7 +389,8 @@ Because the environment is stochastic (weather, safety cars), always evaluate ov
 
 ## Common pitfalls
 
-1. **A rising learning curve isn't proof of anything by itself.** The #1 RL debugging trap is the agent exploiting a flaw in your reward function rather than learning good strategy. Always manually inspect a handful of full episode traces before trusting a curve.
+0. **A clean pipeline isn't a validated pipeline.** This one bit first — see Phase 0.5. Before trusting any calibration, brute-force the optimal strategies straight out of it and check that the decision landscape has real structure: pitting must pay, the 1-stop/2-stop choice must be non-trivial, and the optimal pit window must be narrow enough for timing to matter. An hour of work that saves a fortnight of debugging the wrong layer.
+1. **A rising learning curve isn't proof of anything by itself.** The #1 RL debugging trap is the agent exploiting a flaw in your reward function rather than learning good strategy. Always manually inspect a handful of full episode traces before trusting a curve — and cross-check against the Phase 3.5 oracle, which tells you what the ceiling actually is.
 2. **Unseeded runs make comparisons meaningless.** Always compare across multiple fixed seeds.
 3. **Epsilon decaying too fast** locks the agent into whatever mediocre strategy it found early, with no more exploration left to find better pit windows.
 4. **Reward/state scale mismatches hit DQN harder than tabular Q-learning** — neural nets are sensitive to input and reward scaling; normalize state features.
@@ -306,7 +400,8 @@ Because the environment is stochastic (weather, safety cars), always evaluate ov
 
 What makes this defensible in an interview, beyond "I built an RL project":
 - You designed the MDP yourself — state, action, and reward — rather than plugging into a pre-built Gym environment. That's a higher-signal skill than implementing an algorithm against a given environment.
-- The simulator is calibrated against real telemetry, not invented numbers.
+- The simulator is calibrated against real telemetry, not invented numbers — and you validated that the calibration produces a *meaningful* decision problem, not merely a well-formed JSON file. The Phase 0.5 audit story (what silently broke, how you caught it, what checks you added so it cannot recur) is one of the strongest things you can bring to an interview, because almost nobody has one.
+- You benchmarked against a **provable optimum**, not just against a rule you wrote yourself, and you were careful about which oracle is achievable and which is only a bound.
 - You can explain *why* each algorithmic step was necessary (tabular → DQN motivated by the curse of dimensionality; on-policy vs. off-policy trade-offs; reward-shaping risk) rather than jumping straight to the fanciest available tool.
 - Evaluation is statistically honest (multiple seeds, paired comparisons), not a cherry-picked run.
 - The dashboard shows actual Q-values/reasoning, not a black box — a real interpretability angle.
@@ -322,6 +417,7 @@ Invest real effort in the README: state the problem, show the architecture diagr
 | Gymnasium API | Farama docs | Phase 1 |
 | Q-learning, SARSA, TD learning | Sutton & Barto ch. 6 / Silver lectures 4–5 | Phase 4 |
 | DQN, replay buffer, target networks | Mnih et al. 2015 (DQN paper) / Spinning Up intro | Phase 5 |
+| Dynamic programming / value iteration | Sutton & Barto ch. 4 | Phase 3.5 |
 | Reward shaping | Ng, Harada & Russell 1999 | Phase 6 |
 | Multi-agent RL, self-play | PettingZoo docs | Phase 8 |
 | Policy gradients, PPO | Sutton & Barto ch. 13 / Spinning Up PPO page | Phase 9 |

@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 .venv/
 venv/
-ENV/
+/ENV/
 *.egg-info/
 build/
 dist/
@@ -15,6 +15,9 @@ htmlcov/
 
 # F1 Data Cache (Do not check in raw FastF1 downloads)
 data/raw/
+data/backup/
+data/interim/
+data/processed/*/dp_policy.npz
 
 # Node / React
 node_modules/
@@ -39,8 +42,3 @@ data/checkpoints/
 *.njsproj
 *.sln
 *.swp
-
-# Antigravity Workspace Plans & Temporary Scripts
-.antigravity
-ANTIGRAVITY.md
-PRD.md

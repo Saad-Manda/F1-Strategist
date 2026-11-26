@@ -1,43 +1,111 @@
 {
+  "schema_version": 2,
   "circuit": "spa",
   "total_laps": 44,
-  "base_pace": 110.39,
-  "pit_loss": 17.1,
-  "noise_std": 0.2,
+  "base_pace_reference_compound": "MEDIUM",
   "fuel": {
     "consumption_kg_per_lap": 1.9,
     "sensitivity_s_per_kg": 0.033
   },
+  "warmup_second_lap_share": 0.3,
+  "base_pace": 110.48902202967318,
+  "noise_std": 0.5362532072336337,
+  "compound_pace_offset": {
+    "SOFT": -0.25726103382202564,
+    "MEDIUM": 0.0,
+    "HARD": 0.0735273661753448,
+    "INTERMEDIATE": 0.0,
+    "WET": 0.0
+  },
   "compounds": {
     "SOFT": {
-      "base_deg": 0.0994,
-      "cliff_age": 26.4,
-      "cliff_severity": 0.1412,
-      "warmup_penalty": 1.0
+      "base_deg": 0.14391270714437218,
+      "cliff_age": 19,
+      "cliff_severity": 0.35,
+      "cliff_cap": 4.0,
+      "warmup_penalty": 0.0
     },
     "MEDIUM": {
-      "base_deg": 0.1672,
-      "cliff_age": 21.8,
-      "cliff_severity": 0.002,
-      "warmup_penalty": 1.5
+      "base_deg": 0.10279670966007853,
+      "cliff_age": 28,
+      "cliff_severity": 0.3,
+      "cliff_cap": 4.0,
+      "warmup_penalty": 0.0
     },
     "HARD": {
-      "base_deg": 0.1179,
-      "cliff_age": 20.0,
-      "cliff_severity": 0.2,
-      "warmup_penalty": 2.5
+      "base_deg": 0.09132078910115993,
+      "cliff_age": 38,
+      "cliff_severity": 0.25,
+      "cliff_cap": 4.0,
+      "warmup_penalty": 0.0
     },
     "INTERMEDIATE": {
-      "base_deg": 0.03,
-      "cliff_age": 38.0,
-      "cliff_severity": 0.25,
-      "warmup_penalty": 1.0
+      "base_deg": 0.05,
+      "cliff_age": 28,
+      "cliff_severity": 0.3,
+      "cliff_cap": 4.0,
+      "warmup_penalty": 0.0
     },
     "WET": {
-      "base_deg": 0.03,
-      "cliff_age": 38.0,
-      "cliff_severity": 0.25,
-      "warmup_penalty": 0.5
+      "base_deg": 0.05,
+      "cliff_age": 28,
+      "cliff_severity": 0.3,
+      "cliff_cap": 4.0,
+      "warmup_penalty": 0.0
+    }
+  },
+  "pit_loss": 18.395000000000437,
+  "pit_loss_sc_multiplier": 0.6826826766635397,
+  "pit_loss_vsc_multiplier": 0.6241205433944169,
+  "status_start": {
+    "GREEN": 0.8023255813953488,
+    "SC": 0.1744186046511628,
+    "VSC": 0.023255813953488372
+  },
+  "status_transition": {
+    "GREEN": {
+      "GREEN": 0.9839615076182838,
+      "SC": 0.00942261427425822,
+      "VSC": 0.006615878107457899
+    },
+    "SC": {
+      "GREEN": 0.2897727272727273,
+      "SC": 0.7102272727272727,
+      "VSC": 0.0
+    },
+    "VSC": {
+      "GREEN": 0.6739130434782609,
+      "SC": 0.043478260869565216,
+      "VSC": 0.2826086956521739
+    }
+  },
+  "flag_noise_std": 1.0,
+  "safety_car": {
+    "lap_time": 194.79223038843236
+  },
+  "virtual_safety_car": {
+    "lap_time": 151.30489768662346
+  },
+  "weather_start": {
+    "DRY": 0.8977272727272727,
+    "DAMP": 0.09090909090909091,
+    "WET": 0.011363636363636364
+  },
+  "weather_transition": {
+    "DRY": {
+      "DRY": 0.9989684340829379,
+      "DAMP": 0.0010315659170621002,
+      "WET": 0.0
+    },
+    "DAMP": {
+      "DRY": 0.02416918429003021,
+      "DAMP": 0.972809667673716,
+      "WET": 0.0030211480362537764
+    },
+    "WET": {
+      "DRY": 0.0,
+      "DAMP": 0.08695652173913043,
+      "WET": 0.9130434782608695
     }
   },
   "weather_compound_penalty": {
@@ -45,24 +113,228 @@
       "SOFT": 0.0,
       "MEDIUM": 0.0,
       "HARD": 0.0,
-      "INTER": 4.0,
+      "INTERMEDIATE": 4.0,
       "WET": 10.0
     },
     "DAMP": {
-      "SOFT": 6.0,
-      "MEDIUM": 4.0,
-      "HARD": 3.0,
-      "INTER": 0.0,
-      "WET": 2.5
+      "SOFT": 18.278672849284877,
+      "MEDIUM": 16.278672849284877,
+      "HARD": 15.278672849284877,
+      "INTERMEDIATE": 12.278672849284877,
+      "WET": 14.778672849284877
     },
     "WET": {
-      "SOFT": 15.0,
-      "MEDIUM": 12.0,
-      "HARD": 10.0,
-      "INTER": 3.0,
-      "WET": 0.0
+      "SOFT": 38.36701724861483,
+      "MEDIUM": 35.36701724861483,
+      "HARD": 33.36701724861483,
+      "INTERMEDIATE": 26.367017248614825,
+      "WET": 23.367017248614825
     }
   },
-  "safety_car_probability_per_lap": 0.033,
-  "safety_car_lap_time": 160.0
+  "provenance": {
+    "fuel": "prior",
+    "warmup_second_lap_share": "prior",
+    "base_pace": "fitted",
+    "noise_std": "fitted",
+    "compound_pace_offset.SOFT": "pooled",
+    "compounds.SOFT.base_deg": "pooled",
+    "compounds.SOFT.cliff_age": "prior",
+    "compounds.SOFT.cliff_severity": "prior",
+    "compounds.SOFT.cliff_cap": "prior",
+    "compounds.SOFT.warmup_penalty": "prior",
+    "compound_pace_offset.MEDIUM": "pooled",
+    "compounds.MEDIUM.base_deg": "pooled",
+    "compounds.MEDIUM.cliff_age": "prior",
+    "compounds.MEDIUM.cliff_severity": "prior",
+    "compounds.MEDIUM.cliff_cap": "prior",
+    "compounds.MEDIUM.warmup_penalty": "prior",
+    "compound_pace_offset.HARD": "pooled",
+    "compounds.HARD.base_deg": "pooled",
+    "compounds.HARD.cliff_age": "prior",
+    "compounds.HARD.cliff_severity": "prior",
+    "compounds.HARD.cliff_cap": "prior",
+    "compounds.HARD.warmup_penalty": "prior",
+    "compound_pace_offset.INTERMEDIATE": "prior",
+    "compounds.INTERMEDIATE.base_deg": "prior",
+    "compounds.INTERMEDIATE.cliff_age": "prior",
+    "compounds.INTERMEDIATE.cliff_severity": "prior",
+    "compounds.INTERMEDIATE.cliff_cap": "prior",
+    "compounds.INTERMEDIATE.warmup_penalty": "prior",
+    "compound_pace_offset.WET": "prior",
+    "compounds.WET.base_deg": "prior",
+    "compounds.WET.cliff_age": "prior",
+    "compounds.WET.cliff_severity": "prior",
+    "compounds.WET.cliff_cap": "prior",
+    "compounds.WET.warmup_penalty": "prior",
+    "pit_loss": "fitted",
+    "pit_loss_sc_multiplier": "pooled",
+    "pit_loss_vsc_multiplier": "pooled",
+    "status_start": "pooled",
+    "status_transition": "pooled",
+    "flag_noise_std": "prior",
+    "safety_car.lap_time": "pooled",
+    "virtual_safety_car.lap_time": "pooled",
+    "weather_start": "pooled",
+    "weather_transition": "pooled",
+    "weather_compound_penalty.DRY.SOFT": "prior",
+    "weather_compound_penalty.DRY.MEDIUM": "prior",
+    "weather_compound_penalty.DRY.HARD": "prior",
+    "weather_compound_penalty.DRY.INTERMEDIATE": "prior",
+    "weather_compound_penalty.DRY.WET": "prior",
+    "weather_compound_penalty.DAMP.SOFT": "prior",
+    "weather_compound_penalty.DAMP.MEDIUM": "prior",
+    "weather_compound_penalty.DAMP.HARD": "prior",
+    "weather_compound_penalty.DAMP.INTERMEDIATE": "pooled",
+    "weather_compound_penalty.DAMP.WET": "prior",
+    "weather_compound_penalty.WET.SOFT": "prior",
+    "weather_compound_penalty.WET.MEDIUM": "prior",
+    "weather_compound_penalty.WET.HARD": "prior",
+    "weather_compound_penalty.WET.INTERMEDIATE": "prior",
+    "weather_compound_penalty.WET.WET": "pooled"
+  },
+  "diagnostics": {
+    "tyres": {
+      "races": [
+        "2022_spa",
+        "2023_spa",
+        "2024_spa"
+      ],
+      "clean_laps": 1838,
+      "stints": {
+        "HARD": 42,
+        "MEDIUM": 82,
+        "SOFT": 35
+      },
+      "long_stint_age": {
+        "HARD": 24.0,
+        "MEDIUM": 16.899999999999977,
+        "SOFT": 19.0
+      },
+      "wear_scale": 2.2080260185926175,
+      "wear_scale_error": 0.16256970408190022,
+      "pattern_error": {
+        "offset SOFT": 0.04816050065629307,
+        "wear SOFT": 0.0033987802464053446,
+        "wear MEDIUM": 0.0018520082340895809,
+        "offset HARD": 0.02982098537792616,
+        "wear HARD": 0.0013109974308577147
+      }
+    },
+    "pit_stops": {
+      "green_stops": 105,
+      "green_quartiles": [
+        17.490499999998903,
+        18.9309999999997
+      ],
+      "SC_stops": 118,
+      "SC_races": 20,
+      "SC_quartiles": [
+        0.4156819917884133,
+        1.0475590027777106
+      ],
+      "VSC_stops": 55,
+      "VSC_races": 15,
+      "VSC_quartiles": [
+        0.5474735731446317,
+        0.8375195718450796
+      ]
+    },
+    "track_status": {
+      "races": 89,
+      "start_counts": {
+        "GREEN": 69,
+        "SC": 15,
+        "VSC": 2
+      },
+      "transition_counts": {
+        "GREEN": {
+          "GREEN": 4908,
+          "SC": 47,
+          "VSC": 33
+        },
+        "SC": {
+          "GREEN": 51,
+          "SC": 125,
+          "VSC": 0
+        },
+        "VSC": {
+          "GREEN": 31,
+          "SC": 2,
+          "VSC": 13
+        }
+      },
+      "flag_lap_ratio": {
+        "SC": 1.7455282977591462,
+        "VSC": 1.3558393985987107
+      },
+      "flag_periods": {
+        "SC": 29,
+        "VSC": 22
+      },
+      "green_lap": 111.59500000000025
+    },
+    "weather": {
+      "races": 88,
+      "rejected": [
+        "2022_spielberg"
+      ],
+      "start_counts": {
+        "DRY": 79,
+        "DAMP": 8,
+        "WET": 1
+      },
+      "transition_counts": {
+        "DRY": {
+          "DRY": 4842,
+          "DAMP": 5,
+          "WET": 0
+        },
+        "DAMP": {
+          "DRY": 8,
+          "DAMP": 322,
+          "WET": 1
+        },
+        "WET": {
+          "DRY": 0,
+          "DAMP": 2,
+          "WET": 21
+        }
+      },
+      "slowdown": {
+        "DAMP": 0.11113025189043024,
+        "WET": 0.2114872303090829
+      },
+      "slowdown_races": {
+        "DAMP": 9,
+        "WET": 1
+      }
+    },
+    "landscape": {
+      "best": {
+        "compounds": [
+          "MEDIUM",
+          "HARD"
+        ],
+        "stops": [
+          21
+        ],
+        "time": 4989.867876451051
+      },
+      "best_by_stops": {
+        "1": 0.0,
+        "2": 2.6697577384165925,
+        "3": 12.84416985200005
+      },
+      "tyre_choices": {
+        "SOFT+MEDIUM": 3.820913438000389,
+        "SOFT+HARD": 3.083481959092751,
+        "MEDIUM+HARD": 0.0,
+        "SOFT+MEDIUM+HARD": 3.436626100792637
+      },
+      "stop_shift_cost": 2.3792854727107624,
+      "window_laps": 7,
+      "no_stop_margin": 40.106078176431765,
+      "cliff_value": 0.0
+    }
+  }
 }

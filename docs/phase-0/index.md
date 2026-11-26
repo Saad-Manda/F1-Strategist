@@ -1,6 +1,13 @@
-# Phase 0: Data Foundation — Documentation Index
+# Phase 0: Data Foundation
 
-This documentation covers the complete **Phase 0 — Data Foundation** implementation of the Stratex F1 Strategy Agent project. Phase 0 is the bedrock layer of the entire system: it ingests raw historical F1 race data from the FastF1 API, cleans and normalizes it, and fits a set of physics-informed mathematical models that the RL simulator and agent (Phases 1+) depend on.
+Phase 0 turns real Formula 1 races into the numbers the race simulator runs on. It freezes every race of 2021-2025
+from two data sources into one format, works out the conditions of each lap (leader timing, track status, weather),
+fits the tyre, pit stop, safety car and weather models, checks the result against nine rules (K1-K9), and writes one
+`calibration.json` and one `scenarios.parquet` per circuit. Every number says whether it was fitted on the circuit,
+pooled over many circuits, or assumed.
+
+The pipeline was built once, found wrong, and rebuilt in Phase 0.5. These pages describe the rebuilt pipeline;
+[08. Remediation](./08-remediation.md) keeps the history.
 
 ---
 
@@ -8,30 +15,33 @@ This documentation covers the complete **Phase 0 — Data Foundation** implement
 
 | Document | Description |
 |---|---|
-| [01. Overview & Goals](./01-overview.md) | What Phase 0 does and why it exists |
-| [02. Circuit Configuration](./02-circuit-config.md) | How circuits and seasons are defined (`circuits.yaml`) |
-| [03. Data Ingestion](./03-data-ingestion.md) | How raw race data is downloaded and extracted (`fetch.py`) |
-| [04. Calibration Pipeline](./04-calibration.md) | How models are fitted and the output format (`calibrate.py`) |
-| [05. Master Runner](./05-runner.md) | How to run the full pipeline (`run_calibration.py`) |
-| [06. Output Data Formats](./06-output-formats.md) | Structure of `calibration.json` and `scenarios.parquet` |
-| [07. Exploratory Notebooks](./07-notebooks.md) | What each notebook demonstrates and its plots |
+| [01. Overview](./01-overview.md) | What Phase 0 produces, the data flow, and the rules it follows |
+| [02. Configuration](./02-circuit-config.md) | The four config files: circuits, races, ingest, modelling constants and checks |
+| [03. Data Ingestion](./03-data-ingestion.md) | Reading FastF1 and OpenF1, tyre labels, quality checks, the frozen race format |
+| [04. Calibration Models](./04-calibration.md) | Lap conditions, then the tyre, pit stop, safety car and weather models |
+| [05. Runner and Checks](./05-runner.md) | `run.py`, the strategy landscape, checks K1-K9, the gate and the tests |
+| [06. Output Data Formats](./06-output-formats.md) | `calibration.json` (schema v2) and `scenarios.parquet` |
+| [07. Notebooks](./07-notebooks.md) | What each notebook shows, plot by plot |
+| [08. Remediation](./08-remediation.md) | What was wrong with the first pipeline, why the first fix would also have failed, what is still assumed |
 
 ---
 
 ## Quick Start
 
-To reproduce the full Phase 0 ingestion and calibration pipeline from scratch:
+From the repo root:
 
-```bash
-# 1. Activate your Python virtual environment
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+```powershell
 & "venv\Scripts\Activate.ps1"
-
-# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Run the master calibration runner
-python -m src.data.run_calibration
+python -m src.data.ingest          # data/raw -> data/interim/<race>/  (offline; skips races that are up to date)
+python -m src.calibration.run      # data/interim -> data/processed/<circuit>/  (writes nothing if a check fails)
+pytest tests/test_calibration.py   # the gate: every calibration.json passes K1-K9
 ```
 
-The pipeline will automatically download and cache the race sessions via FastF1, run the calibration math, and write the output files to `data/processed/{circuit}/`.
+`python -m src.calibration.run --dry-run` runs every check and writes nothing. `pytest` runs the fast tests and
+`pytest -m slow` the ones that load every frozen race.
+
+> [!IMPORTANT]
+> `data/raw/` cannot be downloaded again: F1's archive now needs a login, and the FastF1 cache is tied to its version.
+> Keep the backup in `data/backup/` and never upgrade FastF1 without one.
