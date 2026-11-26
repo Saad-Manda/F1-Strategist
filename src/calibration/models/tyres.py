@@ -1,12 +1,12 @@
 """Tyre parameters of one circuit: the dry fit, plus priors for what the data cannot show."""
 
-from dataclasses import dataclass
 from math import ceil
 from typing import Any
 
 import pandas as pd
 
 from src.calibration.models.clean_laps import DRY_COMPOUNDS
+from src.calibration.models.fields import Fields
 from src.calibration.models.tyre_fit import TyrePattern, fit_circuit
 from src.common.config import ConfigSection
 from src.common.errors import CalibrationError
@@ -14,18 +14,9 @@ from src.common.errors import CalibrationError
 RAIN_COMPOUNDS = ("INTERMEDIATE", "WET")
 
 
-@dataclass(frozen=True)
-class TyreParams:
-    """Calibration fields, where each comes from, and the numbers behind them."""
-
-    values: dict[str, Any]
-    provenance: dict[str, str]
-    diagnostics: dict[str, Any]
-
-
-def tyre_params(
+def tyre_fields(
     circuit: str, laps: pd.DataFrame, pattern: TyrePattern, config: ConfigSection
-) -> TyreParams:
+) -> Fields:
     """Tyre fields of `circuit`. `laps` may hold other circuits too."""
     laps = laps[laps["circuit"] == circuit]
     if laps.empty:
@@ -66,7 +57,7 @@ def tyre_params(
         "wear_scale_error": fit.wear_scale_error,
         "pattern_error": pattern.standard_error,
     }
-    return TyreParams(values, _provenance(values), diagnostics)
+    return Fields(values, _provenance(values), diagnostics)
 
 
 def _cliff_age(prior: int, longest_stint: float | None) -> int:

@@ -28,14 +28,22 @@ calibration:
       INTERMEDIATE: 0.05
       WET: 0.05
 
+  pit_stops:
+    min_lap: 4
+    min_peers: 4
+
+  flag_laps:
+    min_lap: 4
+    noise_std: 1.0
+
   warmup_second_lap_share: 0.3
 
-  warmup_defaults:
-    SOFT: 1.0
-    MEDIUM: 1.5
-    HARD: 2.5
-    INTERMEDIATE: 1.0
-    WET: 0.5
+  warmup_defaults:                # D33: the measured pit loss includes it
+    SOFT: 0.0
+    MEDIUM: 0.0
+    HARD: 0.0
+    INTERMEDIATE: 0.0
+    WET: 0.0
 
   weather_penalty_defaults:
     DRY:

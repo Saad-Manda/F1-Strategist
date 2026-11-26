@@ -51,6 +51,7 @@ _TOY_PARAMS: dict[str, Any] = {
         "SC": {"GREEN": 0.25, "SC": 0.75, "VSC": 0.0},
         "VSC": {"GREEN": 0.5, "SC": 0.0, "VSC": 0.5},
     },
+    "status_start": {"GREEN": 0.8, "SC": 0.15, "VSC": 0.05},
     "weather_transition": {
         "DRY": {"DRY": 0.9, "DAMP": 0.1, "WET": 0.0},
         "DAMP": {"DRY": 0.2, "DAMP": 0.7, "WET": 0.1},

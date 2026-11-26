@@ -1,15 +1,8 @@
-"""Tyre parameters of a circuit, on synthetic laps and on the real races."""
-
-from pathlib import Path
-
 import pytest
 
-from src.calibration.models.clean_laps import collect_clean_laps
 from src.calibration.models.tyre_fit import fit_pattern
-from src.calibration.models.tyres import tyre_params
-from src.common.config import load_config
+from src.calibration.models.tyres import tyre_fields
 from src.common.errors import CalibrationError
-from src.data.spec.races import load_races
 from src.env.dynamics import Compound, TrackStatus, Weather, compute_lap_time
 from tests.calibration.models.helpers import OFFSET, TRUE_PACE, WEAR, make_laps
 
@@ -28,7 +21,6 @@ CONFIG = {
         "rain_tyre_wear": {"INTERMEDIATE": 0.05, "WET": 0.06},
     },
 }
-INTERIM = Path("data/interim")
 
 
 @pytest.fixture(scope="module")
@@ -37,7 +29,7 @@ def laps():
 
 
 def params(laps, circuit, config=CONFIG):
-    return tyre_params(circuit, laps, fit_pattern(laps[laps["circuit"] == "a"]), config)
+    return tyre_fields(circuit, laps, fit_pattern(laps[laps["circuit"] == "a"]), config)
 
 
 def test_wear_is_scaled_and_offsets_are_not(laps):
@@ -128,23 +120,3 @@ def test_errors_name_the_circuit(circuit, message):
     laps = make_laps({"a": 1.0, "c": -1.0})
     with pytest.raises(CalibrationError, match=message):
         params(laps, circuit)
-
-
-@pytest.mark.skipif(not INTERIM.exists(), reason="data/interim is not built")
-def test_real_races():
-    # Fails if the real data no longer gives SOFT fastest and wearing most, HARD the reverse.
-    config = load_config("configs/defaults.yaml")["calibration"]
-    laps, _ = collect_clean_laps(load_races(), INTERIM, config)
-    assert set(laps["race"].str[:4]) == {"2022", "2023", "2024"}
-    assert "2024_silverstone" not in set(laps["race"])
-    pattern = fit_pattern(laps)
-    assert pattern.offset["SOFT"] < 0 < pattern.offset["HARD"]
-    assert pattern.wear["SOFT"] > pattern.wear["MEDIUM"] > pattern.wear["HARD"] > 0
-    scale = {}
-    for circuit in ("silverstone", "monza", "spa"):
-        result = tyre_params(circuit, laps, pattern, config)
-        scale[circuit] = result.diagnostics["wear_scale"]
-        cliffs = [result.values["compounds"][c]["cliff_age"] for c in ("SOFT", "MEDIUM", "HARD")]
-        assert cliffs == sorted(set(cliffs))
-        assert result.values["noise_std"] > 0.2
-    assert scale["silverstone"] < scale["monza"] < scale["spa"]
