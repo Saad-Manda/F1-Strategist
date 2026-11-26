@@ -45,5 +45,9 @@ def build_calibrations(
             params["provenance"] |= fields.provenance
             params["diagnostics"][name] = fields.diagnostics
         params["diagnostics"]["landscape"] = landscape(params, config["checks"]["landscape"])
-        built[circuit] = params
+        # The numbers first, then where they come from, so the file reads top to bottom.
+        built[circuit] = {k: v for k, v in params.items() if k not in ("provenance", "diagnostics")} | {
+            "provenance": params["provenance"],
+            "diagnostics": params["diagnostics"],
+        }
     return built
