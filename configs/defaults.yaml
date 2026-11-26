@@ -36,6 +36,9 @@ calibration:
     min_lap: 4
     noise_std: 1.0
 
+  weather:
+    min_lap: 4
+
   warmup_second_lap_share: 0.3
 
   warmup_defaults:                # D33: the measured pit loss includes it

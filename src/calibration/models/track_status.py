@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from src.calibration.fitting_races import FittingRace
+from src.calibration.models.chains import count_steps, shares
 from src.calibration.models.fields import Fields
 from src.common.config import ConfigSection
 from src.common.errors import CalibrationError
@@ -30,8 +31,8 @@ def status_fields(circuit: str, races: list[FittingRace], config: ConfigSection)
     periods = [period for race in races for period in flag_periods(race, config)]
     green = _circuit_green_lap(circuit, races, config)
     values = {
-        "status_start": _shares(start),
-        "status_transition": {s: _shares(counts.loc[s]) for s in STATUSES},
+        "status_start": shares(start),
+        "status_transition": {s: shares(counts.loc[s]) for s in STATUSES},
         "flag_noise_std": config["flag_laps"]["noise_std"],
     }
     provenance = {
@@ -60,16 +61,7 @@ def status_fields(circuit: str, races: list[FittingRace], config: ConfigSection)
 
 def status_counts(races: list[FittingRace]) -> tuple[pd.Series, pd.DataFrame]:
     """Status of lap 1, and steps from lap to lap. Red flags are not modelled (D21)."""
-    start = pd.Series(0, index=STATUSES)
-    counts = pd.DataFrame(0, index=STATUSES, columns=STATUSES)
-    for race in races:
-        status = race.conditions.table["status"].tolist()
-        if status[0] in STATUSES:
-            start[status[0]] += 1
-        for now, then in zip(status, status[1:]):
-            if now in STATUSES and then in STATUSES:
-                counts.loc[now, then] += 1
-    return start, counts
+    return count_steps((r.conditions.table["status"] for r in races), STATUSES)
 
 
 def flag_periods(race: FittingRace, config: ConfigSection) -> list[FlagPeriod]:
@@ -125,9 +117,3 @@ def _circuit_green_lap(circuit: str, races: list[FittingRace], config: ConfigSec
     if not laps:
         raise CalibrationError(f"{circuit}: no dry race to take a green lap from")
     return float(np.median(laps))
-
-
-def _shares(counts: pd.Series) -> dict[str, float]:
-    if counts.sum() == 0:
-        raise CalibrationError("a track status was never seen, so its chances are unknown")
-    return (counts / counts.sum()).to_dict()

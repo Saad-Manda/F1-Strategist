@@ -10,6 +10,7 @@ from src.calibration.models.pit_stops import collect_stops, pit_fields
 from src.calibration.models.track_status import status_fields
 from src.calibration.models.tyre_fit import fit_pattern
 from src.calibration.models.tyres import tyre_fields
+from src.calibration.models.weather import weather_fields
 from src.common.config import load_config
 from src.data.spec.races import load_races
 
@@ -73,3 +74,13 @@ def test_track_status(races, config):
     assert 1 < 1 / (1 - chain["VSC"]["VSC"]) < 2
     ratio = fields.diagnostics["flag_lap_ratio"]
     assert 1.2 < ratio["VSC"] < 1.5 < ratio["SC"] < 2.0
+
+
+def test_weather(races, config):
+    # Fails if the chain stops matching how often it rained, or rain stops slowing the cars.
+    fields = weather_fields(races, 90.0, config)
+    chain = fields.values["weather_transition"]
+    assert chain["DRY"]["WET"] == chain["WET"]["DRY"] == 0.0
+    assert 0.05 < 1 - fields.values["weather_start"]["DRY"] < 0.2
+    slowdown = fields.diagnostics["slowdown"]
+    assert 0.05 < slowdown["DAMP"] < slowdown["WET"] < 0.4
