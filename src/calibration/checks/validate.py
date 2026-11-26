@@ -154,15 +154,15 @@ def _timing(params: Params, rules: ConfigSection, found: dict) -> list[str]:
 
 
 def _compounds(params: Params, rules: ConfigSection, found: dict) -> list[str]:
-    """The tyre pair matters, and there is more than one sensible pair."""
+    """The tyres chosen matter, and more than one choice is sensible. Each choice runs its best number of stops."""
     rules = rules["compounds"]
-    gaps = found["one_stop_pairs"]
+    gaps = found["tyre_choices"]
     failures = []
     if max(gaps.values()) < rules["min_spread_s"]:
-        failures.append(f"all tyre pairs are within {max(gaps.values()):.2f} s")
+        failures.append(f"all tyre choices are within {max(gaps.values()):.2f} s")
     close = sum(gap <= rules["close_s"] for gap in gaps.values())
-    if close < rules["min_close_pairs"]:
-        failures.append(f"only {close} tyre pair(s) within {rules['close_s']} s of the best")
+    if close < rules["min_close_choices"]:
+        failures.append(f"only {close} tyre choice(s) within {rules['close_s']} s of the best")
     return failures
 
 

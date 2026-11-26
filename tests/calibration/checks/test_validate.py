@@ -120,7 +120,7 @@ def test_each_check_catches_its_breakage(changes, check):
         ([("checks.timing.min_shift_cost_s", 20.0)], "K6"),
         ([("checks.timing.max_window_laps", 1)], "K6"),
         # fails if K7 does not read the landscape
-        ([("checks.compounds.min_spread_s", 2.0)], "K7"),
+        ([("checks.compounds.min_spread_s", 20.0)], "K7"),
         ([("checks.compounds.close_s", 0.5)], "K7"),
     ],
 )

@@ -73,22 +73,17 @@ def sequences(stops: int) -> list[tuple[Compound, ...]]:
 def landscape(params: dict[str, Any], config: ConfigSection) -> dict[str, Any]:
     """The best plans, and how much timing and tyre choice matter around them."""
     prices = Prices(params)
-    by_stops = _best_by_stops(prices, config)
+    by_stops, by_tyres = _search(prices, config)
     best, best_time = min(by_stops.values(), key=lambda found: found[1])
-    one_stop = {}
-    for compounds in sequences(1):
-        pair = "-".join(sorted(c.name for c in set(compounds)))
-        fastest = float(prices.times(compounds, stop_laps(prices.laps, 1)).min())
-        one_stop[pair] = min(one_stop.get(pair, np.inf), fastest)
     shift_cost, window = _timing(prices, best, best_time, config)
     flat = copy.deepcopy(params)
     for tyre in flat["compounds"].values():
         tyre["cliff_severity"] = 0.0
-    without_cliff = min(t for _, t in _best_by_stops(Prices(flat), config).values())
+    without_cliff = min(t for _, t in _search(Prices(flat), config)[0].values())
     return {
         "best": {"compounds": [c.name for c in best.compounds], "stops": list(best.stops), "time": best_time},
         "best_by_stops": {str(n): t - best_time for n, (_, t) in by_stops.items()},
-        "one_stop_pairs": {p: t - by_stops[1][1] for p, t in one_stop.items()},
+        "tyre_choices": {tyres: t - best_time for tyres, t in by_tyres.items()},
         "stop_shift_cost": shift_cost,
         "window_laps": window,
         "no_stop_margin": min(prices.time(Plan((c,), ())) for c in DRY) - best_time,
@@ -96,18 +91,23 @@ def landscape(params: dict[str, Any], config: ConfigSection) -> dict[str, Any]:
     }
 
 
-def _best_by_stops(prices: Prices, config: ConfigSection) -> dict[int, tuple[Plan, float]]:
-    best = {}
+def _search(
+    prices: Prices, config: ConfigSection
+) -> tuple[dict[int, tuple[Plan, float]], dict[str, float]]:
+    """The best plan for each number of stops, and the best time for each set of tyres used (any stops)."""
+    by_stops, by_tyres = {}, {}
     for stops, step in ((1, 1), (2, 1), (3, config["three_stop_grid_laps"])):
         laps = stop_laps(prices.laps, stops, step)
         found = (np.inf, None)
         for compounds in sequences(stops):
             times = prices.times(compounds, laps)
             i = int(np.argmin(times))
+            tyres = "+".join(c.name for c in sorted(set(compounds)))
+            by_tyres[tyres] = min(by_tyres.get(tyres, np.inf), float(times[i]))
             if times[i] < found[0]:
                 found = (float(times[i]), Plan(compounds, tuple(int(x) for x in laps[i])))
-        best[stops] = (found[1], found[0])
-    return best
+        by_stops[stops] = (found[1], found[0])
+    return by_stops, by_tyres
 
 
 def _timing(prices: Prices, best: Plan, best_time: float, config: ConfigSection) -> tuple[float, int]:

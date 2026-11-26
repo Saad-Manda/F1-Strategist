@@ -23,8 +23,8 @@ from src.common.schema import write_calibration
 from src.data.spec.races import Race, load_races
 from src.data.storage.frozen import load_race
 
-# Real races to replay; the holdout may be replayed, never fitted (D25).
-TRACE_ROLES = ("fit", "holdout")
+# Real races to replay: a trace needs only weather and status. The holdout may be replayed, never fitted (D25).
+TRACE_ROLES = ("fit", "conditions_only", "holdout")
 
 
 def main(arguments: list[str] | None = None) -> int:

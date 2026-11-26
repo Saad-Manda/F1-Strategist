@@ -325,10 +325,11 @@
         "2": 2.6697577384165925,
         "3": 12.84416985200005
       },
-      "one_stop_pairs": {
-        "MEDIUM-SOFT": 5.222678208906473,
-        "HARD-SOFT": 3.301975662525365,
-        "HARD-MEDIUM": 0.0
+      "tyre_choices": {
+        "SOFT+MEDIUM": 3.820913438000389,
+        "SOFT+HARD": 3.083481959092751,
+        "MEDIUM+HARD": 0.0,
+        "SOFT+MEDIUM+HARD": 3.436626100792637
       },
       "stop_shift_cost": 2.3792854727107624,
       "window_laps": 7,

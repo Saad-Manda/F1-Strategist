@@ -69,10 +69,10 @@ calibration:
     timing:                       # K6
       min_shift_cost_s: 0.3
       max_window_laps: 16
-    compounds:                    # K7
+    compounds:                    # K7: tyre choices, each at its best number of stops (D37)
       min_spread_s: 1.0
       close_s: 10.0
-      min_close_pairs: 2
+      min_close_choices: 2
     fitted_support:               # K8
       base_pace: {diagnostic: tyres.clean_laps, min: 300}
       noise_std: {diagnostic: tyres.clean_laps, min: 300}

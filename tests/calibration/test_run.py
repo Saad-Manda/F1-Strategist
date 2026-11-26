@@ -66,3 +66,14 @@ def test_real_traces():
     by_race = traces.groupby("race_id")["role"].first().to_dict()
     assert by_race == {"2022_spa": "fit", "2023_spa": "fit", "2024_spa": "fit", "2025_spa": "holdout"}
     assert traces.groupby("race_id").size().eq(44).all()
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not Path("data/interim").exists(), reason="data/interim is not built")
+def test_conditions_only_races_are_replayed():
+    # Fails if a race whose lap times are unusable is dropped, although its weather and status are fine.
+    config = run.load_config("configs/defaults.yaml")["calibration"]
+    traces, _ = run.circuit_traces("budapest", 70, run.load_races(), Path("data/interim"), config)
+    hungary = traces[traces["race_id"] == "2021_budapest"]
+    assert hungary["role"].iloc[0] == "conditions_only"
+    assert (hungary["weather_regime"] != "DRY").sum() > 0

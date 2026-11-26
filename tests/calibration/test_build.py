@@ -29,7 +29,7 @@ def built():
 def test_every_circuit_passes(built):
     # Fails if the honest real-data calibration of any circuit fails a check.
     calibrations, config = built
-    assert set(calibrations) == {"silverstone", "monza", "spa"}
+    assert set(calibrations) == {"silverstone", "monza", "spa", "budapest", "barcelona"}
     for params in calibrations.values():
         validate(params, config)
 

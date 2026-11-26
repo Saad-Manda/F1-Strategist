@@ -98,19 +98,30 @@ def test_shift_takes_the_cheaper_side(toy_params):
         assert _timing(prices, best, prices.time(best), RULES)[0] == pytest.approx(2.0)
 
 
-def test_tyre_pairs_and_reported_numbers(toy_params):
-    # Fails if a pair is priced on its worse order, or the reported gaps have the wrong sign.
+def test_tyre_choices_and_reported_numbers(toy_params):
+    # Fails if a tyre choice is priced on its worse order, or the reported gaps have the wrong sign.
     params = even_race(toy_params)
     params["compound_pace_offset"]["HARD"] = 1.0
     found = landscape(params, RULES)
-    pairs = found["one_stop_pairs"]
-    assert set(pairs) == {"MEDIUM-SOFT", "HARD-SOFT", "HARD-MEDIUM"}
-    assert pairs["MEDIUM-SOFT"] == 0.0
+    choices = found["tyre_choices"]
+    assert set(choices) == {"SOFT+MEDIUM", "SOFT+HARD", "MEDIUM+HARD", "SOFT+MEDIUM+HARD"}
+    assert choices["SOFT+MEDIUM"] == 0.0
     # HARD at 1 s a lap slower is best kept to 5 laps: 0.1 * (15 + 120) + 5 against 0.1 * 110.
-    assert pairs["HARD-SOFT"] == pairs["HARD-MEDIUM"] == pytest.approx(7.5)
+    assert choices["SOFT+HARD"] == choices["MEDIUM+HARD"] == pytest.approx(7.5)
+    # All three need a second stop, which costs more than it saves here.
+    assert choices["SOFT+MEDIUM+HARD"] > 7.5
     # Twenty laps on one tyre lose 0.1 * 210 s; two stints of ten lose 0.1 * 110 s and a stop.
     assert found["no_stop_margin"] == pytest.approx(0.1 * 210 - (0.1 * 110 + toy_params["pit_loss"]))
     assert found["cliff_value"] == 0.0
+
+
+def test_tyre_choices_take_their_best_number_of_stops(toy_params):
+    # Fails if a tyre choice is judged on 1-stop plans only, when a 2-stop is best (D37).
+    params = even_race(toy_params, wear=1.0)
+    found = landscape(params, RULES)
+    assert found["best_by_stops"]["2"] == 0.0 < found["best_by_stops"]["1"]
+    # The tyres are alike, so every choice, two tyres or three, is as good as the best 2-stop plan.
+    assert found["tyre_choices"] == {k: 0.0 for k in ("SOFT+MEDIUM", "SOFT+HARD", "MEDIUM+HARD", "SOFT+MEDIUM+HARD")}
 
 
 def test_cliff_value(toy_params):

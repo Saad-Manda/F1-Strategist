@@ -5,3 +5,7 @@ circuits:
     total_laps: 53
   - name: spa
     total_laps: 44
+  - name: budapest
+    total_laps: 70
+  - name: barcelona
+    total_laps: 66
