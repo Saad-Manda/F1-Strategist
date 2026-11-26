@@ -1,138 +1,87 @@
 # Phase 0: Output Data Formats
 
-Phase 0 generates two output files per circuit, written to `data/processed/{circuit_name}/`:
+`python -m src.calibration.run` writes two files per circuit to `data/processed/{circuit_name}/`
+([05. Runner and Checks](./05-runner.md)). This page describes the current format, schema version 2. How each number
+is measured is in [04. Calibration Models](./04-calibration.md).
 
 ---
 
 ## 1. `calibration.json`
 
-A JSON document containing all calibrated parameters for the circuit's lap-time simulation model.
+All parameters of one circuit's race model. The exact fields and types are defined in `src/common/schema.py`: a file
+with a missing, unknown, wrongly typed or non-finite field is never written and never read. Times are in seconds.
 
-### Full Schema
+### Fields
 
-```json
-{
-  "circuit": "silverstone",
-  "total_laps": 52,
-  "base_pace": 90.34,
-  "pit_loss": 18.3,
-  "noise_std": 0.20,
-  "fuel": {
-    "consumption_kg_per_lap": 1.9,
-    "sensitivity_s_per_kg": 0.033
-  },
-  "compounds": {
-    "SOFT": {
-      "base_deg": 0.0363,
-      "cliff_age": 27.2,
-      "cliff_severity": 0.0329,
-      "warmup_penalty": 1.0
-    },
-    "MEDIUM": {
-      "base_deg": 0.0326,
-      "cliff_age": 33.1,
-      "cliff_severity": 0.2681,
-      "warmup_penalty": 1.5
-    },
-    "HARD": {
-      "base_deg": 0.0341,
-      "cliff_age": 32.0,
-      "cliff_severity": 0.4439,
-      "warmup_penalty": 2.5
-    },
-    "INTERMEDIATE": {
-      "base_deg": 0.05,
-      "cliff_age": 28.0,
-      "cliff_severity": 0.30,
-      "warmup_penalty": 1.0
-    },
-    "WET": {
-      "base_deg": 0.03,
-      "cliff_age": 38.0,
-      "cliff_severity": 0.25,
-      "warmup_penalty": 0.5
-    }
-  },
-  "weather_compound_penalty": {
-    "DRY":  { "SOFT": 0.0, "MEDIUM": 0.0, "HARD": 0.0, "INTER": 4.0, "WET": 10.0 },
-    "DAMP": { "SOFT": 6.0, "MEDIUM": 4.0, "HARD": 3.0, "INTER": 0.0, "WET": 2.5  },
-    "WET":  { "SOFT": 15.0, "MEDIUM": 12.0, "HARD": 10.0, "INTER": 3.0, "WET": 0.0 }
-  },
-  "safety_car_probability_per_lap": 0.0897,
-  "safety_car_lap_time": 160.0
-}
+| Field | Content | Source |
+|---|---|---|
+| `schema_version` | `2` | - |
+| `circuit`, `total_laps` | Name and race distance, from `configs/circuits.yaml` | - |
+| `base_pace_reference_compound` | `"MEDIUM"`: pace offsets are measured from it | - |
+| `fuel` | `consumption_kg_per_lap`, `sensitivity_s_per_kg` | prior |
+| `warmup_second_lap_share` | Share of the warm-up penalty paid on a tyre's second lap | prior |
+| `base_pace` | Lap time of a new MEDIUM with no fuel | fitted |
+| `noise_std` | Spread of lap times the model does not explain (robust sd of the fit's residuals) | fitted |
+| `compound_pace_offset` | Per compound: how much faster (negative) than MEDIUM when new. 0 for INTERMEDIATE and WET, whose pace is in the weather penalty | pooled (dry) / prior |
+| `compounds` | Per compound: `base_deg` (s lost per lap of age), `cliff_age`, `cliff_severity`, `cliff_cap`, `warmup_penalty` | `base_deg` pooled (dry); the rest prior |
+| `pit_loss` | Time a green stop adds, warm-up included | fitted |
+| `pit_loss_sc_multiplier`, `pit_loss_vsc_multiplier` | Share of `pit_loss` a stop costs on the first lap of an SC / VSC | pooled |
+| `status_start`, `status_transition` | Chance of GREEN / SC / VSC on lap 1, and from one lap to the next | pooled |
+| `safety_car`, `virtual_safety_car` | `lap_time` of a flag lap | pooled |
+| `flag_noise_std` | Spread of flag lap times | prior |
+| `weather_start`, `weather_transition` | Chance of DRY / DAMP / WET on lap 1, and from one lap to the next | pooled |
+| `weather_compound_penalty` | Per weather and compound: time added to the lap. DAMP and WET include the measured rain slowdown on every tyre | rain tyre pooled; gaps prior |
+| `provenance` | Where each number comes from: `fitted`, `pooled` or `prior` | - |
+| `diagnostics` | The numbers behind the fit, one section per model (below) | - |
+
+Lap time, as computed by `src/env/dynamics.py`:
+
+```
+green lap = base_pace + compound_pace_offset + base_deg x age + min(cliff_severity x (age - cliff_age)^2, cliff_cap)
+          + warm-up (ages 1 and 2) + fuel x laps still to run + weather_compound_penalty + noise
+flag lap  = safety_car or virtual_safety_car lap_time + noise
 ```
 
-### Field Reference
+### `provenance`
 
-#### Top-Level Fields
+Keys are dotted paths (`compounds.SOFT.base_deg`); one key may cover a whole table (`status_transition`). Check K8
+requires every number to have exactly one source, and a `fitted` number to have enough data behind it.
 
-| Field | Type | Description |
-|---|---|---|
-| `circuit` | string | Circuit identifier (matches the config `name`) |
-| `total_laps` | int | Scheduled race distance in laps |
-| `base_pace` | float (seconds) | The reference lap time — 5th percentile of all fuel-corrected MEDIUM laps. All penalties are added on top of this. |
-| `pit_loss` | float (seconds) | The empirically estimated median total time lost per pit stop (pit-lane traversal + stop time, net of warmup penalty) |
-| `noise_std` | float (seconds) | Standard deviation of Gaussian lap-time noise to be injected in the simulator. Fixed at 0.20 s (domain knowledge). |
+### `diagnostics`
 
-#### `fuel` Object
-
-| Field | Type | Description |
-|---|---|---|
-| `consumption_kg_per_lap` | float | Fuel burn rate per lap (1.9 kg/lap) |
-| `sensitivity_s_per_kg` | float | Lap time improvement per kg of fuel burned (0.033 s/kg) |
-
-#### `compounds` Object
-
-For each compound (`SOFT`, `MEDIUM`, `HARD`, `INTERMEDIATE`, `WET`):
-
-| Field | Type | Description |
-|---|---|---|
-| `base_deg` | float (s/lap) | Linear degradation rate per lap — how many seconds slower the car gets with each additional lap on this compound under normal wear |
-| `cliff_age` | float (laps) | The tyre age at which exponential degradation begins — the "cliff" |
-| `cliff_severity` | float | Quadratic coefficient controlling how steeply lap times rise beyond the cliff age |
-| `warmup_penalty` | float (seconds) | Fixed lap-time penalty on the first lap of a stint (tyre warm-up) |
-
-**Using these to compute lap time penalty for a given tyre age $t$:**
-
-$$\text{deg}(t) = \text{base\_deg} \cdot t + \text{cliff\_severity} \cdot \max(0, t - \text{cliff\_age})^2$$
-
-#### `weather_compound_penalty` Object
-
-A nested lookup table: `weather_compound_penalty[weather_regime][compound]` gives the additional lap time penalty (in seconds) for running that compound in that weather condition. Zero means it is the optimal compound for those conditions.
-
-#### Safety Car Fields
-
-| Field | Type | Description |
-|---|---|---|
-| `safety_car_probability_per_lap` | float | Empirical fraction of driver-laps during which a Safety Car was active |
-| `safety_car_lap_time` | float (seconds) | Fixed lap time under Safety Car conditions — approximately 160s, regardless of circuit |
+| Section | Content |
+|---|---|
+| `tyres` | Races and clean laps used, stints per compound, 95th percentile stint age (`long_stint_age`), wear scale and its standard error, the pattern's standard errors |
+| `pit_stops` | Number of green, SC and VSC stops, and their quartiles |
+| `track_status` | Races, step counts of the chain, flag lap ratios, flag periods, the circuit's green lap |
+| `weather` | Labelled and rejected races, step counts, rain slowdown and the races behind it |
+| `landscape` | The best dry plan, gaps to it by number of stops and by tyre choice, the cost of moving a stop 5 laps, the 1 s window, and what the cliff costs the best plan ([05](./05-runner.md#the-strategy-landscape)) |
 
 ---
 
 ## 2. `scenarios.parquet`
 
-A Parquet table encoding lap-by-lap race scenario templates derived from real historical races.
-
-**Purpose:** The RL training environment samples from these templates to initialize races from realistic conditions rather than always starting from a fixed clean-weather, no-SC baseline.
+Real races as replayable traces, one row per lap, each exactly `total_laps` long. The environment samples weather and
+safety cars from the chains above for training and headline results; these real traces serve the dashboard, the
+historical comparison and a generalisation test.
 
 ### Schema
 
-| Column | Type | Description |
+| Column | Type | Content |
 |---|---|---|
-| `LapNumber` | int | Lap number in the race (1 to `total_laps`) |
-| `weather_regime` | string | `"DRY"`, `"DAMP"`, or `"WET"` — the classified weather condition on this lap |
-| `TrackTemp` | float | Track surface temperature (°C) |
-| `AirTemp` | float | Ambient air temperature (°C) |
-| `Rainfall` | bool | True if rain was recorded on this lap |
-| `sc_active` | bool | True if Safety Car was active on this lap |
-| `vsc_active` | bool | True if Virtual Safety Car was active on this lap |
-| `race_id` | string | Identifies the source race (e.g., `"2022_silverstone"`, `"2021_monza"`) |
+| `race_id` | string | For example `2024_silverstone` |
+| `role` | string | `fit`, `conditions_only` (2021-2024) or `holdout` (2025, never fitted, D25) |
+| `lap` | int | 1 to `total_laps` |
+| `weather_regime` | string | `DRY`, `DAMP` or `WET`, from the tyres the field is on |
+| `track_status` | string | `GREEN`, `SC` or `VSC` when the leader finished the lap. Red-flag laps read `SC` |
+| `red_flag` | bool | The lap was red-flagged (not modelled, D21) |
+| `rainfall` | bool | The rain sensor was on during the lap |
+| `inter_share`, `wet_share` | float | Share of cars with a known tyre on INTERMEDIATE / WET |
+| `air_temp_c`, `track_temp_c` | float | Mean during the lap |
+| `padded` | bool | The race was up to 3 laps short and this lap repeats the last one (under green) |
 
-### Row Count
+### Races
 
-Each race contributes `total_laps` rows. For 3 seasons, the file contains `3 × total_laps` rows per circuit (e.g., `3 × 52 = 156` rows for Silverstone).
-
-### How It Is Used by the Simulator
-
-During RL training, the Gym environment (`Phase 1`) selects one `race_id` at random to replay. It uses the lap-by-lap `weather_regime`, `sc_active`, and `vsc_active` columns from that scenario to drive the environment's state transitions, ensuring the agent is exposed to a realistic mix of dry races, damp conditions, safety cars, and VSC periods.
+Every fit, conditions-only and holdout race of the circuit whose weather could be labelled, 2021-2025: 5 per circuit,
+except Spa with 4 (2021 Spa has no usable laps). 2021 Hungary is `conditions_only`: its weather and status are replayed,
+but its lap times are not fitted. A race more than 3 laps short is left out, and `run.py` prints why.
