@@ -92,4 +92,4 @@ pytest tests/test_calibration.py   the gate before Phase 1
   simulator will use. The checks price the strategies the agent will face, not a copy of them.
 
 - **No constants in code.** Every threshold, prior and filter lives in `configs/`. The checks' thresholds are
-  provisional until confirmed.
+  frozen (D38): changing one needs a recorded decision.

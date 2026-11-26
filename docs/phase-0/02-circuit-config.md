@@ -109,5 +109,5 @@ Everything under `calibration:`. Each block is explained where it is used; this 
 | `checks` | Thresholds of K1-K9 and the landscape search | rules | [05](./05-runner.md#checks-k1-k9) |
 
 > [!NOTE]
-> The `checks` thresholds are **provisional**: chosen while building, not yet confirmed and frozen. Changing one needs
-> a decisions entry, because a threshold tuned to make a circuit pass is no longer a check.
+> The `checks` thresholds are **frozen** (D38), each with a clear margin on the five circuits. Changing one needs a
+> decisions entry, because a threshold tuned to make a circuit pass is no longer a check.

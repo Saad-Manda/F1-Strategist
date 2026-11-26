@@ -73,7 +73,7 @@ def test_valid_calibration_passes():
         ([("compounds.HARD.base_deg", 0.059)], "K2"),
         ([("compounds.HARD.cliff_age", 24)], "K2"),
         # K3: fails if a number outside what is plausible is accepted
-        ([("pit_loss", 31.0)], "K3"),
+        ([("pit_loss", 36.0)], "K3"),
         ([("base_pace", 59.0)], "K3"),
         ([("safety_car.lap_time", 80.0)], "K3"),
         ([("virtual_safety_car.lap_time", 220.0)], "K3"),

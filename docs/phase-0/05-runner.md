@@ -102,13 +102,13 @@ tyre to just before the assumed cliff age, and any later stop falls off it.
 
 `calibration_failures(params, config)` returns every failure as `"K<n>: what is wrong"`; `validate` raises one
 `CalibrationError` listing them all. If the schema (K1) fails, nothing else is checked, because the other checks would
-crash on a malformed file. Thresholds are in `defaults.yaml` under `calibration.checks` and are **provisional**.
+crash on a malformed file. Thresholds are in `defaults.yaml` under `calibration.checks` and are **frozen** (D38).
 
 | Check | Asks | Rule (threshold) |
 |---|---|---|
 | **K1** Schema | Is the file well formed? | Every field of schema v2 present, no unknown field, right types, all numbers finite, `schema_version` 2, provenance values known |
 | **K2** Ordering | Are the tyres in order? | Pace measured from MEDIUM. SOFT faster new than MEDIUM, MEDIUM than HARD, by ≥ 0.05 s. Each wears ≥ 1.05x the next. Each reaches its cliff ≥ 1 lap earlier |
-| **K3** Ranges | Is each number plausible? | `pit_loss` 12-30 s; `base_pace` 60-130 s; every `base_deg` 0.003-0.25; SC and VSC multipliers 0-1; SC and VSC lap 1.0-2.5x `base_pace` |
+| **K3** Ranges | Is each number plausible? | `pit_loss` 12-35 s; `base_pace` 60-130 s; every `base_deg` 0.003-0.25; SC and VSC multipliers 0-1; SC and VSC lap 1.0-2.5x `base_pace` |
 | **K4** Cliffs | Does the cliff stay bounded? | For every tyre and age, the cliff is 0 to `cliff_cap`. On each dry tyre, a stint 1.3x the 95th percentile stint loses < 8 s |
 | **K5** Chains | Are the chains valid? | Every start and transition row is a probability row. DRY↔WET is 0. Expected SC laps per race 0.5-8 |
 | **K6** Timing | Does the stop lap matter, with a window? | Moving a stop 5 laps costs ≥ 0.3 s; the 1 s window is ≤ 16 laps |

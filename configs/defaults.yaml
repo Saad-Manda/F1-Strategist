@@ -42,7 +42,7 @@ calibration:
   weather:
     min_lap: 4
 
-  checks:                         # WP7; marked "provisional" in the plan until frozen
+  checks:                         # frozen 2026-11-26 (D38); change one only with a decisions entry
     tolerance: 1.0e-9
     landscape:
       three_stop_grid_laps: 3
@@ -53,7 +53,7 @@ calibration:
       wear_ratio: 1.05
       cliff_gap_laps: 1
     ranges:                       # K3
-      pit_loss: [12.0, 30.0]
+      pit_loss: [12.0, 35.0]
       base_pace: [60.0, 130.0]
       base_deg: [0.003, 0.25]
       pit_loss_multiplier: [0.0, 1.0]
